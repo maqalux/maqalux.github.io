@@ -7,11 +7,6 @@
   <link rel="icon" href="logo.png" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Chessboard.js kitabxanası -->
-  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
-  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
-
   <style>
     body {
       margin: 0;
@@ -94,11 +89,25 @@
     }
 
     #board {
-      width: 400px;
-      margin: 0 auto;
-      box-shadow: 0 0 25px rgba(255,215,0,0.4);
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      margin: 0 auto 20px auto;
+      border: 3px solid #FFD700;
       border-radius: 10px;
     }
+
+    .square {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .white { background: #eee; color: black; }
+    .black { background: #444; color: white; }
 
     button {
       background: linear-gradient(90deg, #FFD700, #FFA500);
@@ -134,11 +143,6 @@
       margin: 10px 0;
     }
 
-    .file-upload {
-      margin-top: 15px;
-      text-align: center;
-    }
-
     footer {
       text-align: center;
       color: #FFD700;
@@ -148,7 +152,7 @@
     }
 
     @media (max-width: 600px) {
-      #board { width: 90%; }
+      #board { width: 90%; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); }
     }
   </style>
 </head>
@@ -174,22 +178,12 @@
     <div>
       <button onclick="resetBoard()">Yeni oyun</button>
       <button onclick="undoMove()">Gedişi geri al</button>
-      <button onclick="playRandom()">Rəqibin gedişi</button>
     </div>
 
     <div class="section">
       <h2>♟️ Şahmat Məsələləri</h2>
       <div class="puzzle">🧩 Ağlar 2 gedişdə mat verir (Tapşırıq 1)</div>
       <div class="puzzle">🧩 Qara müdafiə edə bilərmi? (Tapşırıq 2)</div>
-    </div>
-
-    <div class="section">
-      <h2>🏆 Əfsanəvi Oyunlar (PGN yüklə)</h2>
-      <div class="file-upload">
-        <input type="file" id="pgnUpload" accept=".pgn">
-        <p>PGN faylı seçin və avtomatik yüklənsin</p>
-      </div>
-      <pre id="pgnOutput" style="white-space: pre-wrap; margin-top: 10px;"></pre>
     </div>
 
     <div class="section">
@@ -206,43 +200,64 @@
   </footer>
 
   <script>
-    const board = Chessboard('board', { draggable: true, position: 'start', onDrop: onDrop });
-    const game = new Chess();
+    const boardDiv = document.getElementById('board');
+    const initialPosition = [
+      ["♜","♞","♝","♛","♚","♝","♞","♜"],
+      ["♟","♟","♟","♟","♟","♟","♟","♟"],
+      ["","","","","","","",""],
+      ["","","","","","","",""],
+      ["","","","","","","",""],
+      ["","","","","","","",""],
+      ["♙","♙","♙","♙","♙","♙","♙","♙"],
+      ["♖","♘","♗","♕","♔","♗","♘","♖"]
+    ];
 
-    function onDrop(source, target) {
-      const move = game.move({ from: source, to: target, promotion: 'q' });
-      if (move === null) return 'snapback';
-      if (game.game_over()) alert("Oyun bitdi!");
+    let gameState = JSON.parse(JSON.stringify(initialPosition));
+    let selected = null;
+
+    function drawBoard() {
+      boardDiv.innerHTML = '';
+      for(let row=0; row<8; row++) {
+        for(let col=0; col<8; col++) {
+          const square = document.createElement('div');
+          square.classList.add('square');
+          square.classList.add((row+col)%2 === 0 ? 'white' : 'black');
+          square.textContent = gameState[row][col];
+          square.dataset.row = row;
+          square.dataset.col = col;
+          square.addEventListener('click', onSquareClick);
+          boardDiv.appendChild(square);
+        }
+      }
+    }
+
+    function onSquareClick(e) {
+      const row = parseInt(e.currentTarget.dataset.row);
+      const col = parseInt(e.currentTarget.dataset.col);
+
+      if(selected) {
+        gameState[row][col] = gameState[selected.row][selected.col];
+        gameState[selected.row][selected.col] = '';
+        selected = null;
+        drawBoard();
+      } else {
+        if(gameState[row][col] !== '') {
+          selected = {row, col};
+        }
+      }
     }
 
     function resetBoard() {
-      game.reset();
-      board.start();
+      gameState = JSON.parse(JSON.stringify(initialPosition));
+      selected = null;
+      drawBoard();
     }
 
     function undoMove() {
-      game.undo();
-      board.position(game.fen());
+      alert("Sadə versiyada geri alma dəstəklənmir.");
     }
 
-    function playRandom() {
-      const moves = game.moves();
-      if (moves.length === 0) return;
-      const move = moves[Math.floor(Math.random() * moves.length)];
-      game.move(move);
-      board.position(game.fen());
-    }
-
-    // PGN fayl yükləmə
-    document.getElementById('pgnUpload').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        document.getElementById('pgnOutput').textContent = evt.target.result;
-      };
-      reader.readAsText(file);
-    });
+    drawBoard();
   </script>
 </body>
 </html>
