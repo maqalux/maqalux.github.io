@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Şahmat - Maqalux</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chessboard.js kitabxanası -->
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000428, #004e92);
+      color: white;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 25% 25%, rgba(255,215,0,0.25), transparent 60%),
+                  radial-gradient(circle at 75% 75%, rgba(255,140,0,0.25), transparent 60%);
+      animation: bgMove 10s infinite alternate ease-in-out;
+      z-index: -1;
+    }
+    @keyframes bgMove { 0%{transform:translate(0,0);} 100%{transform:translate(-10%,-10%);} }
+
+    header, footer {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      color: #fff;
+      padding: 15px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 15px;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+      transition: 0.3s;
+    }
+    nav ul li a.active {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: black;
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+    }
+    nav ul li a:hover {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: black;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+
+    h1 {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 25px;
+    }
+
+    #board {
+      width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 0 25px rgba(255,215,0,0.4);
+      border-radius: 10px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      border: none;
+      padding: 10px 20px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+      color: black;
+      transition: 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+    }
+
+    .section {
+      margin-top: 50px;
+      text-align: left;
+    }
+
+    .section h2 {
+      color: #FFD700;
+      border-bottom: 2px solid rgba(255,215,0,0.5);
+      padding-bottom: 5px;
+    }
+
+    .opening, .puzzle {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .file-upload {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      color: #FFD700;
+      font-weight: bold;
+      padding: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    @media (max-width: 600px) {
+      #board { width: 90%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" height="50" alt="Maqalux loqo">
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="xeberler.html">Xəbərlər</a></li>
+        <li><a href="proqramlar.html">Proqramlar</a></li>
+        <li><a href="şahmat.html" class="active">Şahmat</a></li>
+        <li><a href="eylence.html">Əyləncə</a></li>
+        <li><a href="haqqimizda.html">Haqqımızda</a></li>
+        <li><a href="elaqe.html">Əlaqə</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Şahmat Oyunu</h1>
+    <div id="board"></div>
+    <div>
+      <button onclick="resetBoard()">Yeni oyun</button>
+      <button onclick="undoMove()">Gedişi geri al</button>
+      <button onclick="playRandom()">Rəqibin gedişi</button>
+    </div>
+
+    <div class="section">
+      <h2>♟️ Şahmat Məsələləri</h2>
+      <div class="puzzle">🧩 Ağlar 2 gedişdə mat verir (Tapşırıq 1)</div>
+      <div class="puzzle">🧩 Qara müdafiə edə bilərmi? (Tapşırıq 2)</div>
+    </div>
+
+    <div class="section">
+      <h2>🏆 Əfsanəvi Oyunlar (PGN yüklə)</h2>
+      <div class="file-upload">
+        <input type="file" id="pgnUpload" accept=".pgn">
+        <p>PGN faylı seçin və avtomatik yüklənsin</p>
+      </div>
+      <pre id="pgnOutput" style="white-space: pre-wrap; margin-top: 10px;"></pre>
+    </div>
+
+    <div class="section">
+      <h2>📖 Açılışlar</h2>
+      <div class="opening"><b>İtalyan açılışı:</b> 1.e4 e5 2.Nf3 Nc6 3.Bc4</div>
+      <div class="opening"><b>Siciliya müdafiəsi:</b> 1.e4 c5</div>
+      <div class="opening"><b>Fransız müdafiəsi:</b> 1.e4 e6</div>
+      <div class="opening"><b>İspan açılışı (Ruy Lopez):</b> 1.e4 e5 2.Nf3 Nc6 3.Bb5</div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
+  </footer>
+
+  <script>
+    const board = Chessboard('board', { draggable: true, position: 'start', onDrop: onDrop });
+    const game = new Chess();
+
+    function onDrop(source, target) {
+      const move = game.move({ from: source, to: target, promotion: 'q' });
+      if (move === null) return 'snapback';
+      if (game.game_over()) alert("Oyun bitdi!");
+    }
+
+    function resetBoard() {
+      game.reset();
+      board.start();
+    }
+
+    function undoMove() {
+      game.undo();
+      board.position(game.fen());
+    }
+
+    function playRandom() {
+      const moves = game.moves();
+      if (moves.length === 0) return;
+      const move = moves[Math.floor(Math.random() * moves.length)];
+      game.move(move);
+      board.position(game.fen());
+    }
+
+    // PGN fayl yükləmə
+    document.getElementById('pgnUpload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        document.getElementById('pgnOutput').textContent = evt.target.result;
+      };
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
