@@ -5,26 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Xəbərlər - Maqalux</title>
   <link rel="icon" href="logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
+    /* 🔹 Əsas fon və şriftlər */
     body {
-      font-family: Arial, sans-serif;
-      background: #F0F8FF;
       margin: 0;
-      padding: 0;
-      color: #000;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000428, #004e92);
+      color: white;
+      overflow-x: hidden;
     }
+
+    /* 🔹 Hərəkətli parıltı effekti */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 25% 25%, rgba(255,215,0,0.25), transparent 60%),
+                  radial-gradient(circle at 75% 75%, rgba(255,140,0,0.25), transparent 60%);
+      animation: move-bg 12s infinite alternate ease-in-out;
+      z-index: -1;
+    }
+
+    @keyframes move-bg {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-10%, -10%); }
+    }
+
+    /* 🔹 Header */
     header, footer {
-      background: #fff;
-      color: #000;
-      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      color: #fff;
+      padding: 15px 30px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
+      box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
+
     header img {
-      height: 50px;
+      height: 55px;
+      transition: transform 0.3s ease;
     }
+    header img:hover { transform: scale(1.1) rotate(-3deg); }
+
     nav ul {
       list-style: none;
       display: flex;
@@ -33,69 +65,190 @@
       padding: 0;
       flex-wrap: wrap;
     }
+
     nav ul li a {
       text-decoration: none;
+      color: white;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 30px;
+      position: relative;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    nav ul li a::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      transition: width 0.4s ease;
+      z-index: -1;
+      border-radius: 30px;
+    }
+
+    nav ul li a:hover::before {
+      width: 100%;
+    }
+
+    nav ul li a:hover {
       color: black;
-      font-weight: bold;
-      padding: 8px 14px;
-      border-radius: 5px;
-      transition: 0.3s;
+      transform: translateY(-2px);
     }
-    nav ul li a:hover, nav ul li a.active {
-      background: #FFD700;
+
+    nav ul li a.active {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: black;
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
     }
+
+    /* 🔹 Əsas hissə */
     main {
       max-width: 1000px;
-      margin: 30px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin: 50px auto;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    main h1 {
+      text-align: center;
+      font-size: 2.2em;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+    }
+
+    /* 🔹 Xəbərlər listi */
     .news-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
+      gap: 25px;
     }
+
     .news-item {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      padding: 15px;
-      transition: 0.3s;
+      background: rgba(255,255,255,0.12);
+      border-radius: 15px;
+      overflow: hidden;
+      transition: 0.4s ease;
+      box-shadow: 0 0 15px rgba(255,255,255,0.05);
     }
+
     .news-item:hover {
-      transform: scale(1.02);
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 0 25px rgba(255,215,0,0.5);
     }
+
     .news-item img {
       width: 100%;
-      border-radius: 8px;
+      border-bottom: 3px solid rgba(255,215,0,0.4);
     }
+
     .news-item h3 {
-      margin: 10px 0 5px;
+      margin: 12px;
+      color: #FFD700;
+      font-size: 1.2em;
     }
+
     .news-item p {
-      color: #444;
+      margin: 0 12px 10px;
+      color: #eee;
+      font-size: 0.95em;
     }
-    footer {
+
+    .news-item .read-more {
+      display: block;
       text-align: center;
-      font-weight: bold;
-      margin-top: 30px;
+      margin: 15px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: black;
+      transition: 0.3s;
     }
+
+    .news-item .read-more:hover {
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+      transform: scale(1.05);
+    }
+
+    /* 🔹 Ətraflı xəbər */
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
     .back-btn {
-      background: #FFD700;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
       border: none;
-      padding: 8px 15px;
-      font-weight: bold;
-      border-radius: 5px;
+      padding: 10px 18px;
+      font-weight: 600;
+      border-radius: 8px;
       cursor: pointer;
+      margin-bottom: 20px;
+      color: black;
+      box-shadow: 0 0 10px rgba(255,215,0,0.4);
+      transition: 0.3s;
     }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+
     .video-container iframe {
       width: 100%;
       max-width: 700px;
       height: 400px;
       border: none;
-      border-radius: 10px;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(255,215,0,0.3);
+      margin-top: 20px;
+    }
+
+    /* 🔹 Footer */
+    footer {
+      text-align: center;
+      color: #FFD700;
+      font-weight: bold;
+      padding: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+    }
+
+    footer:hover {
+      background: rgba(255,255,255,0.1);
+      transition: 0.3s;
+    }
+
+    /* 🔹 Mobil */
+    @media (max-width: 700px) {
+      header {
+        flex-direction: column;
+        gap: 10px;
+      }
+      nav ul {
+        flex-direction: column;
+        align-items: center;
+      }
+      main {
+        padding: 25px;
+        margin: 30px 10px;
+      }
     }
   </style>
 </head>
@@ -125,7 +278,6 @@
   </footer>
 
   <script>
-    // 🔹 Xəbər məlumatları
     const newsData = [
       {
         id: 1,
@@ -138,11 +290,10 @@ Son illərdə süni intellektin tətbiqi ilə bağlı böyük irəliləyişlər 
 Bundan əlavə, sağlamlıq sektorunda süni intellektin inkişafı da böyük dəyişikliklərə səbəb olur. Müasir diaqnostika sistemləri, süni intellektlə çalışan robot cərrahlar və yeni tibbi tətbiqlər, həkimlərin yerinə həyata keçirilən bir çox işləri asanlaşdırır. Bu, bəzi tibbi peşələrin dəyişməsinə və ya tamamilə azalmasına gətirib çıxara bilər. Tibb mütəxəssisləri, süni intellektin daha dəqiq və sürətli qərarlar qəbul edə bilməsi ilə daha az səhv etməsini vurğulayırlar, amma bu da müəyyən peşələrin ləğvini təklif edir.
 Təhsil sahəsi də süni intellektin təsirinə məruz qalır. Artıq bəzi təhsil proqramları və dərslər, tələbələrə onlayn şəkildə tədris edilir və müəllimlərin bəzi təkrarlanan işləri, məsələn, qiymətləndirmə və tapşırıqların yoxlanılması, avtomatik sistemlər tərəfindən yerinə yetirilir.
 Bununla yanaşı, nəqliyyat sahəsində də süni intellektin böyük təsiri var. Avtomobillərin avtomatik idarə olunması, sürücüsüz nəqliyyat vasitələrinin inkişafı, taksi sürücüləri və yol polisləri kimi işlərə olan tələbatı azalda bilər.
-<b>Nəzarət altındakı peşələr:<b> 
+<b>Nəzarət altındakı peşələr:</b> 
 Mütəxəssislər bildirirlər ki, bəzi peşələr süni intellektin inkişafı ilə tamamilə yox ola bilər, amma yeni sahələr də yaranacaq. Verilənlər analitikləri, robot mühəndisləri, süni intellekt proqramçıları və sistem optimallaşdırma mütəxəssisləri kimi peşələr bu dövrün tələbinə uyğun yeni iş imkanları yaradacaq.
 Mütəxəssislər həmçinin qeyd edirlər ki, süni intellektin peşələr üzərindəki təsiri yalnız texnoloji inkişafla bağlı deyil, həm də sosial və iqtisadi dəyişikliklərlə əlaqəlidir. İrəlidə sosial təminat proqramlarının genişlənməsi və təhsil sahəsinin yenilənməsi lazımdır ki, insanları bu yeni dövrə hazırlaya bilək.
         `,
-        // ✅ Düzgün embed link
         video: "https://www.youtube.com/embed/xypr2g2PH3U"
       },
       {
@@ -175,7 +326,6 @@ Mütəxəssislər həmçinin qeyd edirlər ki, süni intellektin peşələr üz�
     const newsId = params.get("id");
 
     if (newsId) {
-      // 🔸 Xəbər detalları səhifəsi
       const news = newsData.find(n => n.id == newsId);
       if (news) {
         contentDiv.innerHTML = `
@@ -189,7 +339,6 @@ Mütəxəssislər həmçinin qeyd edirlər ki, süni intellektin peşələr üz�
         contentDiv.innerHTML = `<p>Xəbər tapılmadı.</p>`;
       }
     } else {
-      // 🔸 Xəbər siyahısı səhifəsi
       newsData.forEach(n => {
         const card = document.createElement("div");
         card.classList.add("news-item");
