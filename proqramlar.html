@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proqramlar - Maqalux</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000428, #004e92);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 25% 25%, rgba(255,215,0,0.25), transparent 60%),
+                  radial-gradient(circle at 75% 75%, rgba(255,140,0,0.25), transparent 60%);
+      animation: move-bg 12s infinite alternate ease-in-out;
+      z-index: -1;
+    }
+
+    @keyframes move-bg {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-10%, -10%); }
+    }
+
+    header, footer {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      color: #fff;
+      padding: 15px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    header img {
+      height: 55px;
+      transition: transform 0.3s ease;
+    }
+    header img:hover { transform: scale(1.1) rotate(-3deg); }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 15px;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 30px;
+      position: relative;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    nav ul li a::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      transition: width 0.4s ease;
+      z-index: -1;
+      border-radius: 30px;
+    }
+
+    nav ul li a:hover::before {
+      width: 100%;
+    }
+
+    nav ul li a:hover {
+      color: black;
+      transform: translateY(-2px);
+    }
+
+    nav ul li a.active {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: black;
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 50px auto;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    main h1 {
+      text-align: center;
+      font-size: 2.2em;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .app-item {
+      background: rgba(255,255,255,0.12);
+      border-radius: 15px;
+      overflow: hidden;
+      transition: 0.4s ease;
+      box-shadow: 0 0 15px rgba(255,255,255,0.05);
+      text-align: center;
+    }
+
+    .app-item:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 0 25px rgba(255,215,0,0.5);
+    }
+
+    .app-item img {
+      width: 100%;
+      border-bottom: 3px solid rgba(255,215,0,0.4);
+    }
+
+    .app-item h3 {
+      margin: 12px;
+      color: #FFD700;
+      font-size: 1.2em;
+    }
+
+    .app-item p {
+      margin: 0 12px 15px;
+      color: #eee;
+      font-size: 0.95em;
+    }
+
+    .app-item .read-more {
+      display: inline-block;
+      margin: 15px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: black;
+      transition: 0.3s;
+    }
+
+    .app-item .read-more:hover {
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+      transform: scale(1.05);
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .back-btn {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      border: none;
+      padding: 10px 18px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      color: black;
+      box-shadow: 0 0 10px rgba(255,215,0,0.4);
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+
+    footer {
+      text-align: center;
+      color: #FFD700;
+      font-weight: bold;
+      padding: 20px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+    }
+
+    footer:hover {
+      background: rgba(255,255,255,0.1);
+      transition: 0.3s;
+    }
+
+    @media (max-width: 700px) {
+      header { flex-direction: column; gap: 10px; }
+      nav ul { flex-direction: column; align-items: center; }
+      main { padding: 25px; margin: 30px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqo">
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="xeberler.html">Xəbərlər</a></li>
+        <li><a href="proqramlar.html" class="active">Proqramlar</a></li>
+        <li><a href="şahmat.html">Şahmat</a></li>
+        <li><a href="eylence.html">Əyləncə</a></li>
+        <li><a href="haqqimizda.html">Haqqımızda</a></li>
+        <li><a href="elaqe.html">Əlaqə</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="content">
+    <h1>Proqramlar</h1>
+    <div class="app-container" id="appList"></div>
+  </main>
+
+  <footer>
+    &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
+  </footer>
+
+  <script>
+    const appData = [
+      {
+        id: 1,
+        title: "FotoRedaktor Pro",
+        image: "app1.jpg",
+        short: "Şəkillərinizi peşəkar səviyyədə redaktə edin.",
+        content: `
+          <b>FotoRedaktor Pro</b> — müasir AI əsaslı foto düzəldici proqramdır. 
+          Bu proqramla istənilən şəkili filtrlərlə, parıltı, rəng korreksiyası və AI portret tənzimləmələri ilə yenidən formalaşdıra bilərsiniz.
+          <ul>
+            <li>AI əsaslı üz düzəltmə</li>
+            <li>Avtomatik fon silmə</li>
+            <li>HDR və parlaq effektlər</li>
+          </ul>
+          <b>Platformalar:</b> Windows, macOS, Android
+        `
+      },
+      {
+        id: 2,
+        title: "KodYaz Studio",
+        image: "app2.jpg",
+        short: "Tələbələr və proqramçılar üçün unikal kod mühiti.",
+        content: `
+          <b>KodYaz Studio</b> — proqramlaşdırma öyrənənlər üçün interaktiv tədris və kod icra mühitidir. 
+          HTML, CSS, JavaScript və Python üçün canlı test imkanı verir. 
+          Proqram həm oflayn, həm də onlayn rejimdə işləyə bilir.
+          <br><br>
+          <b>Üstünlüklər:</b>
+          <ul>
+            <li>İnteraktiv dərslər</li>
+            <li>Qaranlıq və işıqlı rejim</li>
+            <li>Canlı önbaxış</li>
+          </ul>
+        `
+      },
+      {
+        id: 3,
+        title: "Musiqətor",
+        image: "app3.jpg",
+        short: "AI ilə musiqi yaratma proqramı.",
+        content: `
+          <b>Musiqətor</b> — Süni intellektlə musiqi yaradan platformadır. Sadəcə janrı seç, proqram melodiyanı özü bəstələsin!
+          <ul>
+            <li>Janr: Pop, Rock, Lo-Fi, Klassik</li>
+            <li>AI melodiyaları avtomatik uyğunlaşdırır</li>
+            <li>MP3 və WAV çıxışı</li>
+          </ul>
+        `
+      }
+    ];
+
+    const contentDiv = document.getElementById("content");
+    const appListDiv = document.getElementById("appList");
+    const params = new URLSearchParams(window.location.search);
+    const appId = params.get("id");
+
+    if (appId) {
+      const app = appData.find(a => a.id == appId);
+      if (app) {
+        contentDiv.innerHTML = `
+          <button class="back-btn" onclick="window.location='proqramlar.html'">← Geri qayıt</button>
+          <h1>${app.title}</h1>
+          <img src="${app.image}" alt="${app.title}">
+          <p>${app.content}</p>
+        `;
+      } else {
+        contentDiv.innerHTML = `<p>Proqram tapılmadı.</p>`;
+      }
+    } else {
+      appData.forEach(a => {
+        const card = document.createElement("div");
+        card.classList.add("app-item");
+        card.innerHTML = `
+          <img src="${a.image}" alt="${a.title}">
+          <h3>${a.title}</h3>
+          <p>${a.short}</p>
+          <a href="?id=${a.id}" class="read-more">Ətraflı bax</a>
+        `;
+        appListDiv.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
