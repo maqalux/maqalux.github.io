@@ -5,100 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Maqalux</title>
   <link rel="icon" href="logo.png" type="image/png">
-  <link rel="stylesheet" href="style.css">
   <meta name="description" content="Xoş Gəldiniz – Faydalı məlumatlar, əyləncəli məzmun və gündəlik həyat üçün tövsiyələr.">
   <meta property="og:title" content="Xoş Gəldiniz – Faydalı və Əyləncəli" />
   <meta property="og:description" content="Faydalı məlumatlar, əyləncəli məzmun və gündəlik həyat üçün tövsiyələr." />
   <meta property="og:image" content="logo.png" />
   <meta property="og:type" content="website" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
+    /* === Ümumi tərz === */
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background:#F0F8FF; 
-      color: black;
-    }
-    header {
-      background: #FFFFFF;
-      color: black;
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    header img {
-      height: 50px;
-      margin-right: 40px;
-    }
-    nav {
-      background: #FFFFFF;
-      flex-grow: 1;
-    }
-    nav ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-    }
-    nav ul li {
-      margin: 0;
-    }
-    nav ul li a {
-      display: block;
-      padding: 12px 20px;
-      color: black;
-      text-decoration: none;
-      font-weight: bold;
-      background: #FFFFFF;
-      transition: background 0.3s, color 0.3s; /* 🔹 Keçid effekti */
-      border-radius: 3px;
-    }
-    nav ul li a:hover {
-      background: #FFD700;
-      color: black;
-    }
-    /* Aktiv səhifə üçün (məsələn, Xəbərlər) */
-    nav ul li a.active {
-      background: #FFD700;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000428, #004e92);
+      color: white;
+      overflow-x: hidden;
     }
 
-    main {
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-      background: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 5px;
+    /* === Parlaq animasiyalı fon === */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 25% 25%, rgba(255,215,0,0.3), transparent 60%),
+                  radial-gradient(circle at 75% 75%, rgba(255,140,0,0.3), transparent 60%);
+      animation: move-bg 10s infinite alternate ease-in-out;
+      z-index: -1;
     }
+
+    @keyframes move-bg {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-20%, -20%); }
+    }
+
+    /* === Header === */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      padding: 15px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      animation: fadeDown 1s ease-in-out;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header img {
+      height: 55px;
+      transition: transform 0.4s ease;
+    }
+
+    header img:hover {
+      transform: scale(1.1) rotate(-3deg);
+    }
+
+    /* === Naviqasiya === */
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    nav ul li a::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      transition: width 0.4s ease;
+      z-index: -1;
+      border-radius: 30px;
+    }
+
+    nav ul li a:hover::before {
+      width: 100%;
+    }
+
+    nav ul li a:hover {
+      color: black;
+      transform: translateY(-2px);
+    }
+
+    nav ul li a.active {
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      color: black;
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+
+    /* === Əsas bölmə === */
+    main {
+      max-width: 900px;
+      margin: 60px auto;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    main h1 {
+      font-size: 2.4em;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    main p {
+      font-size: 1.1em;
+      line-height: 1.8;
+      color: #f8f8f8;
+    }
+
+    /* === Footer === */
     footer {
       text-align: center;
-      padding: 15px;
-      background: #FFFFFF;
-      color: black;
-      margin-top: 20px;
-      font-weight: bold;
+      padding: 20px;
+      color: #FFD700;
+      font-weight: 600;
+      margin-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
     }
-    @media (max-width: 600px) {
-      header {
-        flex-direction: column;
-        text-align: center;
-      }
+
+    footer:hover {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      transition: 0.4s;
+    }
+
+    /* === Mobil görünüş === */
+    @media (max-width: 700px) {
       nav ul {
         flex-direction: column;
+        align-items: center;
       }
       nav ul li a {
-        padding: 10px;
-        border-top: 1px solid #ddd;
+        width: 100%;
+        text-align: center;
+      }
+      header {
+        flex-direction: column;
+        gap: 10px;
       }
     }
   </style>
 </head>
+
 <body>
   <header>
-    <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Xoş Gəldiniz saytının loqosu">
-        <nav>
+    <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
+    <nav>
       <ul>
         <li><a href="index.html">Ana səhifə</a></li>
         <li><a href="xeberler.html">Xəbərlər</a></li>
@@ -110,14 +203,16 @@
       </ul> 
     </nav>
   </header>
+
   <main>
     <h1>Ana səhifə</h1>
     <p>Maqalux saytına xoş gəlmisiniz! Burada faydalı məlumatlar, xəbərlər və əyləncəli məzmun tapa bilərsiniz.</p>
   </main>
-    <footer>
+
+  <footer>
     &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
   </footer>
-    <!-- Aktiv səhifəni avtomatik vurğulamaq -->
+
   <script>
     const links = document.querySelectorAll('nav ul li a');
     const currentUrl = window.location.href;
@@ -126,7 +221,6 @@
         link.classList.add('active');
       }
 
-      // Kliklənəndə sarı rəngdə qalsın
       link.addEventListener('click', function() {
         links.forEach(l => l.classList.remove('active'));
         this.classList.add('active');
