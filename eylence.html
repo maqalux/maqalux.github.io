@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Əyləncə | Maqalux</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <meta name="description" content="Filmlər, oyunlar, musiqi, yumor və daha çox əyləncə məzmunu – Maqalux-da!">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e002f, #0055a5);
+      color: white;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      padding: 15px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    header img {
+      height: 55px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    nav ul li a::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      transition: width 0.4s ease;
+      z-index: -1;
+      border-radius: 30px;
+    }
+
+    nav ul li a:hover::before { width: 100%; }
+    nav ul li a:hover { color: black; }
+    nav ul li a.active {
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      color: black;
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 60px auto;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    main h1 {
+      font-size: 2.4em;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      transition: all 0.4s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      background: linear-gradient(135deg, #FFD70055, #FF8C0055);
+      box-shadow: 0 0 20px rgba(255,215,0,0.4);
+    }
+
+    .card h2 {
+      color: #FFD700;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: #f1f1f1;
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #FFD700;
+      font-weight: 600;
+      margin-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 700px) {
+      nav ul { flex-direction: column; align-items: center; }
+      nav ul li a { width: 100%; text-align: center; }
+      header { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="xeberler.html">Xəbərlər</a></li>
+        <li><a href="proqramlar.html">Proqramlar</a></li>
+        <li><a href="şahmat.html">Şahmat</a></li>
+        <li><a href="eylence.html" class="active">Əyləncə</a></li>
+        <li><a href="haqqimizda.html">Haqqımızda</a></li>
+        <li><a href="elaqe.html">Əlaqə</a></li>
+      </ul> 
+    </nav>
+  </header>
+
+  <main>
+    <h1>Əyləncə Kateqoriyaları</h1>
+
+    <div class="category-grid">
+      <div class="card">
+        <h2>🎬 Filmlər və Seriallar</h2>
+        <p>Ən son filmlər, maraqlı seriallar və kinolar.</p>
+      </div>
+
+      <div class="card">
+        <h2>🎮 Oyunlar</h2>
+        <p>Kompüter, mobil və konsol oyunları.</p>
+      </div>
+
+      <div class="card">
+        <h2>🎵 Musiqi</h2>
+        <p>Yeni mahnılar, albomlar və sevdiyiniz ifaçılar.</p>
+      </div>
+
+      <div class="card">
+        <h2>😂 Yumor</h2>
+        <p>Memlər, zarafatlar və gülməli videolar – gündəlik stressdən uzaqlaşın!</p>
+      </div>
+
+       <div class="card">
+        <h2>⚽️ Futbol</h2>
+        <p>Ən son futbol xəbərləri, matç nəticələri və komanda analizləri.</p>
+      </div>
+
+      <div class="card">
+        <h2>🌍 Tədbirlər və Macəra</h2>
+        <p>Konsertlər, festivallar və əyləncəli gəzintilər haqqında xəbərdar olun.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
+  </footer>
+</body>
+</html>
