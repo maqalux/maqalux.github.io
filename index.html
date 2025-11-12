@@ -13,32 +13,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* === Ümumi tərz === */
+    /* === Ümumi üslub (Əyləncə dizaynı ilə) === */
     body {
       margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #000428, #004e92);
+      background: linear-gradient(135deg, #1e002f, #0055a5);
       color: white;
-      overflow-x: hidden;
-    }
-
-    /* === Parlaq animasiyalı fon === */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 25% 25%, rgba(255,215,0,0.3), transparent 60%),
-                  radial-gradient(circle at 75% 75%, rgba(255,140,0,0.3), transparent 60%);
-      animation: move-bg 10s infinite alternate ease-in-out;
-      z-index: -1;
-    }
-
-    @keyframes move-bg {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(-20%, -20%); }
     }
 
     /* === Header === */
@@ -51,16 +31,10 @@
       backdrop-filter: blur(15px);
       padding: 15px 30px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 5px 30px rgba(0,0,0,0.3);
       position: sticky;
       top: 0;
       z-index: 1000;
-      animation: fadeDown 1s ease-in-out;
-    }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-30px); }
-      to { opacity: 1; transform: translateY(0); }
+      box-shadow: 0 5px 30px rgba(0,0,0,0.3);
     }
 
     header img {
@@ -105,15 +79,8 @@
       border-radius: 30px;
     }
 
-    nav ul li a:hover::before {
-      width: 100%;
-    }
-
-    nav ul li a:hover {
-      color: black;
-      transform: translateY(-2px);
-    }
-
+    nav ul li a:hover::before { width: 100%; }
+    nav ul li a:hover { color: black; transform: translateY(-2px); }
     nav ul li a.active {
       background: linear-gradient(90deg, #FFD700, #FF8C00);
       color: black;
@@ -129,8 +96,8 @@
       padding: 40px;
       border-radius: 20px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      text-align: center;
       animation: fadeIn 1s ease;
+      text-align: center;
     }
 
     @keyframes fadeIn {
@@ -172,28 +139,21 @@
 
     /* === Mobil görünüş === */
     @media (max-width: 700px) {
-      nav ul {
-        flex-direction: column;
-        align-items: center;
-      }
-      nav ul li a {
-        width: 100%;
-        text-align: center;
-      }
-      header {
-        flex-direction: column;
-        gap: 10px;
-      }
+      nav ul { flex-direction: column; align-items: center; }
+      nav ul li a { width: 100%; text-align: center; }
+      header { flex-direction: column; gap: 10px; }
     }
   </style>
 </head>
 
 <body>
   <header>
-    <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
+   <a href="index.html" class="logo">
+  <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
+</a>
     <nav>
       <ul>
-        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="index.html" class="active">Ana səhifə</a></li>
         <li><a href="xeberler.html">Xəbərlər</a></li>
         <li><a href="proqramlar.html">Proqramlar</a></li>
         <li><a href="şahmat.html">Şahmat</a></li>
@@ -212,20 +172,5 @@
   <footer>
     &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
   </footer>
-
-  <script>
-    const links = document.querySelectorAll('nav ul li a');
-    const currentUrl = window.location.href;
-    links.forEach(link => {
-      if (link.href === currentUrl) {
-        link.classList.add('active');
-      }
-
-      link.addEventListener('click', function() {
-        links.forEach(l => l.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-  </script>
 </body>
 </html>
