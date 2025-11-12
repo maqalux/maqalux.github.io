@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Xəbərlər | Maqalux</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <meta name="description" content="Ən son xəbərlər və yeniliklər Maqalux-da!">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* === Ümumi tərz === */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e002f, #0055a5);
+      color: white;
+    }
+
+    /* === Header === */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      padding: 15px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+    }
+
+    header a.logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    header a.logo img {
+      height: 55px;
+      transition: transform 0.4s ease;
+    }
+
+    header a.logo img:hover {
+      transform: scale(1.1) rotate(-3deg);
+    }
+
+    /* === Naviqasiya === */
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    nav ul li a::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      transition: width 0.4s ease;
+      z-index: -1;
+      border-radius: 30px;
+    }
+
+    nav ul li a:hover::before { width: 100%; }
+    nav ul li a:hover { color: black; transform: translateY(-2px); }
+    nav ul li a.active {
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      color: black;
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+
+    /* === Əsas bölmə === */
+    main {
+      max-width: 900px;
+      margin: 60px auto;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      animation: fadeIn 1s ease;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    main h1 {
+      font-size: 2.4em;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    main p {
+      font-size: 1.1em;
+      line-height: 1.8;
+      color: #f8f8f8;
+    }
+
+    /* === Footer === */
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #FFD700;
+      font-weight: 600;
+      margin-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    footer:hover {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      transition: 0.4s;
+    }
+
+    /* === Mobil görünüş === */
+    @media (max-width: 700px) {
+      nav ul { flex-direction: column; align-items: center; }
+      nav ul li a { width: 100%; text-align: center; }
+      header { flex-direction: column; gap: 10px; }
+    }
+    /* === Xəbərlər grid === */
+    .news-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .news-item {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      overflow: hidden;
+      transition: 0.4s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .news-item:hover {
+      transform: translateY(-8px);
+      background: linear-gradient(135deg, #FFD70055, #FF8C0055);
+      box-shadow: 0 0 20px rgba(255,215,0,0.4);
+    }
+
+    .news-item img {
+      width: 100%;
+      border-bottom: 3px solid rgba(255,215,0,0.4);
+    }
+
+    .news-item h3 {
+      margin: 12px;
+      color: #FFD700;
+      font-size: 1.2em;
+    }
+
+    .news-item p {
+      margin: 0 12px 15px;
+      color: #f1f1f1;
+      font-size: 0.95em;
+    }
+
+    .news-item .read-more {
+      display: block;
+      text-align: center;
+      margin: 15px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: black;
+      transition: 0.3s;
+    }
+
+    .news-item .read-more:hover {
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+      transform: scale(1.05);
+    }
+
+    /* === Ətraflı xəbər hissəsi === */
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .back-btn {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      border: none;
+      padding: 10px 18px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      color: black;
+      box-shadow: 0 0 10px rgba(255,215,0,0.4);
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+
+    .video-container iframe {
+      width: 100%;
+      max-width: 700px;
+      height: 400px;
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(255,215,0,0.3);
+      margin-top: 20px;
+    }
+
+    /* === Footer === */
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #FFD700;
+      font-weight: 600;
+      margin-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    footer:hover {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      transition: 0.4s;
+    }
+
+    /* === Mobil görünüş === */
+    @media (max-width: 700px) {
+      nav ul { flex-direction: column; align-items: center; }
+      nav ul li a { width: 100%; text-align: center; }
+      header { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqo">
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="xeberler.html" class="active">Xəbərlər</a></li>
+        <li><a href="proqramlar.html">Proqramlar</a></li>
+        <li><a href="şahmat.html">Şahmat</a></li>
+        <li><a href="eylence.html">Əyləncə</a></li>
+        <li><a href="haqqimizda.html">Haqqımızda</a></li>
+        <li><a href="elaqe.html">Əlaqə</a></li>
+      </ul> 
+    </nav>
+  </header>
+
+  <main id="content">
+    <h1>Xəbərlər</h1>
+    <div class="news-container" id="newsList"></div>
+  </main>
+
+  <footer>
+    &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
+  </footer>
+
+  <script>
+    const newsData = [
+      {
+      id: 1,
+        title: "Yeni texnologiya dünyanı dəyişir",
+        image: "xeber1.jpg",
+        short: "Süni intellekt sahəsində baş verən yeniliklər dünya gündəmində.",
+        content: `
+          Dünyada texnologiya sürətlə inkişaf edir və süni intellekt (SI) həyatımızın bir çox sahəsinə nüfuz edir. Bu inkişafların bir tərəfdən faydaları olsa da, digər tərəfdən bəzi peşələrin yox olmasına səbəb ola bilər. Azərbaycan Televiziyası (AZTV) bu mövzuya dair xüsusi xəbər sujeti hazırlayıb və müxtəlif mütəxəssislərin fikirlərini paylaşır.
+Son illərdə süni intellektin tətbiqi ilə bağlı böyük irəliləyişlər müşahidə edilir. Özəlliklə, avtomatlaşdırma və robot texnologiyalarının inkişafı, bir çox sahədə insan gücünü əvəz edir. Məsələn, bank sektorunda müştəri xidmətləri, mağazalarda kassa işləri və sənayedə istehsalat prosesləri artıq robotlar tərəfindən idarə olunur. Bəzi işçilər, xüsusilə monoton işlər görənlər, süni intellekt və avtomatlaşdırma sistemləri ilə əvəz edilə bilər.
+Bundan əlavə, sağlamlıq sektorunda süni intellektin inkişafı da böyük dəyişikliklərə səbəb olur. Müasir diaqnostika sistemləri, süni intellektlə çalışan robot cərrahlar və yeni tibbi tətbiqlər, həkimlərin yerinə həyata keçirilən bir çox işləri asanlaşdırır. Bu, bəzi tibbi peşələrin dəyişməsinə və ya tamamilə azalmasına gətirib çıxara bilər. Tibb mütəxəssisləri, süni intellektin daha dəqiq və sürətli qərarlar qəbul edə bilməsi ilə daha az səhv etməsini vurğulayırlar, amma bu da müəyyən peşələrin ləğvini təklif edir.
+Təhsil sahəsi də süni intellektin təsirinə məruz qalır. Artıq bəzi təhsil proqramları və dərslər, tələbələrə onlayn şəkildə tədris edilir və müəllimlərin bəzi təkrarlanan işləri, məsələn, qiymətləndirmə və tapşırıqların yoxlanılması, avtomatik sistemlər tərəfindən yerinə yetirilir.
+Bununla yanaşı, nəqliyyat sahəsində də süni intellektin böyük təsiri var. Avtomobillərin avtomatik idarə olunması, sürücüsüz nəqliyyat vasitələrinin inkişafı, taksi sürücüləri və yol polisləri kimi işlərə olan tələbatı azalda bilər.
+<b>Nəzarət altındakı peşələr:</b> 
+Mütəxəssislər bildirirlər ki, bəzi peşələr süni intellektin inkişafı ilə tamamilə yox ola bilər, amma yeni sahələr də yaranacaq. Verilənlər analitikləri, robot mühəndisləri, süni intellekt proqramçıları və sistem optimallaşdırma mütəxəssisləri kimi peşələr bu dövrün tələbinə uyğun yeni iş imkanları yaradacaq.
+Mütəxəssislər həmçinin qeyd edirlər ki, süni intellektin peşələr üzərindəki təsiri yalnız texnoloji inkişafla bağlı deyil, həm də sosial və iqtisadi dəyişikliklərlə əlaqəlidir. İrəlidə sosial təminat proqramlarının genişlənməsi və təhsil sahəsinin yenilənməsi lazımdır ki, insanları bu yeni dövrə hazırlaya bilək.
+        `,
+        video: "https://www.youtube.com/embed/xypr2g2PH3U"
+      },
+      {
+        id: 2,
+        title: "Azərbaycan şahmatçıları parlaq qələbə qazandı",
+        image: "xeber2.jpg",
+        short: "Bakıda keçirilən beynəlxalq turnirdə şahmatçılarımız uğur qazandılar.",
+        content: `
+          Bakıda baş tutan beynəlxalq şahmat turnirində Azərbaycan təmsilçiləri qızıl medal qazandılar...
+        `,
+        video: ""
+      },
+      {
+        id: 3,
+        title: "Maqalux yeni dizaynla qarşınızda!",
+        image: "logo.png",
+        short: "Saytımız yenilənmiş görünüşü ilə fəaliyyətini davam etdirir.",
+        content: `
+          Maqalux platforması istifadəyə rahatlıq və dizayn baxımından yenilənib...
+        `,
+        video: ""
+      }
+    ];
+
+    const contentDiv = document.getElementById("content");
+    const newsListDiv = document.getElementById("newsList");
+    const params = new URLSearchParams(window.location.search);
+    const newsId = params.get("id");
+
+    if (newsId) {
+      const news = newsData.find(n => n.id == newsId);
+      if (news) {
+        contentDiv.innerHTML = `
+          <button class="back-btn" onclick="window.location='xeberler.html'">← Geri qayıt</button>
+          <h1>${news.title}</h1>
+          <img src="${news.image}" alt="${news.title}">
+          <p>${news.content}</p>
+          ${news.video ? `<div class="video-container"><iframe src="${news.video}" allowfullscreen></iframe></div>` : ""}
+        `;
+      } else {
+        contentDiv.innerHTML = `<p>Xəbər tapılmadı.</p>`;
+      }
+    } else {
+      newsData.forEach(n => {
+        const card = document.createElement("div");
+        card.classList.add("news-item");
+        card.innerHTML = `
+          <img src="${n.image}" alt="${n.title}">
+          <h3>${n.title}</h3>
+          <p>${n.short}</p>
+          <a href="?id=${n.id}" class="read-more">Ətraflı oxu</a>
+        `;
+        newsListDiv.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
