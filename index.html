@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* === Ümumi üslub (Əyləncə dizaynı ilə) === */
+    /* === Ümumi tərz === */
     body {
       margin: 0;
       font-family: 'Poppins', sans-serif;
@@ -37,12 +37,19 @@
       box-shadow: 0 5px 30px rgba(0,0,0,0.3);
     }
 
-    header img {
+    header a.logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    header a.logo img {
       height: 55px;
       transition: transform 0.4s ease;
     }
 
-    header img:hover {
+    header a.logo img:hover {
       transform: scale(1.1) rotate(-3deg);
     }
 
