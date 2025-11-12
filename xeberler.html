@@ -3,78 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Xəbərlər - Maqalux</title>
+  <title>Xəbərlər | Maqalux</title>
   <link rel="icon" href="logo.png" type="image/png">
+  <meta name="description" content="Ən son xəbərlər və yeniliklər Maqalux-da!">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* 🔹 Əsas fon və şriftlər */
+    /* === Ümumi tərz === */
     body {
       margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #000428, #004e92);
+      background: linear-gradient(135deg, #1e002f, #0055a5);
       color: white;
-      overflow-x: hidden;
     }
 
-    /* 🔹 Hərəkətli parıltı effekti */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 25% 25%, rgba(255,215,0,0.25), transparent 60%),
-                  radial-gradient(circle at 75% 75%, rgba(255,140,0,0.25), transparent 60%);
-      animation: move-bg 12s infinite alternate ease-in-out;
-      z-index: -1;
-    }
-
-    @keyframes move-bg {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(-10%, -10%); }
-    }
-
-    /* 🔹 Header */
-    header, footer {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(15px);
-      color: #fff;
-      padding: 15px 30px;
+    /* === Header === */
+    header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      padding: 15px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
       position: sticky;
       top: 0;
       z-index: 1000;
+      box-shadow: 0 5px 30px rgba(0,0,0,0.3);
     }
 
-    header img {
+    header a.logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    header a.logo img {
       height: 55px;
-      transition: transform 0.3s ease;
+      transition: transform 0.4s ease;
     }
-    header img:hover { transform: scale(1.1) rotate(-3deg); }
 
+    header a.logo img:hover {
+      transform: scale(1.1) rotate(-3deg);
+    }
+
+    /* === Naviqasiya === */
     nav ul {
       list-style: none;
       display: flex;
-      gap: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
       margin: 0;
       padding: 0;
-      flex-wrap: wrap;
     }
 
     nav ul li a {
       text-decoration: none;
       color: white;
       font-weight: 600;
-      padding: 8px 16px;
+      padding: 10px 18px;
       border-radius: 30px;
       position: relative;
-      transition: all 0.3s ease;
       overflow: hidden;
+      transition: all 0.3s ease;
     }
 
     nav ul li a::before {
@@ -83,36 +76,29 @@
       top: 0; left: 0;
       width: 0%;
       height: 100%;
-      background: linear-gradient(90deg, #FFD700, #FFA500);
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
       transition: width 0.4s ease;
       z-index: -1;
       border-radius: 30px;
     }
 
-    nav ul li a:hover::before {
-      width: 100%;
-    }
-
-    nav ul li a:hover {
-      color: black;
-      transform: translateY(-2px);
-    }
-
+    nav ul li a:hover::before { width: 100%; }
+    nav ul li a:hover { color: black; transform: translateY(-2px); }
     nav ul li a.active {
-      background: linear-gradient(90deg, #FFD700, #FFA500);
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
       color: black;
-      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
     }
 
-    /* 🔹 Əsas hissə */
+    /* === Əsas bölmə === */
     main {
       max-width: 1000px;
-      margin: 50px auto;
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(15px);
-      border-radius: 20px;
+      margin: 60px auto;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
       padding: 40px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
       animation: fadeIn 1s ease;
     }
 
@@ -123,14 +109,14 @@
 
     main h1 {
       text-align: center;
-      font-size: 2.2em;
+      font-size: 2.4em;
       background: linear-gradient(90deg, #FFD700, #FFA500);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 30px;
     }
 
-    /* 🔹 Xəbərlər listi */
+    /* === Xəbərlər grid === */
     .news-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -138,16 +124,17 @@
     }
 
     .news-item {
-      background: rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.15);
       border-radius: 15px;
       overflow: hidden;
       transition: 0.4s ease;
-      box-shadow: 0 0 15px rgba(255,255,255,0.05);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
     .news-item:hover {
-      transform: translateY(-8px) scale(1.03);
-      box-shadow: 0 0 25px rgba(255,215,0,0.5);
+      transform: translateY(-8px);
+      background: linear-gradient(135deg, #FFD70055, #FF8C0055);
+      box-shadow: 0 0 20px rgba(255,215,0,0.4);
     }
 
     .news-item img {
@@ -162,8 +149,8 @@
     }
 
     .news-item p {
-      margin: 0 12px 10px;
-      color: #eee;
+      margin: 0 12px 15px;
+      color: #f1f1f1;
       font-size: 0.95em;
     }
 
@@ -185,7 +172,7 @@
       transform: scale(1.05);
     }
 
-    /* 🔹 Ətraflı xəbər */
+    /* === Ətraflı xəbər hissəsi === */
     img {
       max-width: 100%;
       border-radius: 10px;
@@ -220,42 +207,37 @@
       margin-top: 20px;
     }
 
-    /* 🔹 Footer */
+    /* === Footer === */
     footer {
       text-align: center;
-      color: #FFD700;
-      font-weight: bold;
       padding: 20px;
+      color: #FFD700;
+      font-weight: 600;
+      margin-top: 40px;
       border-top: 1px solid rgba(255,255,255,0.2);
       background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
     }
 
     footer:hover {
-      background: rgba(255,255,255,0.1);
-      transition: 0.3s;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      transition: 0.4s;
     }
 
-    /* 🔹 Mobil */
+    /* === Mobil görünüş === */
     @media (max-width: 700px) {
-      header {
-        flex-direction: column;
-        gap: 10px;
-      }
-      nav ul {
-        flex-direction: column;
-        align-items: center;
-      }
-      main {
-        padding: 25px;
-        margin: 30px 10px;
-      }
+      nav ul { flex-direction: column; align-items: center; }
+      nav ul li a { width: 100%; text-align: center; }
+      header { flex-direction: column; gap: 10px; }
     }
   </style>
 </head>
+
 <body>
   <header>
-    <a href="index.html">
-    <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqo">
+    <a href="index.html" class="logo">
+      <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqo">
     </a>
     <nav>
       <ul>
@@ -266,7 +248,7 @@
         <li><a href="eylence.html">Əyləncə</a></li>
         <li><a href="haqqimizda.html">Haqqımızda</a></li>
         <li><a href="elaqe.html">Əlaqə</a></li>
-      </ul>
+      </ul> 
     </nav>
   </header>
 
@@ -282,7 +264,7 @@
   <script>
     const newsData = [
       {
-        id: 1,
+      id: 1,
         title: "Yeni texnologiya dünyanı dəyişir",
         image: "xeber1.jpg",
         short: "Süni intellekt sahəsində baş verən yeniliklər dünya gündəmində.",
@@ -304,8 +286,7 @@ Mütəxəssislər həmçinin qeyd edirlər ki, süni intellektin peşələr üz�
         image: "xeber2.jpg",
         short: "Bakıda keçirilən beynəlxalq turnirdə şahmatçılarımız uğur qazandılar.",
         content: `
-          Bakıda baş tutan beynəlxalq şahmat turnirində Azərbaycan təmsilçiləri qızıl medal qazandılar.
-          Turnirdə 20 ölkədən 150 şahmatçı iştirak edib. Yarışın yekununda millimiz komanda hesabında birinci oldu.
+          Bakıda baş tutan beynəlxalq şahmat turnirində Azərbaycan təmsilçiləri qızıl medal qazandılar...
         `,
         video: ""
       },
@@ -315,8 +296,7 @@ Mütəxəssislər həmçinin qeyd edirlər ki, süni intellektin peşələr üz�
         image: "logo.png",
         short: "Saytımız yenilənmiş görünüşü ilə fəaliyyətini davam etdirir.",
         content: `
-          Maqalux platforması istifadəyə rahatlıq və dizayn baxımından yenilənib.
-          İndi xəbərləri, proqramları və əyləncə bölmələrini daha rahat izləyə bilərsiniz!
+          Maqalux platforması istifadəyə rahatlıq və dizayn baxımından yenilənib...
         `,
         video: ""
       }
