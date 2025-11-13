@@ -231,6 +231,29 @@
       nav ul li a { width: 100%; text-align: center; }
       header { flex-direction: column; gap: 10px; }
     }
+    /* --- Başlıq üçün standart ölçü CSS kodları --- */
+header {
+  min-height: 90px; /* hər iki səhifədə eyni hündürlük */
+  box-sizing: border-box;
+  padding: 15px 30px; /* sabit daxili boşluq */
+}
+
+header a.logo img {
+  height: 55px; /* loqo ölçüsünü eyni saxla */
+  width: auto;
+  display: block;
+}
+
+nav ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+nav ul li a {
+  line-height: 1; /* yazı hündürlüyü sabit olsun */
+}
   </style>
 </head>
 
