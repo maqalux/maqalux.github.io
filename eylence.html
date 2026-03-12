@@ -51,6 +51,8 @@
       border-radius: 30px;
       position: relative;
       overflow: hidden;
+      display: inline-block; /* Klik sahəsini təmin edir */
+      z-index: 1; /* Linki animasiyadan önə çıxarır */
       transition: all 0.3s ease;
     }
 
@@ -105,6 +107,13 @@
       gap: 25px;
     }
 
+    /* Kartların bir-birinə girməməsi üçün yeni stil */
+    .card-link {
+      text-decoration: none;
+      display: block; /* Kartın bütün sahəsini blok edir */
+      color: inherit;
+    }
+
     .card {
       background: rgba(255, 255, 255, 0.15);
       border-radius: 15px;
@@ -113,6 +122,8 @@
       transition: all 0.4s ease;
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      height: 100%; /* Kartların eyni hündürlükdə olması üçün */
+      box-sizing: border-box;
     }
 
     .card:hover {
@@ -171,35 +182,47 @@
     <h1>Əyləncə Kateqoriyaları</h1>
 
     <div class="category-grid">
-      <div class="card">
-        <h2>🎬 Filmlər və Seriallar</h2>
-        <p>Ən son filmlər, maraqlı seriallar və kinolar.</p>
-      </div>
+      <a href="filmler.html" class="card-link">
+        <div class="card">
+          <h2>🎬 Filmlər və Seriallar</h2>
+          <p>Ən son filmlər, maraqlı seriallar və kinolar.</p>
+        </div>
+      </a>
 
-      <div class="card">
-        <h2>🎮 Oyunlar</h2>
-        <p>Kompüter, mobil və konsol oyunları.</p>
-      </div>
+      <a href="oyunlar.html" class="card-link">
+        <div class="card">
+          <h2>🎮 Oyunlar</h2>
+          <p>Kompüter, mobil və konsol oyunları.</p>
+        </div>
+      </a>
 
-      <div class="card">
-        <h2>🎵 Musiqi</h2>
-        <p>Yeni mahnılar, albomlar və sevdiyiniz ifaçılar.</p>
-      </div>
+      <a href="musiqi.html" class="card-link">
+        <div class="card">
+          <h2>🎵 Musiqi</h2>
+          <p>Yeni mahnılar, albomlar və sevdiyiniz ifaçılar.</p>
+        </div>
+      </a>
 
-      <div class="card">
-        <h2>😂 Yumor</h2>
-        <p>Memlər, zarafatlar və gülməli videolar – gündəlik stressdən uzaqlaşın!</p>
-      </div>
+      <a href="yumor.html" class="card-link">
+        <div class="card">
+          <h2>😂 Yumor</h2>
+          <p>Memlər, zarafatlar və gülməli videolar.</p>
+        </div>
+      </a>
 
-       <div class="card">
-        <h2>⚽️ Futbol</h2>
-        <p>Ən son futbol xəbərləri, matç nəticələri və komanda analizləri.</p>
-      </div>
+      <a href="futbol.html" class="card-link">
+        <div class="card">
+          <h2>⚽️ Futbol</h2>
+          <p>Ən son futbol xəbərləri və matç nəticələri.</p>
+        </div>
+      </a>
 
-      <div class="card">
-        <h2>🌍 Tədbirlər və Macəra</h2>
-        <p>Konsertlər, festivallar və əyləncəli gəzintilər haqqında xəbərdar olun.</p>
-      </div>
+      <a href="tedbirler.html" class="card-link">
+        <div class="card">
+          <h2>🌍 Macəra</h2>
+          <p>Konsertlər, festivallar və əyləncəli gəzintilər.</p>
+        </div>
+      </a>
     </div>
   </main>
 
