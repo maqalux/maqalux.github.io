@@ -427,9 +427,9 @@
         <li><a href="proqramlar.html">Proqramlar</a></li>
         <li><a href="şahmat.html">Şahmat</a></li>
         <li><a href="eylence.html">Əyləncə</a></li>
+        <li><a href="cat.html" class="active">Onlayn Çat</a></li>
         <li><a href="haqqimizda.html">Haqqımızda</a></li>
         <li><a href="elaqe.html">Əlaqə</a></li>
-        <li><a href="cat.html" class="active">Onlayn Çat</a></li>
       </ul> 
     </nav>
   </header>
@@ -474,8 +474,7 @@
         <div id="tabRoom" class="chat-room-wrapper" style="display: none;">
           <div class="active-chat-partner" id="chatPartnerName">Söhbət: Qlobal Canlı Otaq</div>
           
-          <div class="chat-messages-area" id="chatMessagesArea">
-            </div>
+          <div class="chat-messages-area" id="chatMessagesArea"></div>
 
           <div class="extra-panel" id="emojiPanel" style="display: none;">
             <div class="emoji-grid">
@@ -528,6 +527,30 @@
     // Mesajları LocalStorage-dən oxuyuruq
     let chatMessages = JSON.parse(localStorage.getItem('maqalux_chat_messages')) || [];
 
+    // --- SƏHİFƏ YÜKLƏNƏNDƏ AVTOMATİK GİRİŞ SİSTEMİ ---
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedNick = localStorage.getItem('maqalux_active_session');
+      if (savedNick) {
+        let usersDB = JSON.parse(localStorage.getItem('maqalux_users_db')) || {};
+        if (usersDB[savedNick]) {
+          currentUserNick = savedNick;
+          activateChatInterface(currentUserNick);
+        }
+      }
+    });
+
+    // İnterfeysi aktivləşdirən ortaq funksiya
+    function activateChatInterface(nick) {
+      document.getElementById('myDisplayNick').innerText = nick;
+      document.getElementById('myAvatarLetter').innerText = nick.charAt(0).toUpperCase();
+      
+      document.getElementById('loginScreen').style.setProperty('display', 'none', 'important');
+      document.getElementById('mainChatScreen').classList.add('active');
+      
+      renderUsersAndFriends();
+      loadMessages();
+    }
+
     // Yeni Qeydiyyat/Giriş funksiyası
     function loginOrRegister() {
       const nick = document.getElementById('nicknameInput').value.trim();
@@ -538,11 +561,9 @@
         return;
       }
       
-      // Mövcud istifadəçiləri LocalStorage-dən çəkirik
       let usersDB = JSON.parse(localStorage.getItem('maqalux_users_db')) || {};
 
       if (usersDB[nick]) {
-        // İstifadəçi artıq var, parolu yoxla
         if (usersDB[nick].password === pass) {
           currentUserNick = nick;
         } else {
@@ -550,27 +571,22 @@
           return;
         }
       } else {
-        // Yeni istifadəçi yaradırıq
         usersDB[nick] = { password: pass };
         localStorage.setItem('maqalux_users_db', JSON.stringify(usersDB));
         currentUserNick = nick;
         alert("Qeydiyyat uğurla tamamlandı və daxil oldunuz!");
       }
       
-      // Profili Yüklə
-      document.getElementById('myDisplayNick').innerText = currentUserNick;
-      document.getElementById('myAvatarLetter').innerText = currentUserNick.charAt(0).toUpperCase();
+      // Giriş uğurludursa, sessiyanı yadda saxla
+      localStorage.setItem('maqalux_active_session', currentUserNick);
       
-      // Ekranı Dəyiş
-      document.getElementById('loginScreen').style.setProperty('display', 'none', 'important');
-      document.getElementById('mainChatScreen').classList.add('active');
-      
-      // Məlumatları gətir
-      renderUsersAndFriends();
-      loadMessages();
+      activateChatInterface(currentUserNick);
     }
 
     function logoutChat() {
+      // Sessiyanı silirik ki, avtomatik girməsin
+      localStorage.removeItem('maqalux_active_session');
+      
       currentUserNick = "";
       document.getElementById('nicknameInput').value = "";
       document.getElementById('passwordInput').value = "";
@@ -599,7 +615,6 @@
       }
     }
 
-    // Dostlar siyahısını yeniləyən funksiya (Tam düzəldildi)
     function renderUsersAndFriends() {
       const onlineList = document.getElementById('onlineUsersList');
       const friendsList = document.getElementById('myFriendsList');
@@ -610,5 +625,105 @@
       let activeUsers = mockUsers.filter(u => !u.isFriend);
       let activeFriends = mockUsers.filter(u => u.isFriend);
 
-      if(activeUsers.length === 0) onlineList.innerHTML = "<p style='font-size:13px; color:#999; padding:10px;'>Yeni aktiv istifadəçi yoxdur.</p>";
-      if(activeFriends.length === 0) friendsList.innerHTML = "<p style=
+      if(activeUsers.length === 0) {
+        onlineList.innerHTML = "<p style='font-size:13px; color:#999; padding:10px;'>Yeni aktiv istifadəçi yoxdur.</p>";
+      } else {
+        activeUsers.forEach(u => {
+          onlineList.innerHTML += `
+            <div class="friend-card">
+              <div class="friend-info">
+                <div class="status-dot online"></div>
+                <span>${u.nick}</span>
+              </div>
+              <button class="friend-action-btn">Dostluq Göndər</button>
+            </div>`;
+        });
+      }
+
+      if(activeFriends.length === 0) {
+        friendsList.innerHTML = "<p style='font-size:13px; color:#999; padding:10px;'>Dost siyahısı boşdur.</p>";
+      } else {
+        activeFriends.forEach(u => {
+          friendsList.innerHTML += `
+            <div class="friend-card">
+              <div class="friend-info">
+                <div class="status-dot online"></div>
+                <span>${u.nick}</span>
+              </div>
+              <button class="friend-action-btn chat-go" onclick="switchTab('room')">Mesaj yaz</button>
+            </div>`;
+        });
+      }
+    }
+
+    // --- YENİ ƏLAVƏ OLUNAN ÇAT FUNKSİYALARI ---
+
+    function loadMessages() {
+      const area = document.getElementById('chatMessagesArea');
+      area.innerHTML = '';
+      chatMessages.forEach(msg => {
+        const isMe = msg.sender === currentUserNick ? 'me' : 'other';
+        area.innerHTML += `
+          <div class="message-bubble ${isMe}">
+            <span class="msg-sender">${msg.sender}</span>
+            <div>${msg.text}</div>
+          </div>`;
+      });
+      scrollChatToBottom();
+    }
+
+    function scrollChatToBottom() {
+      const area = document.getElementById('chatMessagesArea');
+      area.scrollTop = area.scrollHeight;
+    }
+
+    function togglePanel(panelId) {
+      const panel = document.getElementById(panelId);
+      const otherPanelId = panelId === 'emojiPanel' ? 'stickerPanel' : 'emojiPanel';
+      document.getElementById(otherPanelId).style.display = 'none'; // Digər paneli bağla
+      
+      if (panel.style.display === 'none' || panel.style.display === '') {
+        panel.style.display = 'block';
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    function insertEmoji(emoji) {
+      const input = document.getElementById('messageInputField');
+      input.value += emoji;
+      document.getElementById('emojiPanel').style.display = 'none';
+      input.focus();
+    }
+
+    function sendSticker(src) {
+      const stickerHtml = `<img src="${src}" class="sticker-img">`;
+      saveAndSendMessage(stickerHtml);
+      document.getElementById('stickerPanel').style.display = 'none';
+    }
+
+    function triggerMessageSend() {
+      const input = document.getElementById('messageInputField');
+      const text = input.value.trim();
+      if (text !== '') {
+        saveAndSendMessage(text);
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    function checkSendEnter(event) {
+      if (event.key === 'Enter') {
+        triggerMessageSend();
+      }
+    }
+
+    function saveAndSendMessage(content) {
+      const newMsg = { sender: currentUserNick, text: content };
+      chatMessages.push(newMsg);
+      localStorage.setItem('maqalux_chat_messages', JSON.stringify(chatMessages));
+      loadMessages();
+    }
+  </script>
+</body>
+</html>
