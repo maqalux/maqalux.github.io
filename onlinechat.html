@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maqalux - Onlayn Çat</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <meta name="description" content="Xoş Gəldiniz – Faydalı məlumatlar, əyləncəli məzmun və gündəlik həyat üçün tövsiyələr.">
+  <meta property="og:title" content="Xoş Gəldiniz – Faydalı və Əyləncəli" />
+  <meta property="og:description" content="Faydalı məlumatlar, əyləncəli məzmun və gündəlik həyat üçün tövsiyələr." />
+  <meta property="og:image" content="logo.png" />
+  <meta property="og:type" content="website" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* === Ümumi tərz === */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e002f, #0055a5);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === Header === */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+      height: 90px;
+      padding: 0 30px;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+    }
+
+    header a.logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 100%;
+      text-decoration: none;
+    }
+
+    header a.logo img {
+      height: 55px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      margin: auto 0;
+      transition: transform 0.4s ease;
+    }
+
+    header a.logo img:hover {
+      transform: scale(1.1) rotate(-3deg);
+    }
+
+    /* === Naviqasiya === */
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 10px 16px;
+      line-height: 1;
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    nav ul li a::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      transition: width 0.4s ease;
+      z-index: -1;
+      border-radius: 30px;
+    }
+
+    nav ul li a:hover::before { width: 100%; }
+    nav ul li a:hover { color: black; transform: translateY(-2px); }
+    nav ul li a.active {
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      color: black;
+      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+
+    /* === Əsas Bölmə === */
+    main {
+      flex: 1;
+      max-width: 1000px;
+      width: 90%;
+      margin: 30px auto;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      animation: fadeIn 0.8s ease;
+      box-sizing: border-box;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* === Footer === */
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #FFD700;
+      font-weight: 600;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 850px) {
+      header {
+        height: auto;
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 20px;
+      }
+      nav ul { flex-direction: column; align-items: center; width: 100%; }
+      nav ul li a { display: block; width: 100%; text-align: center; box-sizing: border-box; }
+    }
+
+    /* =========================================
+       WHATSAPP ÇAT İNTERFEYSİ STİLLƏRİ
+       ========================================= */
+    
+    .social-chat-section {
+      width: 100%;
+      height: 600px;
+      background: #efeae2;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* EKRANLARIN İDARƏ EDİLMƏSİ */
+    .chat-screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    .chat-screen.active { 
+      display: flex !important; 
+    }
+
+    #loginScreen {
+      background: linear-gradient(135deg, #075E54, #128C7E);
+      color: white;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+    }
+    #loginScreen h2 { margin-bottom: 10px; color: #FFD700; }
+    
+    .nick-input {
+      width: 280px;
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      margin-bottom: 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .login-btn {
+      background: #25D366;
+      color: white;
+      border: none;
+      padding: 12px 40px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: background 0.2s;
+    }
+    .login-btn:hover { background: #1ebd59; }
+
+    /* WHATSAPP BAŞLIĞI */
+    .whatsapp-header {
+      background: #075E54;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .user-profile-bar { display: flex; align-items: center; gap: 12px; }
+    .user-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #FFD700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #075E54;
+      font-size: 20px;
+    }
+    .header-nav-buttons { display: flex; gap: 8px; }
+    .nav-icon-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .nav-icon-btn.active { background: #25D366; color: white; }
+    .nav-icon-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* DOSTLAR SİYAHISI */
+    .friends-wrapper {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: white;
+      text-align: left;
+    }
+    .section-title {
+      font-size: 14px;
+      color: #075E54;
+      font-weight: 700;
+      margin: 15px 0 8px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .friend-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fdfdfd;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .friend-info { display: flex; align-items: center; gap: 10px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; }
+    .status-dot.online { background: #25D366; }
+    .friend-action-btn {
+      background: #0055a5;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 15px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .friend-action-btn.chat-go { background: #25D366; }
+
+    /* ÇAT OTAĞI */
+    .chat-room-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: calc(100% - 75px);
+    }
+    .active-chat-partner {
+      background: #128C7E;
+      color: white;
+      padding: 10px 20px;
+      font-size: 14px;
+      text-align: left;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .chat-messages-area {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+      background-size: contain;
+    }
+    
+    /* Mesaj balonları */
+    .message-bubble {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      position: relative;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      text-align: left;
+      word-wrap: break-word;
+    }
+    .message-bubble.me {
+      background: #dcf8c6;
+      align-self: flex-end;
+      border-top-right-radius: 0;
+    }
+    .message-bubble.other {
+      background: white;
+      align-self: flex-start;
+      border-top-left-radius: 0;
+    }
+    .msg-sender { font-weight: 700; font-size: 12px; color: #075E54; margin-bottom: 3px; display: block; }
+    .sticker-img { max-width: 120px; display: block; border-radius: 5px; margin-top: 5px; }
+    .msg-timestamp { font-size: 10px; color: #727272; text-align: right; margin-top: 5px; display: block; }
+
+    /* Klaviatura paneli */
+    .chat-input-bar {
+      background: #f0f0f0;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      border-top: 1px solid #e0e0e0;
+    }
+    .input-action-trigger {
+      font-size: 24px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s;
+    }
+    .input-action-trigger:hover { transform: scale(1.1); }
+    .chat-input-bar input {
+      flex: 1;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 25px;
+      outline: none;
+      font-size: 15px;
+      background: white;
+    }
+    .send-msg-btn {
+      background: #075E54;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .send-msg-btn:hover { background: #128C7E; }
+    .send-msg-btn svg { width: 20px; height: 20px; fill: white; }
+
+    /* Pop-up panellər */
+    .extra-panel {
+      position: absolute;
+      bottom: 70px;
+      left: 20px;
+      width: 280px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      padding: 12px;
+      z-index: 2100;
+    }
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      font-size: 22px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .emoji-grid span { cursor: pointer; text-align: center; }
+    .sticker-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .sticker-grid img { width: 100%; cursor: pointer; border-radius: 8px; transition: transform 0.2s; }
+    .sticker-grid img:hover { transform: scale(1.08); }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="xeberler.html">Xəbərlər</a></li>
+        <li><a href="proqramlar.html">Proqramlar</a></li>
+        <li><a href="şahmat.html">Şahmat</a></li>
+        <li><a href="eylence.html">Əyləncə</a></li>
+        <li><a href="haqqimizda.html">Haqqımızda</a></li>
+        <li><a href="elaqe.html">Əlaqə</a></li>
+        <li><a href="cat.html" class="active">Onlayn Çat</a></li>
+      </ul> 
+    </nav>
+  </header>
+
+  <main>
+    <div class="social-chat-section">
+      
+      <div class="chat-screen active" id="loginScreen">
+        <h2>Maqalux Canlı Çat Otağı</h2>
+        <p style="font-size: 14px; color: #e0f2f1; margin-bottom: 25px;">Sistemə daxil olmaq və ya qeydiyyatdan keçmək üçün məlumatları daxil edin:</p>
+        
+        <input type="text" id="nicknameInput" class="nick-input" placeholder="Ləqəbiniz (Məs: Anonim_007)">
+        <input type="password" id="passwordInput" class="nick-input" placeholder="Şifrəniz">
+        <br>
+        <button class="login-btn" onclick="loginOrRegister()">Daxil Ol / Qeydiyyat</button>
+      </div>
+
+      <div class="chat-screen" id="mainChatScreen">
+        <div class="whatsapp-header">
+          <div class="user-profile-bar">
+            <div class="user-avatar" id="myAvatarLetter">M</div>
+            <div style="text-align: left;">
+              <div style="font-weight:600; font-size:16px;" id="myDisplayNick">Sizin Nick</div>
+              <div style="font-size:11px; color:#b2dfdb;">Status: Onlayn</div>
+            </div>
+          </div>
+          <div class="header-nav-buttons">
+            <button class="nav-icon-btn active" id="navFriendsBtn" onclick="switchTab('friends')">Dostlar</button>
+            <button class="nav-icon-btn" id="navRoomBtn" onclick="switchTab('room')">Çat Otağı</button>
+            <button class="nav-icon-btn" style="background:#d32f2f;" onclick="logoutChat()">Çıxış</button>
+          </div>
+        </div>
+
+        <div id="tabFriends" class="friends-wrapper" style="display: block;">
+          <div class="section-title">Aktiv İstifadəçilər</div>
+          <div id="onlineUsersList"></div>
+
+          <div class="section-title" style="margin-top:25px;">Dostlarınız (WhatsApp Siyahısı)</div>
+          <div id="myFriendsList"></div>
+        </div>
+
+        <div id="tabRoom" class="chat-room-wrapper" style="display: none;">
+          <div class="active-chat-partner" id="chatPartnerName">Söhbət: Qlobal Canlı Otaq</div>
+          
+          <div class="chat-messages-area" id="chatMessagesArea">
+            </div>
+
+          <div class="extra-panel" id="emojiPanel" style="display: none;">
+            <div class="emoji-grid">
+              <span onclick="insertEmoji('😀')">😀</span><span onclick="insertEmoji('😂')">😂</span><span onclick="insertEmoji('😍')">😍</span>
+              <span onclick="insertEmoji('👍')">👍</span><span onclick="insertEmoji('🔥')">🔥</span><span onclick="insertEmoji('❤️')">❤️</span>
+              <span onclick="insertEmoji('😎')">😎</span><span onclick="insertEmoji('🤔')">🤔</span><span onclick="insertEmoji('🎉')">🎉</span>
+              <span onclick="insertEmoji('👏')">👏</span><span onclick="insertEmoji('😭')">😭</span><span onclick="insertEmoji('🚀')">🚀</span>
+            </div>
+          </div>
+
+          <div class="extra-panel" id="stickerPanel" style="display: none;">
+            <div class="sticker-grid">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/15.1/1f973/512.webp" alt="Sticker" onclick="sendSticker(this.src)">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/15.1/1f4a9/512.webp" alt="Sticker" onclick="sendSticker(this.src)">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/15.1/1f412/512.webp" alt="Sticker" onclick="sendSticker(this.src)">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/15.1/1f47d/512.webp" alt="Sticker" onclick="sendSticker(this.src)">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/15.1/1f525/512.webp" alt="Sticker" onclick="sendSticker(this.src)">
+              <img src="https://fonts.gstatic.com/s/e/notoemoji/15.1/1f408/512.webp" alt="Sticker" onclick="sendSticker(this.src)">
+            </div>
+          </div>
+
+          <div class="chat-input-bar">
+            <div class="input-action-trigger" onclick="togglePanel('emojiPanel')" title="Emoji">😀</div>
+            <div class="input-action-trigger" onclick="togglePanel('stickerPanel')" title="Sticker">✨</div>
+            <input type="text" id="messageInputField" placeholder="Mesaj yazın..." onkeypress="checkSendEnter(event)">
+            <button class="send-msg-btn" onclick="triggerMessageSend()">
+              <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 Maqalux - Bütün hüquqlar qorunur.
+  </footer>
+
+  <script>
+    const mockUsers = [
+      { id: 101, nick: "Nihad_Trend", online: true, isFriend: false },
+      { id: 102, nick: "Aysel_Chess", online: true, isFriend: false },
+      { id: 103, nick: "Eshqin_99", online: true, isFriend: true },
+      { id: 104, nick: "Maqalux_Fan", online: true, isFriend: false }
+    ];
+
+    let currentUserNick = "";
+    
+    // Mesajları LocalStorage-dən oxuyuruq
+    let chatMessages = JSON.parse(localStorage.getItem('maqalux_chat_messages')) || [];
+
+    // Yeni Qeydiyyat/Giriş funksiyası
+    function loginOrRegister() {
+      const nick = document.getElementById('nicknameInput').value.trim();
+      const pass = document.getElementById('passwordInput').value.trim();
+      
+      if(nick === "" || pass === "") {
+        alert("Zəhmət olmasa ləqəb və şifrəni daxil edin!");
+        return;
+      }
+      
+      // Mövcud istifadəçiləri LocalStorage-dən çəkirik
+      let usersDB = JSON.parse(localStorage.getItem('maqalux_users_db')) || {};
+
+      if (usersDB[nick]) {
+        // İstifadəçi artıq var, parolu yoxla
+        if (usersDB[nick].password === pass) {
+          currentUserNick = nick;
+        } else {
+          alert("Şifrə yanlışdır! Zəhmət olmasa yenidən cəhd edin.");
+          return;
+        }
+      } else {
+        // Yeni istifadəçi yaradırıq
+        usersDB[nick] = { password: pass };
+        localStorage.setItem('maqalux_users_db', JSON.stringify(usersDB));
+        currentUserNick = nick;
+        alert("Qeydiyyat uğurla tamamlandı və daxil oldunuz!");
+      }
+      
+      // Profili Yüklə
+      document.getElementById('myDisplayNick').innerText = currentUserNick;
+      document.getElementById('myAvatarLetter').innerText = currentUserNick.charAt(0).toUpperCase();
+      
+      // Ekranı Dəyiş
+      document.getElementById('loginScreen').style.setProperty('display', 'none', 'important');
+      document.getElementById('mainChatScreen').classList.add('active');
+      
+      // Məlumatları gətir
+      renderUsersAndFriends();
+      loadMessages();
+    }
+
+    function logoutChat() {
+      currentUserNick = "";
+      document.getElementById('nicknameInput').value = "";
+      document.getElementById('passwordInput').value = "";
+      document.getElementById('mainChatScreen').classList.remove('active');
+      document.getElementById('loginScreen').style.removeProperty('display');
+      document.getElementById('loginScreen').classList.add('active');
+    }
+
+    function switchTab(tabName) {
+      const tabFriends = document.getElementById('tabFriends');
+      const tabRoom = document.getElementById('tabRoom');
+      const btnFriends = document.getElementById('navFriendsBtn');
+      const btnRoom = document.getElementById('navRoomBtn');
+
+      if(tabName === 'friends') {
+        tabFriends.style.display = 'block';
+        tabRoom.style.display = 'none';
+        btnFriends.classList.add('active');
+        btnRoom.classList.remove('active');
+      } else {
+        tabFriends.style.display = 'none';
+        tabRoom.style.display = 'flex';
+        btnFriends.classList.remove('active');
+        btnRoom.classList.add('active');
+        scrollChatToBottom();
+      }
+    }
+
+    // Dostlar siyahısını yeniləyən funksiya (Tam düzəldildi)
+    function renderUsersAndFriends() {
+      const onlineList = document.getElementById('onlineUsersList');
+      const friendsList = document.getElementById('myFriendsList');
+      
+      onlineList.innerHTML = "";
+      friendsList.innerHTML = "";
+
+      let activeUsers = mockUsers.filter(u => !u.isFriend);
+      let activeFriends = mockUsers.filter(u => u.isFriend);
+
+      if(activeUsers.length === 0) onlineList.innerHTML = "<p style='font-size:13px; color:#999; padding:10px;'>Yeni aktiv istifadəçi yoxdur.</p>";
+      if(activeFriends.length === 0) friendsList.innerHTML = "<p style=
