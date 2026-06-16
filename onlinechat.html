@@ -517,61 +517,59 @@
   </footer>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getDatabase, ref, push, onChildAdded, get, child } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+  import { getDatabase, ref, push, onChildAdded, get, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-  const firebaseConfig = {
+  const app = initializeApp({
     apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
     authDomain: "maqalux-chat.firebaseapp.com",
     projectId: "maqalux-chat",
+    databaseURL: "https://maqalux-chat-default-rtdb.firebaseio.com",
     storageBucket: "maqalux-chat.firebasestorage.app",
     messagingSenderId: "127120270719",
-    appId: "1:127120270719:web:7b036b7e27a06f71dee64a",
-    measurementId: "G-GZ800MRHKJ"
-  };
+    appId: "1:127120270719:web:7b036b7e27a06f71dee64a"
+  });
 
-  const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   let currentUserNick = "";
 
-  // Firebase-də qeydiyyat və giriş funksiyası
-  window.loginOrRegister = async function() {
+  // Giriş funksiyası
+  window.loginOrRegister = async () => {
     const nick = document.getElementById('nicknameInput').value.trim();
     const pass = document.getElementById('passwordInput').value.trim();
-    
-    if(nick === "" || pass === "") {
-      alert("Zəhmət olmasa ləqəb və şifrəni daxil edin!");
-      return;
-    }
+    if(!nick || !pass) return alert("Boşluq saxlamayın!");
 
-    const usersRef = ref(db, 'users/' + nick);
-    const snapshot = await get(usersRef);
+    const userRef = ref(db, 'users/' + nick);
+    const snapshot = await get(userRef);
 
     if (snapshot.exists()) {
-      // İstifadəçi varsa şifrəni yoxla
-      if (snapshot.val().password === pass) {
-        currentUserNick = nick;
-      } else {
-        alert("Şifrə yanlışdır!");
-        return;
-      }
+      if (snapshot.val().password !== pass) return alert("Şifrə yanlışdır!");
     } else {
-      // Yeni istifadəçi yarat
-      await push(ref(db, 'users'), { nick: nick, password: pass });
-      currentUserNick = nick;
-      alert("Qeydiyyat uğurludur!");
+      await set(userRef, { password: pass });
     }
     
-    // Ekrana keçid
-    document.getElementById('myDisplayNick').innerText = currentUserNick;
-    document.getElementById('myAvatarLetter').innerText = currentUserNick.charAt(0).toUpperCase();
+    currentUserNick = nick;
+    document.getElementById('myDisplayNick').innerText = nick;
+    document.getElementById('myAvatarLetter').innerText = nick[0].toUpperCase();
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainChatScreen').classList.add('active');
   };
 
-  // Digər funksiyalar (triggerMessageSend, onChildAdded və s.) 
-  // əvvəlki kodun eynisidir, sadəcə yuxarıdakı loginOrRegister funksiyasını dəyişdik.
-  
-  // ... (Qalan kodları olduğu kimi saxla) ...
+  // Mesaj göndərmə
+  window.triggerMessageSend = () => {
+    const msg = document.getElementById('messageInputField').value;
+    if(!msg) return;
+    push(ref(db, 'messages'), { sender: currentUserNick, text: msg });
+    document.getElementById('messageInputField').value = "";
+  };
+
+  // Mesajları göstər
+  onChildAdded(ref(db, 'messages'), (data) => {
+    const msg = data.val();
+    const div = document.createElement('div');
+    div.className = 'message-bubble ' + (msg.sender === currentUserNick ? 'me' : 'other');
+    div.innerHTML = `<b>${msg.sender}:</b> ${msg.text}`;
+    document.getElementById('chatMessagesArea').appendChild(div);
+  });
 </script>
 </body>
 </html>
