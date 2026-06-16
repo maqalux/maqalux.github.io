@@ -8,9 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* === Ümumi tərz (Sizin saytın əsas tərzləri eynilə qorunur) === */
     body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1e002f, #0055a5); color: white; min-height: 100vh; display: flex; flex-direction: column; }
-    
     header { display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; height: 90px; padding: 0 30px; box-sizing: border-box; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); position: sticky; top: 0; z-index: 1000; box-shadow: 0 5px 30px rgba(0,0,0,0.3); }
     header a.logo { display: flex; align-items: center; gap: 10px; height: 100%; text-decoration: none; }
     header a.logo img { height: 55px; width: auto; object-fit: contain; display: block; margin: auto 0; transition: transform 0.4s ease; }
@@ -23,9 +21,7 @@
     nav ul li a:hover { color: black; transform: translateY(-2px); }
     nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: black; box-shadow: 0 0 20px rgba(255,215,0,0.6); }
 
-    /* === ÇAT DİZAYNI ÜÇÜN XÜSUSİ STİLLƏR === */
     main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
-    
     .chat-container { width: 100%; max-width: 800px; height: 650px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.4); display: flex; flex-direction: column; overflow: hidden; animation: fadeIn 1s ease; position: relative; }
     
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -33,7 +29,6 @@
     .chat-screen { display: none !important; flex-direction: column; height: 100%; width: 100%; }
     .chat-screen.active { display: flex !important; }
 
-    /* Login Ekranı */
     #loginScreen { justify-content: center; align-items: center; text-align: center; background: rgba(0, 0, 0, 0.2); }
     #loginScreen h2 { font-size: 2.2em; background: linear-gradient(90deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 30px; }
     .input-group { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 320px; }
@@ -43,7 +38,6 @@
     .login-btn { background: linear-gradient(90deg, #FFD700, #FF8C00); color: black; border: none; padding: 15px; border-radius: 30px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 10px; font-family: 'Poppins', sans-serif; }
     .login-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(255,215,0,0.5); }
 
-    /* Əsas Çat Ekranı */
     .chat-header { background: rgba(0, 0, 0, 0.3); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .chat-header h3 { margin: 0; font-size: 1.2em; color: #FFD700; display: flex; align-items: center; gap: 10px; }
     .logout-btn { background: rgba(255, 0, 0, 0.6); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; }
@@ -102,7 +96,7 @@
       <div class="chat-screen active" id="loginScreen">
         <h2>Maqalux Çat</h2>
         <div class="input-group">
-          <input type="text" id="nicknameInput" class="custom-input" placeholder="Ləqəbiniz (Məs: Orxan)">
+          <input type="text" id="nicknameInput" class="custom-input" placeholder="Ləqəbiniz">
           <input type="password" id="passwordInput" class="custom-input" placeholder="Şifrəniz">
           <button class="login-btn" onclick="loginOrRegister()">Söhbətə Qoşul</button>
         </div>
@@ -129,11 +123,14 @@
     &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
   </footer>
 
-  <script src="https://SIZIN-RENDER-LINKINIZ.onrender.com/socket.io/socket.io.js"></script>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
   
   <script>
-    // Frontend-i Render backend-inə bağlayırıq
-    const socket = io('https://maqalux.onrender.com'); 
+    // === LINKI BURADA DƏYİŞİN (Sonunda / işarəsi olmasın!) ===
+    const RENDER_URL = "https://maqalux.onrender.com"; 
+    
+    // Serverə təhlükəsiz bağlantı qurulur
+    const socket = io(RENDER_URL, { transports: ['websocket', 'polling'] }); 
     
     window.currentUserNick = "";
 
@@ -141,6 +138,11 @@
       const nick = document.getElementById('nicknameInput').value.trim();
       const pass = document.getElementById('passwordInput').value.trim();
       if(!nick || !pass) return alert("Zəhmət olmasa ləqəb və şifrəni daxil edin.");
+
+      // Əgər hələ serverə tam qoşulmayıbsa xəbərdarlıq etsin
+      if(!socket.connected) {
+        return alert("Serverə qoşulma qurulur, zəhmət olmasa 3-5 saniyə sonra yenidən cəhd edin.");
+      }
 
       socket.emit('login', { nick, pass }, (response) => {
         if (response.success) {
@@ -163,7 +165,6 @@
       input.value = "";
     };
 
-    // Enter düyməsi ilə mesaj göndərmək
     window.handleKeyPress = (e) => {
       if(e.key === 'Enter') triggerMessageSend();
     };
@@ -185,6 +186,11 @@
 
     socket.on('receiveMessage', (msg) => {
       appendMessage(msg);
+    });
+
+    // Əlaqə xətalarını konsolda görmək üçün
+    socket.on('connect_error', (error) => {
+      console.error("Bağlantı xətası:", error);
     });
   </script>
 </body>
