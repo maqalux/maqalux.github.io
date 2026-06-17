@@ -139,7 +139,7 @@
     const socket = io(RENDER_URL, { transports: ['websocket', 'polling'] }); 
     
     // ⚠️ ImgBB API Açarını bura daxil etməyi unutma!
-    const IMGBB_API_KEY = "https://api.imgbb.com/1/upload"; 
+    const IMGBB_API_KEY = "curl --location --request POST "https://api.imgbb.com/1/upload?expiration=600&key=YOUR_CLIENT_API_KEY" --form "image=R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"; 
 
     window.currentUserNick = "";
     window.currentUserRole = "user";
