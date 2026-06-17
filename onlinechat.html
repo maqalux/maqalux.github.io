@@ -133,6 +133,11 @@
     const socket = io(RENDER_URL, { transports: ['websocket', 'polling'] }); 
     
     window.currentUserNick = "";
+    window.allMessages = []; // Bütün mesajları burada saxlayacağıq
+    window.renderMessages = function() {
+  document.getElementById('chatMessagesArea').innerHTML = ''; // Ekranı təmizlə
+  window.allMessages.forEach(msg => appendMessage(msg)); // Yenidən yazdır
+};
 
     window.loginOrRegister = function() {
       const nick = document.getElementById('nicknameInput').value.trim();
@@ -180,13 +185,14 @@
     }
 
     socket.on('loadAllMessages', (messages) => {
-      document.getElementById('chatMessagesArea').innerHTML = ''; 
-      messages.forEach(msg => appendMessage(msg));
-    });
+     window.allMessages = messages; // Gələn mesajları yaddaşa at
+  renderMessages(); // Ekrana çək
+});
 
-    socket.on('receiveMessage', (msg) => {
-      appendMessage(msg);
-    });
+   socket.on('receiveMessage', (msg) => {
+  window.allMessages.push(msg); // Yeni mesajı yaddaş siyahısına əlavə et
+  appendMessage(msg);
+});
 
     // Əlaqə xətalarını konsolda görmək üçün
     socket.on('connect_error', (error) => {
