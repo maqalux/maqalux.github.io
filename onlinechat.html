@@ -215,7 +215,19 @@
   window.allMessages.push(msg);
   appendMessage(msg);
 });
-
+socket.on('loadPrivateMessages', (messages) => {
+      messages.forEach(msg => {
+        let formattedMsg = { sender: msg.sender };
+        // Əgər mesajı mən göndərmişəmsə fərqli, mənə gəlibsə fərqli etiketləyirik
+        if (msg.sender === window.currentUserNick) {
+          formattedMsg.text = `🔒 [Şəxsi - ${msg.recipient} üçün]: ${msg.text}`;
+        } else {
+          formattedMsg.text = `🔒 [Sənə Şəxsi]: ${msg.text}`;
+        }
+        window.allMessages.push(formattedMsg);
+      });
+      window.renderMessages(); // Bütün köhnə gizli mesajları ekrana çək
+    });
     // Əlaqə xətalarını konsolda görmək üçün
     socket.on('connect_error', (error) => {
       console.error("Bağlantı xətası:", error);
