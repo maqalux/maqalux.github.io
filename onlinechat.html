@@ -35,7 +35,6 @@
     .chat-header h3 { margin: 0; color: #FFD700; }
     .logout-btn { background: rgba(255, 0, 0, 0.6); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; }
 
-    /* Modern İki Sütunlu Struktur */
     .chat-body { flex: 1; display: flex; overflow: hidden; }
     .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
     .messages-area::-webkit-scrollbar { width: 6px; }
@@ -103,12 +102,11 @@
       <div class="chat-screen" id="mainChatScreen">
         <div class="chat-header">
           <h3 id="myDisplayNick">🟢 İstifadəçi</h3>
-          <button class="logout-btn" onclick="location.reload()">Çıxış</button>
+          <button class="logout-btn" onclick="logoutFromChat()">Çıxış</button>
         </div>
         
         <div class="chat-body">
           <div class="messages-area" id="chatMessagesArea"></div>
-          
           <div class="sidebar-users">
             <h4>Aktiv Kəslər</h4>
             <div id="activeUsersList"></div>
@@ -140,6 +138,9 @@
     const RENDER_URL = "https://maqalux.onrender.com"; 
     const socket = io(RENDER_URL, { transports: ['websocket', 'polling'] }); 
     
+    // ⚠️ ImgBB API Açarını bura daxil etməyi unutma!
+    const IMGBB_API_KEY = "https://api.imgbb.com/1/upload"; 
+
     window.currentUserNick = "";
     window.currentUserRole = "user";
     window.allMessages = []; 
@@ -149,11 +150,17 @@
       window.allMessages.forEach(msg => appendMessage(msg));
     };
 
+    // Əsas Giriş funksiyası
     window.loginOrRegister = function() {
       const nick = document.getElementById('nicknameInput').value.trim();
       const pass = document.getElementById('passwordInput').value.trim();
       if(!nick || !pass) return alert("Zəhmət olmasa ləqəb və şifrəni daxil edin.");
 
+      executeLogin(nick, pass);
+    };
+
+    // Arxa fonda loqin icra edən funksiya
+    function executeLogin(nick, pass) {
       if(!socket.connected) {
         return alert("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.");
       }
@@ -162,14 +169,39 @@
         if (response.success) {
           window.currentUserNick = nick;
           window.currentUserRole = response.role || "user";
+          
+          // UĞURLU GİRİŞ: Məlumatları brauzerin yaddaşına yazırıq (Səhifə yenilənəndə silinməsin deyə)
+          localStorage.setItem('maqalux_nick', nick);
+          localStorage.setItem('maqalux_pass', pass);
+
           document.getElementById('myDisplayNick').innerHTML = `🟢 ${nick} (${window.currentUserRole})`;
           window.renderMessages();
           document.getElementById('loginScreen').classList.remove('active');
           document.getElementById('mainChatScreen').classList.add('active');
         } else {
           alert(response.message);
+          // Şifrə səhvdirsə köhnə yaddaşı təmizlə
+          localStorage.removeItem('maqalux_nick');
+          localStorage.removeItem('maqalux_pass');
         }
       });
+    }
+
+    // Əgər brauzerdə qeydiyyat qalıbsa, səhifə açılanda avtomatik daxil et
+    socket.on('connect', () => {
+      const savedNick = localStorage.getItem('maqalux_nick');
+      const savedPass = localStorage.getItem('maqalux_pass');
+      
+      if(savedNick && savedPass) {
+        executeLogin(savedNick, savedPass);
+      }
+    });
+
+    // Çıxış düyməsi basılanda yaddaşı tam təmizləyirik
+    window.logoutFromChat = function() {
+      localStorage.removeItem('maqalux_nick');
+      localStorage.removeItem('maqalux_pass');
+      location.reload();
     };
 
     // Mesaj Göndərmə Məntiqi
@@ -193,7 +225,6 @@
         payload.recipient = recipient;
         socket.emit('sendPrivateMessage', payload);
         
-        // Şəxsi mesajı öz ekranımızda göstərmək
         const privateMsg = { 
           sender: window.currentUserNick, 
           text: `🔒 [Şəxsi - ${recipient} üçün]: ${text}`,
@@ -206,24 +237,46 @@
       input.value = "";
     };
 
-    // Şəkil / GIF Mexanizmi (Base64 formatına çevirir)
-    window.handleMediaUpload = (e) => {
+    // ImgBB Şəkil Yükləmə Sistemi
+    window.handleMediaUpload = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
       
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        window.triggerMessageSend(event.target.result);
-      };
-      reader.readAsDataURL(file);
-      e.target.value = ""; // İnputu sıfırla
+      const inputField = document.getElementById('messageInputField');
+      const originalPlaceholder = inputField.placeholder;
+      inputField.placeholder = "📸 Şəkil ImgBB-yə yüklənir, gözləyin...";
+      inputField.disabled = true;
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+        
+        const result = await response.json();
+
+        if (result.success) {
+          window.triggerMessageSend(result.data.url);
+        } else {
+          alert("Şəkil ImgBB serverinə yüklənə bilmədi.");
+        }
+      } catch (err) {
+        console.error("ImgBB yükləmə xətası:", err);
+        alert("Şəkil göndərilərkən xəta baş verdi.");
+      } finally {
+        inputField.placeholder = originalPlaceholder;
+        inputField.disabled = false;
+        e.target.value = "";
+      }
     };
 
     window.handleKeyPress = (e) => {
       if(e.key === 'Enter') triggerMessageSend();
     };
 
-    // Admin Silmə Əmri
     window.requestDelete = (msgId) => {
       if(confirm("Bu mesajı silmək istədiyinizdən əminsiniz?")) {
         socket.emit('deleteMessage', msgId);
@@ -237,12 +290,10 @@
       
       let content = `<b>${msg.sender}</b> ${msg.text}`;
       
-      // Əgər mesajda şəkil və ya GIF varsa ekrana bas
       if(msg.mediaType === 'image' && msg.mediaUrl) {
         content += `<br><img src="${msg.mediaUrl}" alt="Media">`;
       }
 
-      // Əgər loqin olan şəxs admindirə və mesaj ümumidirsə və hələ silinməyibsə Sil düyməsi qoy
       if(window.currentUserRole === 'admin' && msg.id && !msg.isDeleted) {
         content += `<button class="delete-btn" onclick="requestDelete('${msg.id}')">🗑️ Sil</button>`;
       }
@@ -253,7 +304,6 @@
       area.scrollTop = area.scrollHeight; 
     }
 
-    // Dynamic Sockets Listeners
     socket.on('loadAllMessages', (messages) => {
       window.allMessages = messages;
       renderMessages();
@@ -286,7 +336,6 @@
       renderMessages();
     });
 
-    // Real-time silinmə əmri gələndə mesajı ekranda yenilə
     socket.on('messageUpdated', (updatedMsg) => {
       const index = window.allMessages.findIndex(m => m.id === updatedMsg.id);
       if(index !== -1) {
@@ -295,7 +344,6 @@
       }
     });
 
-    // Aktiv Onlayn İstifadəçilər Siyahısını Yeniləyir
     socket.on('updateActiveUsers', (usersList) => {
       const container = document.getElementById('activeUsersList');
       container.innerHTML = "";
@@ -305,10 +353,6 @@
         div.innerText = user;
         container.appendChild(div);
       });
-    });
-
-    socket.on('connect_error', (error) => {
-      console.error("Bağlantı xətası:", error);
     });
   </script>
 </body>
