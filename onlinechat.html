@@ -185,11 +185,7 @@
   input.value = "";
 };
       
-      socket.emit('sendMessage', { sender: window.currentUserNick, text: input.value });
-      input.value = "";
-    };
-
-    window.handleKeyPress = (e) => {
+       window.handleKeyPress = (e) => {
       if(e.key === 'Enter') triggerMessageSend();
     };
 
