@@ -110,11 +110,12 @@
         
         <div class="messages-area" id="chatMessagesArea"></div>
         
-        <div class="input-bar">
-          <input type="text" id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." onkeypress="handleKeyPress(event)">
-          <button class="send-btn" onclick="triggerMessageSend()">➤</button>
-        </div>
-      </div>
+       <div class="input-bar">
+  <input type="text" id="recipientInput" class="message-input" placeholder="Kimə (Hamıya)" style="flex: 0.4; max-width: 150px; border-right: 2px solid rgba(255,215,0,0.5);">
+  
+  <input type="text" id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." onkeypress="handleKeyPress(event)">
+  <button class="send-btn" onclick="triggerMessageSend()">➤</button>
+</div>
 
     </div>
   </main>
@@ -162,9 +163,27 @@
       });
     };
 
-    window.triggerMessageSend = () => {
-      const input = document.getElementById('messageInputField');
-      if(!input.value.trim()) return;
+   window.triggerMessageSend = () => {
+  const input = document.getElementById('messageInputField');
+  const recipient = document.getElementById('recipientInput').value.trim(); // Yeni əlavə
+  const text = input.value.trim();
+
+  if(!text) return;
+
+  if (recipient === "") {
+    // Qutu boşdursa, HAMİYA göndər
+    socket.emit('sendMessage', { sender: window.currentUserNick, text: text });
+  } else {
+    // Qutuda ad varsa, ŞƏXSİ göndər
+    socket.emit('sendPrivateMessage', { sender: window.currentUserNick, recipient: recipient, text: text });
+    
+    // Öz yazdığımızı öz ekranımızda xüsusi rənglə görək deyə yaddaşa atırıq
+    const privateMsg = { sender: window.currentUserNick, text: `🔒 [Şəxsi - ${recipient} üçün]: ${text}` };
+    window.allMessages.push(privateMsg);
+    appendMessage(privateMsg);
+  }
+  input.value = "";
+};
       
       socket.emit('sendMessage', { sender: window.currentUserNick, text: input.value });
       input.value = "";
@@ -191,6 +210,13 @@
 
    socket.on('receiveMessage', (msg) => {
   window.allMessages.push(msg); // Yeni mesajı yaddaş siyahısına əlavə et
+  appendMessage(msg);
+});
+
+    socket.on('receivePrivateMessage', (msg) => {
+  // Gələn mesajın mətninə şəxsi olduğunu bildirən işarə qoyuruq
+  msg.text = `🔒 [Sənə Şəxsi]: ${msg.text}`;
+  window.allMessages.push(msg);
   appendMessage(msg);
 });
 
