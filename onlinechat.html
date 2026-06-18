@@ -73,10 +73,9 @@
     .sidebar-users { width: 220px; background: rgba(5, 12, 31, 0.3); border-left: 1px solid rgba(255,255,255,0.08); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
     .sidebar-users h4 { margin: 0 0 10px 0; color: #ffaa00; border-bottom: 1px solid rgba(255,162,0,0.2); padding-bottom: 5px; }
     .user-badge { background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 20px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-    .user-badge::before { content: "🟢"; font-size: 10px; }
 
     .msg-bubble { max-width: 75%; padding: 13px 18px; border-radius: 20px; font-size: 15px; position: relative; word-wrap: break-word; display: flex; flex-direction: column; }
-    .msg-bubble b { font-size: 0.85em; margin-bottom: 5px; opacity: 0.9; color: #ffc107; }
+    .msg-bubble b { font-size: 0.85em; opacity: 0.9; color: #ffc107; }
     .msg-bubble img { max-width: 100%; max-height: 200px; border-radius: 12px; margin-top: 7px; object-fit: cover; }
     
     .msg-me { background: linear-gradient(135deg, #024397, #00285e); color: white; align-self: flex-end; border-bottom-right-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
@@ -97,31 +96,35 @@
     .send-btn:hover { transform: scale(1.1); box-shadow: 0 4px 18px rgba(255,152,0,0.4); }
 
     footer { text-align: center; padding: 20px; color: #ffaa00; font-weight: 600; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0, 0, 0, 0.2); }
+    
+    /* Profil Şəklinin Konteyneri */
+    .avatar-container { position: relative; width: 45px; height: 45px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #ffaa00; flex-shrink: 0; }
+    .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* ✅ MOBİL VERSİYA ÜÇÜN XÜSUSİ TƏNZİMLƏMƏLƏR (YENİLƏNDİ) */
+    /* Üzərinə gələndə şəffaf "Dəyiş" effekti */
+    .avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; font-size: 16px; }
+    .avatar-container:hover .avatar-overlay { opacity: 1; }
+
+    /* Mesajlar daxilindəki kiçik profil şəkilləri */
+    .msg-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,170,0,0.4); flex-shrink: 0; }
+    .msg-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    
+    /* Aktiv istifadəçi paneli şəkli */
+    .sidebar-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+   
+    /* ✅ MOBİL VERSİYA ÜÇÜN XÜSUSİ TƏNZİMLƏMƏLƏR */
     @media (max-width: 700px) {
       header { height: auto; flex-direction: column; padding: 15px; gap: 10px; }
-      
-      /* Konteynerin hündürlüyü ekrana tam sığdırıldı ki, mesaj yazılan yer kəsilməsin */
       .chat-container { height: calc(100vh - 150px); min-height: 480px; border-radius: 16px; margin: 5px 0; }
       .chat-body { flex-direction: column; }
-      
-      /* Aktiv istifadəçilər siyahısı daraldıldı */
       .sidebar-users { width: 100%; height: 90px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 10px 15px; box-sizing: border-box; }
       .sidebar-users h4 { font-size: 13px; margin-bottom: 4px; }
       #activeUsersList { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
       .user-badge { padding: 4px 10px; font-size: 12px; white-space: nowrap; }
-
-      /* Mesaj yazılan panel və düymələr mobil ekran üçün optimizasiya olundu */
       .input-bar { padding: 10px; gap: 6px; justify-content: space-between; }
-      .message-input { padding: 10px 14px; font-size: 14px; min-width: 0; } /* min-width sıxılmanın qarşısını alır */
-      
-      /* "Kimə" xanası mobildə bir az kiçildildi ki, şəkil düyməsinə yer qalsın */
+      .message-input { padding: 10px 14px; font-size: 14px; min-width: 0; }
       #recipientInput { max-width: 70px !important; padding: 10px 6px; text-align: center; font-size: 12px; }
-      
-      /* Şəkil yükləmə (Media) və Göndər düymələrinin itməməsi üçün ölçülər və flex-shrink əlavə olundu */
       .media-label, .send-btn { width: 38px; height: 38px; font-size: 16px; flex-shrink: 0; }
-      
       .msg-bubble { max-width: 85%; padding: 10px 14px; font-size: 14px; }
     }
   </style>
@@ -143,10 +146,8 @@
   <main>
     <div class="chat-container">
       
-      <!-- Giriş və Qeydiyyat Ekranı -->
       <div class="chat-screen active" id="loginScreen">
         
-        <!-- DAXİL OL PƏNCƏRƏSİ -->
         <div class="login-card" id="loginFormCard">
           <h2>Maqalux Çat Platforması</h2>
           <p>Söhbətə başlamaq üçün daxil olun</p>
@@ -161,7 +162,6 @@
           </div>
         </div>
 
-        <!-- QEYDİYYAT PƏNCƏRƏSİ -->
         <div class="login-card" id="registerFormCard" style="display: none;">
           <h2>Yeni Qeydiyyat</h2>
           <p>Platformada yeni hesab yaratmaq üçün doldurun</p>
@@ -179,10 +179,16 @@
 
       </div>
 
-      <!-- Çatın Əsas Ekranı -->
       <div class="chat-screen" id="mainChatScreen">
         <div class="chat-header">
-          <h3 id="myDisplayNick">🟢 İstifadəçi</h3>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="avatar-container" onclick="document.getElementById('avatarFileInput').click()">
+              <img id="myAvatarImg" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil Şəkli">
+              <div class="avatar-overlay">📸</div>
+            </div>
+            <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadProfileAvatar(event)">
+            <h3 id="myDisplayNick">🟢 İstifadəçi</h3>
+          </div>
           <button class="logout-btn" onclick="logoutFromChat()">Çıxış</button>
         </div>
         
@@ -390,7 +396,17 @@
       const div = document.createElement('div');
       div.className = 'msg-bubble ' + (msg.sender === window.currentUserNick ? 'msg-me' : 'msg-other');
       
-      let content = `<b>${msg.sender}</b> ${msg.text}`;
+      // Serverdən gələn və ya default profil şəkli linki
+      const userAvatar = msg.senderAvatar || "https://www.w3schools.com/howto/img_avatar.png";
+      
+      // Profil şəkli və istifadəçi adının daxil edildiyi başlıq bloku
+      let content = `
+        <div class="msg-header">
+          <img src="${userAvatar}" class="msg-avatar" alt="Profile">
+          <b>${msg.sender}</b>
+        </div>
+        <div>${msg.text}</div>
+      `;
       
       if(msg.mediaType === 'image' && msg.mediaUrl) {
         content += `<br><img src="${msg.mediaUrl}" alt="Media">`;
@@ -452,10 +468,47 @@
       usersList.forEach(user => {
         const div = document.createElement('div');
         div.className = 'user-badge';
-        div.innerText = user;
+        
+        // Serverdən həm sadəcə string (köhnə variant), həm də obyekt (yeni variant) gələrsə uyğunlaşma quruldu
+        const userNick = typeof user === 'object' ? user.nick : user;
+        const userAvatar = (typeof user === 'object' && user.avatarUrl) ? user.avatarUrl : "https://www.w3schools.com/howto/img_avatar.png";
+        
+        div.innerHTML = `<img src="${userAvatar}" class="sidebar-avatar" alt="av"> 🟢 ${userNick}`;
         container.appendChild(div);
       });
     });
+
+    window.uploadProfileAvatar = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          const newAvatarUrl = result.data.url;
+          
+          // Öz ekranımızda dərhal yeniləyirik
+          document.getElementById('myAvatarImg').src = newAvatarUrl;
+          
+          // Serverə məlumat göndəririk
+          socket.emit('updateAvatar', { nick: window.currentUserNick, avatarUrl: newAvatarUrl });
+          
+          alert("Profil şəkliniz uğurla yeniləndi!");
+        } else {
+          alert("Şəkil yüklənərkən xəta baş verdi.");
+        }
+      } catch (err) {
+        console.error("Avatar yükləmə xətası:", err);
+      }
+    };
   </script>
 </body>
 </html>
