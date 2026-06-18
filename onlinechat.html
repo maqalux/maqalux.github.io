@@ -299,29 +299,38 @@
     };
 
     function executeLogin(nick, pass, action = 'login', email = "") {
-      if(!socket.connected) {
-        return alert("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.");
+  if(!socket.connected) {
+    return alert("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.");
+  }
+
+  socket.emit('login', { nick, pass, action, email }, (response) => {
+    if (response.success) {
+      window.currentUserNick = nick;
+      window.currentUserRole = response.role || "user";
+      
+      localStorage.setItem('maqalux_nick', nick);
+      localStorage.setItem('maqalux_pass', pass);
+
+      // 🟢 BURA DİQQƏT: Serverdən (Firebase-dən) gələn imgBB linkini tapırıq
+      const userAvatarUrl = response.avatarUrl || "https://www.w3schools.com/howto/img_avatar.png";
+      
+      // HTML-dəki profil şəkli elementini tapıb linki bura yazırıq
+      const myAvatarElement = document.getElementById('myAvatarImg');
+      if (myAvatarElement) {
+        myAvatarElement.src = userAvatarUrl;
       }
 
-      socket.emit('login', { nick, pass, action, email }, (response) => {
-        if (response.success) {
-          window.currentUserNick = nick;
-          window.currentUserRole = response.role || "user";
-          
-          localStorage.setItem('maqalux_nick', nick);
-          localStorage.setItem('maqalux_pass', pass);
-
-          document.getElementById('myDisplayNick').innerHTML = `🟢 ${nick} (${window.currentUserRole})`;
-          window.renderMessages();
-          document.getElementById('loginScreen').classList.remove('active');
-          document.getElementById('mainChatScreen').classList.add('active');
-        } else {
-          alert(response.message);
-          localStorage.removeItem('maqalux_nick');
-          localStorage.removeItem('maqalux_pass');
-        }
-      });
+      document.getElementById('myDisplayNick').innerHTML = `🟢 ${nick} (${window.currentUserRole})`;
+      window.renderMessages();
+      document.getElementById('loginScreen').classList.remove('active');
+      document.getElementById('mainChatScreen').classList.add('active');
+    } else {
+      alert(response.message);
+      localStorage.removeItem('maqalux_nick');
+      localStorage.removeItem('maqalux_pass');
     }
+  });
+}
 
     socket.on('connect', () => {
       const savedNick = localStorage.getItem('maqalux_nick');
