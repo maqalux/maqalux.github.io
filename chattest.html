@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maqalux - Modern Çat</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #090d22 0%, #082962 45%, #0151b1 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header { display: flex; align-items: center; justify-content: space-between; height: 90px; padding: 0 30px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 1000; }
+    header a.logo img { height: 55px; transition: transform 0.4s ease; }
+    header a.logo img:hover { transform: scale(1.1) rotate(-3deg); }
+    
+    nav ul { list-style: none; display: flex; gap: 10px; margin: 0; padding: 0; }
+    nav ul li a { text-decoration: none; color: white; font-weight: 600; font-size: 16px; padding: 10px 22px; border-radius: 30px; transition: all 0.3s ease; }
+    nav ul li a.active { background: linear-gradient(90deg, #ffc107, #ff9800); color: #0a1329; box-shadow: 0 4px 15px rgba(255,152,0,0.3); }
+
+    main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; position: relative; }
+    
+    .chat-container { width: 100%; max-width: 1100px; height: 700px; background: rgba(10, 22, 52, 0.5); backdrop-filter: blur(25px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    
+    .chat-screen { display: none !important; height: 100%; width: 100%; }
+    .chat-screen.active { display: flex !important; flex-direction: column; }
+
+    #loginScreen { justify-content: center; align-items: center; position: relative; }
+    .login-card { background: rgba(13, 27, 62, 0.75); backdrop-filter: blur(20px); padding: 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 25px 55px rgba(0, 0, 0, 0.6); width: 85%; max-width: 380px; display: flex; flex-direction: column; align-items: center; }
+    .login-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; font-weight: 700; text-align: center; width: 100%; letter-spacing: 0.5px; }
+    .login-card p { color: rgba(255, 255, 255, 0.6); font-size: 14px; margin: 0 0 25px 0; text-align: center; }
+    
+    .input-group { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: white; font-size: 15px; outline: none; text-align: left; transition: all 0.3s ease; width: 100%; box-sizing: border-box; }
+    .custom-input:focus { border-color: #ffa200; background: rgba(255,255,255,0.15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
+    
+    .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+    .password-wrapper .custom-input { padding-right: 55px; }
+    .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; user-select: none; color: rgba(255, 255, 255, 0.5); z-index: 5; }
+
+    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,152,0,0.4); }
+    
+    .google-btn { background: #ffffff; color: #333; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px; }
+
+    .switch-text { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 15px; text-align: center; width: 100%; }
+    .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; margin-left: 5px; }
+
+    .chat-header { background: rgba(5, 12, 31, 0.6); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .chat-header h3 { margin: 0; color: white; font-size: 16px; }
+    .header-actions { display: flex; gap: 10px; }
+    .settings-btn { background: rgba(255, 255, 255, 0.1); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+    .logout-btn { background: rgba(220, 53, 69, 0.8); color: white; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+
+    .chat-body { flex: 1; display: flex; overflow: hidden; position: relative; }
+    .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: rgba(0, 0, 0, 0.15); }
+    .messages-area::-webkit-scrollbar { width: 6px; }
+    .messages-area::-webkit-scrollbar-thumb { background: rgba(255,162,0,0.3); border-radius: 10px; }
+    
+    .sidebar-users { width: 260px; background: rgba(5, 12, 31, 0.4); border-left: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar-header { position: sticky; top: 0; background: #07112a; padding: 15px 20px; z-index: 10; border-bottom: 1px solid rgba(255,162,0,0.2); margin: 0; color: #ffaa00; font-size: 15px; font-weight: 700; }
+    #activeUsersList { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+    
+    .user-badge { background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 20px; font-size: 13.5px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; cursor: pointer; border: 1px solid transparent; }
+    .user-badge:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,193,7,0.3); }
+    .user-badge-left { display: flex; align-items: center; gap: 10px; }
+    
+    .avatar-wrapper { position: relative; width: 32px; height: 32px; flex-shrink: 0; }
+    .avatar-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .status-dot { position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #0a1634; background: #888; }
+    .status-dot.online { background: #4caf50; box-shadow: 0 0 8px #4caf50; }
+    .role-tag { font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; background: rgba(255,255,255,0.15); }
+    .role-admin { color: #ff4d4d; background: rgba(255,77,77,0.15); }
+    .role-mod { color: #00bcd4; background: rgba(0,188,212,0.15); }
+
+    .msg-bubble { max-width: 70%; padding: 12px 16px; border-radius: 20px; font-size: 14.5px; position: relative; word-wrap: break-word; display: flex; flex-direction: column; gap: 4px; transition: transform 0.2s; }
+    .msg-bubble:hover { transform: scale(1.01); }
+    .msg-me { background: linear-gradient(135deg, #024397, #00285e); color: white; align-self: flex-end; border-bottom-right-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
+    .msg-other { background: rgba(255, 255, 255, 0.08); color: white; align-self: flex-start; border-bottom-left-radius: 5px; border: 1px solid rgba(255,255,255,0.05); }
+    
+    .msg-meta-top { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin-bottom: 2px; }
+    .msg-sender-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,170,0,0.3); }
+    .msg-bubble b { color: #ffc107; font-weight: 600; }
+    .msg-text { line-height: 1.4; white-space: pre-wrap; }
+    .msg-bubble img.uploaded-media { max-width: 100%; max-height: 220px; border-radius: 12px; margin-top: 5px; object-fit: cover; }
+    
+    .msg-bottom-row { display: flex; align-items: center; justify-content: flex-end; gap: 5px; font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+    .tick-icon { font-size: 12px; font-weight: bold; }
+    .tick-sent { color: #aaa; }
+    .tick-delivered { color: #ccc; }
+    .tick-read { color: #00e676; }
+
+    .msg-actions-trigger { position: absolute; right: 8px; top: 8px; background: rgba(0,0,0,0.4); border: none; color: white; border-radius: 50%; width: 22px; height: 22px; display: none; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; }
+    .msg-bubble:hover .msg-actions-trigger { display: flex; }
+    
+    .reply-preview-container { background: rgba(0,0,0,0.2); border-left: 3px solid #ff9800; padding: 5px 8px; border-radius: 4px; font-size: 12px; margin-bottom: 4px; }
+
+    .action-menu { position: absolute; background: #0c1836; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 500; padding: 5px 0; min-width: 140px; }
+    .action-menu button { background: none; border: none; color: white; padding: 10px 15px; text-align: left; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; width: 100%; }
+    .action-menu button:hover { background: rgba(255,255,255,0.08); color: #ffaa00; }
+
+    .input-bar-wrapper { display: flex; flex-direction: column; background: rgba(5, 12, 31, 0.6); border-top: 1px solid rgba(255,255,255,0.1); }
+    .reply-bar-active { padding: 8px 20px; background: rgba(255,152,0,0.1); display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-bottom: 1px solid rgba(255,152,0,0.2); }
+    .reply-bar-active span { color: #ff9800; font-weight: 600; }
+    .reply-close { cursor: pointer; font-size: 16px; color: #ff4d4d; }
+
+    .input-bar { padding: 12px 20px; display: flex; gap: 12px; align-items: flex-end; }
+    .textarea-container { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 8px 16px; display: flex; align-items: flex-end; }
+    .message-textarea { flex: 1; background: none; border: none; outline: none; color: white; font-family: inherit; font-size: 14.5px; resize: none; max-height: 90px; min-height: 24px; line-height: 1.4; box-sizing: border-box; padding: 2px 0; }
+    .message-textarea::placeholder { color: rgba(255,255,255,0.4); }
+
+    .media-label, .send-btn, .gif-btn { background: rgba(255,255,255,0.08); width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 18px; transition: 0.3s; border: none; color: white; flex-shrink: 0; }
+    .media-label:hover, .gif-btn:hover { background: rgba(255,255,255,0.18); transform: scale(1.05); }
+    .send-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; font-size: 16px; }
+    .send-btn:hover { transform: scale(1.1); box-shadow: 0 4px 15px rgba(255,152,0,0.4); }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 2000; }
+    .modal-content { background: #0c1735; border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; padding: 30px; width: 90%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); position: relative; }
+    .modal-content h3 { margin-top: 0; color: #ffaa00; font-size: 1.4em; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+    .modal-close { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 20px; color: rgba(255,255,255,0.5); }
+    .modal-close:hover { color: white; }
+
+    .gif-popover { position: absolute; bottom: 80px; right: 20px; background: #0c1735; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 280px; height: 320px; display: none; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.6); z-index: 1000; overflow: hidden; }
+    .gif-tabs { display: flex; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .gif-tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; cursor: pointer; opacity: 0.6; font-weight: 600; }
+    .gif-tab.active { opacity: 1; color: #ffaa00; border-bottom: 2px solid #ffaa00; }
+    .gif-grid { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .gif-grid img { width: 100%; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+    .gif-grid img:hover { transform: scale(1.05); }
+
+    footer { text-align: center; padding: 20px; color: #ffaa00; font-weight: 600; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0, 0, 0, 0.2); }
+    
+    .avatar-container { position: relative; width: 45px; height: 45px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #ffaa00; flex-shrink: 0; }
+    .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; font-size: 16px; }
+    .avatar-container:hover .avatar-overlay { opacity: 1; }
+
+    @media (max-width: 768px) {
+      header { height: auto; flex-direction: column; padding: 12px; gap: 10px; }
+      main { padding: 0; } 
+      .chat-container { height: calc(100vh - 120px); flex: 1; min-height: 100%; border-radius: 0; margin: 0; border: none; }
+      footer { display: none; } 
+      .chat-body { flex-direction: column; }
+      .sidebar-users { width: 100%; height: 110px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .sidebar-header { padding: 6px 15px; font-size: 12px; }
+      #activeUsersList { flex-direction: row; gap: 8px; overflow-x: auto; padding: 8px 15px; }
+      .user-badge { padding: 6px 12px; font-size: 12px; white-space: nowrap; height: fit-content; }
+      .msg-bubble { max-width: 85%; padding: 10px 14px; font-size: 13.5px; }
+      .input-bar { padding: 8px 10px; gap: 8px; }
+      .media-label, .send-btn, .gif-btn { width: 38px; height: 38px; font-size: 15px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="onlinechat.html" class="active">Onlayn çat</a></li>
+      </ul> 
+    </nav>
+  </header>
+
+  <main>
+    <div class="chat-container">
+      
+      <div class="chat-screen active" id="loginScreen">
+        <div class="login-card" id="loginFormCard">
+          <h2>Maqalux Çat</h2>
+          <p>Söhbətə başlamaq üçün daxil olun</p>
+          <div class="input-group">
+            <input type="text" id="loginNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
+            <div class="password-wrapper">
+              <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
+              <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
+            </div>
+            <button class="login-btn" onclick="handleAuth('login')">Söhbətə Qoşul</button>
+            <button class="login-btn google-btn" onclick="handleGoogleAuth()">
+              <img src="https://cdns.iconmonstr.com/wp-content/releases/preview/2012/24/iconmonstr-google-plus-1.png" style="height:18px;" alt=""> Google ilə daxil ol
+            </button>
+            <p class="switch-text" style="margin-top:10px;">
+              <span onclick="openForgotModal()">Şifrənizi unutdunuzmu?</span>
+            </p>
+            <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
+          </div>
+        </div>
+
+        <div class="login-card" id="registerFormCard" style="display: none;">
+          <h2>Yeni Qeydiyyat</h2>
+          <p>Platformada yeni hesab yaratmaq üçün doldurun</p>
+          <div class="input-group">
+            <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
+            <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+            <div class="password-wrapper">
+              <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
+              <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
+            </div>
+            <button class="login-btn" onclick="handleAuth('register')">Qeydiyyatı Tamamla</button>
+            <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-screen" id="mainChatScreen">
+        <div class="chat-header">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="avatar-container" onclick="document.getElementById('avatarFileInput').click()">
+              <img id="myAvatarImg" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil Şəkli">
+              <div class="avatar-overlay">📸</div>
+            </div>
+            <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadProfileAvatar(event)">
+            <h3 id="myDisplayNick">🟢 İstifadəçi</h3>
+          </div>
+          <div class="header-actions">
+            <button class="settings-btn" onclick="openSettingsModal()">⚙️ Ayarlar</button>
+            <button class="logout-btn" onclick="logoutFromChat()">Çıxış</button>
+          </div>
+        </div>
+        
+        <div class="chat-body">
+          <div class="messages-area" id="chatMessagesArea" onclick="closeAllContextMenus()"></div>
+          
+          <div class="sidebar-users">
+            <div class="sidebar-header" id="currentChatViewHeader">Aktiv istifadəçilər</div>
+            <div id="activeUsersList"></div>
+          </div>
+        </div>
+        
+        <div class="input-bar-wrapper">
+          <div class="reply-bar-active" id="replyContextBar" style="display:none;">
+            <div>Yanıqlanır: <span id="replyTargetUser">İstifadəçi</span></div>
+            <div class="reply-close" onclick="cancelReplyContext()">✕</div>
+          </div>
+          
+          <div class="input-bar">
+            <button class="gif-btn" onclick="toggleGifPopover(event)" title="GIF və Sticker">🎭</button>
+            
+            <div class="textarea-container">
+              <textarea id="messageInputField" class="message-textarea" placeholder="Mesajınızı bura yazın..." onkeydown="handleTextAreaKeyDown(event)"></textarea>
+            </div>
+            
+            <label class="media-label" title="Şəkil göndər">
+              🖼️
+              <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
+            </label>
+            
+            <button class="send-btn" onclick="triggerMessageSend()">➤</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeForgotModal()">✕</div>
+      <h3>Şifrəni Yenilə</h3>
+      <div class="input-group" style="margin-top:15px;">
+        <input type="text" id="forgotNickInput" class="custom-input" placeholder="İstifadəçi adınız">
+        <input type="email" id="forgotEmailInput" class="custom-input" placeholder="Sistemdəki E-poçtunuz">
+        <input type="password" id="forgotNewPassInput" class="custom-input" placeholder="Yeni Şifrə">
+        <button class="login-btn" onclick="executeForgotPassword()">Şifrəni Dəyişdir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeSettingsModal()">✕</div>
+      <h3>Profil Ayarları</h3>
+      
+      <div style="margin-top:15px; display:flex; flex-direction:column; gap:15px;">
+        <h4 style="margin:0; color:#ffc107; font-size:14px;">Şifrəni Yenilə</h4>
+        <input type="password" id="settingsOldPass" class="custom-input" placeholder="Cari (Köhnə) Şifrə">
+        <input type="password" id="settingsNewPass" class="custom-input" placeholder="Yeni Şifrə">
+        <button class="login-btn" style="padding:10px;" onclick="executeChangePassword()">Şifrəni Yenilə</button>
+        
+        <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:5px 0;">
+        
+        <h4 style="margin:0; color:#ffc107; font-size:14px;">E-poçtu Yenilə</h4>
+        <input type="email" id="settingsNewEmail" class="custom-input" placeholder="Yeni E-poçt ünvanı">
+        <button class="login-btn" style="padding:10px;" onclick="executeChangeEmail()">E-poçtu Yenilə</button>
+        
+        <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:5px 0;">
+        <button class="logout-btn" style="width:100%; padding:12px; border-radius:30px;" onclick="executeDeleteOwnAccount()">Hesabımı Tamamilə Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="gif-popover" id="gifPopover">
+    <div class="gif-tabs">
+      <div class="gif-tab active" id="tabGifs" onclick="switchGifTab('gifs')">GIF-lər</div>
+      <div class="gif-tab" id="tabStickers" onclick="switchGifTab('stickers')">Stikerlər</div>
+    </div>
+    <div class="gif-grid" id="gifGridContainer"></div>
+  </div>
+
+  <div class="action-menu" id="messageActionMenu"></div>
+
+  <footer>
+    &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
+  </footer>
+
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script>
+    const RENDER_URL = "https://maqalux.onrender.com"; 
+    const socket = io(RENDER_URL, { transports: ['websocket', 'polling'] }); 
+    const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a"; 
+
+    window.currentUserNick = "";
+    window.currentUserRole = "user";
+    window.allMessages = []; 
+    window.selectedChatContext = "global"; // "global" və ya "private:NICK"
+    window.replyingToId = null;
+    window.forwardingPayload = null;
+
+    const predefinedGifs = [
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWdtcm93d3V4amNtcWNvOW83ZXp3MXB4M215cnA0cXd4N3RscW96ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3ntq5Bx7qi1Ko/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXN6ZHpxbWZ6d3IxeW9wOHp6N3B6NXhkMms3bnd6NnBsM21vYmdxOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/cuw7fAd39S_9C/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZhcWw3eHpkNzZ5bGN4dmZidGZnaXFrMDM0dGd4bmZscGNvMmdhbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/t3s36s89j84rm/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExb21wN283MzhidDNnbHlscmsxbG8wbDVqdWV5YjRnbnd0M3c1bnlhYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3q2zVr6cu95nF6O4/giphy.gif"
+    ];
+    const predefinedStickers = [
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f600/512.webp",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.webp",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.webp",
+      "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.webp"
+    ];
+
+    window.togglePasswordVisibility = function(inputId, iconElement) {
+      const passwordInput = document.getElementById(inputId);
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        iconElement.innerText = "🙈"; 
+      } else {
+        passwordInput.type = "password";
+        iconElement.innerText = "👁️"; 
+      }
+    };
+
+    window.toggleAuthForms = function(mode) {
+      if(mode === 'register') {
+        document.getElementById('loginFormCard').style.display = 'none';
+        document.getElementById('registerFormCard').style.display = 'flex';
+      } else {
+        document.getElementById('registerFormCard').style.display = 'none';
+        document.getElementById('loginFormCard').style.display = 'flex';
+      }
+    };
+
+    window.handleAuth = function(action) {
+      let nick, pass, email = "";
+      if(action === 'login') {
+        nick = document.getElementById('loginNicknameInput').value.trim();
+        pass = document.getElementById('loginPasswordInput').value.trim();
+        if(!nick || !pass) return alert("Zəhmət olmasa istifadəçi adı və şifrəni daxil edin.");
+      } else {
+        nick = document.getElementById('registerNicknameInput').value.trim();
+        email = document.getElementById('registerEmailInput').value.trim();
+        pass = document.getElementById('registerPasswordInput').value.trim();
+        if(!nick || !email || !pass) return alert("Zəhmət olmasa bütün xanaları (ad, e-poçt, şifrə) doldurun.");
+      }
+      executeLogin(nick, pass, action, email);
+    };
+
+    function handleGoogleAuth() {
+      alert("Google ilə daxil olma simulyasiya edilir...");
+      executeLogin("Google_User", "GPass123!", "login", "google@maqalux.com");
+    }
+
+    function executeLogin(nick, pass, action = 'login', email = "") {
+      if(!socket.connected) return alert("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.");
+      socket.emit('login', { nick, pass, action, email }, (response) => {
+        if (response.success) {
+          window.currentUserNick = nick;
+          window.currentUserRole = response.role || "user";
+          
+          localStorage.setItem('maqalux_nick', nick);
+          localStorage.setItem('maqalux_pass', pass);
+
+          const userAvatarUrl = response.avatarUrl || "https://www.w3schools.com/howto/img_avatar.png";
+          const myAvatarElement = document.getElementById('myAvatarImg');
+          if (myAvatarElement) myAvatarElement.src = userAvatarUrl;
+
+          document.getElementById('myDisplayNick').innerHTML = `🟢 ${nick} (${window.currentUserRole})`;
+          document.getElementById('loginScreen').classList.remove('active');
+          document.getElementById('mainChatScreen').classList.add('active');
+          window.renderMessages();
+        } else {
+          alert(response.message);
+          localStorage.removeItem('maqalux_nick');
+          localStorage.removeItem('maqalux_pass');
+        }
+      });
+    }
+
+    socket.on('connect', () => {
+      const savedNick = localStorage.getItem('maqalux_nick');
+      const savedPass = localStorage.getItem('maqalux_pass');
+      if(savedNick && savedPass) executeLogin(savedNick, savedPass, 'login');
+    });
+
+    window.logoutFromChat = function() {
+      localStorage.removeItem('maqalux_nick');
+      localStorage.removeItem('maqalux_pass');
+      location.reload();
+    };
+
+    // Pəncərə dəyişməsi (Şəxsi və ya Ümumi)
+    window.switchChatView = function(context) {
+      window.selectedChatContext = context;
+      const header = document.getElementById('currentChatViewHeader');
+      if(context === 'global') {
+        header.innerHTML = "Aktiv istifadəçilər";
+      } else {
+        const targetNick = context.split(':')[1];
+        header.innerHTML = `<span style="color:#00e676; cursor:pointer;" onclick="switchChatView('global')">⬅️ Ümumi Çat</span><br>🔒 ${targetNick}`;
+        socket.emit('markAsRead', { sender: targetNick, recipient: window.currentUserNick });
+      }
+      window.renderMessages();
+    };
+
+    window.renderMessages = function() {
+      const area = document.getElementById('chatMessagesArea');
+      area.innerHTML = '';
+      
+      const filtered = window.allMessages.filter(msg => {
+        if (window.selectedChatContext === 'global') {
+          return !msg.recipient; 
+        } else {
+          const targetNick = window.selectedChatContext.split(':')[1];
+          return (msg.sender === window.currentUserNick && msg.recipient === targetNick) ||
+                 (msg.sender === targetNick && msg.recipient === window.currentUserNick);
+        }
+      });
+
+      filtered.forEach(msg => appendMessageElement(msg));
+      area.scrollTop = area.scrollHeight;
+    };
+
+    window.handleTextAreaKeyDown = function(e) {
+      if(e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        triggerMessageSend();
+      }
+    };
+
+    window.triggerMessageSend = function(mediaData = null, customType = null) {
+      const input = document.getElementById('messageInputField');
+      const text = input.value.trim();
+      if(!text && !mediaData) return;
+
+      const payload = {
+        sender: window.currentUserNick,
+        text: text,
+        mediaType: customType ? customType : (mediaData ? "image" : "text"),
+        mediaUrl: mediaData ? mediaData : "",
+        replyTo: window.replyingToId
+      };
+
+      if (window.selectedChatContext !== 'global') {
+        payload.recipient = window.selectedChatContext.split(':')[1];
+      }
+
+      socket.emit('sendMessage', payload);
+      input.value = "";
+      cancelReplyContext();
+      input.style.height = "24px";
+    };
+
+    function appendMessageElement(msg) {
+      if (!msg) return;
+      const area = document.getElementById('chatMessagesArea');
+      
+      const isMe = msg.sender === window.currentUserNick;
+      const div = document.createElement('div');
+      div.className = 'msg-bubble ' + (isMe ? 'msg-me' : 'msg-other');
+      div.setAttribute('data-msgid', msg.id);
+
+      const avatar = msg.senderAvatar || "https://www.w3schools.com/howto/img_avatar.png";
+
+      let replyMarkup = "";
+      if (msg.replyToDetails) {
+        replyMarkup = `
+          <div class="reply-preview-container">
+            <b>${msg.replyToDetails.sender}</b>: ${msg.replyToDetails.text || "[Media]"}
+          </div>
+        `;
+      }
+
+      let mediaMarkup = "";
+      if(msg.mediaUrl) {
+        mediaMarkup = `<img src="${msg.mediaUrl}" class="uploaded-media" alt="Media">`;
+      }
+
+      let tickMarkup = "";
+      if (isMe && msg.recipient) {
+        let tickClass = "tick-sent";
+        let ticks = "✓";
+        if (msg.status === "delivered") { ticks = "✓✓"; tickClass = "tick-delivered"; }
+        if (msg.status === "read") { ticks = "✓✓"; tickClass = "tick-read"; }
+        tickMarkup = `<span class="tick-icon ${tickClass}">${ticks}</span>`;
+      }
+
+      div.innerHTML = `
+        <button class="msg-actions-trigger" onclick="openContextMenu(event, '${msg.id}', '${msg.sender}', ${isMe})">⋮</button>
+        <div class="msg-meta-top">
+          <img src="${avatar}" class="msg-sender-avatar">
+          <b>${msg.sender}</b>
+        </div>
+        ${replyMarkup}
+        <div class="msg-text">${msg.text}</div>
+        ${mediaMarkup}
+        <div class="msg-bottom-row">
+          <span>${msg.time || ""}</span>
+          ${tickMarkup}
+        </div>
+      `;
+
+      area.appendChild(div);
+    }
+
+    // Əməliyyat menyusunu açmaq
+    window.openContextMenu = function(e, msgId, sender, isMe) {
+      e.stopPropagation();
+      const menu = document.getElementById('messageActionMenu');
+      menu.style.display = 'flex';
+      menu.style.left = e.clientX + 'px';
+      menu.style.top = e.clientY + 'px';
+
+      let menuHtml = `
+        <button onclick="initiateReply('${msgId}', '${sender}')">💬 Cavabla</button>
+        <button onclick="initiateForward('${msgId}')">➡️ Yönləndir</button>
+        <button onclick="reactToMsg('${msgId}', '❤️')">❤️ Sevgi</button>
+        <button onclick="reactToMsg('${msgId}', '😂')">😂 Gülüş</button>
+        <button onclick="reactToMsg('${msgId}', '👍')">👍 Əla</button>
+      `;
+
+      // Mesaj silmə icazələri
+      const isAdmin = window.currentUserRole === 'admin';
+      const isMod = window.currentUserRole === 'moderator';
+
+      if (isMe || isAdmin || (isMod && sender !== 'Admin')) {
+        menuHtml += `<button onclick="executeDeleteMsg('${msgId}')" style="color:#ff4d4d;">🗑️ Mesajı Sil</button>`;
+      }
+
+      menu.innerHTML = menuHtml;
+    };
+
+    window.closeAllContextMenus = function() {
+      document.getElementById('messageActionMenu').style.display = 'none';
+      document.getElementById('gifPopover').style.display = 'none';
+    };
+
+    window.initiateReply = function(msgId, sender) {
+      window.replyingToId = msgId;
+      document.getElementById('replyTargetUser').innerText = sender;
+      document.getElementById('replyContextBar').style.display = 'flex';
+      closeAllContextMenus();
+    };
+
+    window.cancelReplyContext = function() {
+      window.replyingToId = null;
+      document.getElementById('replyContextBar').style.display = 'none';
+    };
+
+    window.initiateForward = function(msgId) {
+      const msg = window.allMessages.find(m => m.id === msgId);
+      if(!msg) return;
+      window.forwardingPayload = { text: msg.text, mediaType: msg.mediaType, mediaUrl: msg.mediaUrl };
+      alert("Yönləndirmək istədiyiniz aktiv istifadəçinin adına sağ paneldən toxunun.");
+      closeAllContextMenus();
+    };
+
+    window.reactToMsg = function(msgId, emoji) {
+      socket.emit('reactMessage', { msgId, emoji, user: window.currentUserNick });
+      closeAllContextMenus();
+    };
+
+    window.executeDeleteMsg = function(msgId) {
+      if(confirm("Bu mesajı silmək istədiyinizdən əminsiniz?")) {
+        socket.emit('deleteMessage', { msgId, requestedBy: window.currentUserNick });
+      }
+      closeAllContextMenus();
+    };
+
+    // GIF Paneli Funksiyaları
+    window.toggleGifPopover = function(e) {
+      e.stopPropagation();
+      const popover = document.getElementById('gifPopover');
+      popover.style.display = popover.style.display === 'flex' ? 'none' : 'flex';
+      if(popover.style.display === 'flex') switchGifTab('gifs');
+    };
+
+    window.switchGifTab = function(tab) {
+      document.getElementById('tabGifs').classList.toggle('active', tab === 'gifs');
+      document.getElementById('tabStickers').classList.toggle('active', tab === 'stickers');
+      
+      const grid = document.getElementById('gifGridContainer');
+      grid.innerHTML = "";
+      const source = tab === 'gifs' ? predefinedGifs : predefinedStickers;
+      
+      source.forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.onclick = () => {
+          window.triggerMessageSend(url, tab === 'gifs' ? 'gif' : 'sticker');
+          closeAllContextMenus();
+        };
+        grid.appendChild(img);
+      });
+    };
+
+    // Sağdakı İstifadəçi Paneli və İdarəetmə düymələri
+    window.openUserAdminActions = function(e, targetNick, targetRole, targetBanned) {
+      e.stopPropagation();
+      if(targetNick === window.currentUserNick) return;
+
+      const isAdmin = window.currentUserRole === 'admin';
+      const isMod = window.currentUserRole === 'moderator';
+      
+      let menuHtml = `<div style="padding:10px; font-weight:bold; border-bottom:1px solid rgba(255,255,255,0.1); font-size:12px; color:#ff9800;">${targetNick}</div>`;
+      menuHtml += `<button onclick="switchChatView('private:${targetNick}')">🔒 Şəxsi Söhbət Aç</button>`;
+
+      if (window.forwardingPayload) {
+        menuHtml += `<button onclick="executeForwardToUser('${targetNick}')" style="color:#00e676;">➡️ Bura Yönləndir</button>`;
+      }
+
+      // Şəxsi qara siyahıya (Bloka) əlavə etmək (Bütün istifadəçilər edə bilər)
+      menuHtml += `<button onclick="executeTogglePersonalBlock('${targetNick}')">🚫 Bloka at / Çıxart</button>`;
+
+      if (isAdmin) {
+        menuHtml += `<button onclick="executeAdminAction('promote', '${targetNick}')">👑 Moderator Et</button>`;
+        menuHtml += `<button onclick="executeAdminAction('deleteAccount', '${targetNick}')" style="color:#ff4d4d;">❌ Hesabını Sil</button>`;
+        menuHtml += `<button onclick="executeAdminAction('${targetBanned ? 'unban' : 'ban'}', '${targetNick}')" style="color:#ff9800;">${targetBanned ? 'Banı Kaldır' : '🛑 İstifadəçini Banla'}</button>`;
+      } else if (isMod && targetRole !== 'admin') {
+        menuHtml += `<button onclick="executeAdminAction('${targetBanned ? 'unban' : 'ban'}', '${targetNick}')" style="color:#ff9800;">${targetBanned ? 'Banı Kaldır' : '🛑 İstifadəçini Banla'}</button>`;
+      }
+
+      if(isAdmin) {
+        menuHtml += `<button onclick="executeClearAllGlobalMessages()" style="background:#ff4d4d; color:white;">🔥 Bütün Mesajları Sil</button>`;
+      }
+
+      const menu = document.getElementById('messageActionMenu');
+      menu.style.display = 'flex';
+      menu.style.left = e.clientX + 'px';
+      menu.style.top = e.clientY + 'px';
+      menu.innerHTML = menuHtml;
+    };
+
+    window.executeForwardToUser = function(targetNick) {
+      if(!window.forwardingPayload) return;
+      const payload = { ...window.forwardingPayload, sender: window.currentUserNick, recipient: targetNick };
+      socket.emit('sendMessage', payload);
+      window.forwardingPayload = null;
+      alert("Mesaj uğurla yönləndirildi!");
+      closeAllContextMenus();
+    };
+
+    window.executeTogglePersonalBlock = function(targetNick) {
+      socket.emit('togglePersonalBlock', { user: window.currentUserNick, target: targetNick }, (res) => {
+        alert(res.message);
+        closeAllContextMenus();
+      });
+    };
+
+    window.executeAdminAction = function(action, targetNick) {
+      if(confirm(`Bu əməliyyatı icra etmək istədiyinizdən əminsiniz: ${action} -> ${targetNick}?`)) {
+        socket.emit('adminControl', { action, targetNick, adminNick: window.currentUserNick }, (res) => {
+          alert(res.message);
+          closeAllContextMenus();
+        });
+      }
+    };
+
+    window.executeClearAllGlobalMessages = function() {
+      if(confirm("DİQQƏT: Çatdakı bütün ümumi mesajları silmək istədiyinizə əminsiniz?")) {
+        socket.emit('clearAllMessages', { adminNick: window.currentUserNick }, (res) => {
+          alert(res.message);
+          closeAllContextMenus();
+        });
+      }
+    };
+
+    // Sockets Dinləyiciləri
+    socket.on('loadAllMessages', (messages) => { window.allMessages = messages; window.renderMessages(); });
+    socket.on('receiveMessage', (msg) => { 
+      window.allMessages.push(msg); 
+      window.renderMessages(); 
+      if(window.selectedChatContext !== 'global' && msg.recipient === window.currentUserNick && window.selectedChatContext.split(':')[1] === msg.sender) {
+        socket.emit('markAsRead', { sender: msg.sender, recipient: window.currentUserNick });
+      }
+    });
+    socket.on('messageUpdated', (updatedMsg) => {
+      const idx = window.allMessages.findIndex(m => m.id === updatedMsg.id);
+      if(idx !== -1) { window.allMessages[idx] = updatedMsg; window.renderMessages(); }
+    });
+    socket.on('allMessagesCleared', () => { window.allMessages = []; window.renderMessages(); });
+
+    socket.on('updateActiveUsers', (sortedUsers) => {
+      const container = document.getElementById('activeUsersList');
+      container.innerHTML = "";
+      
+      sortedUsers.forEach(user => {
+        // Əgər istifadəçi banlanıbsa və cari istifadəçi admin/mod deyilsə, siyahıda gizlət
+        const isStaff = window.currentUserRole === 'admin' || window.currentUserRole === 'moderator';
+        if(user.banned && !isStaff) return;
+
+        const div = document.createElement('div');
+        div.className = 'user-badge';
+        div.onclick = (e) => openUserAdminActions(e, user.nick, user.role, user.banned);
+
+        let roleBadge = "";
+        if(user.role === 'admin') roleBadge = `<span class="role-tag role-admin">Admin</span>`;
+        if(user.role === 'moderator') roleBadge = `<span class="role-tag role-mod">Mod</span>`;
+        if(user.banned) roleBadge += ` <span class="role-tag" style="background:#ff4d4d; color:white;">BAN</span>`;
+
+        div.innerHTML = `
+          <div class="user-badge-left">
+            <div class="avatar-wrapper">
+              <img src="${user.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png'}" alt="AV">
+              <div class="status-dot ${user.status === 'online' ? 'online' : ''}"></div>
+            </div>
+            <span>${user.nick}</span>
+          </div>
+          <div>${roleBadge}</div>
+        `;
+        container.appendChild(div);
+      });
+    });
+
+    socket.on('forcedLogout', (msg) => { alert(msg); logoutFromChat(); });
+
+    // Şəkillərin ImgBB ilə yüklənməsi
+    window.handleMediaUpload = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const inputField = document.getElementById('messageInputField');
+      inputField.placeholder = "📸 Şəkil yüklənir...";
+      inputField.disabled = true;
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+        const result = await response.json();
+        if (result.success) window.triggerMessageSend(result.data.url);
+        else alert("Şəkil ImgBB serverinə yüklənə bilmədi.");
+      } catch (err) {
+        alert("Şəkil göndərilərkən xəta baş verdi.");
+      } finally {
+        inputField.placeholder = "Mesajınızı bura yazın...";
+        inputField.disabled = false;
+        e.target.value = "";
+      }
+    };
+
+    window.uploadProfileAvatar = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+        const result = await response.json();
+        if (result.success) {
+          document.getElementById('myAvatarImg').src = result.data.url;
+          socket.emit('updateAvatar', { nick: window.currentUserNick, avatarUrl: result.data.url });
+          alert("Profil şəkliniz uğurla yeniləndi!");
+        }
+      } catch (err) { alert("Avatar yüklənərkən xəta baş verdi."); }
+    };
+
+    // Modalların İdarə Edilməsi
+    window.openForgotModal = () => { document.getElementById('forgotModal').style.display = 'flex'; };
+    window.closeForgotModal = () => { document.getElementById('forgotModal').style.display = 'none'; };
+    window.openSettingsModal = () => { document.getElementById('settingsModal').style.display = 'flex'; };
+    window.closeSettingsModal = () => { document.getElementById('settingsModal').style.display = 'none'; };
+
+    window.executeForgotPassword = function() {
+      const nick = document.getElementById('forgotNickInput').value.trim();
+      const email = document.getElementById('forgotEmailInput').value.trim();
+      const newPass = document.getElementById('forgotNewPassInput').value.trim();
+      if(!nick || !email || !newPass) return alert("Bütün xanaları doldurun.");
+
+      socket.emit('forgotPassword', { nick, email, newPass }, (res) => {
+        alert(res.message);
+        if(res.success) closeForgotModal();
+      });
+    };
+
+    window.executeChangePassword = function() {
+      const oldPass = document.getElementById('settingsOldPass').value.trim();
+      const newPass = document.getElementById('settingsNewPass').value.trim();
+      if(!oldPass || !newPass) return alert("Köhnə və yeni şifrəni yazın.");
+
+      socket.emit('changePassword', { nick: window.currentUserNick, oldPass, newPass }, (res) => {
+        alert(res.message);
+        if(res.success) closeSettingsModal();
+      });
+    };
+
+    window.executeChangeEmail = function() {
+      const newEmail = document.getElementById('settingsNewEmail').value.trim();
+      if(!newEmail) return alert("Yeni e-poçt ünvanını daxil edin.");
+
+      socket.emit('changeEmail', { nick: window.currentUserNick, newEmail }, (res) => {
+        alert(res.message);
+        if(res.success) closeSettingsModal();
+      });
+    };
+
+    window.executeDeleteOwnAccount = function() {
+      if(confirm("Hesabınızı geri qaytarılmamaq üzrə tamamilə silmək istəyirsiniz?")) {
+        socket.emit('deleteOwnAccount', { nick: window.currentUserNick }, (res) => {
+          alert(res.message);
+          logoutFromChat();
+        });
+      }
+    };
+  </script>
+</body>
+</html>
