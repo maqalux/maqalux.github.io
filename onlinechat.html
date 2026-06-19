@@ -70,9 +70,24 @@
     .messages-area::-webkit-scrollbar { width: 6px; }
     .messages-area::-webkit-scrollbar-thumb { background: rgba(255,162,0,0.3); border-radius: 10px; }
     
-    .sidebar-users { width: 220px; background: rgba(5, 12, 31, 0.3); border-left: 1px solid rgba(255,255,255,0.08); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-    .sidebar-users h4 { margin: 0 0 10px 0; color: #ffaa00; border-bottom: 1px solid rgba(255,162,0,0.2); padding-bottom: 5px; }
-    .user-badge { background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 20px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+    .sidebar-users { width: 220px; background: rgba(5, 12, 31, 0.3); border-left: 1px solid rgba(255,255,255,0.08); padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .sidebar-users h4 { margin: 0; color: #ffaa00; border-bottom: 1px solid rgba(255,162,0,0.2); padding: 20px 20px 12px 20px; flex-shrink: 0; background: rgba(5, 12, 31, 0.55); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 2; }
+    #activeUsersList { flex: 1; overflow-y: auto; padding: 14px 20px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+    #activeUsersList::-webkit-scrollbar { width: 5px; }
+    #activeUsersList::-webkit-scrollbar-thumb { background: rgba(255,162,0,0.3); border-radius: 10px; }
+
+    .user-badge { background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 20px; font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.25s; position: relative; }
+    .user-badge:hover { background: rgba(255,255,255,0.13); transform: translateX(-2px); }
+    .user-badge.role-admin { border: 1px solid rgba(255, 80, 80, 0.4); }
+    .user-badge.role-moderator { border: 1px solid rgba(120, 170, 255, 0.4); }
+    .user-badge.user-banned { opacity: 0.5; border: 1px solid rgba(255, 60, 60, 0.3); }
+    .user-badge .role-tag { font-size: 10px; opacity: 0.7; margin-left: auto; }
+
+    /* Avatar konteyneri + onlayn olduğunu göstərən yaşıl işıq */
+    .sidebar-avatar-wrap { position: relative; width: 22px; height: 22px; flex-shrink: 0; }
+    .sidebar-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; display: block; }
+    .online-dot { position: absolute; bottom: -1px; right: -1px; width: 8px; height: 8px; border-radius: 50%; background: #555; border: 2px solid rgba(13, 27, 62, 1); }
+    .online-dot.is-online { background: #2ecc71; box-shadow: 0 0 6px rgba(46, 204, 113, 0.8); }
 
     .msg-bubble { max-width: 75%; padding: 13px 18px; border-radius: 20px; font-size: 15px; position: relative; word-wrap: break-word; display: flex; flex-direction: column; }
     .msg-bubble b { font-size: 0.85em; opacity: 0.9; color: #ffc107; }
@@ -112,6 +127,68 @@
     /* Aktiv istifadəçi paneli şəkli */
     .sidebar-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
    
+    /* ====================== TOAST BİLDİRİŞ SİSTEMİ ====================== */
+    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 5000; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
+    .toast { background: rgba(13, 27, 62, 0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: white; font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.toast-success { border-left-color: #2ecc71; }
+    .toast.toast-error { border-left-color: #e74c3c; }
+    .toast.toast-info { border-left-color: #ffaa00; }
+
+    /* ====================== GOOGLE GİRİŞ DÜYMƏSİ ====================== */
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,255,255,0.2); }
+    .google-btn img { width: 19px; height: 19px; }
+
+    .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
+    .divider-row .line { flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
+    .divider-row span { color: rgba(255,255,255,0.4); font-size: 12.5px; }
+
+    .forgot-pass-link { color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer; text-align: center; width: 100%; margin-top: 14px; text-decoration: underline; transition: 0.2s; }
+    .forgot-pass-link:hover { color: #ffb700; }
+
+    /* ====================== ŞİFRƏNİ UNUTDUM MODALI ====================== */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3, 7, 20, 0.75); backdrop-filter: blur(6px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: rgba(13, 27, 62, 0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 360px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; }
+    .modal-box h3 { color: #ffaa00; margin: 0 0 8px 0; font-size: 1.4em; text-align: center; }
+    .modal-box p.modal-desc { color: rgba(255,255,255,0.55); font-size: 13.5px; margin: 0 0 22px 0; text-align: center; }
+    .modal-close { align-self: flex-end; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; margin: -10px -8px 0 0; line-height: 1; }
+    .modal-close:hover { color: white; }
+    .modal-step { display: none; flex-direction: column; gap: 14px; width: 100%; }
+    .modal-step.active { display: flex; }
+
+    /* ====================== ŞƏXSİ MESAJ PƏNCƏRƏLƏRİ ====================== */
+    #privateChatWindowsContainer { position: fixed; bottom: 0; right: 25px; z-index: 3000; display: flex; flex-direction: row-reverse; gap: 14px; align-items: flex-end; }
+
+    .private-chat-window { width: 300px; height: 400px; background: rgba(10, 22, 52, 0.92); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.12); border-bottom: none; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 35px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; transition: height 0.25s ease; }
+    .private-chat-window.minimized { height: 50px; }
+    .private-chat-window.minimized .pcw-body, .private-chat-window.minimized .pcw-input-bar { display: none; }
+
+    .pcw-header { background: rgba(255,255,255,0.06); padding: 10px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+    .pcw-header img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,170,0,0.4); }
+    .pcw-header .pcw-title { flex: 1; font-weight: 600; font-size: 13.5px; color: white; display: flex; align-items: center; gap: 6px; }
+    .pcw-header .pcw-online-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; flex-shrink: 0; }
+    .pcw-header .pcw-online-dot.is-online { background: #2ecc71; box-shadow: 0 0 6px rgba(46, 204, 113, 0.8); }
+    .pcw-header .pcw-actions { display: flex; gap: 8px; }
+    .pcw-header .pcw-actions span { cursor: pointer; opacity: 0.7; font-size: 13px; transition: 0.2s; }
+    .pcw-header .pcw-actions span:hover { opacity: 1; }
+
+    .pcw-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15); }
+    .pcw-body::-webkit-scrollbar { width: 5px; }
+    .pcw-body::-webkit-scrollbar-thumb { background: rgba(255,162,0,0.3); border-radius: 10px; }
+
+    .pcw-input-bar { padding: 10px; background: rgba(5, 12, 31, 0.6); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .pcw-input-bar input[type="text"] { flex: 1; padding: 9px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: white; font-size: 13px; outline: none; min-width: 0; }
+    .pcw-input-bar input[type="text"]:focus { border-color: #ff9800; }
+    .pcw-input-bar .pcw-send-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+
+    /* Şəxsi pəncərə daxilindəki mesaj qabarcıqları (ümumi msg-bubble stillərini bölüşür, kiçik fərqlərlə) */
+    .pcw-msg { max-width: 80%; padding: 9px 13px; border-radius: 16px; font-size: 13px; word-wrap: break-word; align-self: flex-start; }
+    .pcw-msg.pcw-msg-me { background: linear-gradient(135deg, #024397, #00285e); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .pcw-msg.pcw-msg-other { background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; }
+    .pcw-msg img { max-width: 100%; max-height: 140px; border-radius: 10px; margin-top: 6px; }
+
     /* ✅ MOBİL VERSİYA ÜÇÜN XÜSUSİ TƏNZİMLƏMƏLƏR (TAM EKRAN) */
     @media (max-width: 700px) {
       header { height: auto; flex-direction: column; padding: 10px; gap: 8px; }
@@ -137,24 +214,37 @@
       .chat-body { flex-direction: column; }
       
       /* Aktiv istifadəçilər bölməsi */
-      .sidebar-users { width: 100%; height: 90px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 10px 15px; box-sizing: border-box; }
-      .sidebar-users h4 { font-size: 13px; margin-bottom: 4px; }
-      #activeUsersList { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-      .user-badge { padding: 4px 10px; font-size: 12px; white-space: nowrap; }
+      .sidebar-users { width: 100%; height: 90px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
+      .sidebar-users h4 { font-size: 13px; padding: 8px 15px 6px 15px; }
+      #activeUsersList { flex-direction: row; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 6px 15px 10px 15px; }
+      .user-badge { padding: 4px 10px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
       
       /* Mesaj yazmaq üçün alt panel */
       .input-bar { padding: 10px; gap: 6px; justify-content: space-between; }
       .message-input { padding: 10px 14px; font-size: 14px; min-width: 0; }
-      #recipientInput { max-width: 70px !important; padding: 10px 6px; text-align: center; font-size: 12px; }
       
       /* Düymələrin ölçüləri */
       .media-label, .send-btn { width: 38px; height: 38px; font-size: 16px; flex-shrink: 0; }
       .msg-bubble { max-width: 85%; padding: 10px 14px; font-size: 14px; }
+
+      /* Toast bildirişləri mobil ekranda yuxarı ortada görünsün */
+      #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
+
+      .modal-box { padding: 28px 20px; border-radius: 18px; }
+
+      /* Şəxsi mesaj pəncərələri mobildə tam ekran açılır */
+      #privateChatWindowsContainer { right: 0; left: 0; bottom: 0; flex-direction: column; align-items: stretch; }
+      .private-chat-window { width: 100%; height: 100dvh; border-radius: 0; border: none; position: fixed; inset: 0; z-index: 3500; }
+      .private-chat-window.minimized { height: 100dvh; }
+      .private-chat-window.minimized .pcw-body, .private-chat-window.minimized .pcw-input-bar { display: flex; }
+      .pcw-header { padding: 14px 16px; }
     }
   </style>
 </head>
 
 <body>
+  <div id="toastContainer"></div>
+
   <header>
     <a href="index.html" class="logo">
       <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
@@ -182,6 +272,14 @@
               <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
             </div>
             <button class="login-btn" onclick="handleAuth('login')">Söhbətə Qoşul</button>
+            <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
+
+            <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+            <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+              Google ilə daxil ol
+            </button>
+
             <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
           </div>
         </div>
@@ -197,6 +295,13 @@
               <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
             </div>
             <button class="login-btn" onclick="handleAuth('register')">Qeydiyyatı Tamamla</button>
+
+            <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+            <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+              Google ilə daxil ol
+            </button>
+
             <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
           </div>
         </div>
@@ -225,7 +330,6 @@
         </div>
         
         <div class="input-bar">
-          <input type="text" id="recipientInput" class="message-input" placeholder="Kimə (Hamıya)" style="flex: 0.3; max-width: 120px;">
           <input type="text" id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." style="flex: 1;" onkeypress="handleKeyPress(event)">
           
           <label class="media-label" title="Şəkil və ya GIF göndər">
@@ -240,10 +344,40 @@
     </div>
   </main>
 
+  <!-- ====================== ŞƏXSİ MESAJ PƏNCƏRƏLƏRİ KONTEYNERİ ====================== -->
+  <div id="privateChatWindowsContainer"></div>
+
+  <!-- ====================== ŞİFRƏNİ UNUTDUM MODALI ====================== -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
+
+      <div class="modal-step active" id="forgotStep1">
+        <h3>Şifrəni unutmusunuz?</h3>
+        <p class="modal-desc">Hesabınıza bağlı istifadəçi adınızı daxil edin, bərpa kodu e-poçtunuza göndərilsin.</p>
+        <input type="text" id="forgotNickInput" class="custom-input" placeholder="İstifadəçi adı">
+        <button class="login-btn" onclick="submitForgotPasswordRequest()">Bərpa kodu göndər</button>
+      </div>
+
+      <div class="modal-step" id="forgotStep2">
+        <h3>Kodu daxil edin</h3>
+        <p class="modal-desc">E-poçtunuza göndərilən 6 rəqəmli kodu və yeni şifrənizi daxil edin.</p>
+        <input type="text" id="forgotCodeInput" class="custom-input" placeholder="Bərpa kodu (6 rəqəm)" maxlength="6">
+        <div class="password-wrapper">
+          <input type="password" id="forgotNewPasswordInput" class="custom-input" placeholder="Yeni şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('forgotNewPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="submitForgotPasswordConfirm()">Şifrəni yenilə</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
   <script>
     const RENDER_URL = "https://maqalux.onrender.com"; 
@@ -251,9 +385,158 @@
     
     const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a"; 
 
+    // ====================== TOAST BİLDİRİŞ SİSTEMİ ======================
+    window.showToast = function(message, type = 'info', duration = 4000) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => toast.classList.add('show'));
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, duration);
+    };
+
+    // ====================== FIREBASE AUTH (Google Giriş) ======================
+    // Qeyd: Bu konfiqurasiya dəyərləri public (client-side) Firebase açarlarıdır,
+    // Firebase Console > Authentication > Sign-in method > Google bölməsindən
+    // aktivləşdirilməlidir. Backend (server.js) Realtime Database konfiqurasiyası
+    // environment variable-lar vasitəsilə ayrıca idarə olunur.
+    const firebaseClientConfig = {
+      apiKey: "FIREBASE_API_KEY_BURAYA",
+      authDomain: "FIREBASE_AUTH_DOMAIN_BURAYA",
+      projectId: "FIREBASE_PROJECT_ID_BURAYA"
+    };
+
+    let firebaseAuthInstance = null;
+    try {
+      firebase.initializeApp(firebaseClientConfig);
+      firebaseAuthInstance = firebase.auth();
+    } catch (err) {
+      console.error("Firebase Auth (client) başlatma xətası:", err);
+    }
+
+    window.handleGoogleLogin = async function() {
+      if (!firebaseAuthInstance) {
+        return showToast("Google girişi hazırda əlçatan deyil, daha sonra cəhd edin.", "error");
+      }
+      if (!socket.connected) {
+        return showToast("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.", "error");
+      }
+
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      try {
+        const result = await firebaseAuthInstance.signInWithPopup(provider);
+        const user = result.user;
+
+        socket.emit('googleLogin', {
+          googleUid: user.uid,
+          googleEmail: user.email,
+          displayName: user.displayName,
+          photoUrl: user.photoURL
+        }, (response) => {
+          if (response.success) {
+            const nick = response.nick;
+            window.currentUserNick = nick;
+            window.currentUserRole = response.role || "user";
+
+            localStorage.setItem('maqalux_google_uid', user.uid);
+            localStorage.setItem('maqalux_nick', nick);
+
+            const userAvatarUrl = response.avatarUrl || "https://www.w3schools.com/howto/img_avatar.png";
+            const myAvatarElement = document.getElementById('myAvatarImg');
+            if (myAvatarElement) myAvatarElement.src = userAvatarUrl;
+
+            document.getElementById('myDisplayNick').innerHTML = `🟢 ${nick} (${window.currentUserRole})`;
+            window.renderMessages();
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('mainChatScreen').classList.add('active');
+
+            showToast(`Xoş gəldiniz, ${nick}!`, "success");
+          } else {
+            showToast(response.message || "Google ilə giriş alınmadı.", "error");
+          }
+        });
+      } catch (err) {
+        console.error("Google giriş xətası:", err);
+        if (err.code === 'auth/popup-closed-by-user') {
+          showToast("Google giriş pəncərəsi bağlandı.", "info");
+        } else {
+          showToast("Google ilə giriş zamanı xəta baş verdi.", "error");
+        }
+      }
+    };
+
+    // ====================== ŞİFRƏNİ UNUTDUM MODALI ======================
+    window.openForgotPasswordModal = function() {
+      document.getElementById('forgotStep1').classList.add('active');
+      document.getElementById('forgotStep2').classList.remove('active');
+      document.getElementById('forgotNickInput').value = '';
+      document.getElementById('forgotCodeInput').value = '';
+      document.getElementById('forgotNewPasswordInput').value = '';
+      document.getElementById('forgotPasswordModal').classList.add('active');
+    };
+
+    window.closeForgotPasswordModal = function() {
+      document.getElementById('forgotPasswordModal').classList.remove('active');
+    };
+
+    window._forgotPasswordNick = null;
+
+    window.submitForgotPasswordRequest = function() {
+      const nick = document.getElementById('forgotNickInput').value.trim();
+      if (!nick) {
+        return showToast("Zəhmət olmasa istifadəçi adınızı daxil edin.", "error");
+      }
+      if (!socket.connected) {
+        return showToast("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.", "error");
+      }
+
+      socket.emit('requestPasswordReset', { nick }, (response) => {
+        if (response.success) {
+          window._forgotPasswordNick = nick;
+          showToast(response.message || "Bərpa kodu e-poçt ünvanınıza göndərildi.", "success");
+          document.getElementById('forgotStep1').classList.remove('active');
+          document.getElementById('forgotStep2').classList.add('active');
+        } else {
+          showToast(response.message || "Bərpa tələbi göndərilmədi.", "error");
+        }
+      });
+    };
+
+    window.submitForgotPasswordConfirm = function() {
+      const code = document.getElementById('forgotCodeInput').value.trim();
+      const newPassword = document.getElementById('forgotNewPasswordInput').value.trim();
+
+      if (!code || !newPassword) {
+        return showToast("Zəhmət olmasa kodu və yeni şifrənizi daxil edin.", "error");
+      }
+      if (!window._forgotPasswordNick) {
+        return showToast("Sessiya xətası, zəhmət olmasa yenidən başlayın.", "error");
+      }
+
+      socket.emit('confirmPasswordReset', { nick: window._forgotPasswordNick, code, newPassword }, (response) => {
+        if (response.success) {
+          showToast(response.message || "Şifrəniz uğurla yeniləndi!", "success");
+          closeForgotPasswordModal();
+        } else {
+          showToast(response.message || "Şifrə yenilənmədi.", "error");
+        }
+      });
+    };
+
+
     window.currentUserNick = "";
     window.currentUserRole = "user";
     window.allMessages = []; 
+    window.privateMessagesByNick = {}; // { nick: [msg, msg, ...] }
+    window.openPCWs = {}; // { nick: true } - hazırda açıq olan şəxsi pəncərələr
+
 
     window.renderMessages = function() {
       document.getElementById('chatMessagesArea').innerHTML = '';
@@ -349,7 +632,6 @@
 
     window.triggerMessageSend = (mediaData = null) => {
       const input = document.getElementById('messageInputField');
-      const recipient = document.getElementById('recipientInput').value.trim();
       const text = input.value.trim();
 
       if(!text && !mediaData) return;
@@ -361,21 +643,7 @@
         mediaUrl: mediaData ? mediaData : ""
       };
 
-      if (recipient === "") {
-        socket.emit('sendMessage', payload);
-      } else {
-        payload.recipient = recipient;
-        socket.emit('sendPrivateMessage', payload);
-        
-        const privateMsg = { 
-          sender: window.currentUserNick, 
-          text: `🔒 [Şəxsi - ${recipient} üçün]: ${text}`,
-          mediaType: payload.mediaType,
-          mediaUrl: payload.mediaUrl
-        };
-        window.allMessages.push(privateMsg);
-        appendMessage(privateMsg);
-      }
+      socket.emit('sendMessage', payload);
       input.value = "";
     };
 
@@ -410,6 +678,39 @@
       } finally {
         inputField.placeholder = originalPlaceholder;
         inputField.disabled = false;
+        e.target.value = "";
+      }
+    };
+
+    window.handlePrivateMediaUpload = async (e, targetNick) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const inputEl = document.querySelector(`#pcw-${targetNick} .pcw-text-input`);
+      const originalPlaceholder = inputEl ? inputEl.placeholder : "";
+      if (inputEl) { inputEl.placeholder = "📸 Şəkil yüklənir..."; inputEl.disabled = true; }
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          window.sendPrivateChatMessage(targetNick, result.data.url);
+        } else {
+          alert("Şəkil ImgBB serverinə yüklənə bilmədi.");
+        }
+      } catch (err) {
+        console.error("ImgBB yükləmə xətası:", err);
+        alert("Şəkil göndərilərkən xəta baş verdi.");
+      } finally {
+        if (inputEl) { inputEl.placeholder = originalPlaceholder; inputEl.disabled = false; }
         e.target.value = "";
       }
     };
@@ -466,25 +767,40 @@
     });
 
     socket.on('receivePrivateMessage', (msg) => {
-      let secureMsg = { ...msg };
-      if (msg.sender !== 'Sistem') {
-        secureMsg.text = `🔒 [Sənə Şəxsi]: ${msg.text}`;
+      if (msg.sender === 'Sistem') {
+        showToast(msg.text, "info");
+        return;
       }
-      window.allMessages.push(secureMsg);
-      appendMessage(secureMsg);
+      const otherNick = (msg.sender === window.currentUserNick) ? msg.recipient : msg.sender;
+      window.privateMessagesByNick[otherNick] = window.privateMessagesByNick[otherNick] || [];
+      window.privateMessagesByNick[otherNick].push(msg);
+
+      if (window.openPCWs[otherNick]) {
+        appendPrivateMessage(otherNick, msg);
+      } else if (msg.sender !== window.currentUserNick) {
+        // Pəncərə açıq deyilsə, bildiriş göstər
+        showToast(`${msg.sender}: yeni şəxsi mesaj`, "info");
+      }
+    });
+
+    socket.on('privateMessageUpdated', (updatedMsg) => {
+      const otherNick = (updatedMsg.sender === window.currentUserNick) ? updatedMsg.recipient : updatedMsg.sender;
+      const list = window.privateMessagesByNick[otherNick];
+      if (!list) return;
+      const index = list.findIndex(m => m.id === updatedMsg.id);
+      if (index !== -1) {
+        list[index] = updatedMsg;
+        if (window.openPCWs[otherNick]) renderPrivateChatWindow(otherNick);
+      }
     });
 
     socket.on('loadPrivateMessages', (messages) => {
+      window.privateMessagesByNick = {};
       messages.forEach(msg => {
-        let formattedMsg = { id: msg.id, sender: msg.sender, mediaType: msg.mediaType, mediaUrl: msg.mediaUrl };
-        if (msg.sender === window.currentUserNick) {
-          formattedMsg.text = `🔒 [Şəxsi - ${msg.recipient} üçün]: ${msg.text}`;
-        } else {
-          formattedMsg.text = `🔒 [Sənə Şəxsi]: ${msg.text}`;
-        }
-        window.allMessages.push(formattedMsg);
+        const otherNick = (msg.sender === window.currentUserNick) ? msg.recipient : msg.sender;
+        window.privateMessagesByNick[otherNick] = window.privateMessagesByNick[otherNick] || [];
+        window.privateMessagesByNick[otherNick].push(msg);
       });
-      renderMessages();
     });
 
     socket.on('messageUpdated', (updatedMsg) => {
@@ -495,20 +811,228 @@
       }
     });
 
+    // Rol iyerarxiyası: yüksək rəqəm = yüksək səlahiyyət
+    const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
+
+    function sortActiveUsersList(usersList) {
+      const canSeeBanned = (window.currentUserRole === 'admin' || window.currentUserRole === 'moderator');
+
+      const visible = usersList.filter(u => !u.isBanned || canSeeBanned);
+
+      const ranked = visible.filter(u => !u.isBanned && (u.role === 'admin' || u.role === 'moderator'));
+      const onlineUsers = visible.filter(u => !u.isBanned && u.role === 'user' && u.online);
+      const offlineUsers = visible.filter(u => !u.isBanned && u.role === 'user' && !u.online);
+      const bannedUsers = visible.filter(u => u.isBanned);
+
+      // Rolu olanlar: yüksək rol yuxarıda, eyni rolda onlayn yuxarıda, sonra əlifba sırası
+      ranked.sort((a, b) => {
+        if (ROLE_ORDER[b.role] !== ROLE_ORDER[a.role]) return ROLE_ORDER[b.role] - ROLE_ORDER[a.role];
+        if (!!b.online !== !!a.online) return (b.online ? 1 : 0) - (a.online ? 1 : 0);
+        return a.nick.localeCompare(b.nick, 'az');
+      });
+
+      onlineUsers.sort((a, b) => a.nick.localeCompare(b.nick, 'az'));
+      offlineUsers.sort((a, b) => a.nick.localeCompare(b.nick, 'az'));
+
+      // Banlanmışlar: yüksək rol yuxarıda, sonra əlifba sırası
+      bannedUsers.sort((a, b) => {
+        if (ROLE_ORDER[b.role] !== ROLE_ORDER[a.role]) return ROLE_ORDER[b.role] - ROLE_ORDER[a.role];
+        return a.nick.localeCompare(b.nick, 'az');
+      });
+
+      return { ranked, onlineUsers, offlineUsers, bannedUsers };
+    }
+
+    function buildUserBadge(user) {
+      const div = document.createElement('div');
+      div.className = 'user-badge';
+      if (user.role === 'admin') div.classList.add('role-admin');
+      if (user.role === 'moderator') div.classList.add('role-moderator');
+      if (user.isBanned) div.classList.add('user-banned');
+
+      const userAvatar = user.avatarUrl || "https://www.w3schools.com/howto/img_avatar.png";
+      const roleLabel = user.role === 'admin' ? 'Admin' : (user.role === 'moderator' ? 'Moderator' : '');
+
+      div.innerHTML = `
+        <div class="sidebar-avatar-wrap">
+          <img src="${userAvatar}" class="sidebar-avatar" alt="av">
+          <span class="online-dot ${user.online ? 'is-online' : ''}"></span>
+        </div>
+        <span>${user.isBanned ? '🚫 ' : ''}${user.nick}</span>
+        ${roleLabel ? `<span class="role-tag">${roleLabel}</span>` : ''}
+      `;
+
+      div.onclick = () => {
+        if (typeof window.openPrivateChatWindow === 'function') {
+          window.openPrivateChatWindow(user.nick);
+        }
+      };
+
+      return div;
+    }
+
     socket.on('updateActiveUsers', (usersList) => {
+      window.lastActiveUsersList = usersList;
       const container = document.getElementById('activeUsersList');
       container.innerHTML = "";
-      usersList.forEach(user => {
-        const div = document.createElement('div');
-        div.className = 'user-badge';
-        
-        // Serverdən həm sadəcə string (köhnə variant), həm də obyekt (yeni variant) gələrsə uyğunlaşma quruldu
-        const userNick = typeof user === 'object' ? user.nick : user;
-        const userAvatar = (typeof user === 'object' && user.avatarUrl) ? user.avatarUrl : "https://www.w3schools.com/howto/img_avatar.png";
-        
-        div.innerHTML = `<img src="${userAvatar}" class="sidebar-avatar" alt="av"> 🟢 ${userNick}`;
-        container.appendChild(div);
+
+      // Köhnə server versiyası ilə uyğunluq: sadə string massivi gələrsə
+      const normalized = usersList.map(u => {
+        if (typeof u === 'object') return u;
+        return { nick: u, role: 'user', avatarUrl: '', isBanned: false, online: true };
       });
+
+      const { ranked, onlineUsers, offlineUsers, bannedUsers } = sortActiveUsersList(normalized);
+      const orderedList = [...ranked, ...onlineUsers, ...offlineUsers, ...bannedUsers];
+
+      orderedList.forEach(user => container.appendChild(buildUserBadge(user)));
+
+      // Açıq olan şəxsi mesaj pəncərələrində onlayn statusunu yenilə
+      Object.keys(window.openPCWs).forEach(nick => {
+        const found = normalized.find(u => u.nick === nick);
+        const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
+        if (dot) dot.classList.toggle('is-online', !!(found && found.online));
+      });
+    });
+
+    // ====================== ŞƏXSİ MESAJ PƏNCƏRƏLƏRİ ======================
+    window.openPrivateChatWindow = function(targetNick) {
+      if (targetNick === window.currentUserNick) return;
+      if (window.openPCWs[targetNick]) {
+        // Artıq açıqdırsa, minimallaşdırılıbsa açırıq və fokuslayırıq
+        const existing = document.getElementById('pcw-' + targetNick);
+        if (existing) {
+          existing.classList.remove('minimized');
+          const inputEl = existing.querySelector('.pcw-text-input');
+          if (inputEl) inputEl.focus();
+        }
+        return;
+      }
+
+      window.openPCWs[targetNick] = true;
+      window.privateMessagesByNick[targetNick] = window.privateMessagesByNick[targetNick] || [];
+
+      const userInfo = (window.lastActiveUsersList || []).find(u => (typeof u === 'object' ? u.nick : u) === targetNick);
+      const avatarUrl = (userInfo && typeof userInfo === 'object' && userInfo.avatarUrl) ? userInfo.avatarUrl : "https://www.w3schools.com/howto/img_avatar.png";
+      const isOnline = !!(userInfo && typeof userInfo === 'object' && userInfo.online);
+
+      const win = document.createElement('div');
+      win.className = 'private-chat-window';
+      win.id = 'pcw-' + targetNick;
+      win.innerHTML = `
+        <div class="pcw-header" onclick="togglePCWMinimize('${targetNick}')">
+          <img src="${avatarUrl}" alt="av">
+          <div class="pcw-title">
+            <span class="pcw-online-dot ${isOnline ? 'is-online' : ''}"></span>
+            ${targetNick}
+          </div>
+          <div class="pcw-actions">
+            <span onclick="event.stopPropagation(); closePrivateChatWindow('${targetNick}')">✕</span>
+          </div>
+        </div>
+        <div class="pcw-body" id="pcw-body-${targetNick}"></div>
+        <div class="pcw-input-bar">
+          <input type="text" class="pcw-text-input" placeholder="Mesaj yaz..." onkeypress="if(event.key==='Enter') sendPrivateChatMessage('${targetNick}')">
+          <label class="media-label" style="width: 34px; height: 34px; font-size: 15px;" title="Şəkil göndər">
+            🖼️
+            <input type="file" accept="image/*" style="display: none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
+          </label>
+          <button class="pcw-send-btn" onclick="sendPrivateChatMessage('${targetNick}')">➤</button>
+        </div>
+      `;
+
+      document.getElementById('privateChatWindowsContainer').appendChild(win);
+      renderPrivateChatWindow(targetNick);
+    };
+
+    window.togglePCWMinimize = function(targetNick) {
+      const win = document.getElementById('pcw-' + targetNick);
+      if (win) win.classList.toggle('minimized');
+    };
+
+    window.closePrivateChatWindow = function(targetNick) {
+      delete window.openPCWs[targetNick];
+      const win = document.getElementById('pcw-' + targetNick);
+      if (win) win.remove();
+    };
+
+    function renderPrivateChatWindow(targetNick) {
+      const body = document.getElementById('pcw-body-' + targetNick);
+      if (!body) return;
+      body.innerHTML = '';
+      const messages = window.privateMessagesByNick[targetNick] || [];
+      messages.forEach(msg => appendPrivateMessage(targetNick, msg, false));
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function appendPrivateMessage(targetNick, msg, autoScroll = true) {
+      const body = document.getElementById('pcw-body-' + targetNick);
+      if (!body) return;
+
+      const div = document.createElement('div');
+      const isMe = msg.sender === window.currentUserNick;
+      div.className = 'pcw-msg ' + (isMe ? 'pcw-msg-me' : 'pcw-msg-other');
+
+      const userAvatar = msg.senderAvatar || "https://www.w3schools.com/howto/img_avatar.png";
+
+      let content = `
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
+          <img src="${userAvatar}" style="width:18px; height:18px; border-radius:50%; object-fit:cover;" alt="av">
+          <b style="font-size: 0.8em; opacity: 0.85; color: #ffc107;">${msg.sender}</b>
+        </div>
+        <div>${msg.text || ''}</div>
+      `;
+      if (msg.mediaType === 'image' && msg.mediaUrl) {
+        content += `<img src="${msg.mediaUrl}" alt="Media">`;
+      }
+      if (msg.isDeleted) {
+        content = `<div style="opacity:0.6; font-style: italic;">${msg.text}</div>`;
+      }
+
+      div.innerHTML = content;
+      body.appendChild(div);
+
+      if (autoScroll) body.scrollTop = body.scrollHeight;
+    }
+
+    window.sendPrivateChatMessage = function(targetNick, mediaData = null) {
+      const input = document.querySelector(`#pcw-${targetNick} .pcw-text-input`);
+      const text = input ? input.value.trim() : "";
+
+      if (!text && !mediaData) return;
+
+      const payload = {
+        sender: window.currentUserNick,
+        recipient: targetNick,
+        text: text,
+        mediaType: mediaData ? "image" : "text",
+        mediaUrl: mediaData ? mediaData : ""
+      };
+
+      socket.emit('sendPrivateMessage', payload);
+      if (input) input.value = "";
+    };
+
+    // ====================== SERVERDƏN GƏLƏN SİSTEM HADİSƏLƏRİ ======================
+    socket.on('actionBlocked', (data) => {
+      showToast(data.message || "Bu əməliyyat üçün icazəniz yoxdur.", "error");
+    });
+
+    socket.on('youAreBanned', () => {
+      showToast("Hesabınız qara siyahıya alındı. Sistemdən çıxarılırsınız.", "error", 5000);
+      setTimeout(() => { window.logoutFromChat(); }, 2000);
+    });
+
+    socket.on('accountDeleted', () => {
+      showToast("Hesabınız admin tərəfindən silindi.", "error", 5000);
+      setTimeout(() => { window.logoutFromChat(); }, 2000);
+    });
+
+    socket.on('roleChanged', (data) => {
+      window.currentUserRole = data.role;
+      const nickDisplay = document.getElementById('myDisplayNick');
+      if (nickDisplay) nickDisplay.innerHTML = `🟢 ${window.currentUserNick} (${window.currentUserRole})`;
+      showToast(`Rolunuz dəyişdirildi: ${data.role === 'moderator' ? 'Moderator' : 'İstifadəçi'}`, "info");
     });
 
     window.uploadProfileAvatar = async (e) => {
