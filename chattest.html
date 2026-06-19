@@ -149,6 +149,7 @@
     .composer-reply-bar .reply-info b { color: #ffc107; }
     .composer-reply-bar .reply-cancel { cursor: pointer; opacity: 0.6; font-size: 16px; }
     .composer-reply-bar .reply-cancel:hover { opacity: 1; }
+    .composer-reply-bar.pcw-replybar { padding: 6px 12px; font-size: 11.5px; }
 
     /* ====================== MESAJ ÜZƏRİNƏ BASILI SAXLAMA KONTEKST MENYUSU ====================== */
     .msg-context-menu { position: fixed; background: rgba(13, 27, 62, 0.97); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); padding: 8px; z-index: 6000; display: none; min-width: 180px; }
@@ -247,6 +248,23 @@
     .pcw-msg.pcw-msg-me { background: linear-gradient(135deg, #024397, #00285e); align-self: flex-end; border-bottom-right-radius: 4px; }
     .pcw-msg.pcw-msg-other { background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; }
     .pcw-msg img { max-width: 100%; max-height: 140px; border-radius: 10px; margin-top: 6px; }
+
+    /* Mesaj qabarcığına basılı saxlama effekti */
+    .msg-bubble, .pcw-msg { user-select: none; -webkit-user-select: none; }
+
+    /* ====================== YANITLAMA (REPLY) / YÖNLƏNDİRMƏ (FORWARD) GÖSTƏRİCİSİ (mesaj qabarcığı daxilində) ====================== */
+    .msg-reply-quote { background: rgba(0,0,0,0.2); border-left: 3px solid #ffaa00; border-radius: 8px; padding: 6px 10px; margin-bottom: 7px; font-size: 12.5px; opacity: 0.85; cursor: pointer; }
+    .msg-reply-quote b { color: #ffc107; display: block; font-size: 0.9em; }
+    .msg-forward-tag { font-size: 11.5px; opacity: 0.6; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; font-style: italic; }
+
+    /* Stiker/GIF mesaj qabarcığı daxilində */
+    .msg-bubble img.media-sticker, .pcw-msg img.media-sticker { max-width: 110px; max-height: 110px; background: none; }
+
+    /* ====================== YÖNLƏNDİRMƏ (FORWARD) SEÇİM MODALI ====================== */
+    .forward-modal-box { max-height: 70vh; overflow-y: auto; }
+    .forward-target-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 14px; cursor: pointer; transition: 0.2s; width: 100%; box-sizing: border-box; }
+    .forward-target-item:hover { background: rgba(255,255,255,0.08); }
+    .forward-target-item img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
 
     /* ✅ MOBİL VERSİYA ÜÇÜN XÜSUSİ TƏNZİMLƏMƏLƏR (TAM EKRAN) */
     @media (max-width: 700px) {
@@ -649,6 +667,7 @@
     window.allMessages = []; 
     window.privateMessagesByNick = {}; // { nick: [msg, msg, ...] }
     window.openPCWs = {}; // { nick: true } - hazırda açıq olan şəxsi pəncərələr
+    window._markedMsgIds = new Set(); // artıq oxundu/çatdırıldı bildirilmiş mesaj id-ləri (təkrar emit-in qarşısını alır)
 
 
     window.renderMessages = function() {
@@ -1130,35 +1149,101 @@
       if(e.key === 'Enter') triggerMessageSend();
     };
 
+    function renderReactionsHtml(reactions) {
+      if (!reactions || Object.keys(reactions).length === 0) return '';
+      const counts = {};
+      let myReaction = null;
+      Object.keys(reactions).forEach(nick => {
+        const emoji = reactions[nick];
+        counts[emoji] = (counts[emoji] || 0) + 1;
+        if (nick === window.currentUserNick) myReaction = emoji;
+      });
+      const chips = Object.keys(counts).map(emoji => {
+        const mineClass = (emoji === myReaction) ? 'mine' : '';
+        return `<span class="msg-reaction-chip ${mineClass}">${emoji} ${counts[emoji] > 1 ? counts[emoji] : ''}</span>`;
+      }).join('');
+      return `<div class="msg-reactions-row">${chips}</div>`;
+    }
+
+    function renderStatusTicksHtml(msg, isPrivate) {
+      // Status tiklər yalnız öz göndərdiyimiz mesajlarda göstərilir
+      if (msg.sender !== window.currentUserNick) return '';
+      if (!msg.id) return '';
+
+      const readBy = msg.readBy || [];
+      const deliveredTo = msg.deliveredTo || [];
+
+      let ticksClass = 'msg-status-ticks';
+      let ticks = '✓'; // göndərildi
+
+      if (isPrivate) {
+        if (readBy.length > 0) { ticks = '✓✓'; ticksClass += ' status-read'; }
+        else if (deliveredTo.length > 0) { ticks = '✓✓'; }
+      } else {
+        // Ümumi çatda "oxundu" göstəricisi göndərəndən başqa ən azı 1 nəfər oxuyubsa yaşıllaşır
+        if (readBy.length > 0) { ticks = '✓✓'; ticksClass += ' status-read'; }
+        else if (deliveredTo.length > 0) { ticks = '✓✓'; }
+      }
+
+      return `<div class="msg-status-row"><span class="${ticksClass}">${ticks}</span></div>`;
+    }
+
+    function renderReplyForwardHtml(msg) {
+      let html = '';
+      if (msg.forwardedFrom) {
+        html += `<div class="msg-forward-tag">➡️ Yönləndirilib: ${msg.forwardedFrom}</div>`;
+      }
+      if (msg.replyTo) {
+        html += `<div class="msg-reply-quote"><b>${msg.replyTo.sender}</b>${(msg.replyTo.text || '').slice(0, 80)}</div>`;
+      }
+      return html;
+    }
+
+    function renderMediaHtml(msg) {
+      if (!msg.mediaUrl) return '';
+      if (msg.mediaType === 'sticker') {
+        return `<div style="font-size: 48px; line-height: 1; margin-top: 4px;">${msg.mediaUrl}</div>`;
+      }
+      if (msg.mediaType === 'image' || msg.mediaType === 'gif') {
+        return `<img src="${msg.mediaUrl}" alt="Media">`;
+      }
+      return '';
+    }
+
     function appendMessage(msg) {
       if (!msg) return;
       const div = document.createElement('div');
       div.className = 'msg-bubble ' + (msg.sender === window.currentUserNick ? 'msg-me' : 'msg-other');
-      
-      // Serverdən gələn və ya default profil şəkli linki
+
       const userAvatar = msg.senderAvatar || "https://www.w3schools.com/howto/img_avatar.png";
-      
-      // Profil şəkli və istifadəçi adının daxil edildiyi başlıq bloku
+
       let content = `
         <div class="msg-header">
           <img src="${userAvatar}" class="msg-avatar" alt="Profile">
           <b>${msg.sender}</b>
         </div>
-        <div>${msg.text}</div>
+        ${renderReplyForwardHtml(msg)}
+        <div>${msg.text || ''}</div>
+        ${renderMediaHtml(msg)}
+        ${renderReactionsHtml(msg.reactions)}
+        ${renderStatusTicksHtml(msg, false)}
       `;
-      
-      if(msg.mediaType === 'image' && msg.mediaUrl) {
-        content += `<br><img src="${msg.mediaUrl}" alt="Media">`;
-      }
-
-      if(window.currentUserRole === 'admin' && msg.id && !msg.isDeleted) {
-        content += `<button class="delete-btn" onclick="requestDelete('${msg.id}')">🗑️ Sil</button>`;
-      }
 
       div.innerHTML = content;
+
+      if (!msg.isDeleted && msg.id) {
+        bindMessageContextActions(div, msg, false, null);
+      }
+
       const area = document.getElementById('chatMessagesArea');
       area.appendChild(div);
-      area.scrollTop = area.scrollHeight; 
+      area.scrollTop = area.scrollHeight;
+
+      // Mesaj ekrana çıxdığı kimi çatdırıldı/oxundu statusunu serverə bildiririk
+      if (msg.id && msg.sender !== window.currentUserNick) {
+        socket.emit('markDelivered', { msgId: msg.id, isPrivate: false, reader: window.currentUserNick });
+        socket.emit('markRead', { msgId: msg.id, isPrivate: false, reader: window.currentUserNick });
+      }
     }
 
     socket.on('loadAllMessages', (messages) => {
@@ -1336,8 +1421,13 @@
           </div>
         </div>
         <div class="pcw-body" id="pcw-body-${targetNick}"></div>
+        <div class="composer-reply-bar pcw-replybar" id="pcw-replybar-${targetNick}">
+          <div class="reply-info"><b></b><span></span></div>
+          <span class="reply-cancel" onclick="cancelPcwReply('${targetNick}')">✕</span>
+        </div>
         <div class="pcw-input-bar">
           <input type="text" class="pcw-text-input" placeholder="Mesaj yaz..." onkeypress="if(event.key==='Enter') sendPrivateChatMessage('${targetNick}')">
+          <div class="media-label" style="width: 34px; height: 34px; font-size: 15px;" title="GIF və Stiker" onclick="toggleGifStickerPanel('${targetNick}')">😊</div>
           <label class="media-label" style="width: 34px; height: 34px; font-size: 15px;" title="Şəkil göndər">
             🖼️
             <input type="file" accept="image/*" style="display: none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
@@ -1385,19 +1475,32 @@
           <img src="${userAvatar}" style="width:18px; height:18px; border-radius:50%; object-fit:cover;" alt="av">
           <b style="font-size: 0.8em; opacity: 0.85; color: #ffc107;">${msg.sender}</b>
         </div>
+        ${renderReplyForwardHtml(msg)}
         <div>${msg.text || ''}</div>
+        ${renderMediaHtml(msg)}
+        ${renderReactionsHtml(msg.reactions)}
       `;
-      if (msg.mediaType === 'image' && msg.mediaUrl) {
-        content += `<img src="${msg.mediaUrl}" alt="Media">`;
-      }
+
       if (msg.isDeleted) {
         content = `<div style="opacity:0.6; font-style: italic;">${msg.text}</div>`;
+      } else if (isMe) {
+        content += renderStatusTicksHtml(msg, true);
       }
 
       div.innerHTML = content;
       body.appendChild(div);
 
+      if (!msg.isDeleted && msg.id) {
+        bindMessageContextActions(div, msg, true, targetNick);
+      }
+
       if (autoScroll) body.scrollTop = body.scrollHeight;
+
+      // Pəncərə açıq olduğu üçün mesaj görünən kimi çatdırıldı/oxundu bildirilir
+      if (msg.id && msg.sender !== window.currentUserNick) {
+        socket.emit('markDelivered', { msgId: msg.id, isPrivate: true, reader: window.currentUserNick });
+        socket.emit('markRead', { msgId: msg.id, isPrivate: true, reader: window.currentUserNick });
+      }
     }
 
     window.sendPrivateChatMessage = function(targetNick, mediaData = null) {
@@ -1413,6 +1516,11 @@
         mediaType: mediaData ? "image" : "text",
         mediaUrl: mediaData ? mediaData : ""
       };
+
+      if (window._pcwReplyTo && window._pcwReplyTo[targetNick]) {
+        payload.replyTo = window._pcwReplyTo[targetNick];
+        cancelPcwReply(targetNick);
+      }
 
       socket.emit('sendPrivateMessage', payload);
       if (input) input.value = "";
