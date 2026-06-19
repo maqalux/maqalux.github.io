@@ -126,6 +126,65 @@
     
     /* Aktiv istifadəçi paneli şəkli */
     .sidebar-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+
+    /* ====================== MESAJ STATUSU (WhatsApp tipli tək/cüt xətt) ====================== */
+    .msg-status-row { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: 4px; }
+    .msg-status-ticks { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1; letter-spacing: -2px; }
+    .msg-status-ticks.status-read { color: #34d399; }
+    .msg-time { font-size: 10.5px; color: rgba(255,255,255,0.35); }
+
+    /* ====================== MESAJ REAKSİYALARI ====================== */
+    .msg-reactions-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+    .msg-reaction-chip { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 2px 8px; font-size: 12.5px; display: flex; align-items: center; gap: 3px; border: 1px solid rgba(255,255,255,0.08); }
+    .msg-reaction-chip.mine { background: rgba(255, 170, 0, 0.2); border-color: rgba(255,170,0,0.4); }
+
+    /* ====================== YANITLAMA / YÖNLƏNDİRMƏ ÖN BAXIŞI ====================== */
+    .msg-reply-preview { background: rgba(0,0,0,0.2); border-left: 3px solid #ffaa00; border-radius: 8px; padding: 6px 10px; margin-bottom: 7px; font-size: 12.5px; opacity: 0.85; }
+    .msg-reply-preview b { color: #ffc107; }
+    .msg-forwarded-tag { font-size: 11px; opacity: 0.6; font-style: italic; margin-bottom: 4px; }
+
+    .composer-reply-bar { display: none; align-items: center; gap: 10px; padding: 8px 16px; background: rgba(255,255,255,0.05); border-top: 1px solid rgba(255,255,255,0.08); font-size: 13px; }
+    .composer-reply-bar.active { display: flex; }
+    .composer-reply-bar .reply-info { flex: 1; border-left: 3px solid #ffaa00; padding-left: 10px; }
+    .composer-reply-bar .reply-info b { color: #ffc107; }
+    .composer-reply-bar .reply-cancel { cursor: pointer; opacity: 0.6; font-size: 16px; }
+    .composer-reply-bar .reply-cancel:hover { opacity: 1; }
+
+    /* ====================== MESAJ ÜZƏRİNƏ BASILI SAXLAMA KONTEKST MENYUSU ====================== */
+    .msg-context-menu { position: fixed; background: rgba(13, 27, 62, 0.97); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); padding: 8px; z-index: 6000; display: none; min-width: 180px; }
+    .msg-context-menu.active { display: block; }
+    .msg-context-menu .ctx-reactions-row { display: flex; gap: 4px; padding: 6px; justify-content: space-between; }
+    .msg-context-menu .ctx-reactions-row span { cursor: pointer; font-size: 19px; transition: 0.2s; border-radius: 50%; padding: 3px; }
+    .msg-context-menu .ctx-reactions-row span:hover { background: rgba(255,255,255,0.12); transform: scale(1.15); }
+    .msg-context-menu .ctx-item { padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: 13.5px; color: white; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .msg-context-menu .ctx-item:hover { background: rgba(255,255,255,0.1); }
+    .msg-context-menu .ctx-item.danger { color: #ff6b6b; }
+    .msg-context-menu .ctx-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 6px 4px; }
+    #ctxMenuOverlay { position: fixed; inset: 0; z-index: 5999; display: none; }
+    #ctxMenuOverlay.active { display: block; }
+
+    /* ====================== GIF / STİKER PANELİ ====================== */
+    .gif-sticker-panel { position: fixed; bottom: 80px; right: 20px; width: 320px; max-height: 380px; background: rgba(13, 27, 62, 0.97); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); z-index: 4500; display: none; flex-direction: column; overflow: hidden; }
+    .gif-sticker-panel.active { display: flex; }
+    .gsp-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+    .gsp-tabs button { flex: 1; background: none; border: none; color: rgba(255,255,255,0.5); padding: 10px; cursor: pointer; font-weight: 600; font-size: 13px; border-bottom: 2px solid transparent; }
+    .gsp-tabs button.active { color: #ffc107; border-bottom-color: #ffc107; }
+    .gsp-search { padding: 8px 10px; flex-shrink: 0; }
+    .gsp-search input { width: 100%; box-sizing: border-box; padding: 8px 14px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: white; font-size: 13px; outline: none; }
+    .gsp-grid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px; }
+    .gsp-grid img { width: 100%; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.05); }
+    .gsp-grid img:hover { transform: scale(1.05); }
+    .gsp-grid .sticker-emoji-item { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 38px; cursor: pointer; border-radius: 8px; background: rgba(255,255,255,0.05); transition: 0.2s; }
+    .gsp-grid .sticker-emoji-item:hover { background: rgba(255,255,255,0.12); transform: scale(1.05); }
+    .gsp-empty { grid-column: 1 / -1; text-align: center; color: rgba(255,255,255,0.4); font-size: 12.5px; padding: 20px 10px; }
+
+    /* Sticker mesajları daha böyük göstərilir, bubble fonu olmadan */
+    .msg-bubble.is-sticker, .pcw-msg.is-sticker { background: transparent !important; border: none !important; box-shadow: none !important; }
+    .msg-bubble.is-sticker img.sticker-img, .pcw-msg.is-sticker img.sticker-img { max-width: 120px; max-height: 120px; }
+
+    .forward-target-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,0.06); cursor: pointer; transition: 0.2s; }
+    .forward-target-item:hover { background: rgba(255,170,0,0.15); }
+    .forward-target-item img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
    
     /* ====================== TOAST BİLDİRİŞ SİSTEMİ ====================== */
     #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 5000; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
@@ -214,7 +273,7 @@
       .chat-body { flex-direction: column; }
       
       /* Aktiv istifadəçilər bölməsi */
-      .sidebar-users { width: 100%; height: 90px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; order: -1; }
+      .sidebar-users { width: 100%; height: 90px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
       .sidebar-users h4 { font-size: 13px; padding: 8px 15px 6px 15px; }
       #activeUsersList { flex-direction: row; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 6px 15px 10px 15px; }
       .user-badge { padding: 4px 10px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
@@ -238,6 +297,10 @@
       .private-chat-window.minimized { height: 100dvh; }
       .private-chat-window.minimized .pcw-body, .private-chat-window.minimized .pcw-input-bar { display: flex; }
       .pcw-header { padding: 14px 16px; }
+
+      /* GIF/Stiker paneli mobildə tam en tutur */
+      .gif-sticker-panel { left: 10px; right: 10px; width: auto; bottom: 70px; max-height: 320px; }
+      .msg-context-menu { min-width: 160px; }
     }
   </style>
 </head>
@@ -329,6 +392,11 @@
           </div>
         </div>
         
+        <div class="composer-reply-bar" id="generalReplyBar">
+          <div class="reply-info">Cavab: <b id="generalReplyToName"></b><br><span id="generalReplyToText" style="opacity:0.7;"></span></div>
+          <span class="reply-cancel" onclick="cancelGeneralReply()">✕</span>
+        </div>
+
         <div class="input-bar">
           <input type="text" id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." style="flex: 1;" onkeypress="handleKeyPress(event)">
           
@@ -336,6 +404,8 @@
             🖼️
             <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
           </label>
+
+          <div class="media-label" title="GIF və Stiker" onclick="toggleGifStickerPanel(null)">😊</div>
           
           <button class="send-btn" onclick="triggerMessageSend()">➤</button>
         </div>
@@ -344,8 +414,42 @@
     </div>
   </main>
 
+  <!-- ====================== ŞƏXSİ MESAJ PƏNCƏRƏLƏRİ KONTEYNERİ ====================== -->
   <div id="privateChatWindowsContainer"></div>
 
+  <!-- ====================== GIF / STİKER PANELİ ====================== -->
+  <div class="gif-sticker-panel" id="gifStickerPanel">
+    <div class="gsp-tabs">
+      <button class="active" id="gspTabGif" onclick="switchGSPTab('gif')">GIF</button>
+      <button id="gspTabSticker" onclick="switchGSPTab('sticker')">Stiker</button>
+    </div>
+    <div class="gsp-search" id="gspSearchWrap">
+      <input type="text" id="gspSearchInput" placeholder="GIF axtar (məs: salam, gülmək)..." onkeypress="if(event.key==='Enter') searchGifs()">
+    </div>
+    <div class="gsp-grid" id="gspGrid"></div>
+  </div>
+
+  <!-- ====================== MESAJ KONTEKST MENYUSU (uzun basma / sağ-klik) ====================== -->
+  <div id="ctxMenuOverlay" onclick="closeContextMenu()"></div>
+  <div class="msg-context-menu" id="msgContextMenu">
+    <div class="ctx-reactions-row" id="ctxReactionsRow"></div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item" id="ctxReplyItem">↩️ Yanıtla</div>
+    <div class="ctx-item" id="ctxForwardItem">➡️ Yönləndir</div>
+    <div class="ctx-item danger" id="ctxDeleteItem">🗑️ Sil</div>
+  </div>
+
+  <!-- ====================== YÖNLƏNDİRMƏ ÜÇÜN İSTİFADƏÇİ SEÇİMİ MODALI ====================== -->
+  <div class="modal-overlay" id="forwardModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForwardModal()">✕</button>
+      <h3>Mesajı yönləndir</h3>
+      <p class="modal-desc">Kimə yönləndirmək istəyirsiniz?</p>
+      <div class="input-group" id="forwardTargetsList" style="max-height: 280px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <!-- ====================== ŞİFRƏNİ UNUTDUM MODALI ====================== -->
   <div class="modal-overlay" id="forgotPasswordModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
@@ -382,6 +486,17 @@
     const socket = io(RENDER_URL, { transports: ['websocket', 'polling'] }); 
     
     const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a"; 
+
+    // GIPHY public demo açarı (saatda 100 sorğu limiti ilə). İstehsalat üçün
+    // https://developers.giphy.com/dashboard ünvanından öz açarınızı əldə edin.
+    const GIPHY_API_KEY = "dc6zaTOxFJmzC";
+
+    // Sabit stiker dəsti (xarici API tələb etməyən, böyük emoji-stikerlər)
+    const STICKER_SET = [
+      "😀","😂","😍","😎","🥳","😢","😡","🤔","👍","👎",
+      "❤️","🔥","🎉","👏","🙏","😴","🤝","💯","🤩","😭",
+      "🥶","🤯","😇","🤪","🫡","💔","✨","🍀","🌹","🎂"
+    ];
 
     // ====================== TOAST BİLDİRİŞ SİSTEMİ ======================
     window.showToast = function(message, type = 'info', duration = 4000) {
@@ -641,6 +756,11 @@
         mediaUrl: mediaData ? mediaData : ""
       };
 
+      if (window._generalReplyTo) {
+        payload.replyTo = window._generalReplyTo;
+        cancelGeneralReply();
+      }
+
       socket.emit('sendMessage', payload);
       input.value = "";
     };
@@ -713,14 +833,301 @@
       }
     };
 
-    window.handleKeyPress = (e) => {
-      if(e.key === 'Enter') triggerMessageSend();
+    // ====================== GIF / STİKER PANELİ ====================== 
+    window._gspActiveTab = 'gif';
+    window._gspTargetNick = null; // null = ümumi çat, əks halda şəxsi pəncərə nick-i
+
+    window.toggleGifStickerPanel = function(targetNick) {
+      const panel = document.getElementById('gifStickerPanel');
+      const isOpeningForSame = panel.classList.contains('active') && window._gspTargetNick === targetNick;
+
+      if (isOpeningForSame) {
+        panel.classList.remove('active');
+        return;
+      }
+
+      window._gspTargetNick = targetNick;
+      panel.classList.add('active');
+
+      if (targetNick) {
+        const win = document.getElementById('pcw-' + targetNick);
+        if (win) {
+          const rect = win.getBoundingClientRect();
+          panel.style.right = (window.innerWidth - rect.right + 10) + 'px';
+          panel.style.bottom = (window.innerHeight - rect.top + 10) + 'px';
+        }
+      } else {
+        panel.style.right = '20px';
+        panel.style.bottom = '80px';
+      }
+
+      switchGSPTab(window._gspActiveTab);
     };
 
-    window.requestDelete = (msgId) => {
-      if(confirm("Bu mesajı silmək istədiyinizdən əminsiniz?")) {
-        socket.emit('deleteMessage', msgId);
+    window.switchGSPTab = function(tab) {
+      window._gspActiveTab = tab;
+      document.getElementById('gspTabGif').classList.toggle('active', tab === 'gif');
+      document.getElementById('gspTabSticker').classList.toggle('active', tab === 'sticker');
+      document.getElementById('gspSearchWrap').style.display = (tab === 'gif') ? 'block' : 'none';
+
+      if (tab === 'sticker') {
+        renderStickerGrid();
+      } else {
+        document.getElementById('gspGrid').innerHTML = '<div class="gsp-empty">Axtarış edin və ya populyar GIF-lər üçün gözləyin...</div>';
+        searchGifs('salam');
       }
+    };
+
+    function renderStickerGrid() {
+      const grid = document.getElementById('gspGrid');
+      grid.innerHTML = '';
+      STICKER_SET.forEach(emoji => {
+        const div = document.createElement('div');
+        div.className = 'sticker-emoji-item';
+        div.innerText = emoji;
+        div.onclick = () => sendStickerOrGif(emoji, 'sticker');
+        grid.appendChild(div);
+      });
+    }
+
+    window.searchGifs = async function(presetQuery = null) {
+      const query = presetQuery || document.getElementById('gspSearchInput').value.trim() || 'salam';
+      const grid = document.getElementById('gspGrid');
+      grid.innerHTML = '<div class="gsp-empty">Axtarılır...</div>';
+
+      try {
+        const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=15&rating=g&lang=az`;
+        const response = await fetch(url);
+        const result = await response.json();
+
+        grid.innerHTML = '';
+        if (!result.data || result.data.length === 0) {
+          grid.innerHTML = '<div class="gsp-empty">Heç bir GIF tapılmadı.</div>';
+          return;
+        }
+
+        result.data.forEach(gif => {
+          const img = document.createElement('img');
+          img.src = gif.images.fixed_width_small.url;
+          img.loading = 'lazy';
+          img.onclick = () => sendStickerOrGif(gif.images.original.url, 'gif');
+          grid.appendChild(img);
+        });
+      } catch (err) {
+        console.error("GIPHY axtarış xətası:", err);
+        grid.innerHTML = '<div class="gsp-empty">GIF yüklənərkən xəta baş verdi.</div>';
+      }
+    };
+
+    function sendStickerOrGif(url, mediaType) {
+      const targetNick = window._gspTargetNick;
+
+      if (targetNick) {
+        const payload = {
+          sender: window.currentUserNick,
+          recipient: targetNick,
+          text: "",
+          mediaType: mediaType,
+          mediaUrl: url
+        };
+        if (window._generalReplyTo && window._pcwReplyTo && window._pcwReplyTo[targetNick]) {
+          payload.replyTo = window._pcwReplyTo[targetNick];
+          window._pcwReplyTo[targetNick] = null;
+        }
+        socket.emit('sendPrivateMessage', payload);
+      } else {
+        const payload = {
+          sender: window.currentUserNick,
+          text: "",
+          mediaType: mediaType,
+          mediaUrl: url
+        };
+        if (window._generalReplyTo) {
+          payload.replyTo = window._generalReplyTo;
+          cancelGeneralReply();
+        }
+        socket.emit('sendMessage', payload);
+      }
+
+      document.getElementById('gifStickerPanel').classList.remove('active');
+    }
+
+    // ====================== YANITLAMA (REPLY) VƏZİYYƏTİ ====================== 
+    window._generalReplyTo = null; // { id, sender, text } - ümumi çat üçün
+    window._pcwReplyTo = {}; // { nick: {id, sender, text} } - şəxsi pəncərələr üçün
+
+    window.cancelGeneralReply = function() {
+      window._generalReplyTo = null;
+      document.getElementById('generalReplyBar').classList.remove('active');
+    };
+
+    function setGeneralReply(msg) {
+      window._generalReplyTo = { id: msg.id, sender: msg.sender, text: msg.text || (msg.mediaType !== 'text' ? '📎 Media' : '') };
+      document.getElementById('generalReplyToName').innerText = msg.sender;
+      document.getElementById('generalReplyToText').innerText = window._generalReplyTo.text.slice(0, 60);
+      document.getElementById('generalReplyBar').classList.add('active');
+      document.getElementById('messageInputField').focus();
+    }
+
+    function setPcwReply(targetNick, msg) {
+      window._pcwReplyTo[targetNick] = { id: msg.id, sender: msg.sender, text: msg.text || (msg.mediaType !== 'text' ? '📎 Media' : '') };
+      const bar = document.getElementById('pcw-replybar-' + targetNick);
+      if (bar) {
+        bar.querySelector('.reply-info b').innerText = msg.sender;
+        bar.querySelector('.reply-info span').innerText = window._pcwReplyTo[targetNick].text.slice(0, 50);
+        bar.classList.add('active');
+      }
+      const inputEl = document.querySelector(`#pcw-${targetNick} .pcw-text-input`);
+      if (inputEl) inputEl.focus();
+    }
+
+    window.cancelPcwReply = function(targetNick) {
+      window._pcwReplyTo[targetNick] = null;
+      const bar = document.getElementById('pcw-replybar-' + targetNick);
+      if (bar) bar.classList.remove('active');
+    };
+
+    // ====================== MESAJ KONTEKST MENYUSU (basılı saxlama / sağ-klik) ====================== 
+    window._ctxActiveMsg = null; // { msg, isPrivate, targetNick }
+    let _pressTimer = null;
+
+    function bindMessageContextActions(el, msg, isPrivate, targetNick) {
+      const open = (x, y) => openContextMenu(x, y, msg, isPrivate, targetNick);
+
+      el.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        open(e.clientX, e.clientY);
+      });
+
+      el.addEventListener('touchstart', (e) => {
+        _pressTimer = setTimeout(() => {
+          const touch = e.touches[0];
+          open(touch.clientX, touch.clientY);
+        }, 480);
+      }, { passive: true });
+
+      el.addEventListener('touchend', () => clearTimeout(_pressTimer));
+      el.addEventListener('touchmove', () => clearTimeout(_pressTimer));
+    }
+
+    function openContextMenu(x, y, msg, isPrivate, targetNick) {
+      if (msg.isDeleted) return;
+      window._ctxActiveMsg = { msg, isPrivate, targetNick };
+
+      const menu = document.getElementById('msgContextMenu');
+      const overlay = document.getElementById('ctxMenuOverlay');
+
+      // Reaksiya sırası
+      const reactionsRow = document.getElementById('ctxReactionsRow');
+      reactionsRow.innerHTML = '';
+      ['👍','❤️','😂','😮','😢','🔥'].forEach(emoji => {
+        const span = document.createElement('span');
+        span.innerText = emoji;
+        span.onclick = () => {
+          socket.emit('addReaction', { msgId: msg.id, isPrivate, nick: window.currentUserNick, emoji });
+          closeContextMenu();
+        };
+        reactionsRow.appendChild(span);
+      });
+
+      // Sil seçimi: yalnız öz mesajı, ya da admin/moderator
+      const canDelete = (msg.sender === window.currentUserNick) ||
+                         (window.currentUserRole === 'admin' || window.currentUserRole === 'moderator');
+      document.getElementById('ctxDeleteItem').style.display = canDelete ? 'flex' : 'none';
+
+      menu.style.display = 'block';
+      const menuWidth = 200, menuHeight = 220;
+      let posX = Math.min(x, window.innerWidth - menuWidth - 10);
+      let posY = Math.min(y, window.innerHeight - menuHeight - 10);
+      menu.style.left = posX + 'px';
+      menu.style.top = posY + 'px';
+
+      menu.classList.add('active');
+      overlay.classList.add('active');
+    }
+
+    window.closeContextMenu = function() {
+      document.getElementById('msgContextMenu').classList.remove('active');
+      document.getElementById('ctxMenuOverlay').classList.remove('active');
+      window._ctxActiveMsg = null;
+    };
+
+    document.getElementById('ctxReplyItem').onclick = function() {
+      const ctx = window._ctxActiveMsg;
+      if (!ctx) return;
+      if (ctx.isPrivate) {
+        setPcwReply(ctx.targetNick, ctx.msg);
+      } else {
+        setGeneralReply(ctx.msg);
+      }
+      closeContextMenu();
+    };
+
+    document.getElementById('ctxDeleteItem').onclick = function() {
+      const ctx = window._ctxActiveMsg;
+      if (!ctx) return;
+      if (!confirm("Bu mesajı silmək istədiyinizdən əminsiniz?")) { closeContextMenu(); return; }
+
+      if (ctx.msg.sender === window.currentUserNick) {
+        socket.emit('deleteOwnMessage', { msgId: ctx.msg.id, isPrivate: ctx.isPrivate });
+      } else {
+        socket.emit('deleteMessage', { msgId: ctx.msg.id, isPrivate: ctx.isPrivate });
+      }
+      closeContextMenu();
+    };
+
+    document.getElementById('ctxForwardItem').onclick = function() {
+      const ctx = window._ctxActiveMsg;
+      if (!ctx) return;
+      openForwardModal(ctx.msg);
+      closeContextMenu();
+    };
+
+    // ====================== YÖNLƏNDİRMƏ (FORWARD) ====================== 
+    window._forwardingMsg = null;
+
+    function openForwardModal(msg) {
+      window._forwardingMsg = msg;
+      const list = document.getElementById('forwardTargetsList');
+      list.innerHTML = '';
+
+      const allUsers = (window.lastActiveUsersList || []).map(u => typeof u === 'object' ? u : { nick: u, avatarUrl: '' });
+      const others = allUsers.filter(u => u.nick !== window.currentUserNick && !u.isBanned);
+
+      if (others.length === 0) {
+        list.innerHTML = '<p style="color: rgba(255,255,255,0.5); font-size: 13px; text-align:center;">Yönləndirmək üçün istifadəçi yoxdur.</p>';
+      }
+
+      others.forEach(u => {
+        const item = document.createElement('div');
+        item.className = 'forward-target-item';
+        const avatar = u.avatarUrl || "https://www.w3schools.com/howto/img_avatar.png";
+        item.innerHTML = `<img src="${avatar}" alt="av"><span>${u.nick}</span>`;
+        item.onclick = () => {
+          socket.emit('sendPrivateMessage', {
+            sender: window.currentUserNick,
+            recipient: u.nick,
+            text: window._forwardingMsg.text || "",
+            mediaType: window._forwardingMsg.mediaType || "text",
+            mediaUrl: window._forwardingMsg.mediaUrl || "",
+            forwardedFrom: window._forwardingMsg.sender
+          });
+          showToast(`Mesaj ${u.nick} adlı istifadəçiyə yönləndirildi.`, "success");
+          closeForwardModal();
+        };
+        list.appendChild(item);
+      });
+
+      document.getElementById('forwardModal').classList.add('active');
+    }
+
+    window.closeForwardModal = function() {
+      document.getElementById('forwardModal').classList.remove('active');
+      window._forwardingMsg = null;
+    };
+
+    window.handleKeyPress = (e) => {
+      if(e.key === 'Enter') triggerMessageSend();
     };
 
     function appendMessage(msg) {
