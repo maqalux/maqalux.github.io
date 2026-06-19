@@ -214,7 +214,7 @@
       .chat-body { flex-direction: column; }
       
       /* Aktiv istifadəçilər bölməsi */
-      .sidebar-users { width: 100%; height: 90px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; }
+      .sidebar-users { width: 100%; height: 90px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; order: -1; }
       .sidebar-users h4 { font-size: 13px; padding: 8px 15px 6px 15px; }
       #activeUsersList { flex-direction: row; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 6px 15px 10px 15px; }
       .user-badge { padding: 4px 10px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
@@ -344,10 +344,8 @@
     </div>
   </main>
 
-  <!-- ====================== ŞƏXSİ MESAJ PƏNCƏRƏLƏRİ KONTEYNERİ ====================== -->
   <div id="privateChatWindowsContainer"></div>
 
-  <!-- ====================== ŞİFRƏNİ UNUTDUM MODALI ====================== -->
   <div class="modal-overlay" id="forgotPasswordModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
