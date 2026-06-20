@@ -1294,6 +1294,35 @@
       return `${dd}.${mm}.${yyyy}`;
     }
 
+    // ====================== GÜN DƏYİŞMƏSİNİ İZLƏYƏN MEXANİZM ======================
+    // Pəncərə uzun müddət açıq qalarsa (gecə yarısını keçərsə), "Bu gün"/"Dünən" yazıları
+    // köhnəlmiş qala bilər. Bu funksiya bütün açıq şəxsi söhbət pəncərələrini və əsas söhbəti
+    // cari günə uyğun olaraq yenidən render edir.
+    window.lastKnownDateKey = dateKeyOf(Date.now());
+
+    function refreshAllDateSeparatorsIfDayChanged() {
+      const currentDateKey = dateKeyOf(Date.now());
+      if (currentDateKey === window.lastKnownDateKey) return;
+      window.lastKnownDateKey = currentDateKey;
+
+      // Açıq olan bütün şəxsi söhbət pəncərələrini yenidən render et
+      Object.keys(window.openPCWs || {}).forEach(nick => {
+        if (document.getElementById('pcw-body-' + nick)) {
+          renderPrivateChatWindow(nick);
+        }
+      });
+    }
+
+    // Hər dəqiqə yoxla (yüngül əməliyyatdır, performansa təsiri yoxdur)
+    setInterval(refreshAllDateSeparatorsIfDayChanged, 60 * 1000);
+
+    // İstifadəçi tab-a geri qayıdanda da dərhal yoxla (laptop yuxudan oyananda və s. halları üçün)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        refreshAllDateSeparatorsIfDayChanged();
+      }
+    });
+
     // WhatsApp tipli tick SVG-ləri: tək xətt (göndərildi), cüt xətt (çatdırıldı/oxundu)
     function ticksSvg(state) {
       // state: 'sent' | 'delivered' | 'read'
