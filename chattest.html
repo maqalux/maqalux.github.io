@@ -313,10 +313,29 @@
       .modal-box.settings-modal-box { max-width: 92vw; max-height: 86vh; overflow-y: auto; }
       .pcw-input-bar { flex-wrap: nowrap; }
     }
+    /* ====================== SERVERƏ QOŞULMA GÖZLƏMƏ EKRANI ====================== */
+    #connectionLoadingOverlay { position: fixed; inset: 0; z-index: 9000; background: linear-gradient(135deg, #090d22 0%, #082962 45%, #0151b1 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; transition: opacity 0.5s ease; }
+    #connectionLoadingOverlay.hidden { opacity: 0; pointer-events: none; }
+    .conn-spinner { width: 56px; height: 56px; border: 4px solid rgba(255,170,0,0.18); border-top-color: #ffaa00; border-radius: 50%; animation: conn-spin 0.9s linear infinite; }
+    @keyframes conn-spin { to { transform: rotate(360deg); } }
+    .conn-loading-text { color: #ffc107; font-size: 16px; font-weight: 600; text-align: center; padding: 0 30px; }
+    .conn-loading-sub { color: rgba(255,255,255,0.55); font-size: 13px; text-align: center; padding: 0 30px; max-width: 320px; line-height: 1.5; }
+    .conn-retry-btn { display: none; margin-top: 6px; padding: 11px 28px; border-radius: 30px; border: none; background: linear-gradient(90deg, #ffc107, #ff9800); color: #0a1329; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .conn-retry-btn:hover { filter: brightness(1.08); }
+    #connectionLoadingOverlay.slow .conn-retry-btn { display: inline-block; }
+    #connectionLoadingOverlay.slow .conn-spinner { border-top-color: #ff9800; }
+
   </style>
 </head>
 
 <body>
+  <div id="connectionLoadingOverlay">
+    <div class="conn-spinner"></div>
+    <div class="conn-loading-text" id="connLoadingMainText">Serverə qoşulur...</div>
+    <div class="conn-loading-sub" id="connLoadingSubText">Bu, server bir müddət istifadə olunmadıqda bir az vaxt apara bilər. Zəhmət olmasa gözləyin.</div>
+    <button type="button" class="conn-retry-btn" id="connRetryBtn" onclick="window.retryServerConnection()">Yenidən cəhd et</button>
+  </div>
+
   <div id="toastContainer"></div>
 
   <header>
@@ -535,6 +554,49 @@
     
     const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a"; 
 
+    // ====================== SERVERƏ QOŞULMA GÖZLƏMƏ EKRANI İDARƏETMƏSİ ======================
+    let connSlowTimer = null;
+    let connHasConnectedOnce = false;
+
+    function hideConnectionOverlay() {
+      const overlay = document.getElementById('connectionLoadingOverlay');
+      if (overlay) overlay.classList.add('hidden');
+      if (connSlowTimer) { clearTimeout(connSlowTimer); connSlowTimer = null; }
+    }
+
+    function showConnectionOverlay(isSlow = false) {
+      const overlay = document.getElementById('connectionLoadingOverlay');
+      if (!overlay) return;
+      overlay.classList.remove('hidden');
+      overlay.classList.toggle('slow', isSlow);
+      const subText = document.getElementById('connLoadingSubText');
+      if (isSlow && subText) {
+        subText.innerText = "Server bir az daha çox vaxt aparır. İnternet bağlantınızı yoxlayın və ya bir az gözləyib yenidən cəhd edin.";
+      } else if (subText) {
+        subText.innerText = "Bu, server bir müddət istifadə olunmadıqda bir az vaxt apara bilər. Zəhmət olmasa gözləyin.";
+      }
+    }
+
+    window.retryServerConnection = function() {
+      showConnectionOverlay(false);
+      socket.connect();
+      armSlowConnectionTimer();
+    };
+
+    function armSlowConnectionTimer() {
+      if (connSlowTimer) clearTimeout(connSlowTimer);
+      connSlowTimer = setTimeout(() => {
+        if (!socket.connected) showConnectionOverlay(true);
+      }, 12000);
+    }
+
+    // Başlanğıcda overlay artıq görünür (HTML-də default), gecikmə taymerini işə salırıq
+    armSlowConnectionTimer();
+
+    socket.io.on('reconnect_attempt', () => {
+      if (!connHasConnectedOnce) showConnectionOverlay(false);
+    });
+
     // ====================== TOAST BİLDİRİŞ SİSTEMİ ======================
     window.showToast = function(message, type = 'info', duration = 4000) {
       const container = document.getElementById('toastContainer');
@@ -575,7 +637,9 @@
         return showToast("Google girişi hazırda əlçatan deyil, daha sonra cəhd edin.", "error");
       }
       if (!socket.connected) {
-        return showToast("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.", "error");
+        showConnectionOverlay(false);
+        armSlowConnectionTimer();
+        return;
       }
 
       const provider = new firebase.auth.GoogleAuthProvider();
@@ -644,7 +708,9 @@
         return showToast("Zəhmət olmasa istifadəçi adınızı daxil edin.", "error");
       }
       if (!socket.connected) {
-        return showToast("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.", "error");
+        showConnectionOverlay(false);
+        armSlowConnectionTimer();
+        return;
       }
 
       socket.emit('requestPasswordReset', { nick }, (response) => {
@@ -730,7 +796,23 @@
 
     // GIF dəsti: hələlik boşdur — link siyahısı təmin ediləndə bu array doldurulacaq.
     // Format: ["https://.../1.gif", "https://.../2.gif", ...]
-    const GIF_LIST = [];
+    const GIF_LIST = [
+      "https://maqalux.github.io/Gifs/bubududu1.gif",
+      "https://maqalux.github.io/Gifs/bubududu2.gif",
+      "https://maqalux.github.io/Gifs/bubududu3.gif",
+      "https://maqalux.github.io/Gifs/bubududu4.gif",
+      "https://maqalux.github.io/Gifs/bubududu5.gif",
+      "https://maqalux.github.io/Gifs/bubududu6.gif",
+      "https://maqalux.github.io/Gifs/bubududu7.gif",
+      "https://maqalux.github.io/Gifs/bubududu8.gif",
+      "https://maqalux.github.io/Gifs/bubududu9.gif",
+      "https://maqalux.github.io/Gifs/bubududu10.gif",
+      "https://maqalux.github.io/Gifs/bubududu11.gif",
+      "https://maqalux.github.io/Gifs/bubududu12.gif",
+      "https://maqalux.github.io/Gifs/bubududu13.gif",
+      "https://maqalux.github.io/Gifs/cute-bear-kiss.gif",
+      "https://maqalux.github.io/Gifs/iklog.gif"
+    ];
 
     window.activeStickerTarget = null;
 
@@ -912,7 +994,9 @@
 
     function executeLogin(nick, pass, action = 'login', email = "") {
   if(!socket.connected) {
-    return alert("Serverə qoşulma qurulur, bir az sonra yenidən cəhd edin.");
+    showConnectionOverlay(false);
+    armSlowConnectionTimer();
+    return;
   }
 
   socket.emit('login', { nick, pass, action, email }, (response) => {
@@ -945,12 +1029,26 @@
 }
 
     socket.on('connect', () => {
+      connHasConnectedOnce = true;
+      hideConnectionOverlay();
+
       const savedNick = localStorage.getItem('maqalux_nick');
       const savedPass = localStorage.getItem('maqalux_pass');
       
       if(savedNick && savedPass) {
         executeLogin(savedNick, savedPass, 'login');
       }
+    });
+
+    socket.on('disconnect', () => {
+      if (connHasConnectedOnce) {
+        showConnectionOverlay(false);
+        armSlowConnectionTimer();
+      }
+    });
+
+    socket.on('connect_error', () => {
+      if (!socket.connected) showConnectionOverlay(false);
     });
 
     window.logoutFromChat = function() {
@@ -1694,9 +1792,7 @@
         content = `<div style="opacity:0.6; font-style: italic;">${escapeHtml(msg.text)}</div>`;
       } else {
         content += buildReactionsHtml(msg, true, targetNick);
-        if (isMe) {
-          content += `<div style="display:flex; justify-content:flex-end;">${buildMsgMetaHtml(msg, true)}</div>`;
-        }
+        content += `<div style="display:flex; justify-content:${isMe ? 'flex-end' : 'flex-start'};">${buildMsgMetaHtml(msg, true)}</div>`;
       }
 
       div.innerHTML = content;
