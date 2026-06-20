@@ -167,11 +167,18 @@
     .message-input { padding: 12px 22px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: white; font-size: 15px; outline: none; }
     .message-input::placeholder { color: rgba(255,255,255,0.4); }
     .message-input:focus { border-color: #ff9800; }
+
+    /* ====================== WHATSAPP TİPLİ VAHİD INPUT PİLL-İ (😊 mətn 🖼️) ====================== */
+    .input-pill { flex: 1; display: flex; align-items: flex-end; gap: 6px; padding: 6px 10px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); transition: border-color 0.2s; }
+    .input-pill:focus-within { border-color: #ff9800; }
+    .input-pill .message-input { flex: 1; padding: 6px 4px; border: none; background: transparent; border-radius: 0; }
+    .input-pill .pill-icon-btn { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 19px; background: none; transition: 0.2s; margin-bottom: 1px; }
+    .input-pill .pill-icon-btn:hover { background: rgba(255,255,255,0.1); }
     
     .media-label { background: rgba(255,255,255,0.1); width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 20px; transition: 0.3s; }
     .media-label:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
     
-    .send-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(255,152,0,0.2); }
+    .send-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(255,152,0,0.2); flex-shrink: 0; }
     .send-btn:hover { transform: scale(1.1); box-shadow: 0 4px 18px rgba(255,152,0,0.4); }
 
     footer { text-align: center; padding: 20px; color: #ffaa00; font-weight: 600; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0, 0, 0, 0.2); }
@@ -247,11 +254,19 @@
     .pcw-input-bar textarea.pcw-text-input:focus { border-color: #ff9800; }
     .pcw-input-bar .pcw-send-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 15px; display: flex; align-items: center; justify-content: center; }
 
+    .pcw-input-bar .input-pill { padding: 4px 8px; border-radius: 18px; gap: 4px; }
+    .pcw-input-bar .input-pill textarea.pcw-text-input { border: none; background: transparent; padding: 6px 4px; }
+    .pcw-input-bar .input-pill .pill-icon-btn { width: 26px; height: 26px; font-size: 15px; }
+
     /* Şəxsi pəncərə daxilindəki mesaj qabarcıqları (ümumi msg-bubble stillərini bölüşür, kiçik fərqlərlə) */
     .pcw-msg { max-width: 80%; padding: 9px 13px; border-radius: 16px; font-size: 13px; word-wrap: break-word; align-self: flex-start; }
     .pcw-msg.pcw-msg-me { background: linear-gradient(135deg, #024397, #00285e); align-self: flex-end; border-bottom-right-radius: 4px; }
     .pcw-msg.pcw-msg-other { background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; }
     .pcw-msg img { max-width: 100%; max-height: 140px; border-radius: 10px; margin-top: 6px; }
+
+    /* ====================== TARİX AYIRICISI (Bu gün / Dünən / GG.AA.İİİİ) ====================== */
+    .pcw-date-separator { align-self: center; margin: 10px 0 6px 0; padding: 4px 14px; background: rgba(255,255,255,0.1); border-radius: 12px; font-size: 11px; color: rgba(255,255,255,0.75); font-weight: 600; }
+    .msg-date-separator { align-self: center; margin: 14px 0 10px 0; padding: 5px 16px; background: rgba(255,255,255,0.1); border-radius: 14px; font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 600; }
 
     /* ✅ MOBİL VERSİYA ÜÇÜN XÜSUSİ TƏNZİMLƏMƏLƏR (TAM EKRAN) */
     @media (max-width: 700px) {
@@ -286,6 +301,9 @@
       /* Mesaj yazmaq üçün alt panel */
       .input-bar { padding: 10px; gap: 6px; justify-content: space-between; }
       .message-input { padding: 10px 14px; font-size: 14px; min-width: 0; }
+      .input-pill { padding: 4px 6px; gap: 2px; }
+      .input-pill .message-input { padding: 6px 2px; font-size: 14px; }
+      .input-pill .pill-icon-btn { width: 28px; height: 28px; font-size: 17px; }
       
       /* Düymələrin ölçüləri */
       .media-label, .send-btn { width: 38px; height: 38px; font-size: 16px; flex-shrink: 0; }
@@ -437,14 +455,16 @@
         </div>
 
         <div class="input-bar" style="position: relative;">
-          <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." style="flex: 1;" rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this)"></textarea>
+          <div class="input-pill">
+            <div class="pill-icon-btn" title="Stiker və GIF" onclick="toggleStickerPanel('main')">😊</div>
 
-          <label class="media-label" title="Şəkil göndər">
-            🖼️
-            <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
-          </label>
+            <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this)"></textarea>
 
-          <div class="media-label" title="Stiker və GIF" onclick="toggleStickerPanel('main')">😊</div>
+            <label class="pill-icon-btn" title="Şəkil göndər">
+              🖼️
+              <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
+            </label>
+          </div>
 
           <button class="send-btn" onclick="triggerMessageSend()">➤</button>
 
@@ -867,7 +887,7 @@
 
     // Panelin xaricinə klikləndikdə bağlamaq
     document.addEventListener('click', (e) => {
-      if (window.activeStickerTarget && !e.target.closest('.sticker-panel') && !e.target.closest('.media-label')) {
+      if (window.activeStickerTarget && !e.target.closest('.sticker-panel') && !e.target.closest('.media-label') && !e.target.closest('.pill-icon-btn')) {
         document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
         window.activeStickerTarget = null;
       }
@@ -1248,6 +1268,30 @@
       const h = d.getHours().toString().padStart(2, '0');
       const m = d.getMinutes().toString().padStart(2, '0');
       return `${h}:${m}`;
+    }
+
+    // WhatsApp tipli tarix ayırıcısı: "Bu gün" / "Dünən" / "GG.AA.İİİİ"
+    function dateKeyOf(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    }
+
+    function formatDateSeparatorLabel(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      const now = new Date();
+
+      const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const dayDiff = Math.round((startOfDay(now) - startOfDay(d)) / 86400000);
+
+      if (dayDiff === 0) return 'Bu gün';
+      if (dayDiff === 1) return 'Dünən';
+
+      const dd = d.getDate().toString().padStart(2, '0');
+      const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}.${mm}.${yyyy}`;
     }
 
     // WhatsApp tipli tick SVG-ləri: tək xətt (göndərildi), cüt xətt (çatdırıldı/oxundu)
@@ -1717,13 +1761,19 @@
         </div>
         <div class="pcw-body" id="pcw-body-${targetNick}"></div>
         <div class="pcw-input-bar" style="position: relative;">
-          <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendPrivateChatMessage('${targetNick}'); }" oninput="autoGrowTextarea(this)"></textarea>
-          <label class="media-label" style="width: 34px; height: 34px; font-size: 15px;" title="Şəkil göndər">
-            🖼️
-            <input type="file" accept="image/*" style="display: none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
-          </label>
-          <div class="media-label" style="width: 34px; height: 34px; font-size: 15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${targetNick}')">😊</div>
+          <div class="input-pill">
+            <div class="pill-icon-btn" style="width: 26px; height: 26px; font-size: 15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${targetNick}')">😊</div>
+
+            <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendPrivateChatMessage('${targetNick}'); }" oninput="autoGrowTextarea(this)"></textarea>
+
+            <label class="pill-icon-btn" style="width: 26px; height: 26px; font-size: 15px;" title="Şəkil göndər">
+              🖼️
+              <input type="file" accept="image/*" style="display: none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
+            </label>
+          </div>
+
           <button class="pcw-send-btn" onclick="sendPrivateChatMessage('${targetNick}')">➤</button>
+
           <div class="sticker-panel" id="stickerPanel-${targetNick}" style="bottom: 52px; right: 10px; width: 270px;">
             <div class="sticker-tabs">
               <div class="sticker-tab active" data-tab="sticker" onclick="switchStickerTab('${targetNick}','sticker')">Stiker</div>
@@ -1754,13 +1804,35 @@
       if (!body) return;
       body.innerHTML = '';
       const messages = window.privateMessagesByNick[targetNick] || [];
-      messages.forEach(msg => appendPrivateMessage(targetNick, msg, false));
+      let lastDateKey = null;
+      messages.forEach(msg => {
+        lastDateKey = appendPrivateMessage(targetNick, msg, false, lastDateKey);
+      });
       body.scrollTop = body.scrollHeight;
     }
 
-    function appendPrivateMessage(targetNick, msg, autoScroll = true) {
+    function insertPcwDateSeparator(body, ts) {
+      const sep = document.createElement('div');
+      sep.className = 'pcw-date-separator';
+      sep.innerText = formatDateSeparatorLabel(ts);
+      body.appendChild(sep);
+    }
+
+    function appendPrivateMessage(targetNick, msg, autoScroll = true, forcedLastDateKey = undefined) {
       const body = document.getElementById('pcw-body-' + targetNick);
       if (!body) return;
+
+      // Tarix ayırıcısı: əvvəlki mesajın tarixi ilə bu mesajın tarixi fərqlidirsə araya başlıq qoy
+      const thisDateKey = dateKeyOf(msg.timestamp);
+      let lastDateKey = forcedLastDateKey;
+      if (lastDateKey === undefined) {
+        lastDateKey = body.dataset.lastDateKey || null;
+      }
+      if (thisDateKey && thisDateKey !== lastDateKey) {
+        insertPcwDateSeparator(body, msg.timestamp);
+        lastDateKey = thisDateKey;
+      }
+      body.dataset.lastDateKey = lastDateKey || '';
 
       const div = document.createElement('div');
       const isMe = msg.sender === window.currentUserNick;
@@ -1807,6 +1879,8 @@
           socket.emit('markRead', { msgId: msg.id, isPrivate: true, reader: window.currentUserNick });
         }
       }
+
+      return lastDateKey;
     }
 
     window.sendPrivateChatMessage = function(targetNick, mediaData = null, mediaType = 'image') {
