@@ -1,0 +1,6 @@
+/lux-shop
+   ├── index.html      (əsas səhifə)
+   ├── style.css        (bütün dizayn)
+   ├── script.js        (səbət, axtarış, animasiyalar)
+   ├── products.json    (məhsul siyahısı)
+   └── /assets          (şəkillər, fontlar)
