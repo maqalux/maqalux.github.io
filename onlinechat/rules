@@ -1,0 +1,20 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null",
+      "$uid": {
+        // İstifadeçi yalnız öz məlumatlarını yarada/yeniləyə bilər
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "messages": {
+      // Yalnız qeydiyyatdan keçmiş istifadəçilər mesajları oxuya və yaza bilər
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$messageId": {
+        // Təhlükəsizlik üçün: İstifadeçinin göndərdiyi mesajda onun UID-si düzgün qeyd olunmalıdır
+        ".validate": "newData.hasChildren(['senderId', 'text']) && newData.child('senderId').val() == auth.uid"
+      }
+    }
+  }
+}
