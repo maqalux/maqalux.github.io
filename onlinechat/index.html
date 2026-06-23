@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Maqalux - Modern Çat & Shorts</title>
+  <title>Maqalux - Modern Çat</title>
   <link rel="icon" href="logo.png" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* Bütün funksional dizayn və dərin qradiyent effektli arxa fon */
-    body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #090d22 0%, #082962 45%, #0151b1 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    /* ====================== BÜTÜN STILLƏR ====================== */
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #090d22 0%, #082962 45%, #0151b1 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; }
     
     header { display: flex; align-items: center; justify-content: space-between; height: 90px; padding: 0 30px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 1000; }
     header a.logo img { height: 55px; transition: transform 0.4s ease; }
@@ -19,23 +19,23 @@
     nav ul li a { text-decoration: none; color: white; font-weight: 600; font-size: 16px; padding: 10px 22px; border-radius: 30px; transition: all 0.3s ease; }
     nav ul li a.active { background: linear-gradient(90deg, #ffc107, #ff9800); color: #0a1329; box-shadow: 0 4px 15px rgba(255,152,0,0.3); }
 
-    main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; position: relative; }
+    main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
     
-    .chat-container { width: 100%; max-width: 1000px; height: 650px; background: rgba(10, 22, 52, 0.5); backdrop-filter: blur(25px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .chat-container { width: 100%; max-width: 1000px; height: 650px; background: rgba(10, 22, 52, 0.5); backdrop-filter: blur(25px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
     
     .chat-screen { display: none !important; height: 100%; width: 100%; }
     .chat-screen.active { display: flex !important; flex-direction: column; }
 
-    /* Giriş/Qeydiyyat Bölməsinin Dizaynı */
+    /* Giriş / Qeydiyyat */
     #loginScreen { justify-content: center; align-items: center; position: relative; }
     .login-card { background: rgba(13, 27, 62, 0.75); backdrop-filter: blur(20px); padding: 50px 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 25px 55px rgba(0, 0, 0, 0.6); width: 85%; max-width: 380px; display: flex; flex-direction: column; align-items: center; }
-    
     .login-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; font-weight: 700; text-align: center; width: 100%; letter-spacing: 0.5px; }
     .login-card p { color: rgba(255, 255, 255, 0.6); font-size: 14px; margin: 0 0 30px 0; text-align: center; }
     
     .input-group { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: white; font-size: 15px; outline: none; transition: all 0.3s ease; width: 100%; box-sizing: border-box; }
+    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: white; font-size: 15px; outline: none; text-align: left; transition: all 0.3s ease; width: 100%; box-sizing: border-box; }
     .custom-input:focus { border-color: #ffa200; background: rgba(255,255,255,0.15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
+    .custom-input::placeholder { color: rgba(255,255,255,0.4); }
     
     .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
     .password-wrapper .custom-input { padding-right: 55px; }
@@ -47,778 +47,1614 @@
 
     .switch-text { color: rgba(255,255,255,0.5); font-size: 13.5px; margin-top: 20px; text-align: center; width: 100%; }
     .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; margin-left: 5px; }
+    .switch-text span:hover { color: white; }
 
-    /* Çatın Daxili Strukturu */
+    .forgot-pass-link { color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer; text-align: center; width: 100%; margin-top: 14px; text-decoration: underline; transition: 0.2s; }
+    .forgot-pass-link:hover { color: #ffb700; }
+
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,255,255,0.2); }
+    .google-btn img { width: 19px; height: 19px; }
+
+    .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
+    .divider-row .line { flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
+    .divider-row span { color: rgba(255,255,255,0.4); font-size: 12.5px; }
+
+    /* Çat başlığı */
     .chat-header { background: rgba(5, 12, 31, 0.5); padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .chat-header h3 { margin: 0; color: white; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+    .chat-header h3 { margin: 0; color: white; }
     .logout-btn { background: rgba(220, 53, 69, 0.8); color: white; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: 0.3s; }
     .logout-btn:hover { background: #dc3545; }
 
-    .chat-body { flex: 1; display: flex; overflow: hidden; position: relative; }
+    /* Bədən */
+    .chat-body { flex: 1; display: flex; overflow: hidden; }
     .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: rgba(0, 0, 0, 0.15); }
     .messages-area::-webkit-scrollbar { width: 6px; }
     .messages-area::-webkit-scrollbar-thumb { background: rgba(255,162,0,0.3); border-radius: 10px; }
     
-    .sidebar-users { width: 240px; background: rgba(5, 12, 31, 0.3); border-left: 1px solid rgba(255,255,255,0.08); padding: 0; overflow: hidden; display: flex; flex-direction: column; }
-    .sidebar-users h4 { margin: 0; color: #ffaa00; border-bottom: 1px solid rgba(255,162,0,0.2); padding: 20px 20px 12px 20px; flex-shrink: 0; background: rgba(5, 12, 31, 0.55); backdrop-filter: blur(10px); }
+    /* Yan panel */
+    .sidebar-users { width: 220px; background: rgba(5, 12, 31, 0.3); border-left: 1px solid rgba(255,255,255,0.08); padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .sidebar-users h4 { margin: 0; color: #ffaa00; border-bottom: 1px solid rgba(255,162,0,0.2); padding: 20px 20px 12px 20px; flex-shrink: 0; background: rgba(5, 12, 31, 0.55); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 2; }
     #activeUsersList { flex: 1; overflow-y: auto; padding: 14px 20px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+    #activeUsersList::-webkit-scrollbar { width: 5px; }
+    #activeUsersList::-webkit-scrollbar-thumb { background: rgba(255,162,0,0.3); border-radius: 10px; }
 
-    .user-badge { background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 20px; font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.25s; position: relative; }
-    .user-badge:hover { background: rgba(255,255,255,0.13); }
+    .user-badge { background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 20px; font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.25s; position: relative; flex-wrap: wrap; }
+    .user-badge:hover { background: rgba(255,255,255,0.13); transform: translateX(-2px); }
     .user-badge.role-admin { border: 1px solid rgba(255, 80, 80, 0.4); }
     .user-badge.role-moderator { border: 1px solid rgba(120, 170, 255, 0.4); }
-    .user-badge.user-ignored { opacity: 0.4; text-decoration: line-through; }
+    .user-badge.user-banned { opacity: 0.5; border: 1px solid rgba(255, 60, 60, 0.3); }
     .user-badge .role-tag { font-size: 10px; opacity: 0.7; margin-left: auto; }
 
-    .sidebar-avatar-wrap { position: relative; width: 24px; height: 24px; flex-shrink: 0; }
-    .sidebar-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-    .online-dot { position: absolute; bottom: -1px; right: -1px; width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; border: 2px solid #0d1b3e; box-shadow: 0 0 6px #2ecc71; }
+    .badge-actions { display: flex; align-items: center; gap: 5px; margin-left: 6px; }
+    .badge-action-icon { font-size: 12px; opacity: 0.65; cursor: pointer; transition: 0.2s; padding: 2px; border-radius: 50%; line-height: 1; }
+    .badge-action-icon:hover { opacity: 1; transform: scale(1.2); }
+
+    .sidebar-avatar-wrap { position: relative; width: 22px; height: 22px; flex-shrink: 0; }
+    .sidebar-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; display: block; }
+    .online-dot { position: absolute; bottom: -1px; right: -1px; width: 8px; height: 8px; border-radius: 50%; background: #555; border: 2px solid rgba(13, 27, 62, 1); }
+    .online-dot.is-online { background: #2ecc71; box-shadow: 0 0 6px rgba(46, 204, 113, 0.8); }
 
     /* Mesaj qabarcıqları */
-    .msg-wrapper { display: flex; gap: 10px; width: 100%; margin-bottom: 4px; }
-    .msg-wrapper.me { justify-content: flex-end; }
-    .msg-wrapper.other { justify-content: flex-start; }
+    .msg-bubble { max-width: 75%; padding: 13px 18px; border-radius: 20px; font-size: 15px; position: relative; word-wrap: break-word; display: flex; flex-direction: column; cursor: pointer; }
+    .msg-bubble b { font-size: 0.85em; opacity: 0.9; color: #ffc107; }
+    .msg-bubble img { max-width: 100%; max-height: 200px; border-radius: 12px; margin-top: 7px; object-fit: cover; }
+    
+    .msg-me { background: linear-gradient(135deg, #024397, #00285e); color: white; align-self: flex-end; border-bottom-right-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
+    .msg-other { background: rgba(255, 255, 255, 0.08); color: white; align-self: flex-start; border-bottom-left-radius: 5px; border: 1px solid rgba(255,255,255,0.05); }
+    
+    .delete-btn { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 12px; align-self: flex-end; margin-top: 5px; padding: 0; }
+    .delete-btn:hover { color: #ff4d4d; text-decoration: underline; }
 
-    .msg-bubble { max-width: 70%; padding: 12px 16px; border-radius: 20px; font-size: 15px; position: relative; word-wrap: break-word; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-    .msg-bubble b { font-size: 0.85em; opacity: 0.9; color: #ffc107; margin-bottom: 3px; display: block; }
-    .msg-bubble img.uploaded-img { max-width: 100%; max-height: 220px; border-radius: 12px; margin-top: 6px; object-fit: cover; }
-    
-    .me .msg-bubble { background: linear-gradient(135deg, #024397, #00285e); color: white; border-bottom-right-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
-    .other .msg-bubble { background: rgba(255, 255, 255, 0.08); color: white; border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
-    
-    .msg-meta { display: flex; align-items: center; gap: 4px; align-self: flex-end; margin-top: 5px; font-size: 11px; color: rgba(255,255,255,0.55); user-select: none; }
-    .msg-ticks svg { width: 14px; height: 11px; display: block; }
+    .msg-meta { display: flex; align-items: center; gap: 4px; align-self: flex-end; margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.55); user-select: none; }
+    .msg-other .msg-meta { align-self: flex-start; }
+    .msg-ticks { display: inline-flex; align-items: center; line-height: 0; }
+    .msg-ticks svg { width: 15px; height: 11px; display: block; }
     .msg-ticks .tick-path { fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-    .msg-ticks.read .tick-path { stroke: #2ecc71; }
+    .msg-ticks.ticks-read .tick-path { stroke: #2ecc71; }
 
-    /* Reply / Forward */
-    .msg-reply-preview { background: rgba(0,0,0,0.25); border-left: 3px solid #ffaa00; border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; font-size: 12.5px; }
+    .msg-reply-preview { background: rgba(0,0,0,0.22); border-left: 3px solid #ffaa00; border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; font-size: 12.5px; opacity: 0.85; max-width: 100%; }
+    .msg-reply-preview b { color: #ffc107; display: block; font-size: 0.9em; margin-bottom: 1px; }
+    .msg-reply-preview .reply-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .msg-forward-tag { font-size: 11px; opacity: 0.6; font-style: italic; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+
     .msg-reactions-bar { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-    .reaction-chip { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1px 7px; font-size: 12px; display: flex; align-items: center; gap: 3px; cursor: pointer; }
-    .reaction-chip.mine { border-color: #ffaa00; background: rgba(255,170,0,0.15); }
+    .reaction-chip { background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1px 7px; font-size: 12px; display: flex; align-items: center; gap: 3px; cursor: pointer; transition: 0.2s; }
+    .reaction-chip:hover { background: rgba(255,255,255,0.15); }
+    .reaction-chip.mine { border-color: #ffaa00; background: rgba(255,170,0,0.18); }
 
-    /* İnput paneli */
-    .input-bar { padding: 15px 20px; background: rgba(5, 12, 31, 0.5); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 12px; align-items: center; }
-    .input-pill { flex: 1; display: flex; align-items: center; gap: 10px; padding: 6px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); }
-    .message-input { flex: 1; border: none; background: transparent; color: white; font-size: 15px; outline: none; font-family: 'Poppins', sans-serif; resize: none; height: 24px; line-height: 24px; }
-    
-    .pill-icon-btn { cursor: pointer; font-size: 20px; background: none; border: none; color: rgba(255,255,255,0.6); transition: 0.2s; display: flex; align-items: center; }
-    .pill-icon-btn:hover { color: #ffaa00; transform: scale(1.1); }
-    
+    .msg-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,170,0,0.4); flex-shrink: 0; }
+    .msg-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+
+    /* Input bar */
+    .input-bar { padding: 15px 20px; background: rgba(5, 12, 31, 0.5); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 12px; align-items: center; position: relative; }
+    .input-pill { flex: 1; display: flex; align-items: flex-end; gap: 6px; padding: 6px 10px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); transition: border-color 0.2s; }
+    .input-pill:focus-within { border-color: #ff9800; }
+    .message-input { flex: 1; padding: 6px 4px; border: none; background: transparent; border-radius: 0; color: white; font-size: 15px; outline: none; resize: none; overflow-y: auto; font-family: 'Poppins', sans-serif; line-height: 1.4; max-height: 110px; }
+    .message-input::placeholder { color: rgba(255,255,255,0.4); }
+    .pill-icon-btn { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 19px; background: none; transition: 0.2s; margin-bottom: 1px; }
+    .pill-icon-btn:hover { background: rgba(255,255,255,0.1); }
+
     .send-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 20px; transition: 0.3s; box-shadow: 0 4px 12px rgba(255,152,0,0.2); flex-shrink: 0; }
-    .send-btn:hover { transform: scale(1.05); }
+    .send-btn:hover { transform: scale(1.1); box-shadow: 0 4px 18px rgba(255,152,0,0.4); }
 
-    /* Floating Panels */
-    .sticker-panel { position: absolute; bottom: 85px; right: 20px; width: 300px; height: 320px; background: rgba(10, 22, 52, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 18px; display: none; flex-direction: column; z-index: 2500; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-    .sticker-panel.active { display: flex; }
-    .sticker-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .sticker-tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.5); }
-    .sticker-tab.active { color: #ffaa00; border-bottom: 2px solid #ffaa00; }
-    .sticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px; overflow-y: auto; height: 100%; }
-    .sticker-grid span { font-size: 30px; text-align: center; cursor: pointer; transition: 0.2s; }
-    .sticker-grid span:hover { transform: scale(1.2); }
-
-    /* Konteks menyu */
-    .msg-context-menu { position: fixed; z-index: 6000; background: rgba(13, 27, 62, 0.98); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 8px; display: none; flex-direction: column; min-width: 180px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-    .ctx-emojis { display: flex; gap: 6px; padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); justify-content: space-around; }
-    .ctx-emojis span { font-size: 22px; cursor: pointer; transition: 0.2s; }
-    .ctx-emojis span:hover { transform: scale(1.3); }
-    .ctx-item { padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 13.5px; color: white; display: flex; align-items: center; gap: 10px; }
-    .ctx-item:hover { background: rgba(255,255,255,0.08); }
-    .ctx-item.danger { color: #ff6b6b; }
-
-    /* PM Pəncərələri */
-    #privateChatWindowsContainer { position: fixed; bottom: 0; right: 30px; z-index: 3000; display: flex; flex-direction: row-reverse; gap: 14px; align-items: flex-end; }
-    .private-chat-window { width: 290px; height: 380px; background: rgba(10, 22, 52, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-bottom: none; border-radius: 16px 16px 0 0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 -5px 25px rgba(0,0,0,0.4); }
-    .private-chat-window.minimized { height: 48px; }
-    .pcw-header { background: rgba(255,255,255,0.05); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
-    .pcw-title { font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 6px; }
-    .pcw-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.1); }
-    .pcw-input-bar { padding: 8px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 6px; }
-
-    /* Shorts Modalı */
-    .shorts-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
-    .shorts-modal.active { display: flex; }
-    .shorts-content { width: 100%; max-width: 400px; height: 85vh; background: #000; border-radius: 16px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-    .short-video-container { flex: 1; width: 100%; height: 100%; position: relative; }
-    .short-video-container iframe { width: 100%; height: 100%; border: none; }
-    .shorts-overlay-ui { position: absolute; bottom: 20px; left: 20px; z-index: 10; pointer-events: none; }
-    .shorts-overlay-ui h4 { margin: 0 0 5px 0; font-size: 16px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-    .shorts-close { position: absolute; top: 20px; right: 20px; font-size: 24px; color: white; cursor: pointer; z-index: 20; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-    
-    /* Shorts Admin Bölməsi */
-    .shorts-admin-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-top: 10px; display: none; }
-
-    /* Toasts */
-    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 7000; display: flex; flex-direction: column; gap: 10px; }
-    .toast { background: rgba(13, 27, 62, 0.95); border-left: 4px solid #ffaa00; padding: 12px 20px; border-radius: 10px; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: 0.3s; }
-    
-    /* Profil şəkli tənzimləmələri */
-    .avatar-container { position: relative; width: 45px; height: 45px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #ffaa00; }
+    .avatar-container { position: relative; width: 45px; height: 45px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #ffaa00; flex-shrink: 0; }
     .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
-    .avatar-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.2s; font-size: 12px; }
+    .avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; font-size: 16px; }
     .avatar-container:hover .avatar-overlay { opacity: 1; }
 
-    /* Modallar */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 4500; display: none; justify-content: center; align-items: center; }
-    .modal-overlay.active { display: flex; }
-    .modal-box { background: rgba(13, 27, 62, 0.96); padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+    /* Avatar dropdown */
+    .avatar-dropdown { position: absolute; top: 65px; left: 25px; width: 230px; background: rgba(13, 27, 62, 0.97); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; gap: 2px; z-index: 2600; }
+    .avatar-dropdown.active { display: flex; }
+    .ctx-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; cursor: pointer; font-size: 13.5px; color: white; transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; }
+    .ctx-item:hover { background: rgba(255,255,255,0.1); }
+    .ctx-item.danger { color: #ff6b6b; }
 
-    footer { text-align: center; padding: 20px; color: #ffaa00; font-weight: 600; font-size: 14px; background: rgba(0, 0, 0, 0.2); }
+    /* Reply preview bar */
+    #replyPreviewBar { display:none; padding: 8px 20px; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.08); align-items: center; gap: 10px; }
+    #replyPreviewBar .reply-preview-content { flex:1; border-left:3px solid #ffaa00; padding-left:10px; font-size:12.5px; overflow:hidden; }
+    #replyPreviewBar .reply-preview-content b { color:#ffc107; display:block; font-size:0.9em; }
+    #replyPreviewBar .reply-preview-content span { opacity:0.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+    #replyPreviewBar .reply-cancel { cursor:pointer; opacity:0.6; font-size:16px; }
+
+    /* Sticker panel */
+    .sticker-panel { position: absolute; bottom: 70px; right: 20px; width: 320px; max-height: 380px; background: rgba(10, 22, 52, 0.97); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); display: none; flex-direction: column; overflow: hidden; z-index: 2500; }
+    .sticker-panel.active { display: flex; }
+    .sticker-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+    .sticker-tab { flex: 1; text-align: center; padding: 12px 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); border-bottom: 2px solid transparent; transition: 0.2s; }
+    .sticker-tab.active { color: #ffaa00; border-bottom-color: #ffaa00; }
+    .sticker-body { flex: 1; overflow-y: auto; padding: 12px; }
+    .sticker-body::-webkit-scrollbar { width: 5px; }
+    .sticker-body::-webkit-scrollbar-thumb { background: rgba(255,162,0,0.3); border-radius: 10px; }
+    .sticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .sticker-grid img, .sticker-grid .emoji-sticker { width: 100%; aspect-ratio: 1/1; object-fit: contain; cursor: pointer; border-radius: 10px; transition: 0.2s; background: rgba(255,255,255,0.04); }
+    .sticker-grid img:hover, .sticker-grid .emoji-sticker:hover { transform: scale(1.12); background: rgba(255,255,255,0.1); }
+    .emoji-sticker { display: flex; align-items: center; justify-content: center; font-size: 30px; }
+    .sticker-empty-state { text-align: center; color: rgba(255,255,255,0.4); font-size: 13px; padding: 40px 10px; line-height: 1.6; }
+
+    /* Context Menu */
+    .msg-context-menu { position: fixed; z-index: 6000; background: rgba(13, 27, 62, 0.97); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 190px; gap: 2px; }
+    .msg-context-menu .ctx-emojis { display: flex; gap: 4px; padding: 6px 6px 10px 6px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; }
+    .msg-context-menu .ctx-emojis span { font-size: 20px; cursor: pointer; transition: 0.2s; border-radius: 50%; padding: 2px; }
+    .msg-context-menu .ctx-emojis span:hover { transform: scale(1.25); background: rgba(255,255,255,0.08); }
+    .ctx-overlay { position: fixed; inset: 0; z-index: 5999; display: none; }
+
+    /* Modallar */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3, 7, 20, 0.75); backdrop-filter: blur(6px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: rgba(13, 27, 62, 0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 360px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; }
+    .modal-box h3 { color: #ffaa00; margin: 0 0 8px 0; font-size: 1.4em; text-align: center; }
+    .modal-box p.modal-desc { color: rgba(255,255,255,0.55); font-size: 13.5px; margin: 0 0 22px 0; text-align: center; }
+    .modal-close { align-self: flex-end; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; margin: -10px -8px 0 0; line-height: 1; }
+    .modal-close:hover { color: white; }
+    .settings-section { width: 100%; text-align: left; }
+    .settings-section h4 { color: #ffaa00; font-size: 14px; margin: 0 0 12px 0; }
+    .settings-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 20px 0; }
+
+    /* Şəxsi mesaj pəncərələri */
+    #privateChatWindowsContainer { position: fixed; bottom: 0; right: 25px; z-index: 3000; display: flex; flex-direction: row-reverse; gap: 14px; align-items: flex-end; }
+    .private-chat-window { width: 300px; height: 400px; background: rgba(10, 22, 52, 0.92); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.12); border-bottom: none; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 35px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; transition: height 0.25s ease; }
+    .private-chat-window.minimized { height: 50px; }
+    .private-chat-window.minimized .pcw-body, .private-chat-window.minimized .pcw-input-bar { display: none; }
+    .pcw-header { background: rgba(255,255,255,0.06); padding: 10px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+    .pcw-header img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,170,0,0.4); }
+    .pcw-header .pcw-title { flex: 1; font-weight: 600; font-size: 13.5px; color: white; display: flex; align-items: center; gap: 6px; }
+    .pcw-header .pcw-online-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; flex-shrink: 0; }
+    .pcw-header .pcw-online-dot.is-online { background: #2ecc71; box-shadow: 0 0 6px rgba(46, 204, 113, 0.8); }
+    .pcw-header .pcw-actions { display: flex; gap: 8px; }
+    .pcw-header .pcw-actions span { cursor: pointer; opacity: 0.7; font-size: 13px; transition: 0.2s; }
+    .pcw-header .pcw-actions span:hover { opacity: 1; }
+    .pcw-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15); }
+    .pcw-body::-webkit-scrollbar { width: 5px; }
+    .pcw-body::-webkit-scrollbar-thumb { background: rgba(255,162,0,0.3); border-radius: 10px; }
+    .pcw-input-bar { padding: 10px; background: rgba(5, 12, 31, 0.6); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 8px; align-items: center; flex-shrink: 0; position: relative; }
+    .pcw-input-bar .input-pill { padding: 4px 8px; border-radius: 18px; gap: 4px; flex:1; }
+    .pcw-input-bar .input-pill textarea.pcw-text-input { flex:1; padding:6px 4px; border:none; background:transparent; color:white; font-size:13px; outline:none; resize:none; font-family:'Poppins',sans-serif; max-height:80px; line-height:1.4; }
+    .pcw-input-bar .input-pill textarea.pcw-text-input::placeholder { color:rgba(255,255,255,0.4); }
+    .pcw-input-bar .pcw-send-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; flex-shrink: 0; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+    .pcw-msg { max-width: 80%; padding: 9px 13px; border-radius: 16px; font-size: 13px; word-wrap: break-word; align-self: flex-start; }
+    .pcw-msg.pcw-msg-me { background: linear-gradient(135deg, #024397, #00285e); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .pcw-msg.pcw-msg-other { background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; }
+    .pcw-msg img { max-width: 100%; max-height: 140px; border-radius: 10px; margin-top: 6px; }
+    .pcw-date-separator { align-self: center; margin: 10px 0 6px 0; padding: 4px 14px; background: rgba(255,255,255,0.1); border-radius: 12px; font-size: 11px; color: rgba(255,255,255,0.75); font-weight: 600; }
+    .pcw-reply-preview { padding:6px 12px; background:rgba(0,0,0,0.25); border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:8px; font-size:11.5px; }
+
+    /* Toast */
+    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 5000; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
+    .toast { background: rgba(13, 27, 62, 0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: white; font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.toast-success { border-left-color: #2ecc71; }
+    .toast.toast-error { border-left-color: #e74c3c; }
+
+    footer { text-align: center; padding: 20px; color: #ffaa00; font-weight: 600; font-size: 14px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0, 0, 0, 0.2); }
+
+    /* Mobil */
+    @media (max-width: 700px) {
+      header { height: auto; flex-direction: column; padding: 10px; gap: 8px; }
+      main { padding: 0; } 
+      .chat-container { height: auto; flex: 1; min-height: 100%; border-radius: 0; margin: 0; border: none; }
+      footer { display: none; } 
+      .chat-body { flex-direction: column; }
+      .sidebar-users { width: 100%; height: 90px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.1); order: -1; }
+      .sidebar-users h4 { font-size: 13px; padding: 8px 15px 6px 15px; }
+      #activeUsersList { flex-direction: row; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 6px 15px 10px 15px; }
+      .user-badge { padding: 4px 10px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+      .input-bar { padding: 10px; gap: 6px; }
+      .message-input { padding: 10px 14px; font-size: 14px; min-width: 0; }
+      .input-pill { padding: 4px 6px; gap: 2px; }
+      .input-pill .message-input { padding: 6px 2px; font-size: 14px; }
+      .pill-icon-btn { width: 28px; height: 28px; font-size: 17px; }
+      .send-btn { width: 38px; height: 38px; font-size: 16px; }
+      .msg-bubble { max-width: 85%; padding: 10px 14px; font-size: 14px; }
+      #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
+      #privateChatWindowsContainer { right: 0; left: 0; bottom: 0; flex-direction: column; align-items: stretch; }
+      .private-chat-window { width: 100%; height: 100dvh; border-radius: 0; border: none; position: fixed; inset: 0; z-index: 3500; }
+      .private-chat-window.minimized { height: 100dvh; }
+      .private-chat-window.minimized .pcw-body, .private-chat-window.minimized .pcw-input-bar { display: flex; }
+      .pcw-header { padding: 14px 16px; }
+      .sticker-panel { left: 10px; right: 10px; width: auto; bottom: 64px; max-height: 50vh; }
+      .sticker-grid { grid-template-columns: repeat(4, 1fr); }
+      .msg-context-menu { min-width: 170px; max-width: 88vw; }
+      .avatar-dropdown { left: 10px; top: 62px; width: 210px; }
+      .modal-box { padding: 28px 20px; border-radius: 18px; }
+      .modal-box.settings-modal-box { max-width: 92vw; max-height: 86vh; overflow-y: auto; }
+    }
   </style>
 </head>
+
 <body>
+  <div id="toastContainer"></div>
 
   <header>
-    <a href="#" class="logo"><img src="logo.png" alt="Maqalux"></a>
+    <a href="../index.html" class="logo">
+      <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
+    </a>
     <nav>
       <ul>
-        <li><a href="#" class="active" onclick="location.reload();">Onlayn Çat</a></li>
-        <li><a href="#" onclick="openShortsModal()">Shorts Videolar</a></li>
-      </ul>
+        <li><a href="../index.html">Ana səhifə</a></li>
+        <li><a href="onlinechat.html" class="active">Onlayn çat</a></li>
+      </ul> 
     </nav>
   </header>
 
   <main>
     <div class="chat-container">
       
-      <div id="loginScreen" class="chat-screen active">
-        <div class="login-card">
-          <h2 id="authTitle">Maqalux Giriş</h2>
-          <p id="authDesc">Cəmiyyətimizə qoşulmaq üçün məlumatları daxil edin</p>
-          
+      <!-- Login Screen -->
+      <div class="chat-screen active" id="loginScreen">
+        
+        <div class="login-card" id="loginFormCard">
+          <h2>Maqalux Çat Platforması</h2>
+          <p>Söhbətə başlamaq üçün daxil olun</p>
           <div class="input-group">
-            <input type="text" id="authNick" class="custom-input" placeholder="İstifadəçi adı və ya E-poçt">
+            <input type="email" id="loginEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
             <div class="password-wrapper">
-              <input type="password" id="authPass" class="custom-input" placeholder="Şifrə">
-              <span class="toggle-password" onclick="togglePasswordVisibility('authPass')">👁️</span>
+              <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
+              <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
             </div>
-            <button class="login-btn" id="authBtn" onclick="handleAuthSubmit()">Daxil Ol</button>
-          </div>
+            <button class="login-btn" onclick="handleLogin()">Söhbətə Qoşul</button>
+            <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
 
-          <div class="switch-text" id="authSwitch">
-            Hesabınız yoxdur? <span onclick="switchAuthMode(true)">Qeydiyyatdan keçin</span>
+            <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+            <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+              Google ilə daxil ol
+            </button>
+
+            <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
           </div>
-          <div class="forgot-pass-link" onclick="openForgotModal()">Şifrəni unutmusunuz?</div>
+        </div>
+
+        <div class="login-card" id="registerFormCard" style="display: none;">
+          <h2>Yeni Qeydiyyat</h2>
+          <p>Platformada yeni hesab yaratmaq üçün doldurun</p>
+          <div class="input-group">
+            <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
+            <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+            <div class="password-wrapper">
+              <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
+              <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
+            </div>
+            <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
+
+            <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+            <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+              Google ilə daxil ol
+            </button>
+
+            <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
+          </div>
         </div>
       </div>
 
-      <div id="chatScreen" class="chat-screen">
+      <!-- Main Chat Screen -->
+      <div class="chat-screen" id="mainChatScreen">
         <div class="chat-header">
-          <h3><span id="myDisplayNick">🟢 Yüklənir...</span></h3>
-          <div style="display: flex; align-items: center; gap: 15px;">
-            <div class="avatar-container" onclick="triggerAvatarUpload()">
-              <img src="https://i.ibb.co/X3S1mPh/avatar-default.png" id="myAvatarImg">
-              <div class="avatar-overlay">Dəyiş</div>
+          <div style="display: flex; align-items: center; gap: 12px; position: relative;">
+            <div class="avatar-container" onclick="toggleAvatarDropdown(event)">
+              <img id="myAvatarImg" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil Şəkli">
+              <div class="avatar-overlay">⚙️</div>
             </div>
             <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadProfileAvatar(event)">
-            <button class="logout-btn" onclick="logoutFromChat()">Çıxış</button>
-          </div>
-        </div>
+            <h3 id="myDisplayNick">🟢 İstifadəçi</h3>
 
+            <div class="avatar-dropdown" id="avatarDropdown">
+              <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); document.getElementById('avatarFileInput').click();">📸 Profil şəklini dəyiş</button>
+              <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); openProfileSettingsModal();">⚙️ Profil ayarları</button>
+              <button type="button" class="ctx-item danger" onclick="closeAvatarDropdown(); openDeleteOwnAccountModal();">🗑️ Hesabımı sil</button>
+            </div>
+          </div>
+          <button class="logout-btn" onclick="handleLogout()">Çıxış</button>
+        </div>
+        
         <div class="chat-body">
-          <div class="messages-area" id="messagesArea"></div>
-          
+          <div class="messages-area" id="chatMessagesArea"></div>
           <div class="sidebar-users">
-            <h4>Aktiv İstifadəçilər</h4>
+            <h4>Aktiv istifadəçilər</h4>
             <div id="activeUsersList"></div>
           </div>
         </div>
 
-        <div class="input-bar">
+        <!-- Reply Preview Bar -->
+        <div id="replyPreviewBar" style="display:none;">
+          <div class="reply-preview-content">
+            <b id="replyPreviewSender"></b>
+            <span id="replyPreviewText"></span>
+          </div>
+          <span class="reply-cancel" onclick="cancelReply()">✕</span>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="input-bar" style="position: relative;">
           <div class="input-pill">
-            <button class="pill-icon-btn" onclick="toggleStickerPanel()">😊</button>
-            <input type="text" id="mainMessageInput" class="message-input" placeholder="Mesajınızı yazın..." onkeydown="if(event.key==='Enter') sendGlobalMessage()">
-            <button class="pill-icon-btn" onclick="triggerImageUpload()">🖼️</button>
-            <input type="file" id="imageFileInput" accept="image/*" style="display: none;" onchange="uploadMessageImage(event)">
+            <div class="pill-icon-btn" title="Stiker və GIF" onclick="toggleStickerPanel('main')">😊</div>
+            <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this)"></textarea>
+            <label class="pill-icon-btn" title="Şəkil göndər">
+              🖼️
+              <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
+            </label>
           </div>
-          <button class="send-btn" onclick="sendGlobalMessage()">➔</button>
-        </div>
+          <button class="send-btn" onclick="triggerMessageSend()">➤</button>
 
-        <div class="sticker-panel" id="stickerPanel">
-          <div class="sticker-tabs">
-            <div class="sticker-tab active" onclick="switchStickerTab('emoji')">Emoji</div>
-            <div class="sticker-tab" onclick="switchStickerTab('gifs')">GIF</div>
+          <div class="sticker-panel" id="stickerPanel-main">
+            <div class="sticker-tabs">
+              <div class="sticker-tab active" data-tab="sticker" onclick="switchStickerTab('main','sticker')">Stiker</div>
+              <div class="sticker-tab" data-tab="gif" onclick="switchStickerTab('main','gif')">GIF</div>
+            </div>
+            <div class="sticker-body" id="stickerBody-main"></div>
           </div>
-          <div class="sticker-grid" id="stickerGrid"></div>
         </div>
-
       </div>
     </div>
   </main>
 
-  <div class="shorts-modal" id="shortsModal">
-    <div class="shorts-close" onclick="closeShortsModal()">✕</div>
-    <div class="shorts-content">
-      <div class="short-video-container" id="shortVideoFrameWrap">
+  <!-- Private Chat Windows Container -->
+  <div id="privateChatWindowsContainer"></div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
+      <h3>Şifrəni unutmusunuz?</h3>
+      <p class="modal-desc">E-poçt ünvanınızı daxil edin, bərpa linki göndəriləcək.</p>
+      <input type="email" id="forgotEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+      <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
+    </div>
+  </div>
+
+  <!-- Profile Settings Modal -->
+  <div class="modal-overlay" id="profileSettingsModal">
+    <div class="modal-box settings-modal-box">
+      <button class="modal-close" onclick="closeProfileSettingsModal()">✕</button>
+      <h3>Profil ayarları</h3>
+      <p class="modal-desc">Şifrənizi və ya e-poçt ünvanınızı buradan yeniləyə bilərsiniz.</p>
+      <div class="settings-section">
+        <h4>🔑 Şifrəni yenilə</h4>
+        <div class="input-group">
+          <div class="password-wrapper">
+            <input type="password" id="oldPasswordInput" class="custom-input" placeholder="Köhnə şifrəniz">
+            <span class="toggle-password" onclick="togglePasswordVisibility('oldPasswordInput', this)">👁️</span>
+          </div>
+          <div class="password-wrapper">
+            <input type="password" id="newPasswordInput" class="custom-input" placeholder="Yeni şifrəniz">
+            <span class="toggle-password" onclick="togglePasswordVisibility('newPasswordInput', this)">👁️</span>
+          </div>
+          <button class="login-btn" onclick="submitUpdatePassword()">Şifrəni yenilə</button>
         </div>
-      <div class="shorts-overlay-ui">
-        <h4 id="shortVideoTitle">Yüklənir...</h4>
+      </div>
+      <div class="settings-divider"></div>
+      <div class="settings-section">
+        <h4>✉️ E-poçtu yenilə</h4>
+        <div class="input-group">
+          <input type="email" id="newEmailInput" class="custom-input" placeholder="Yeni e-poçt ünvanınız">
+          <button class="login-btn" onclick="submitUpdateEmail()">E-poçtu yenilə</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="forgotModal">
+  <!-- Delete Own Account Modal -->
+  <div class="modal-overlay" id="deleteOwnAccountModal">
     <div class="modal-box">
-      <h3>Şifrə Sıfırlama</h3>
-      <p style="font-size:13px; color:rgba(255,255,255,0.6)">İstifadəçi adınızı və ya e-poçtunuzu daxil edin</p>
-      <input type="text" id="forgotInput" class="custom-input" placeholder="İstifadəçi adı / E-poçt" style="margin-bottom:15px;">
-      <button class="login-btn" onclick="handlePasswordReset()">Link Göndər</button>
-      <button class="logout-btn" style="margin-top:10px; width:100%; background:transparent;" onclick="closeForgotModal()">Ləğv et</button>
+      <button class="modal-close" onclick="closeDeleteOwnAccountModal()">✕</button>
+      <h3>Hesabı sil</h3>
+      <p class="modal-desc">Bu əməliyyat geri qaytarıla bilməz. Davam etmək üçün şifrənizi daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper">
+          <input type="password" id="deleteAccountPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('deleteAccountPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" style="background: linear-gradient(90deg, #e74c3c, #c0392b); color:white;" onclick="submitDeleteOwnAccount()">Hesabımı həmişəlik sil</button>
+      </div>
     </div>
   </div>
 
-  <div class="msg-context-menu" id="msgContextMenu">
-    <div class="ctx-emojis">
-      <span onclick="addReaction('👍')">👍</span>
-      <span onclick="addReaction('❤️')">❤️</span>
-      <span onclick="addReaction('😂')">😂</span>
-      <span onclick="addReaction('😮')">😮</span>
-      <span onclick="addReaction('😢')">😢</span>
-    </div>
-    <div class="ctx-item" id="ctxReplyOpt">➔ Cavabla</div>
-    <div class="ctx-item danger" id="ctxDeleteOpt" style="display:none;">🗑️ Sil</div>
-  </div>
+  <!-- Context Menu -->
+  <div id="msgContextMenu" class="msg-context-menu" style="display:none;"></div>
+  <div class="ctx-overlay" id="ctxOverlay" onclick="closeMsgContextMenu()"></div>
 
-  <div id="toastContainer"></div>
-  <div id="privateChatWindowsContainer"></div>
+  <footer>&copy; 2025 Maqalux - Bütün hüquqlar qorunur.</footer>
 
-  <footer>
-    &copy; 2026 Maqalux Platforması - Bütün Hüquqlar Qorunur
-  </footer>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, set, push, onValue, onChildAdded, remove, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    // TODO: Bura öz real Firebase layihənizin API keylərini daxil edin!
+  <script>
+    // ============================================================
+    // 1. FIREBASE KONFİQURASİYA
+    // ============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
-    authDomain: "maqalux-chat.firebaseapp.com",
-    databaseURL: "https://maqalux-chat-default-rtdb.firebaseio.com",
-    projectId: "maqalux-chat",
-    storageBucket: "maqalux-chat.firebasestorage.app",
-    messagingSenderId: "127120270719",
-    appId: "1:127120270719:web:7b036b7e27a06f71dee64a",
-    measurementId: "G-GZ800MRHKJ"
+      authDomain: "maqalux-chat.firebaseapp.com",
+      databaseURL: "https://maqalux-chat-default-rtdb.firebaseio.com",
+      projectId: "maqalux-chat",
+      storageBucket: "maqalux-chat.firebasestorage.app",
+      messagingSenderId: "127120270719",
+      appId: "1:127120270719:web:7b036b7e27a06f71dee64a",
+      measurementId: "G-GZ800MRHKJ"
     };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-    const IMGBB_API_KEY = "9269d714529dbdb84b901fc885b5d1f8"; // Orijinal ImgBB açarınız qorundu
+    const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a";
 
-    // Firebase təyinatları
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+    // ============================================================
+    // 2. QLOBAL DƏYİŞƏNLƏR
+    // ============================================================
+    let currentUser = null;          // firebase auth user
+    let currentUserData = null;      // { nick, role, avatarUrl, online, isBanned, email }
+    let allMessages = [];
+    let privateMessagesByNick = {};
+    let openPCWs = {};
+    let lastActiveUsersList = [];
+    let replyContext = null;         // { id, sender, text }
+    let activeStickerTarget = null;
+    let lastKnownDateKey = null;
 
-    // Qlobal tətbiq vəziyyətləri
-    let currentUser = null;
-    let userData = { nick: "", role: "user", avatarUrl: "https://i.ibb.co/X3S1mPh/avatar-default.png", ignored: {} };
-    let isSignUpMode = false;
-    let selectedMsgId = null;
-    let replyingToMsgId = null;
-    let shortsList = [];
-    let currentShortIndex = 0;
+    const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
-    // Fəal E-poçt formatlaşdırma mexanizmi (auth/invalid-email xətasını aradan qaldıran hissə)
-    function cleanAndFormatEmail(input) {
-      let val = input.trim();
-      if (!val.includes("@")) {
-        return val.toLowerCase() + "@maqalux.chat";
-      }
-      return val;
+    const STICKER_LIST = [
+      "https://maqalux.github.io/stickers/1072-joobiserious.png",
+      "https://maqalux.github.io/stickers/1259-joobifangs.png",
+      "https://maqalux.github.io/stickers/1305-joobiwink.png",
+      "https://maqalux.github.io/stickers/1744-joobiohno.png",
+      "https://maqalux.github.io/stickers/1744-joobiyay.png",
+      "https://maqalux.github.io/stickers/4452-joobicool.png",
+      "https://maqalux.github.io/stickers/3479-joobimad.png",
+      "https://maqalux.github.io/stickers/4040-joobicry2.png",
+      "https://maqalux.github.io/stickers/2713-joobisurprised.png",
+      "https://maqalux.github.io/stickers/4452-joobipeeved.png",
+      "https://maqalux.github.io/stickers/4088-joobiyawn.png",
+      "https://maqalux.github.io/stickers/5225-joobishush.png",
+      "https://maqalux.github.io/stickers/5792-joobiidk.png",
+      "https://maqalux.github.io/stickers/6007-joobibeg.png",
+      "https://maqalux.github.io/stickers/6007-joobistars.png",
+      "https://maqalux.github.io/stickers/6182-joobilip.png",
+      "https://maqalux.github.io/stickers/6397-joobisweat.png",
+      "https://maqalux.github.io/stickers/6453-joobirage.png",
+      "https://maqalux.github.io/stickers/6995-joobilaugh.png",
+      "https://maqalux.github.io/stickers/7376-joobifrown.png",
+      "https://maqalux.github.io/stickers/7805-joobikiss.png",
+      "https://maqalux.github.io/stickers/7903-joobineutral.png",
+      "https://maqalux.github.io/stickers/8134-joobiflushed.png",
+      "https://maqalux.github.io/stickers/9032-joobicry.png",
+      "https://maqalux.github.io/stickers/9157-joobiflush.png",
+      "https://maqalux.github.io/stickers/8661-joobiha.png",
+      "https://maqalux.github.io/stickers/8357-joobithumbsup.png",
+      "https://maqalux.github.io/stickers/9913-joobifp.png",
+      "https://maqalux.github.io/stickers/9913-joobirose.png",
+      "https://maqalux.github.io/stickers/9928-joobiwow.png"
+    ];
+
+    const GIF_LIST = [
+      "https://maqalux.github.io/Gifs/bubududu1.gif",
+      "https://maqalux.github.io/Gifs/bubududu2.gif",
+      "https://maqalux.github.io/Gifs/bubududu3.gif",
+      "https://maqalux.github.io/Gifs/bubududu4.gif",
+      "https://maqalux.github.io/Gifs/bubududu5.gif",
+      "https://maqalux.github.io/Gifs/bubududu6.gif",
+      "https://maqalux.github.io/Gifs/bubududu7.gif",
+      "https://maqalux.github.io/Gifs/bubududu8.gif",
+      "https://maqalux.github.io/Gifs/bubududu9.gif",
+      "https://maqalux.github.io/Gifs/bubududu10.gif",
+      "https://maqalux.github.io/Gifs/bubududu11.gif",
+      "https://maqalux.github.io/Gifs/bubududu12.gif",
+      "https://maqalux.github.io/Gifs/bubududu13.gif",
+      "https://maqalux.github.io/Gifs/cute-bear-kiss.gif",
+      "https://maqalux.github.io/Gifs/iklog.gif"
+    ];
+
+    // ============================================================
+    // 3. KÖMƏKÇİ FONKSİYALAR
+    // ============================================================
+    function escapeHtml(str) {
+      if (!str) return '';
+      const d = document.createElement('div');
+      d.innerText = str;
+      return d.innerHTML;
     }
 
-    // Toast Mesaj Bildirişləri
-    window.showToast = function(msg, type = "info") {
-      const container = document.getElementById("toastContainer");
-      const t = document.createElement("div");
-      t.className = `toast toast-${type}`;
-      t.innerText = msg;
-      container.appendChild(t);
-      setTimeout(() => t.style.opacity = "1", 50);
-      setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 300); }, 4000);
-    };
+    function formatMsgTime(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    }
 
-    // Şifrə Görünürlüyü
-    window.togglePasswordVisibility = function(id) {
-      const el = document.getElementById(id);
-      el.type = el.type === "password" ? "text" : "password";
-    };
+    function dateKeyOf(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    }
 
-    // Giriş / Qeydiyyat Ekran dəyişdiricisi
-    window.switchAuthMode = function(mode) {
-      isSignUpMode = mode;
-      document.getElementById("authTitle").innerText = mode ? "Maqalux Qeydiyyat" : "Maqalux Giriş";
-      document.getElementById("authDesc").innerText = mode ? "Yeni hesab yaradaraq çata qoşulun" : "Cəmiyyətimizə qoşulmaq üçün məlumatları daxil edin";
-      document.getElementById("authBtn").innerText = mode ? "Qeydiyyatdan Keç" : "Daxil Ol";
-      document.getElementById("authSwitch").innerHTML = mode ? 
-        `Artıq hesabınız var? <span onclick="switchAuthMode(false)">Daxil olun</span>` :
-        `Hesabınız yoxdur? <span onclick="switchAuthMode(true)">Qeydiyyatdan keçin</span>`;
-    };
+    function formatDateSeparatorLabel(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      const now = new Date();
+      const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const dayDiff = Math.round((startOfDay(now) - startOfDay(d)) / 86400000);
+      if (dayDiff === 0) return 'Bu gün';
+      if (dayDiff === 1) return 'Dünən';
+      const dd = d.getDate().toString().padStart(2,'0');
+      const mm = (d.getMonth()+1).toString().padStart(2,'0');
+      const yyyy = d.getFullYear();
+      return `${dd}.${mm}.${yyyy}`;
+    }
 
-    // Giriş / Qeydiyyat Submit Əməliyyatı
-    window.handleAuthSubmit = function() {
-      const nickInput = document.getElementById("authNick").value;
-      const passInput = document.getElementById("authPass").value;
+    function showToast(message, type='info', duration=4000) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerText = message;
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, duration);
+    }
 
-      if(!nickInput || !passInput) {
-        showToast("Zəhmət olmasa bütün xanaları doldurun!", "error");
-        return;
-      }
-
-      const formattedEmail = cleanAndFormatEmail(nickInput);
-
-      if (isSignUpMode) {
-        // Firebase Authentication Qeydiyyatı
-        createUserWithEmailAndPassword(auth, formattedEmail, passInput)
-          .then((userCredential) => {
-            const user = userCredential.user;
-            const pureNick = nickInput.includes("@") ? nickInput.split("@")[0] : nickInput;
-            
-            // Verilənlər bazasında profil açırıq
-            set(ref(db, 'users/' + user.uid), {
-              nick: pureNick,
-              role: "user",
-              avatarUrl: "https://i.ibb.co/X3S1mPh/avatar-default.png",
-              isOnline: true
-            });
-            showToast("Qeydiyyat uğurla tamamlandı!", "success");
-          })
-          .catch((err) => showToast("Qeydiyyat xətası: " + err.message, "error"));
+    function togglePasswordVisibility(inputId, iconEl) {
+      const inp = document.getElementById(inputId);
+      if (!inp) return;
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        iconEl.innerText = '🙈';
       } else {
-        // Firebase Authentication Girişi
-        signInWithEmailAndPassword(auth, formattedEmail, passInput)
-          .then(() => showToast("Sistemə daxil oldunuz!", "success"))
-          .catch((err) => showToast("Giriş uğursuzdur: Məlumatları yoxlayın.", "error"));
+        inp.type = 'password';
+        iconEl.innerText = '👁️';
       }
-    };
+    }
 
-    // Şifrə Sıfırlama Keçidi
-    window.openForgotModal = () => document.getElementById("forgotModal").classList.add("active");
-    window.closeForgotModal = () => document.getElementById("forgotModal").classList.remove("active");
-    window.handlePasswordReset = function() {
-      const input = document.getElementById("forgotInput").value;
-      if(!input) return showToast("Məlumat daxil edin!", "error");
-      sendPasswordResetEmail(auth, cleanAndFormatEmail(input))
-        .then(() => { showToast("Sıfırlama linki e-poçtunuza göndərildi!", "success"); closeForgotModal(); })
-        .catch(err => showToast("Xəta: " + err.message, "error"));
-    };
+    function toggleAuthForms(mode) {
+      document.getElementById('loginFormCard').style.display = mode === 'register' ? 'none' : 'flex';
+      document.getElementById('registerFormCard').style.display = mode === 'register' ? 'flex' : 'none';
+    }
 
-    // Sessiyanın İdarə Edilməsi (OnAuthStateChanged)
-    onAuthStateChanged(auth, (user) => {
+    function autoGrowTextarea(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 110) + 'px';
+    }
+
+    function ticksSvg(state) {
+      if (state === 'sent') {
+        return `<span class="msg-ticks"><svg viewBox="0 0 16 11"><path class="tick-path" d="M1 5.5 L5.2 9.5 L14 1"/></svg></span>`;
+      }
+      const cls = state === 'read' ? 'msg-ticks ticks-read' : 'msg-ticks';
+      return `<span class="${cls}"><svg viewBox="0 0 20 11"><path class="tick-path" d="M1 5.5 L5.2 9.5 L11 2.2"/><path class="tick-path" d="M7 5.5 L11.2 9.5 L19 1"/></svg></span>`;
+    }
+
+    // ============================================================
+    // 4. AUTH
+    // ============================================================
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
         currentUser = user;
-        document.getElementById("loginScreen").classList.remove("active");
-        document.getElementById("chatScreen").classList.add("active");
-        
-        // İstifadəçi profili datalarını dinləyirik
-        onValue(ref(db, 'users/' + user.uid), (snapshot) => {
-          if (snapshot.exists()) {
-            userData = snapshot.val();
-            if(!userData.ignored) userData.ignored = {};
-            
-            // UI yeniləmə
-            document.getElementById("myDisplayNick").innerHTML = `🟢 ${userData.nick} (${userData.role.toUpperCase()})`;
-            document.getElementById("myAvatarImg").src = userData.avatarUrl;
+        const snap = await db.ref(`users/${user.uid}`).once('value');
+        if (snap.exists()) {
+          currentUserData = snap.val();
+          currentUserData.uid = user.uid;
+          // check banned
+          if (currentUserData.isBanned) {
+            showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
+            await auth.signOut();
+            location.reload();
+            return;
           }
-          // Çatda onlayn statusu aktivləşdiririk
-          update(ref(db, 'users/' + user.uid), { isOnline: true });
-        });
+          // update online
+          await db.ref(`users/${user.uid}/online`).set(true);
+          db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
 
-        loadGlobalMessages();
-        syncActiveUsers();
-        syncShorts();
+          // UI
+          document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+          document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
+          document.getElementById('loginScreen').classList.remove('active');
+          document.getElementById('mainChatScreen').classList.add('active');
+
+          // Load messages & users
+          loadMessages();
+          loadActiveUsers();
+          loadPrivateMessages();
+        } else {
+          // user exists in auth but not in db? (shouldn't happen)
+          await auth.signOut();
+        }
       } else {
         currentUser = null;
-        document.getElementById("chatScreen").classList.remove("active");
-        document.getElementById("loginScreen").classList.add("active");
+        currentUserData = null;
+        document.getElementById('loginScreen').classList.add('active');
+        document.getElementById('mainChatScreen').classList.remove('active');
+        // detach listeners
+        db.ref('messages').off();
+        db.ref('users').off();
+        db.ref('privateMessages').off();
       }
     });
 
-    // Çıxış Əməliyyatı
-    window.logoutFromChat = function() {
-      if(currentUser) {
-        update(ref(db, 'users/' + currentUser.uid), { isOnline: false }).then(() => {
-          signOut(auth);
-        });
+    window.handleLogin = async function() {
+      const email = document.getElementById('loginEmailInput').value.trim();
+      const pass = document.getElementById('loginPasswordInput').value.trim();
+      if (!email || !pass) return showToast('Email və şifrəni daxil edin.', 'error');
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        showToast('Uğurla daxil oldunuz!', 'success');
+      } catch (err) {
+        showToast('Xəta: ' + err.message, 'error');
       }
     };
 
-    // Aktiv İstifadəçilər Listinin Sinxronizasiyası (Presence)
-    function syncActiveUsers() {
-      onValue(ref(db, 'users'), (snapshot) => {
-        const listDiv = document.getElementById("activeUsersList");
-        listDiv.innerHTML = "";
-        const data = snapshot.val();
-        if(!data) return;
-
-        Object.keys(data).forEach(uid => {
-          const u = data[uid];
-          if(u.isOnline) {
-            const isMe = currentUser && currentUser.uid === uid;
-            const badge = document.createElement("div");
-            badge.className = `user-badge role-${u.role}`;
-            
-            // Əgər istifadəçi ignore siyahımızdadırsa dizaynı uyğunlaşdırırıq
-            if(userData.ignored && userData.ignored[uid]) {
-              badge.classList.add("user-ignored");
-            }
-
-            badge.innerHTML = `
-              <div class="sidebar-avatar-wrap">
-                <img src="${u.avatarUrl || 'https://i.ibb.co/X3S1mPh/avatar-default.png'}" class="sidebar-avatar">
-                <div class="online-dot"></div>
-              </div>
-              <span>${u.nick}</span>
-              <span class="role-tag">${u.role === 'admin' ? 'A' : (u.role === 'moderator' ? 'M' : '')}</span>
-            `;
-
-            // Özümüzdən başqasına kliklədikdə Şəxsi Mesaj (PM) və ya İgnore menyusu açılsın
-            if(!isMe) {
-              badge.onclick = (e) => openPrivateWindow(uid, u.nick, u.avatarUrl);
-              
-              // Sağ kliklə İgnore/Blok etmə funksiyası
-              badge.oncontextmenu = (e) => {
-                e.preventDefault();
-                toggleIgnoreUser(uid, u.nick);
-              };
-            }
-            listDiv.appendChild(badge);
-          }
+    window.handleRegister = async function() {
+      const nick = document.getElementById('registerNicknameInput').value.trim();
+      const email = document.getElementById('registerEmailInput').value.trim();
+      const pass = document.getElementById('registerPasswordInput').value.trim();
+      if (!nick || !email || !pass) return showToast('Bütün xanaları doldurun.', 'error');
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+        await db.ref(`users/${cred.user.uid}`).set({
+          nick: nick,
+          email: email,
+          role: 'user',
+          avatarUrl: 'https://www.w3schools.com/howto/img_avatar.png',
+          online: true,
+          isBanned: false
         });
-      });
-    }
-
-    // Ignore / Blok Sistemi
-    function toggleIgnoreUser(targetUid, targetNick) {
-      const isCurrentlyIgnored = userData.ignored && userData.ignored[targetUid];
-      const newStatus = isCurrentlyIgnored ? null : true;
-      
-      set(ref(db, `users/${currentUser.uid}/ignored/${targetUid}`), newStatus).then(() => {
-        showToast(`${targetNick} ${isCurrentlyIgnored ? "blokdan çıxarıldı" : "blok edildi."}`, "info");
-      });
-    }
-
-    // Ümumi Otaq Mesajlarının Göndərilməsi
-    window.sendGlobalMessage = function() {
-      const input = document.getElementById("mainMessageInput");
-      const text = input.value.trim();
-      if(!text) return;
-
-      const newMsgRef = push(ref(db, 'messages'));
-      const msgData = {
-        id: newMsgRef.key,
-        uid: currentUser.uid,
-        nick: userData.nick,
-        avatarUrl: userData.avatarUrl,
-        text: text,
-        timestamp: serverTimestamp(),
-        read: false
-      };
-
-      if(replyingToMsgId) {
-        msgData.replyTo = replyingToMsgId;
-        replyingToMsgId = null;
-        document.getElementById("mainMessageInput").placeholder = "Mesajınızı yazın...";
+        showToast('Qeydiyyat uğurludur!', 'success');
+      } catch (err) {
+        showToast('Xəta: ' + err.message, 'error');
       }
-
-      set(newMsgRef, msgData).then(() => {
-        input.value = "";
-        document.getElementById("messagesArea").scrollTop = document.getElementById("messagesArea").scrollHeight;
-      });
     };
 
-    // Ümumi Mesajların Realtime Oxunması
-    function loadGlobalMessages() {
-      onValue(ref(db, 'messages'), (snapshot) => {
-        const area = document.getElementById("messagesArea");
-        area.innerHTML = "";
-        const data = snapshot.val();
-        if(!data) return;
-
-        Object.keys(data).forEach(id => {
-          const m = data[id];
-          
-          // Əgər mesajı göndərən blok siyahımızdadırsa, göstərmirik
-          if(userData.ignored && userData.ignored[m.uid]) return;
-
-          const isMe = m.uid === currentUser.uid;
-          const wrap = document.createElement("div");
-          wrap.className = `msg-wrapper ${isMe ? 'me' : 'other'}`;
-
-          let replyMarkup = "";
-          if(m.replyTo && data[m.replyTo]) {
-            replyMarkup = `<div class="msg-reply-preview"><b>${data[m.replyTo].nick}</b>:${data[m.replyTo].text}</div>`;
-          }
-
-          let reactionMarkup = "";
-          if(m.reactions) {
-            reactionMarkup = `<div class="msg-reactions-bar">`;
-            Object.keys(m.reactions).forEach(r => {
-              reactionMarkup += `<span class="reaction-chip">${r}</span>`;
-            });
-            reactionMarkup += `</div>`;
-          }
-
-          // Zaman strukturunun hesablanması
-          const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
-
-          wrap.innerHTML = `
-            <div class="msg-bubble" data-id="${m.id}">
-              <b>${m.nick}</b>
-              ${replyMarkup}
-              <div>${m.text}</div>
-              ${reactionMarkup}
-              <div class="msg-meta">
-                <span>${timeStr}</span>
-                ${isMe ? `<div class="msg-ticks ${m.read ? 'read' : ''}"><svg viewBox="0 0 16 11"><path class="tick-path" d="M1 5l4 4 10-10"/></svg></div>` : ''}
-              </div>
-            </div>
-          `;
-
-          // Mesaj üzərində sağ klik və ya toxunma ilə Context Menyunu çağırırıq
-          wrap.addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            openContextMenu(e, m.id, isMe);
+    window.handleGoogleLogin = async function() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        const snap = await db.ref(`users/${user.uid}`).once('value');
+        if (!snap.exists()) {
+          await db.ref(`users/${user.uid}`).set({
+            nick: user.displayName || 'Google İstifadəçisi',
+            email: user.email,
+            role: 'user',
+            avatarUrl: user.photoURL || 'https://www.w3schools.com/howto/img_avatar.png',
+            online: true,
+            isBanned: false
           });
-
-          area.appendChild(wrap);
-          
-          // Qarşı tərəfin mesajıdırsa və hələ oxunmayıbsa, oxundu olaraq işarələyirik (WhatsApp tipli)
-          if(!isMe && !m.read) {
-            update(ref(db, `messages/${m.id}`), { read: true });
-          }
-        });
-        area.scrollTop = area.scrollHeight;
-      });
-    }
-
-    // Konteks Menyu İdarəetməsi (Sağ Klik Paneli)
-    function openContextMenu(e, msgId, isMe) {
-      selectedMsgId = msgId;
-      const menu = document.getElementById("msgContextMenu");
-      menu.style.top = `${e.clientY}px`;
-      menu.style.left = `${e.clientX}px`;
-      menu.style.display = "flex";
-
-      document.getElementById("ctxDeleteOpt").style.display = (isMe || userData.role === 'admin' || userData.role === 'moderator') ? "block" : "none";
-
-      // Cavabla düyməsi tetikləyicisi
-      document.getElementById("ctxReplyOpt").onclick = () => {
-        replyingToMsgId = msgId;
-        document.getElementById("mainMessageInput").placeholder = "Cavablandırılır...";
-        document.getElementById("mainMessageInput").focus();
-        menu.style.display = "none";
-      };
-
-      // Silmə düyməsi tetikləyicisi
-      document.getElementById("ctxDeleteOpt").onclick = () => {
-        remove(ref(db, `messages/${msgId}`));
-        menu.style.display = "none";
-        showToast("Mesaj silindi.", "info");
-      };
-    }
-
-    // Emoji Reaksiyasının Əlavə Edilməsi
-    window.addReaction = function(emoji) {
-      if(!selectedMsgId) return;
-      set(ref(db, `messages/${selectedMsgId}/reactions/${emoji}`), currentUser.uid);
-      document.getElementById("msgContextMenu").style.display = "none";
+        } else {
+          await db.ref(`users/${user.uid}/online`).set(true);
+        }
+        showToast('Google ilə daxil oldunuz!', 'success');
+      } catch (err) {
+        showToast('Google Xətası: ' + err.message, 'error');
+      }
     };
 
-    // Ekranın boş yerinə kliklədikdə menyuların bağlanması
-    document.addEventListener("click", (e) => {
-      if(!e.target.closest('.msg-bubble') && !e.target.closest('.msg-context-menu')) {
-        document.getElementById("msgContextMenu").style.display = "none";
+    window.handleLogout = async function() {
+      if (currentUser) {
+        await db.ref(`users/${currentUser.uid}/online`).set(false);
+        await auth.signOut();
       }
-    });
+    };
 
-    // Profil Şəklini ImgBB-yə və Firebase Database-ə Yükləmə
-    window.triggerAvatarUpload = () => document.getElementById("avatarFileInput").click();
+    // ============================================================
+    // 5. ŞİFRƏNİ UNUTDUM (Firebase Auth)
+    // ============================================================
+    window.openForgotPasswordModal = function() {
+      document.getElementById('forgotEmailInput').value = '';
+      document.getElementById('forgotPasswordModal').classList.add('active');
+    };
+    window.closeForgotPasswordModal = function() {
+      document.getElementById('forgotPasswordModal').classList.remove('active');
+    };
+    window.submitForgotPassword = function() {
+      const email = document.getElementById('forgotEmailInput').value.trim();
+      if (!email) return showToast('E-poçt ünvanınızı daxil edin.', 'error');
+      auth.sendPasswordResetEmail(email).then(() => {
+        showToast('Bərpa linki e-poçtunuza göndərildi.', 'success');
+        closeForgotPasswordModal();
+      }).catch(err => {
+        showToast('Xəta: ' + err.message, 'error');
+      });
+    };
+
+    // ============================================================
+    // 6. PROFİL AYARLARI
+    // ============================================================
+    window.openProfileSettingsModal = function() {
+      document.getElementById('oldPasswordInput').value = '';
+      document.getElementById('newPasswordInput').value = '';
+      document.getElementById('newEmailInput').value = '';
+      document.getElementById('profileSettingsModal').classList.add('active');
+    };
+    window.closeProfileSettingsModal = function() {
+      document.getElementById('profileSettingsModal').classList.remove('active');
+    };
+
+    window.submitUpdatePassword = function() {
+      const old = document.getElementById('oldPasswordInput').value.trim();
+      const newp = document.getElementById('newPasswordInput').value.trim();
+      if (!old || !newp) return showToast('Köhnə və yeni şifrəni daxil edin.', 'error');
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      // reauthenticate
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
+      user.reauthenticateWithCredential(cred).then(() => {
+        return user.updatePassword(newp);
+      }).then(() => {
+        showToast('Şifrə uğurla yeniləndi!', 'success');
+        document.getElementById('oldPasswordInput').value = '';
+        document.getElementById('newPasswordInput').value = '';
+      }).catch(err => {
+        showToast('Xəta: ' + err.message, 'error');
+      });
+    };
+
+    window.submitUpdateEmail = function() {
+      const newEmail = document.getElementById('newEmailInput').value.trim();
+      if (!newEmail) return showToast('Yeni e-poçtu daxil edin.', 'error');
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      user.updateEmail(newEmail).then(() => {
+        // also update in db
+        if (currentUserData) {
+          db.ref(`users/${user.uid}/email`).set(newEmail);
+        }
+        showToast('E-poçt uğurla yeniləndi!', 'success');
+        document.getElementById('newEmailInput').value = '';
+      }).catch(err => {
+        showToast('Xəta: ' + err.message, 'error');
+      });
+    };
+
+    // ============================================================
+    // 7. HESABI SİL
+    // ============================================================
+    window.openDeleteOwnAccountModal = function() {
+      document.getElementById('deleteAccountPasswordInput').value = '';
+      document.getElementById('deleteOwnAccountModal').classList.add('active');
+    };
+    window.closeDeleteOwnAccountModal = function() {
+      document.getElementById('deleteOwnAccountModal').classList.remove('active');
+    };
+    window.submitDeleteOwnAccount = function() {
+      const pass = document.getElementById('deleteAccountPasswordInput').value.trim();
+      if (!pass) return showToast('Şifrənizi daxil edin.', 'error');
+      if (!confirm('Hesabınızı həmişəlik silmək istədiyinizdən tam əminsiniz? Bu əməliyyat geri qaytarıla bilməz.')) return;
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, pass);
+      user.reauthenticateWithCredential(cred).then(() => {
+        // delete user data from db
+        return db.ref(`users/${user.uid}`).remove();
+      }).then(() => {
+        return user.delete();
+      }).then(() => {
+        showToast('Hesabınız silindi.', 'success');
+        location.reload();
+      }).catch(err => {
+        showToast('Xəta: ' + err.message, 'error');
+      });
+    };
+
+    // ============================================================
+    // 8. AVATAR YENİLƏMƏ
+    // ============================================================
     window.uploadProfileAvatar = async function(e) {
       const file = e.target.files[0];
-      if(!file) return;
-
+      if (!file) return;
       const formData = new FormData();
-      formData.append("image", file);
-
-      showToast("Profil şəkli yüklənir...", "info");
+      formData.append('image', file);
       try {
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
-        const result = await res.json();
-        if(result.success) {
-          const url = result.data.url;
-          update(ref(db, `users/${currentUser.uid}`), { avatarUrl: url }).then(() => {
-            showToast("Profil şəkliniz yeniləndi!", "success");
-          });
-        }
-      } catch(err) {
-        showToast("Şəkil yüklənmədi.", "error");
-      }
-    };
-
-    // Çat Daxilində Şəkilli Mesaj Göndərmə
-    window.triggerImageUpload = () => document.getElementById("imageFileInput").click();
-    window.uploadMessageImage = async function(e) {
-      const file = e.target.files[0];
-      if(!file) return;
-
-      const formData = new FormData();
-      formData.append("image", file);
-
-      showToast("Şəkil göndərilir...", "info");
-      try {
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
-        const result = await res.json();
-        if(result.success) {
-          const url = result.data.url;
-          const imgHtml = `🖼️ <img src="${url}" class="uploaded-img" />`;
-          
-          const newMsgRef = push(ref(db, 'messages'));
-          set(newMsgRef, {
-            id: newMsgRef.key,
-            uid: currentUser.uid,
-            nick: userData.nick,
-            avatarUrl: userData.avatarUrl,
-            text: imgHtml,
-            timestamp: serverTimestamp(),
-            read: false
-          });
-        }
-      } catch(err) {
-        showToast("Şəkil göndərilmədi.", "error");
-      }
-    };
-
-    // ŞƏXSİ MESAJ (PM) SİSTEMİ
-    window.openPrivateWindow = function(targetUid, targetNick, targetAvatar) {
-      const chatId = currentUser.uid < targetUid ? `${currentUser.uid}_${targetUid}` : `${targetUid}_${currentUser.uid}`;
-      const container = document.getElementById("privateChatWindowsContainer");
-      
-      if(document.getElementById(`pm_${chatId}`)) return;
-
-      const win = document.createElement("div");
-      win.className = "private-chat-window";
-      win.id = `pm_${chatId}`;
-      win.innerHTML = `
-        <div class="pcw-header" onclick="this.parentElement.classList.toggle('minimized')">
-          <div class="pcw-title">💬 ${targetNick}</div>
-          <div style="font-size:12px;" onclick="document.getElementById('pm_${chatId}').remove(); event.stopPropagation();">✕</div>
-        </div>
-        <div class="pcw-body" id="pcw_body_${chatId}"></div>
-        <div class="pcw-input-bar">
-          <input type="text" id="pcw_in_${chatId}" class="custom-input" style="padding:8px 15px; font-size:13px;" placeholder="Gizli mesaj...">
-          <button class="send-btn" style="width:34px; height:34px; font-size:14px;" id="pcw_btn_${chatId}">➔</button>
-        </div>
-      `;
-      container.appendChild(win);
-
-      // Şəxsi mesajı göndərmə düymə funksiyası
-      document.getElementById(`pcw_btn_${chatId}`).onclick = () => {
-        const el = document.getElementById(`pcw_in_${chatId}`);
-        const txt = el.value.trim();
-        if(!txt) return;
-
-        push(ref(db, `privateMessages/${chatId}`), {
-          uid: currentUser.uid,
-          nick: userData.nick,
-          text: txt,
-          timestamp: serverTimestamp()
-        });
-        el.value = "";
-      };
-
-      // Şəxsi mesajların realtime axını
-      onValue(ref(db, `privateMessages/${chatId}`), (snapshot) => {
-        const body = document.getElementById(`pcw_body_${chatId}`);
-        if(!body) return;
-        body.innerHTML = "";
-        const data = snapshot.val();
-        if(!data) return;
-
-        Object.keys(data).forEach(pid => {
-          const p = data[pid];
-          const pmIsMe = p.uid === currentUser.uid;
-          const block = document.createElement("div");
-          block.style.alignSelf = pmIsMe ? "flex-end" : "flex-start";
-          block.style.background = pmIsMe ? "linear-gradient(135deg, #024397, #00285e)" : "rgba(255,255,255,0.1)";
-          block.style.padding = "6px 12px";
-          block.style.borderRadius = "12px";
-          block.style.fontSize = "13px";
-          block.style.maxWidth = "80%";
-          block.innerHTML = `<b>${p.nick}:</b> <div>${p.text}</div>`;
-          body.appendChild(block);
-        });
-        body.scrollTop = body.scrollHeight;
-      });
-    };
-
-    // STİKER / EMOMİ PANEL FUNKSİYALARI
-    window.toggleStickerPanel = () => document.getElementById("stickerPanel").classList.toggle("active");
-    window.switchStickerTab = function(tab) {
-      const grid = document.getElementById("stickerGrid");
-      grid.innerHTML = "";
-      if(tab === 'emoji') {
-        const emojis = ["😀","😂","🥰","😍","😎","🤔","💥","🔥","✨","💯","🎉","👏","👍","🙌","👑"];
-        emojis.forEach(e => {
-          const s = document.createElement("span");
-          s.innerText = e;
-          s.onclick = () => { document.getElementById("mainMessageInput").value += e; toggleStickerPanel(); };
-          grid.appendChild(s);
-        });
-      } else {
-        grid.innerHTML = `<div style="grid-column:span 4; font-size:12px; opacity:0.5;">GIF funksiyası aktivdir</div>`;
-      }
-    };
-    switchStickerTab('emoji');
-
-    // MODERN SHORTS SİSTEMİ (Milli saniyə sinxronizasiyalı)
-    window.openShortsModal = function() {
-      document.getElementById("shortsModal").classList.add("active");
-      playCurrentShort();
-    };
-    window.closeShortsModal = function() {
-      document.getElementById("shortsModal").classList.remove("active");
-      document.getElementById("shortVideoFrameWrap").innerHTML = "";
-    };
-
-    function syncShorts() {
-      onValue(ref(db, 'shorts'), (snapshot) => {
-        shortsList = [];
-        const data = snapshot.val();
-        if(data) {
-          Object.keys(data).forEach(k => shortsList.push(data[k]));
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          const url = data.data.url;
+          document.getElementById('myAvatarImg').src = url;
+          if (currentUser) {
+            await db.ref(`users/${currentUser.uid}/avatarUrl`).set(url);
+          }
+          showToast('Profil şəkli yeniləndi!', 'success');
         } else {
-          // Default test üçün videolar
-          shortsList = [
-            { title: "Maqalux Xoş Gəlmisiniz!", url: "https://www.youtube.com/embed/dQw4w9WgXcQ" },
-            { title: "Modern Dizayn Trendləri 2026", url: "https://www.youtube.com/embed/3JZ_D3E267Q" }
-          ];
+          showToast('Şəkil yüklənə bilmədi.', 'error');
+        }
+      } catch (err) {
+        showToast('Xəta: ' + err.message, 'error');
+      }
+    };
+
+    window.toggleAvatarDropdown = function(e) {
+      e.stopPropagation();
+      document.getElementById('avatarDropdown').classList.toggle('active');
+    };
+    window.closeAvatarDropdown = function() {
+      document.getElementById('avatarDropdown').classList.remove('active');
+    };
+    document.addEventListener('click', function(e) {
+      const dd = document.getElementById('avatarDropdown');
+      if (dd && dd.classList.contains('active') && !e.target.closest('.avatar-dropdown') && !e.target.closest('.avatar-container')) {
+        dd.classList.remove('active');
+      }
+    });
+
+    // ============================================================
+    // 9. MESAJLAR (ÜMUMİ)
+    // ============================================================
+    function loadMessages() {
+      const msgArea = document.getElementById('chatMessagesArea');
+      msgArea.innerHTML = '';
+      db.ref('messages').orderByChild('timestamp').limitToLast(100).on('child_added', (snap) => {
+        const msg = snap.val();
+        msg.id = snap.key;
+        allMessages.push(msg);
+        appendMessage(msg);
+      });
+    }
+
+    function appendMessage(msg) {
+      if (!msg) return;
+      const area = document.getElementById('chatMessagesArea');
+      const div = document.createElement('div');
+      div.className = 'msg-bubble ' + (msg.sender === currentUserData.nick ? 'msg-me' : 'msg-other');
+      div.id = 'msg-' + msg.id;
+      div.dataset.msgId = msg.id;
+      div.oncontextmenu = (e) => { e.preventDefault(); openMsgContextMenu(e, msg.id, false, null); };
+      attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, null));
+
+      const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+      let content = `
+        <div class="msg-header">
+          <img src="${avatar}" class="msg-avatar" alt="Profile">
+          <b>${escapeHtml(msg.sender)}</b>
+        </div>
+        ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
+        ${msg.replyTo ? `<div class="msg-reply-preview"><b>${escapeHtml(msg.replyTo.sender)}</b><span class="reply-text">${escapeHtml(msg.replyTo.text || '')}</span></div>` : ''}
+        <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : escapeHtml(msg.text)}</div>
+      `;
+      if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
+        content += `<br><img src="${msg.mediaUrl}" alt="Media">`;
+      }
+      if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
+        content += `<br><img src="${msg.mediaUrl}" alt="Stiker" style="max-width:140px; max-height:140px; background:none;">`;
+      }
+      // reactions
+      const reactions = msg.reactions || {};
+      const counts = {};
+      Object.values(reactions).forEach(em => { counts[em] = (counts[em]||0)+1; });
+      if (Object.keys(counts).length) {
+        const mine = reactions[currentUserData.nick];
+        const chips = Object.entries(counts).map(([em, cnt]) => {
+          const isMine = em === mine;
+          return `<span class="reaction-chip ${isMine?'mine':''}" onclick="event.stopPropagation(); toggleReaction('${msg.id}', false, '${em}')">${em} ${cnt>1?cnt:''}</span>`;
+        }).join('');
+        content += `<div class="msg-reactions-bar">${chips}</div>`;
+      }
+
+      let footerActions = '';
+      if (!msg.isDeleted) {
+        const myRole = currentUserData.role;
+        if (myRole === 'admin' || myRole === 'moderator') {
+          footerActions += `<button class="delete-btn" onclick="event.stopPropagation(); requestDelete('${msg.id}')">🗑️ Sil</button>`;
+        } else if (msg.sender === currentUserData.nick) {
+          footerActions += `<button class="delete-btn" onclick="event.stopPropagation(); requestDeleteOwn('${msg.id}', false)">🗑️ Sil</button>`;
+        }
+      }
+
+      const isMe = msg.sender === currentUserData.nick;
+      let state = 'sent';
+      if (isMe) {
+        const readBy = msg.readBy || [];
+        const deliveredTo = msg.deliveredTo || [];
+        if (readBy.length > 0) state = 'read';
+        else if (deliveredTo.length > 0) state = 'delivered';
+      }
+      content += `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">${footerActions}<span class="msg-meta">${formatMsgTime(msg.timestamp)}${isMe ? ticksSvg(state) : ''}</span></div>`;
+
+      div.innerHTML = content;
+      area.appendChild(div);
+      area.scrollTop = area.scrollHeight;
+
+      // mark delivered/read for others' messages
+      if (msg.sender !== currentUserData.nick && msg.id) {
+        markDelivered(msg.id, false);
+        // read when visible
+        markMessageReadOnView(div, msg.id, false);
+      }
+    }
+
+    function markDelivered(msgId, isPrivate) {
+      const ref = isPrivate ? db.ref(`privateMessages/${msgId}/deliveredTo`) : db.ref(`messages/${msgId}/deliveredTo`);
+      ref.once('value').then(snap => {
+        const list = snap.val() || [];
+        if (!list.includes(currentUserData.nick)) {
+          list.push(currentUserData.nick);
+          ref.set(list);
         }
       });
     }
 
-    function playCurrentShort() {
-      if(shortsList.length === 0) return;
-      const current = shortsList[currentShortIndex];
-      document.getElementById("shortVideoTitle").innerText = current.title;
-      document.getElementById("shortVideoFrameWrap").innerHTML = `
-        <iframe src="${current.url}?autoplay=1&mute=1&loop=1" allow="autoplay"></iframe>
-      `;
+    function markMessageReadOnView(el, msgId, isPrivate) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const ref = isPrivate ? db.ref(`privateMessages/${msgId}/readBy`) : db.ref(`messages/${msgId}/readBy`);
+            ref.once('value').then(snap => {
+              const list = snap.val() || [];
+              if (!list.includes(currentUserData.nick)) {
+                list.push(currentUserData.nick);
+                ref.set(list);
+              }
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.6 });
+      observer.observe(el);
     }
 
-    // Shorts üzərində yuxarı/aşağı sürüşdürmə (Wheel) naviqasiyası
-    document.getElementById("shortsModal").addEventListener("wheel", (e) => {
-      e.preventDefault();
-      if(e.deltaY > 0) {
-        currentShortIndex = (currentShortIndex + 1) % shortsList.length;
-      } else {
-        currentShortIndex = (currentShortIndex - 1 + shortsList.length) % shortsList.length;
-      }
-      playCurrentShort();
-    }, { passive: false });
+    window.triggerMessageSend = function(mediaData=null, mediaType='image') {
+      const input = document.getElementById('messageInputField');
+      const text = input.value.trim();
+      if (!text && !mediaData) return;
+      const payload = {
+        sender: currentUserData.nick,
+        senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+        text: text,
+        mediaType: mediaData ? mediaType : 'text',
+        mediaUrl: mediaData ? mediaData : '',
+        replyTo: replyContext ? { sender: replyContext.sender, text: replyContext.text } : null,
+        forwardedFrom: null,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        isDeleted: false,
+        reactions: {},
+        deliveredTo: [],
+        readBy: []
+      };
+      const newRef = db.ref('messages').push();
+      newRef.set(payload).then(() => {
+        input.value = '';
+        input.style.height = 'auto';
+        cancelReply();
+      });
+    };
 
+    window.handleKeyPress = function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        triggerMessageSend();
+      }
+    };
+
+    window.requestDelete = function(msgId) {
+      if (!confirm('Bu mesajı silmək istədiyinizdən əminsiniz?')) return;
+      const msg = allMessages.find(m => m.id === msgId);
+      if (!msg) return;
+      db.ref(`messages/${msgId}/isDeleted`).set(true);
+      db.ref(`messages/${msgId}/text`).set('🗑️ Bu mesaj silinib.');
+      closeMsgContextMenu();
+    };
+
+    window.requestDeleteOwn = function(msgId, isPrivate) {
+      if (!confirm('Bu mesajı silmək istədiyinizdən əminsiniz?')) return;
+      const ref = isPrivate ? db.ref(`privateMessages/${msgId}`) : db.ref(`messages/${msgId}`);
+      ref.update({ isDeleted: true, text: '🗑️ Bu mesaj silinib.' });
+      closeMsgContextMenu();
+    };
+
+    window.toggleReaction = function(msgId, isPrivate, emoji) {
+      const ref = isPrivate ? db.ref(`privateMessages/${msgId}/reactions/${currentUserData.nick}`) : db.ref(`messages/${msgId}/reactions/${currentUserData.nick}`);
+      ref.set(emoji);
+      closeMsgContextMenu();
+    };
+
+    // Reply & Forward
+    window.startReply = function(msgId, isPrivate, targetNick) {
+      const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
+      const msg = list.find(m => m.id === msgId);
+      if (!msg || msg.isDeleted) return;
+      replyContext = { id: msg.id, sender: msg.sender, text: msg.text || (msg.mediaType!=='text' ? '📎 Media' : '') };
+      if (isPrivate) {
+        const pcw = document.getElementById('pcw-'+targetNick);
+        if (pcw) {
+          let bar = pcw.querySelector('.pcw-reply-preview');
+          if (!bar) {
+            bar = document.createElement('div');
+            bar.className = 'pcw-reply-preview';
+            pcw.querySelector('.pcw-input-bar').insertAdjacentElement('beforebegin', bar);
+          }
+          bar.innerHTML = `<div style="flex:1;border-left:2px solid #ffaa00;padding-left:8px;overflow:hidden;"><b style="color:#ffc107;display:block;">${escapeHtml(msg.sender)}</b><span style="opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">${escapeHtml(replyContext.text)}</span></div><span style="cursor:pointer;opacity:0.6;" onclick="this.closest('.pcw-reply-preview').remove(); replyContext=null;">✕</span>`;
+        }
+      } else {
+        document.getElementById('replyPreviewSender').innerText = msg.sender;
+        document.getElementById('replyPreviewText').innerText = replyContext.text;
+        document.getElementById('replyPreviewBar').style.display = 'flex';
+      }
+      closeMsgContextMenu();
+    };
+
+    window.cancelReply = function() {
+      replyContext = null;
+      document.getElementById('replyPreviewBar').style.display = 'none';
+      document.querySelectorAll('.pcw-reply-preview').forEach(el => el.remove());
+    };
+
+    window.forwardMessage = function(msgId, isPrivate, targetNick) {
+      const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
+      const msg = list.find(m => m.id === msgId);
+      if (!msg || msg.isDeleted) return;
+      closeMsgContextMenu();
+      const recipients = lastActiveUsersList.filter(u => u.nick !== currentUserData.nick).map(u => u.nick);
+      if (!recipients.length) return showToast('Yönləndirmək üçün başqa istifadəçi yoxdur.', 'info');
+      const target = prompt('Mesajı hansı istifadəçiyə yönləndirmək istəyirsiniz?\n\n' + recipients.join(', '));
+      if (!target || !recipients.includes(target)) {
+        if (target) showToast('Bu adda istifadəçi tapılmadı.', 'error');
+        return;
+      }
+      // send as private message with forwardedFrom
+      const payload = {
+        sender: currentUserData.nick,
+        senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+        recipient: target,
+        text: msg.text || '',
+        mediaType: msg.mediaType || 'text',
+        mediaUrl: msg.mediaUrl || '',
+        replyTo: null,
+        forwardedFrom: msg.sender,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        isDeleted: false,
+        reactions: {},
+        deliveredTo: [],
+        readBy: []
+      };
+      const newRef = db.ref('privateMessages').push();
+      newRef.set(payload).then(() => {
+        showToast(`Mesaj ${target} istifadəçisinə yönləndirildi.`, 'success');
+      });
+    };
+
+    // ============================================================
+    // 10. ŞƏXSİ MESAJLAR
+    // ============================================================
+    function loadPrivateMessages() {
+      db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_added', (snap) => {
+        const msg = snap.val();
+        msg.id = snap.key;
+        if (msg.sender === currentUserData.nick || msg.recipient === currentUserData.nick) {
+          const other = msg.sender === currentUserData.nick ? msg.recipient : msg.sender;
+          if (!privateMessagesByNick[other]) privateMessagesByNick[other] = [];
+          privateMessagesByNick[other].push(msg);
+          if (openPCWs[other]) {
+            // append to existing window
+            appendPrivateMessage(other, msg);
+          } else if (msg.sender !== currentUserData.nick) {
+            showToast(`${msg.sender}: yeni şəxsi mesaj`, 'info');
+          }
+        }
+      });
+    }
+
+    function appendPrivateMessage(targetNick, msg) {
+      const body = document.getElementById('pcw-body-'+targetNick);
+      if (!body) return;
+      const thisDateKey = dateKeyOf(msg.timestamp);
+      const lastKey = body.dataset.lastDateKey || null;
+      if (thisDateKey && thisDateKey !== lastKey) {
+        const sep = document.createElement('div');
+        sep.className = 'pcw-date-separator';
+        sep.innerText = formatDateSeparatorLabel(msg.timestamp);
+        body.appendChild(sep);
+        body.dataset.lastDateKey = thisDateKey;
+      }
+      const div = document.createElement('div');
+      const isMe = msg.sender === currentUserData.nick;
+      div.className = 'pcw-msg ' + (isMe ? 'pcw-msg-me' : 'pcw-msg-other');
+      div.dataset.msgId = msg.id;
+      div.oncontextmenu = (e) => { e.preventDefault(); openMsgContextMenu(e, msg.id, true, targetNick); };
+      attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, true, targetNick));
+
+      const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+      let content = `
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <img src="${avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;" alt="av">
+          <b style="font-size:0.8em;opacity:0.85;color:#ffc107;">${escapeHtml(msg.sender)}</b>
+        </div>
+        ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
+        ${msg.replyTo ? `<div class="msg-reply-preview"><b>${escapeHtml(msg.replyTo.sender)}</b><span class="reply-text">${escapeHtml(msg.replyTo.text || '')}</span></div>` : ''}
+        <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : escapeHtml(msg.text)}</div>
+      `;
+      if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
+        content += `<img src="${msg.mediaUrl}" alt="Media">`;
+      }
+      if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
+        content += `<img src="${msg.mediaUrl}" alt="Stiker" style="max-width:100px;max-height:100px;background:none;">`;
+      }
+      const reactions = msg.reactions || {};
+      const counts = {};
+      Object.values(reactions).forEach(em => { counts[em] = (counts[em]||0)+1; });
+      if (Object.keys(counts).length) {
+        const mine = reactions[currentUserData.nick];
+        const chips = Object.entries(counts).map(([em, cnt]) => {
+          const isMine = em === mine;
+          return `<span class="reaction-chip ${isMine?'mine':''}" onclick="event.stopPropagation(); toggleReaction('${msg.id}', true, '${em}')">${em} ${cnt>1?cnt:''}</span>`;
+        }).join('');
+        content += `<div class="msg-reactions-bar">${chips}</div>`;
+      }
+      let state = 'sent';
+      if (isMe) {
+        const readBy = msg.readBy || [];
+        const deliveredTo = msg.deliveredTo || [];
+        if (readBy.includes(msg.recipient)) state = 'read';
+        else if (deliveredTo.includes(msg.recipient)) state = 'delivered';
+      }
+      content += `<div style="display:flex; justify-content:${isMe?'flex-end':'flex-start'};"><span class="msg-meta">${formatMsgTime(msg.timestamp)}${isMe ? ticksSvg(state) : ''}</span></div>`;
+
+      div.innerHTML = content;
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+
+      if (msg.sender !== currentUserData.nick && msg.id) {
+        markDelivered(msg.id, true);
+        markMessageReadOnView(div, msg.id, true);
+      }
+    }
+
+    window.openPrivateChatWindow = function(targetNick) {
+      if (targetNick === currentUserData.nick) return;
+      if (openPCWs[targetNick]) {
+        const win = document.getElementById('pcw-'+targetNick);
+        if (win) { win.classList.remove('minimized'); const inp = win.querySelector('.pcw-text-input'); if (inp) inp.focus(); }
+        return;
+      }
+      openPCWs[targetNick] = true;
+      if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
+
+      const user = lastActiveUsersList.find(u => u.nick === targetNick);
+      const avatar = user && user.avatarUrl ? user.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png';
+      const online = !!(user && user.online);
+
+      const win = document.createElement('div');
+      win.className = 'private-chat-window';
+      win.id = 'pcw-'+targetNick;
+      win.innerHTML = `
+        <div class="pcw-header" onclick="togglePCWMinimize('${targetNick}')">
+          <img src="${avatar}" alt="av">
+          <div class="pcw-title">
+            <span class="pcw-online-dot ${online?'is-online':''}"></span>
+            ${escapeHtml(targetNick)}
+          </div>
+          <div class="pcw-actions">
+            <span onclick="event.stopPropagation(); closePrivateChatWindow('${targetNick}')">✕</span>
+          </div>
+        </div>
+        <div class="pcw-body" id="pcw-body-${targetNick}"></div>
+        <div class="pcw-input-bar" style="position:relative;">
+          <div class="input-pill">
+            <div class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${targetNick}')">😊</div>
+            <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); sendPrivateChatMessage('${targetNick}');}" oninput="autoGrowTextarea(this)"></textarea>
+            <label class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Şəkil göndər">
+              🖼️
+              <input type="file" accept="image/*" style="display:none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
+            </label>
+          </div>
+          <button class="pcw-send-btn" onclick="sendPrivateChatMessage('${targetNick}')">➤</button>
+          <div class="sticker-panel" id="stickerPanel-${targetNick}" style="bottom:52px;right:10px;width:270px;">
+            <div class="sticker-tabs">
+              <div class="sticker-tab active" data-tab="sticker" onclick="switchStickerTab('${targetNick}','sticker')">Stiker</div>
+              <div class="sticker-tab" data-tab="gif" onclick="switchStickerTab('${targetNick}','gif')">GIF</div>
+            </div>
+            <div class="sticker-body" id="stickerBody-${targetNick}"></div>
+          </div>
+        </div>
+      `;
+      document.getElementById('privateChatWindowsContainer').appendChild(win);
+
+      // render existing messages
+      const body = document.getElementById('pcw-body-'+targetNick);
+      body.dataset.lastDateKey = '';
+      (privateMessagesByNick[targetNick] || []).forEach(msg => appendPrivateMessage(targetNick, msg));
+      body.scrollTop = body.scrollHeight;
+    };
+
+    window.togglePCWMinimize = function(targetNick) {
+      const win = document.getElementById('pcw-'+targetNick);
+      if (win) win.classList.toggle('minimized');
+    };
+    window.closePrivateChatWindow = function(targetNick) {
+      delete openPCWs[targetNick];
+      const win = document.getElementById('pcw-'+targetNick);
+      if (win) win.remove();
+    };
+
+    window.sendPrivateChatMessage = function(targetNick, mediaData=null, mediaType='image') {
+      const input = document.querySelector(`#pcw-${targetNick} .pcw-text-input`);
+      const text = input ? input.value.trim() : '';
+      if (!text && !mediaData) return;
+      const payload = {
+        sender: currentUserData.nick,
+        senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+        recipient: targetNick,
+        text: text,
+        mediaType: mediaData ? mediaType : 'text',
+        mediaUrl: mediaData ? mediaData : '',
+        replyTo: replyContext ? { sender: replyContext.sender, text: replyContext.text } : null,
+        forwardedFrom: null,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        isDeleted: false,
+        reactions: {},
+        deliveredTo: [],
+        readBy: []
+      };
+      const newRef = db.ref('privateMessages').push();
+      newRef.set(payload).then(() => {
+        if (input) { input.value = ''; input.style.height = 'auto'; }
+        replyContext = null;
+        const bar = document.querySelector(`#pcw-${targetNick} .pcw-reply-preview`);
+        if (bar) bar.remove();
+      });
+    };
+
+    window.handlePrivateMediaUpload = async function(e, targetNick) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('image', file);
+      try {
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          sendPrivateChatMessage(targetNick, data.data.url, 'image');
+        } else {
+          showToast('Şəkil yüklənə bilmədi.', 'error');
+        }
+      } catch (err) {
+        showToast('Xəta: ' + err.message, 'error');
+      }
+    };
+
+    // ============================================================
+    // 11. STİKER / GIF PANELİ
+    // ============================================================
+    window.toggleStickerPanel = function(target) {
+      const panel = document.getElementById('stickerPanel-'+target);
+      if (!panel) return;
+      const isOpening = !panel.classList.contains('active');
+      document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
+      if (isOpening) {
+        panel.classList.add('active');
+        activeStickerTarget = target;
+        renderStickerBody(target, 'sticker');
+      } else {
+        activeStickerTarget = null;
+      }
+    };
+
+    window.switchStickerTab = function(target, tab) {
+      const panel = document.getElementById('stickerPanel-'+target);
+      if (!panel) return;
+      panel.querySelectorAll('.sticker-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      renderStickerBody(target, tab);
+    };
+
+    function renderStickerBody(target, tab) {
+      const body = document.getElementById('stickerBody-'+target);
+      if (!body) return;
+      const list = tab === 'gif' ? GIF_LIST : STICKER_LIST;
+      if (!list.length) {
+        body.innerHTML = `<div class="sticker-empty-state">${tab==='gif'?'🎞️ GIF kolleksiyası tezliklə əlavə olunacaq.':'😊 Stiker tapılmadı.'}</div>`;
+        return;
+      }
+      body.innerHTML = `<div class="sticker-grid">${list.map(url => `<img src="${url}" loading="lazy" onclick="sendStickerOrGif('${target}','${url}','${tab}')">`).join('')}</div>`;
+    }
+
+    window.sendStickerOrGif = function(target, url, tab) {
+      const type = tab === 'gif' ? 'gif' : 'sticker';
+      if (target === 'main') {
+        triggerMessageSend(url, type);
+      } else {
+        sendPrivateChatMessage(target, url, type);
+      }
+      const panel = document.getElementById('stickerPanel-'+target);
+      if (panel) panel.classList.remove('active');
+    };
+
+    document.addEventListener('click', (e) => {
+      if (activeStickerTarget && !e.target.closest('.sticker-panel') && !e.target.closest('.pill-icon-btn')) {
+        document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
+        activeStickerTarget = null;
+      }
+    });
+
+    // ============================================================
+    // 12. AKTİV İSTİFADƏÇİLƏR
+    // ============================================================
+    function loadActiveUsers() {
+      db.ref('users').on('value', (snap) => {
+        const list = [];
+        snap.forEach(child => {
+          const u = child.val();
+          u.uid = child.key;
+          list.push(u);
+        });
+        lastActiveUsersList = list;
+        renderActiveUsers(list);
+        // update online dots in private windows
+        Object.keys(openPCWs).forEach(nick => {
+          const found = list.find(u => u.nick === nick);
+          const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
+          if (dot) dot.classList.toggle('is-online', !!(found && found.online));
+        });
+      });
+    }
+
+    function renderActiveUsers(users) {
+      const container = document.getElementById('activeUsersList');
+      container.innerHTML = '';
+      const canSeeBanned = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+      const visible = users.filter(u => !u.isBanned || canSeeBanned);
+      const ranked = visible.filter(u => !u.isBanned && (u.role === 'admin' || u.role === 'moderator'));
+      const onlineUsers = visible.filter(u => !u.isBanned && u.role === 'user' && u.online);
+      const offlineUsers = visible.filter(u => !u.isBanned && u.role === 'user' && !u.online);
+      const bannedUsers = visible.filter(u => u.isBanned);
+
+      ranked.sort((a,b) => {
+        if (ROLE_ORDER[b.role] !== ROLE_ORDER[a.role]) return ROLE_ORDER[b.role] - ROLE_ORDER[a.role];
+        if (b.online !== a.online) return (b.online ? 1 : 0) - (a.online ? 1 : 0);
+        return a.nick.localeCompare(b.nick, 'az');
+      });
+      onlineUsers.sort((a,b) => a.nick.localeCompare(b.nick, 'az'));
+      offlineUsers.sort((a,b) => a.nick.localeCompare(b.nick, 'az'));
+      bannedUsers.sort((a,b) => {
+        if (ROLE_ORDER[b.role] !== ROLE_ORDER[a.role]) return ROLE_ORDER[b.role] - ROLE_ORDER[a.role];
+        return a.nick.localeCompare(b.nick, 'az');
+      });
+
+      const ordered = [...ranked, ...onlineUsers, ...offlineUsers, ...bannedUsers];
+      ordered.forEach(user => container.appendChild(buildUserBadge(user)));
+    }
+
+    function buildUserBadge(user) {
+      const div = document.createElement('div');
+      div.className = 'user-badge';
+      if (user.role === 'admin') div.classList.add('role-admin');
+      if (user.role === 'moderator') div.classList.add('role-moderator');
+      if (user.isBanned) div.classList.add('user-banned');
+
+      const avatar = user.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+      const isMe = user.nick === currentUserData.nick;
+      const myRole = currentUserData.role;
+      const targetRank = ROLE_ORDER[user.role] || 1;
+      const myRank = ROLE_ORDER[myRole] || 1;
+
+      let actionsHtml = '';
+      if (!isMe) {
+        let canBan = false, canUnban = false;
+        if (myRole === 'admin') { canBan = user.role !== 'admin'; canUnban = user.role !== 'admin'; }
+        else if (myRole === 'moderator') { canBan = user.role === 'user'; canUnban = user.role === 'user'; }
+        else { canBan = user.role === 'user'; }
+
+        if (user.isBanned) {
+          if (canUnban) actionsHtml += `<span class="badge-action-icon" title="Qara siyahıdan çıxar" onclick="event.stopPropagation(); adminUnbanUser('${user.nick}')">♻️</span>`;
+        } else if (canBan) {
+          actionsHtml += `<span class="badge-action-icon" title="Qara siyahıya əlavə et" onclick="event.stopPropagation(); adminBanUser('${user.nick}')">🚫</span>`;
+        }
+
+        if (myRole === 'admin' && user.role !== 'admin') {
+          if (user.role === 'moderator') {
+            actionsHtml += `<span class="badge-action-icon" title="Moderatorluqdan çıxar" onclick="event.stopPropagation(); adminDemoteUser('${user.nick}')">⬇️</span>`;
+          } else {
+            actionsHtml += `<span class="badge-action-icon" title="Moderator təyin et" onclick="event.stopPropagation(); adminPromoteUser('${user.nick}')">⬆️</span>`;
+          }
+          actionsHtml += `<span class="badge-action-icon" title="Bütün mesajlarını sil" onclick="event.stopPropagation(); adminDeleteAllMessages('${user.nick}')">🧹</span>`;
+          actionsHtml += `<span class="badge-action-icon" title="Hesabı sil" onclick="event.stopPropagation(); adminDeleteAccount('${user.nick}')">❌</span>`;
+        }
+      }
+
+      const roleLabel = user.role === 'admin' ? 'Admin' : (user.role === 'moderator' ? 'Moderator' : '');
+      div.innerHTML = `
+        <div class="sidebar-avatar-wrap">
+          <img src="${avatar}" class="sidebar-avatar" alt="av">
+          <span class="online-dot ${user.online ? 'is-online' : ''}"></span>
+        </div>
+        <span>${user.isBanned ? '🚫 ' : ''}${escapeHtml(user.nick)}${isMe ? ' (siz)' : ''}</span>
+        ${roleLabel ? `<span class="role-tag">${roleLabel}</span>` : ''}
+        ${actionsHtml ? `<span class="badge-actions">${actionsHtml}</span>` : ''}
+      `;
+
+      if (!isMe) {
+        const wrap = div.querySelector('.sidebar-avatar-wrap');
+        wrap.style.cursor = 'pointer';
+        wrap.onclick = (e) => { e.stopPropagation(); openPrivateChatWindow(user.nick); };
+        const nameSpan = div.querySelector('span');
+        if (nameSpan) {
+          nameSpan.style.cursor = 'pointer';
+          nameSpan.onclick = (e) => { e.stopPropagation(); openPrivateChatWindow(user.nick); };
+        }
+      }
+      return div;
+    }
+
+    // ============================================================
+    // 13. ADMİN / MODERATOR ƏMƏLİYYATLARI
+    // ============================================================
+    window.adminBanUser = function(targetNick) {
+      if (!confirm(`${targetNick} istifadəçisini qara siyahıya əlavə etmək istədiyinizdən əminsiniz?`)) return;
+      const u = lastActiveUsersList.find(u => u.nick === targetNick);
+      if (!u) return showToast('İstifadəçi tapılmadı.', 'error');
+      db.ref(`users/${u.uid}/isBanned`).set(true).then(() => {
+        showToast(`${targetNick} qara siyahıya alındı.`, 'success');
+      });
+    };
+    window.adminUnbanUser = function(targetNick) {
+      const u = lastActiveUsersList.find(u => u.nick === targetNick);
+      if (!u) return showToast('İstifadəçi tapılmadı.', 'error');
+      db.ref(`users/${u.uid}/isBanned`).set(false).then(() => {
+        showToast(`${targetNick} qara siyahıdan çıxarıldı.`, 'success');
+      });
+    };
+    window.adminPromoteUser = function(targetNick) {
+      if (!confirm(`${targetNick} istifadəçisini moderator təyin etmək istədiyinizdən əminsiniz?`)) return;
+      const u = lastActiveUsersList.find(u => u.nick === targetNick);
+      if (!u) return showToast('İstifadəçi tapılmadı.', 'error');
+      db.ref(`users/${u.uid}/role`).set('moderator').then(() => {
+        showToast(`${targetNick} moderator təyin edildi.`, 'success');
+      });
+    };
+    window.adminDemoteUser = function(targetNick) {
+      const u = lastActiveUsersList.find(u => u.nick === targetNick);
+      if (!u) return showToast('İstifadəçi tapılmadı.', 'error');
+      db.ref(`users/${u.uid}/role`).set('user').then(() => {
+        showToast(`${targetNick} adi istifadəçi oldu.`, 'success');
+      });
+    };
+    window.adminDeleteAccount = function(targetNick) {
+      if (!confirm(`${targetNick} istifadəçisinin hesabını həmişəlik silmək istədiyinizdən əminsiniz?`)) return;
+      const u = lastActiveUsersList.find(u => u.nick === targetNick);
+      if (!u) return showToast('İstifadəçi tapılmadı.', 'error');
+      // remove from db
+      db.ref(`users/${u.uid}`).remove().then(() => {
+        showToast(`${targetNick} hesabı silindi.`, 'success');
+      });
+    };
+    window.adminDeleteAllMessages = function(targetNick) {
+      if (!confirm(`${targetNick} istifadəçisinin bütün mesajlarını silmək istədiyinizdən əminsiniz?`)) return;
+      // delete all messages from this user in 'messages' and 'privateMessages'
+      db.ref('messages').orderByChild('sender').equalTo(targetNick).once('value').then(snap => {
+        const updates = {};
+        snap.forEach(child => { updates[child.key] = null; });
+        return db.ref('messages').update(updates);
+      }).then(() => {
+        return db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value');
+      }).then(snap => {
+        const updates = {};
+        snap.forEach(child => { updates[child.key] = null; });
+        return db.ref('privateMessages').update(updates);
+      }).then(() => {
+        showToast(`${targetNick} bütün mesajları silindi.`, 'success');
+      }).catch(err => showToast('Xəta: ' + err.message, 'error'));
+    };
+
+    // ============================================================
+    // 14. MESAJ KONTEKS MENYUSU
+    // ============================================================
+    function openMsgContextMenu(e, msgId, isPrivate, targetNick) {
+      e.preventDefault();
+      const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
+      const msg = list.find(m => m.id === msgId);
+      if (!msg || msg.isDeleted) return;
+
+      const menu = document.getElementById('msgContextMenu');
+      const overlay = document.getElementById('ctxOverlay');
+      overlay.style.display = 'block';
+
+      const quickEmojis = ['👍','❤️','😂','😮','😢','🙏'];
+      let items = `<div class="ctx-emojis">${quickEmojis.map(em => `<span onclick="toggleReaction('${msgId}', ${isPrivate}, '${em}')">${em}</span>`).join('')}</div>`;
+      items += `<button type="button" class="ctx-item" onclick="startReply('${msgId}', ${isPrivate}, ${targetNick ? `'${targetNick}'` : null})">↩️ Cavabla</button>`;
+      items += `<button type="button" class="ctx-item" onclick="forwardMessage('${msgId}', ${isPrivate}, ${targetNick ? `'${targetNick}'` : null})">↪️ Yönləndir</button>`;
+
+      const myRole = currentUserData.role;
+      const canModDelete = (myRole === 'admin' || myRole === 'moderator') && !isPrivate;
+      const isOwn = msg.sender === currentUserData.nick;
+      if (canModDelete) {
+        items += `<button type="button" class="ctx-item danger" onclick="requestDelete('${msgId}')">🗑️ Mesajı sil</button>`;
+      } else if (isOwn) {
+        items += `<button type="button" class="ctx-item danger" onclick="requestDeleteOwn('${msgId}', ${isPrivate})">🗑️ Mesajı sil</button>`;
+      }
+
+      menu.innerHTML = items;
+      menu.style.display = 'flex';
+      const x = Math.min(e.clientX, window.innerWidth-210);
+      const y = Math.min(e.clientY, window.innerHeight-220);
+      menu.style.left = Math.max(8, x) + 'px';
+      menu.style.top = Math.max(8, y) + 'px';
+    }
+
+    window.closeMsgContextMenu = function() {
+      document.getElementById('msgContextMenu').style.display = 'none';
+      document.getElementById('ctxOverlay').style.display = 'none';
+    };
+
+    function attachLongPress(el, callback, duration=480) {
+      let timer = null;
+      const start = (e) => {
+        if (e.type === 'touchstart') timer = setTimeout(() => callback(e.touches ? e.touches[0] : e), duration);
+      };
+      const cancel = () => { if (timer) clearTimeout(timer); };
+      el.addEventListener('touchstart', start, { passive: true });
+      el.addEventListener('touchend', cancel);
+      el.addEventListener('touchmove', cancel);
+    }
+
+    // ============================================================
+    // 15. MEDIA UPLOAD (ÜMUMİ)
+    // ============================================================
+    window.handleMediaUpload = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const inputField = document.getElementById('messageInputField');
+      inputField.placeholder = '📸 Şəkil yüklənir...';
+      inputField.disabled = true;
+      const formData = new FormData();
+      formData.append('image', file);
+      try {
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          triggerMessageSend(data.data.url, 'image');
+        } else {
+          showToast('Şəkil yüklənə bilmədi.', 'error');
+        }
+      } catch (err) {
+        showToast('Xəta: ' + err.message, 'error');
+      } finally {
+        inputField.placeholder = 'Mesajınızı bura yazın...';
+        inputField.disabled = false;
+        e.target.value = '';
+      }
+    };
+
+    // ============================================================
+    // 16. TARİX DƏYİŞMƏSİ YENİLƏMƏSİ (gün dəyişəndə)
+    // ============================================================
+    lastKnownDateKey = dateKeyOf(Date.now());
+    setInterval(() => {
+      const current = dateKeyOf(Date.now());
+      if (current !== lastKnownDateKey) {
+        lastKnownDateKey = current;
+        // refresh all private chat windows
+        Object.keys(openPCWs).forEach(nick => {
+          const body = document.getElementById('pcw-body-'+nick);
+          if (body) {
+            body.dataset.lastDateKey = '';
+            const msgs = privateMessagesByNick[nick] || [];
+            body.innerHTML = '';
+            msgs.forEach(msg => appendPrivateMessage(nick, msg));
+            body.scrollTop = body.scrollHeight;
+          }
+        });
+        // refresh main chat? messages area already has date separators? We'll keep it simple.
+      }
+    }, 60000);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        const current = dateKeyOf(Date.now());
+        if (current !== lastKnownDateKey) {
+          lastKnownDateKey = current;
+          Object.keys(openPCWs).forEach(nick => {
+            const body = document.getElementById('pcw-body-'+nick);
+            if (body) {
+              body.dataset.lastDateKey = '';
+              const msgs = privateMessagesByNick[nick] || [];
+              body.innerHTML = '';
+              msgs.forEach(msg => appendPrivateMessage(nick, msg));
+              body.scrollTop = body.scrollHeight;
+            }
+          });
+        }
+      }
+    });
+
+    console.log('Maqalux Çat - Socket.io istifadə edilmir, tamamilə Firebase ilə işləyir.');
   </script>
 </body>
 </html>
