@@ -2,42 +2,2211 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Maqalux | Exclusive Collection</title>
-    <!-- Snipcart (Ödəniş infrastrukturu) -->
-    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.css" />
-    <script async src="https://cdn.snipcart.com/themes/v3.0.31/default/snipcart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maqalux – E-Ticarət</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>" />
+    <meta name="description" content="Maqalux – müasir e-ticarət platforması. Elektronika, moda, kitab və daha çoxu." />
+    <meta property="og:title" content="Maqalux – E-Ticarət" />
+    <meta property="og:description" content="Keyfiyyətli məhsullar, əlverişli qiymətlər və sürətli çatdırılma." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://maqalux.github.io/logo.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+        /* === RESET & BASE === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #1e002f;
+            --primary-blue: #0055a5;
+            --gold: #FFD700;
+            --gold-dark: #E6A800;
+            --orange: #FF8C00;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+            --radius: 18px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
+            color: #fff;
+            min-height: 100vh;
+            padding: 0 0 80px 0;
+            /* bottom nav space */;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            outline: none;
+        }
+        img {
+            max-width: 100%;
+            display: block;
+        }
+        ul {
+            list-style: none;
+        }
+
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 8px;
+        }
+
+        /* === HEADER === */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            min-height: 72px;
+        }
+
+        header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        header .logo span {
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        header .logo img {
+            height: 44px;
+            width: auto;
+            border-radius: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        nav ul li a {
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            transition: var(--transition);
+            transform: translateX(-50%);
+            border-radius: 4px;
+        }
+        nav ul li a:hover::after {
+            width: 70%;
+        }
+        nav ul li a.active {
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            color: #000;
+            box-shadow: 0 0 24px rgba(255, 215, 0, 0.4);
+        }
+        nav ul li a.active::after {
+            display: none;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .header-actions .cart-icon {
+            position: relative;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 12px;
+            border-radius: 30px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header-actions .cart-icon:hover {
+            background: rgba(255, 215, 0, 0.15);
+        }
+        .header-actions .cart-badge {
+            background: var(--gold);
+            color: #000;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 22px;
+            text-align: center;
+        }
+        .header-actions .wishlist-icon {
+            font-size: 1.4rem;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 8px 10px;
+            border-radius: 30px;
+            transition: var(--transition);
+        }
+        .header-actions .wishlist-icon:hover {
+            background: rgba(255, 80, 80, 0.2);
+        }
+
+        /* === HERO === */
+        .hero {
+            position: relative;
+            margin: 24px 20px 32px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            min-height: 280px;
+            background: linear-gradient(135deg, rgba(30, 0, 47, 0.85), rgba(0, 85, 165, 0.7)),
+                url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23FFD700" opacity="0.05" width="400" height="300"/%3E%3C/svg%3E');
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            padding: 30px 40px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+        }
+        .hero-content {
+            max-width: 560px;
+            z-index: 2;
+        }
+        .hero-content .tag {
+            display: inline-block;
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 4px 16px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .hero-content h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+        .hero-content h1 span {
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-content p {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            margin-bottom: 18px;
+            max-width: 420px;
+        }
+        .hero-content .btn-primary {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            color: #000;
+            font-weight: 700;
+            padding: 12px 34px;
+            border-radius: 40px;
+            transition: var(--transition);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        }
+        .hero-content .btn-primary:hover {
+            transform: scale(1.04);
+            box-shadow: 0 6px 30px rgba(255, 215, 0, 0.5);
+        }
+        .hero-slide-nav {
+            position: absolute;
+            bottom: 16px;
+            right: 30px;
+            display: flex;
+            gap: 8px;
+            z-index: 3;
+        }
+        .hero-slide-nav span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .hero-slide-nav span.active {
+            background: var(--gold);
+            width: 28px;
+            border-radius: 6px;
+        }
+
+        /* === SEARCH BAR === */
+        .search-wrap {
+            padding: 0 20px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: 14px 22px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            font-size: 1rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        .search-wrap input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .search-wrap input:focus {
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.06);
+        }
+
+        /* === FILTERS === */
+        .filters-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 18px;
+            padding: 0 20px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .filters-wrap select,
+        .filters-wrap input[type="range"] {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .filters-wrap select option {
+            background: #1e002f;
+            color: #fff;
+        }
+        .filters-wrap select:focus,
+        .filters-wrap input:focus {
+            border-color: var(--gold);
+        }
+        .filters-wrap .filter-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .filters-wrap .price-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filters-wrap .price-range input {
+            width: 140px;
+            accent-color: var(--gold);
+        }
+        .filters-wrap .price-range span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 60px;
+        }
+        .filter-clear {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+        .filter-clear:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* === PRODUCT GRID === */
+        .products-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+        .products-section .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .products-section .section-title span {
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 22px;
+        }
+
+        /* === PRODUCT CARD === */
+        .product-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 215, 0, 0.2);
+        }
+        .product-card .image-wrap {
+            position: relative;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .product-card .image-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .product-card:hover .image-wrap img {
+            transform: scale(1.06);
+        }
+        .product-card .badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.65rem;
+            padding: 2px 12px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .product-card .badge.sale {
+            background: #ff4444;
+            color: #fff;
+        }
+        .product-card .badge.new {
+            background: #00c853;
+            color: #fff;
+        }
+        .product-card .wishlist-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(6px);
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            padding: 6px 10px;
+            border-radius: 50%;
+            transition: var(--transition);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .product-card .wishlist-btn:hover {
+            background: rgba(255, 80, 80, 0.6);
+            transform: scale(1.1);
+        }
+        .product-card .wishlist-btn.active {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .product-card .info {
+            padding: 14px 16px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card .info h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-card .info .rating {
+            font-size: 0.75rem;
+            color: var(--gold);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .product-card .info .rating span {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .product-card .info .price-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 6px 0 12px;
+        }
+        .product-card .info .price-row .current {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .product-card .info .price-row .original {
+            font-size: 0.8rem;
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        .product-card .info .stock-status {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-bottom: 8px;
+        }
+        .product-card .info .stock-status.in-stock {
+            color: #69db7c;
+            opacity: 1;
+        }
+        .product-card .info .stock-status.out-of-stock {
+            color: #ff6b6b;
+            opacity: 1;
+        }
+        .product-card .add-btn {
+            margin-top: auto;
+            padding: 10px 0;
+            border-radius: 40px;
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            color: #000;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            text-align: center;
+            width: 100%;
+        }
+        .product-card .add-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        }
+        .product-card .add-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .product-card .quick-view {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #fff;
+            transition: var(--transition);
+            white-space: nowrap;
+            opacity: 0;
+        }
+        .product-card:hover .quick-view {
+            bottom: 12px;
+            opacity: 1;
+        }
+
+        /* === EMPTY STATE === */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            grid-column: 1 / -1;
+        }
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+        }
+        .empty-state p {
+            opacity: 0.6;
+        }
+
+        /* === CART SIDEBAR === */
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(6px);
+            z-index: 2000;
+            display: none;
+            justify-content: flex-end;
+            animation: fadeIn 0.3s ease;
+        }
+        .cart-overlay.open {
+            display: flex;
+        }
+        .cart-sidebar {
+            width: 100%;
+            max-width: 440px;
+            background: linear-gradient(160deg, #1a0028, #003d7a);
+            border-left: 1px solid var(--glass-border);
+            padding: 24px 20px 30px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+            animation: slideRight 0.3s ease;
+        }
+        @keyframes slideRight {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .cart-sidebar .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .cart-sidebar .cart-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        .cart-sidebar .cart-header .close-btn {
+            background: none;
+            color: #fff;
+            font-size: 1.6rem;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+        .cart-sidebar .cart-header .close-btn:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+        .cart-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            align-items: center;
+        }
+        .cart-item img {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .cart-item .item-info {
+            flex: 1;
+        }
+        .cart-item .item-info h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .cart-item .item-info .item-price {
+            font-size: 0.8rem;
+            color: var(--gold);
+        }
+        .cart-item .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .cart-item .qty-control button {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-item .qty-control button:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        .cart-item .qty-control span {
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+        .cart-item .remove-item {
+            background: none;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.1rem;
+            transition: var(--transition);
+            padding: 4px;
+        }
+        .cart-item .remove-item:hover {
+            color: #ff4444;
+        }
+
+        .cart-summary {
+            border-top: 1px solid var(--glass-border);
+            padding-top: 16px;
+        }
+        .cart-summary .row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            padding: 4px 0;
+        }
+        .cart-summary .row.total {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 10px;
+            margin-top: 6px;
+        }
+        .cart-summary .checkout-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 40px;
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            color: #000;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 14px;
+            transition: var(--transition);
+            text-align: center;
+        }
+        .cart-summary .checkout-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 30px rgba(255, 215, 0, 0.3);
+        }
+        .cart-empty-msg {
+            text-align: center;
+            padding: 40px 0;
+            opacity: 0.5;
+        }
+
+        /* === CHECKOUT MODAL === */
+        .checkout-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .checkout-modal.open {
+            display: flex;
+        }
+        .checkout-modal .modal-box {
+            background: linear-gradient(160deg, #1a0028, #003d7a);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            max-width: 540px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px 28px;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .checkout-modal .modal-box h2 {
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+        }
+        .checkout-modal .modal-box .sub {
+            opacity: 0.6;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .checkout-modal .form-group {
+            margin-bottom: 16px;
+        }
+        .checkout-modal .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+        .checkout-modal .form-group input,
+        .checkout-modal .form-group select,
+        .checkout-modal .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
+            font-family: inherit;
+        }
+        .checkout-modal .form-group input:focus,
+        .checkout-modal .form-group select:focus,
+        .checkout-modal .form-group textarea:focus {
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .checkout-modal .form-group select option {
+            background: #1e002f;
+        }
+        .checkout-modal .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .checkout-modal .payment-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 8px 0 6px;
+        }
+        .checkout-modal .payment-options label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .checkout-modal .payment-options label:hover {
+            border-color: var(--gold);
+        }
+        .checkout-modal .payment-options input[type="radio"] {
+            accent-color: var(--gold);
+            width: 16px;
+            height: 16px;
+        }
+        .checkout-modal .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 40px;
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            color: #000;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 12px;
+            transition: var(--transition);
+        }
+        .checkout-modal .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 30px rgba(255, 215, 0, 0.3);
+        }
+        .checkout-modal .close-modal {
+            background: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 1.8rem;
+            float: right;
+            transition: var(--transition);
+        }
+        .checkout-modal .close-modal:hover {
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        /* === TOAST === */
+        .toast-container {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 12px 28px;
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast-container.show {
+            display: flex;
+        }
+        .toast-container .toast-icon {
+            font-size: 1.4rem;
+        }
+
+        /* === FOOTER === */
+        footer {
+            text-align: center;
+            padding: 30px 20px 20px;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(6px);
+        }
+        footer .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto 20px;
+            text-align: left;
+        }
+        footer .footer-grid h4 {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--gold);
+        }
+        footer .footer-grid p,
+        footer .footer-grid a {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            display: block;
+            margin: 2px 0;
+            transition: var(--transition);
+        }
+        footer .footer-grid a:hover {
+            opacity: 1;
+            color: var(--gold);
+        }
+        footer .newsletter-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        footer .newsletter-form input {
+            flex: 1;
+            padding: 8px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            outline: none;
+            font-size: 0.85rem;
+            min-width: 0;
+        }
+        footer .newsletter-form input:focus {
+            border-color: var(--gold);
+        }
+        footer .newsletter-form button {
+            padding: 8px 18px;
+            border-radius: 30px;
+            background: linear-gradient(90deg, var(--gold), var(--orange));
+            color: #000;
+            font-weight: 700;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+        footer .newsletter-form button:hover {
+            transform: scale(1.04);
+        }
+        footer .copy {
+            font-size: 0.75rem;
+            opacity: 0.4;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        /* === BOTTOM NAV (mobile) === */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(20, 0, 40, 0.92);
+            backdrop-filter: blur(18px);
+            border-top: 1px solid var(--glass-border);
+            padding: 6px 0 10px;
+            z-index: 1500;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.6rem;
+            opacity: 0.5;
+            transition: var(--transition);
+            gap: 2px;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+        .bottom-nav a .nav-icon {
+            font-size: 1.4rem;
+        }
+        .bottom-nav a.active {
+            opacity: 1;
+            color: var(--gold);
+        }
+        .bottom-nav a:hover {
+            opacity: 1;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 820px) {
+            header {
+                padding: 10px 16px;
+            }
+            nav ul {
+                gap: 4px;
+            }
+            nav ul li a {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+            .header-actions .cart-icon span {
+                display: none;
+            }
+            .hero {
+                min-height: 200px;
+                padding: 24px 28px;
+            }
+            .hero-content h1 {
+                font-size: 1.6rem;
+            }
+            .hero-content p {
+                font-size: 0.9rem;
+            }
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 16px;
+            }
+            .filters-wrap {
+                gap: 8px 12px;
+            }
+            .filters-wrap .price-range input {
+                width: 100px;
+            }
+            .checkout-modal .form-row {
+                grid-template-columns: 1fr;
+            }
+            .cart-sidebar {
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .bottom-nav {
+                display: flex;
+            }
+            footer .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                text-align: center;
+            }
+            footer .newsletter-form {
+                flex-direction: column;
+            }
+            body {
+                padding-bottom: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 1.3rem;
+            }
+            .hero {
+                padding: 18px 20px;
+                min-height: 160px;
+            }
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .product-card .info {
+                padding: 10px 10px 12px;
+            }
+            .product-card .info h3 {
+                font-size: 0.8rem;
+            }
+            .product-card .info .price-row .current {
+                font-size: 0.95rem;
+            }
+            .product-card .add-btn {
+                font-size: 0.7rem;
+                padding: 8px 0;
+            }
+            .filters-wrap select,
+            .filters-wrap input {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+            }
+            .filters-wrap .price-range input {
+                width: 70px;
+            }
+            .cart-sidebar {
+                padding: 16px 14px;
+            }
+        }
+
+        /* === SCROLL TO TOP === */
+        .scroll-top {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(255, 215, 0, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            color: var(--gold);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            z-index: 900;
+            box-shadow: var(--shadow);
+        }
+        .scroll-top.show {
+            display: flex;
+        }
+        .scroll-top:hover {
+            background: rgba(255, 215, 0, 0.25);
+            transform: scale(1.08);
+        }
+
+        /* === ORDER HISTORY === */
+        .order-history {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .order-history .order-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .order-history .order-item .order-id {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .order-history .order-item .order-date {
+            opacity: 0.5;
+            font-size: 0.8rem;
+        }
+        .order-history .order-item .order-total {
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .order-history .order-item .order-status {
+            font-size: 0.7rem;
+            padding: 2px 14px;
+            border-radius: 30px;
+            background: rgba(0, 200, 80, 0.15);
+            color: #69db7c;
+        }
+        .order-history .order-item .order-status.pending {
+            background: rgba(255, 215, 0, 0.15);
+            color: var(--gold);
+        }
+    </style>
 </head>
+
 <body>
-    <!-- Navbar -->
-    <nav class="lux-nav">
-        <div class="logo">MAQALUX</div>
-        <div class="nav-actions">
-            <span class="cart-counter" id="cartCount">0</span>
-            <button class="snipcart-checkout">🛒</button>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>Time is the ultimate luxury.</h1>
-        <p>2026 Pre-Spring Collection</p>
-        <a href="#shop" class="cta-btn">Explore</a>
+    <!-- ============ HEADER ============ -->
+    <header>
+        <a href="#" class="logo" onclick="navigateTo('home')">
+            <span>🛒 Maqalux</span>
+        </a>
+
+        <nav id="mainNav">
+            <ul>
+                <li><a href="#" class="active" data-page="home" onclick="navigateTo('home')">Ana səhifə</a></li>
+                <li><a href="#" data-page="shop" onclick="navigateTo('shop')">Mağaza</a></li>
+                <li><a href="#" data-page="orders" onclick="navigateTo('orders')">Sifarişlər</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-actions">
+            <a href="#" class="wishlist-icon" onclick="navigateTo('wishlist')" title="İstək siyahısı">❤️</a>
+            <a href="#" class="cart-icon" onclick="toggleCart()">
+                🛒 <span>Səbət</span>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="heroSection">
+        <div class="hero-content">
+            <span class="tag">🔥 Yeni məhsullar</span>
+            <h1>Premium <span>keyfiyyət</span>, <br>əlverişli qiymət</h1>
+            <p>Elektronika, moda, kitab və daha çoxu — Maqalux-da hər şey var.</p>
+            <a href="#" class="btn-primary" onclick="navigateTo('shop')">Alış-verişə başla →</a>
+        </div>
+        <div class="hero-slide-nav">
+            <span class="active" data-slide="0"></span>
+            <span data-slide="1"></span>
+            <span data-slide="2"></span>
+        </div>
     </section>
 
-    <!-- Məhsul Grid -->
-    <section id="shop" class="product-grid">
-        <h2>Curated Selection</h2>
-        <div class="grid-container" id="productContainer">
-            <!-- JS ilə products.json-dan yüklənəcək -->
+    <!-- ============ SEARCH ============ -->
+    <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="🔍 Məhsul axtar..." oninput="filterProducts()" />
+    </div>
+
+    <!-- ============ FILTERS ============ -->
+    <div class="filters-wrap" id="filterWrap">
+        <span class="filter-label">📂 Kateqoriya:</span>
+        <select id="categoryFilter" onchange="filterProducts()">
+            <option value="all">Hamısı</option>
+            <option value="electronics">Elektronika</option>
+            <option value="fashion">Moda</option>
+            <option value="home">Ev & Yaşayış</option>
+            <option value="books">Kitablar</option>
+            <option value="gaming">Oyun</option>
+        </select>
+
+        <span class="filter-label">⭐ Reytinq:</span>
+        <select id="ratingFilter" onchange="filterProducts()">
+            <option value="0">Hamısı</option>
+            <option value="4">4+ ulduz</option>
+            <option value="3">3+ ulduz</option>
+        </select>
+
+        <div class="price-range">
+            <span class="filter-label">💰 Qiymət:</span>
+            <input type="range" id="priceRange" min="0" max="5000" value="5000" oninput="updatePriceLabel(); filterProducts();" />
+            <span id="priceLabel">₼5000</span>
+        </div>
+
+        <button class="filter-clear" onclick="clearFilters()">✕ Təmizlə</button>
+    </div>
+
+    <!-- ============ PRODUCT GRID ============ -->
+    <section class="products-section" id="shopSection">
+        <div class="section-title">
+            🛍️ <span>Məhsullar</span> <span style="font-size:0.8rem;opacity:0.5;font-weight:400;" id="productCount">(0)</span>
+        </div>
+        <div class="product-grid" id="productGrid">
+            <!-- JS ilə doldurulacaq -->
         </div>
     </section>
 
-    <!-- Snipcart gizli məlumatlar (public key) -->
-    <div hidden id="snipcart" data-api-key="YOUR_SNIPCART_PUBLIC_KEY"></div>
-    <script src="script.js"></script>
+    <!-- ============ ORDER HISTORY ============ -->
+    <section class="order-history" id="ordersSection" style="display:none;">
+        <div class="section-title">
+            📦 <span>Sifariş tarixçəsi</span>
+        </div>
+        <div id="orderList">
+            <p style="opacity:0.5;text-align:center;padding:30px 0;">Hələ heç bir sifariş yoxdur.</p>
+        </div>
+    </section>
+
+    <!-- ============ WISHLIST (inline) ============ -->
+    <section class="products-section" id="wishlistSection" style="display:none;">
+        <div class="section-title">
+            ❤️ <span>İstək siyahısı</span>
+        </div>
+        <div class="product-grid" id="wishlistGrid">
+            <!-- JS ilə doldurulacaq -->
+        </div>
+    </section>
+
+    <!-- ============ CART SIDEBAR ============ -->
+    <div class="cart-overlay" id="cartOverlay" onclick="if(event.target===this) toggleCart()">
+        <div class="cart-sidebar">
+            <div class="cart-header">
+                <h2>🛒 Səbətiniz</h2>
+                <button class="close-btn" onclick="toggleCart()">✕</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <div class="cart-empty-msg">Səbət boşdur.</div>
+            </div>
+            <div class="cart-summary" id="cartSummary" style="display:none;">
+                <div class="row"><span>Aralıq cəmi</span><span id="subtotal">₼0</span></div>
+                <div class="row"><span>Çatdırılma</span><span id="shippingCost">₼0</span></div>
+                <div class="row"><span>Vergi (18%)</span><span id="taxAmount">₼0</span></div>
+                <div class="row total"><span>Ümumi</span><span id="grandTotal">₼0</span></div>
+                <button class="checkout-btn" onclick="openCheckout()">Ödənişə keç →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CHECKOUT MODAL ============ -->
+    <div class="checkout-modal" id="checkoutModal" onclick="if(event.target===this) closeCheckout()">
+        <div class="modal-box">
+            <button class="close-modal" onclick="closeCheckout()">✕</button>
+            <h2>📋 Sifarişin tamamlanması</h2>
+            <p class="sub">Çatdırılma məlumatlarını daxil edin</p>
+
+            <form id="checkoutForm" onsubmit="submitOrder(event)">
+                <div class="form-group">
+                    <label>Tam ad</label>
+                    <input type="text" id="fullName" placeholder="Ad və soyad" required />
+                </div>
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" id="phone" placeholder="+994 50 123 45 67" required />
+                </div>
+                <div class="form-group">
+                    <label>Şəhər / Rayon</label>
+                    <select id="city" required>
+                        <option value="">Seçin...</option>
+                        <option>Bakı (Nəsimi)</option>
+                        <option>Bakı (Nərimanov)</option>
+                        <option>Bakı (Xətai)</option>
+                        <option>Bakı (Səbail)</option>
+                        <option>Bakı (Yasamal)</option>
+                        <option>Sumqayıt</option>
+                        <option>Gəncə</option>
+                        <option>Mingəçevir</option>
+                        <option>Lənkəran</option>
+                        <option>Şəki</option>
+                        <option>Naxçıvan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ünvan (küçə, ev, mənzil)</label>
+                    <input type="text" id="address" placeholder="Məs: Nizami küç. 15, mənzil 8" required />
+                </div>
+                <div class="form-group">
+                    <label>Çatdırılma qeydləri</label>
+                    <textarea id="deliveryNotes" rows="2" placeholder="Əlavə qeydlər..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Ödəniş üsulu</label>
+                    <div class="payment-options">
+                        <label><input type="radio" name="payment" value="card" checked /> 💳 Kart</label>
+                        <label><input type="radio" name="payment" value="cod" /> 💵 Çatdırılmada nağd</label>
+                        <label><input type="radio" name="payment" value="bank" /> 🏦 Bank köçürməsi</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">✅ Sifarişi təsdiqlə</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ TOAST ============ -->
+    <div class="toast-container" id="toast">
+        <span class="toast-icon">✅</span>
+        <span id="toastMessage">Əlavə olundu!</span>
+    </div>
+
+    <!-- ============ SCROLL TO TOP ============ -->
+    <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+    <!-- ============ BOTTOM NAV (mobile) ============ -->
+    <div class="bottom-nav" id="bottomNav">
+        <a href="#" class="active" data-page="home" onclick="navigateTo('home')"><span class="nav-icon">🏠</span> Ana</a>
+        <a href="#" data-page="shop" onclick="navigateTo('shop')"><span class="nav-icon">🛍️</span> Mağaza</a>
+        <a href="#" data-page="wishlist" onclick="navigateTo('wishlist')"><span class="nav-icon">❤️</span> İstək</a>
+        <a href="#" onclick="toggleCart()"><span class="nav-icon">🛒</span> Səbət</a>
+        <a href="#" data-page="orders" onclick="navigateTo('orders')"><span class="nav-icon">📦</span> Sifarişlər</a>
+    </div>
+
+    <!-- ============ FOOTER ============ -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <h4>🛒 Maqalux</h4>
+                <p>Keyfiyyətli məhsullar, sürətli çatdırılma.</p>
+            </div>
+            <div>
+                <h4>Menyu</h4>
+                <a href="#" onclick="navigateTo('shop')">Mağaza</a>
+                <a href="#" onclick="navigateTo('orders')">Sifarişlər</a>
+                <a href="#" onclick="navigateTo('wishlist')">İstək siyahısı</a>
+            </div>
+            <div>
+                <h4>Əlaqə</h4>
+                <a href="mailto:info@maqalux.az">info@maqalux.az</a>
+                <a href="tel:+994501234567">+994 50 123 45 67</a>
+            </div>
+            <div>
+                <h4>Xəbər bülleteni</h4>
+                <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+                    <input type="email" placeholder="E-poçt ünvanınız" required />
+                    <button type="submit">Abunə ol</button>
+                </form>
+            </div>
+        </div>
+        <div class="copy">&copy; 2026 Maqalux — Bütün hüquqlar qorunur.</div>
+    </footer>
+
+    <!-- ============================================================== -->
+    <!-- ======================== JAVASCRIPT ============================ -->
+    <!-- ============================================================== -->
+    <script>
+        // ======================================================================
+        // 1. MƏHSUL MƏLUMATLARI (20+ məhsul)
+        // ======================================================================
+        const PRODUCTS = [{
+            id: 1,
+            name: "iPhone 15 Pro Max",
+            category: "electronics",
+            price: 3200,
+            rating: 4.8,
+            stock: 12,
+            image: "📱",
+            description: "Apple-ın ən yeni flaqmanı. 6.7 düym OLED, A17 Pro, 48MP kamera.",
+            specs: ["6.7' OLED", "A17 Pro", "48MP", "USB-C"],
+            colors: ["Natural Titanium", "Mavi", "Qara"]
+        }, {
+            id: 2,
+            name: "Samsung Galaxy S24 Ultra",
+            category: "electronics",
+            price: 2800,
+            rating: 4.7,
+            stock: 8,
+            image: "📱",
+            description: "Güclü S Pen, 200MP kamera, Titanium korpus.",
+            specs: ["6.8' AMOLED", "Snapdragon 8 Gen 3", "200MP", "5000mAh"],
+            colors: ["Boz", "Bənövşəyi", "Qara"]
+        }, {
+            id: 3,
+            name: "MacBook Pro 16' M3",
+            category: "electronics",
+            price: 4500,
+            rating: 4.9,
+            stock: 5,
+            image: "💻",
+            description: "M3 Pro çip, 36GB RAM, 1TB SSD, 22 saat batareya.",
+            specs: ["16.2' Liquid Retina", "M3 Pro", "36GB RAM", "1TB SSD"],
+            colors: ["Kosmos Boz", "Gümüşü"]
+        }, {
+            id: 4,
+            name: "Sony WH-1000XM5",
+            category: "electronics",
+            price: 420,
+            rating: 4.6,
+            stock: 20,
+            image: "🎧",
+            description: "Ən yaxşı ANC qulaqlıqlar, 30 saat batareya, kristal təmiz səs.",
+            specs: ["ANC", "30 saat", "Bluetooth 5.2", "USB-C"],
+            colors: ["Qara", "Gümüşü", "Mavi"]
+        }, {
+            id: 5,
+            name: "Nike Air Max 270",
+            category: "fashion",
+            price: 220,
+            rating: 4.5,
+            stock: 30,
+            image: "👟",
+            description: "Rahat gündəlik idman ayaqqabıları, qabaqcıl yastıqlama.",
+            specs: ["Hava yastığı", "Mesh üst", "Rezin alt"],
+            colors: ["Ağ/Qara", "Qırmızı", "Mavi"]
+        }, {
+            id: 6,
+            name: "Adidas Originals Samba",
+            category: "fashion",
+            price: 180,
+            rating: 4.4,
+            stock: 25,
+            image: "👟",
+            description: "Klassik Samba dizaynı, dəri üst, rahat altlıq.",
+            specs: ["Dəri", "Kauçuk alt", "İmza üslub"],
+            colors: ["Qara/Ağ", "Mavi", "Yaşıl"]
+        }, {
+            id: 7,
+            name: "Levi's 501 Original",
+            category: "fashion",
+            price: 120,
+            rating: 4.3,
+            stock: 40,
+            image: "👖",
+            description: "Əfsanəvi düz kəsikli jeans, 100% pambıq.",
+            specs: ["100% pambıq", "Düz kəsik", "5 cib"],
+            colors: ["Tünd mavi", "Açıq mavi", "Qara"]
+        }, {
+            id: 8,
+            name: "Casio G-Shock GA-2100",
+            category: "fashion",
+            price: 160,
+            rating: 4.6,
+            stock: 18,
+            image: "⌚",
+            description: "Davamlı, suya davamlı, rəqəmsal/analoq saat.",
+            specs: ["200m suya", "Dünya vaxtı", "LED işıq"],
+            colors: ["Qara", "Qırmızı", "Yaşıl"]
+        }, {
+            id: 9,
+            name: "Dyson V15 Detect",
+            category: "home",
+            price: 850,
+            rating: 4.7,
+            stock: 10,
+            image: "🧹",
+            description: "Lazer işıqlı, güclü batareya, HEPA filtr.",
+            specs: ["Lazer", "60 dəq", "HEPA", "LCD ekran"],
+            colors: ["Qızıl", "Gümüşü"]
+        }, {
+            id: 10,
+            name: "Philips Hue Starter Kit",
+            category: "home",
+            price: 280,
+            rating: 4.4,
+            stock: 15,
+            image: "💡",
+            description: "Ağıllı işıqlandırma dəsti, 3 lampa + hub.",
+            specs: ["16M rəng", "Voice control", "Zigbee"],
+            colors: ["Ağ", "Rəngli"]
+        }, {
+            id: 11,
+            name: "IKEA Billy Kitab Rəfi",
+            category: "home",
+            price: 190,
+            rating: 4.2,
+            stock: 22,
+            image: "📚",
+            description: "Modul kitab rəfi, tənzimlənən rəflər.",
+            specs: ["Ağ", "8 rəf", "202x80x28 sm"],
+            colors: ["Ağ", "Taxta", "Qara"]
+        }, {
+            id: 12,
+            name: "Steam Deck OLED",
+            category: "gaming",
+            price: 680,
+            rating: 4.8,
+            stock: 7,
+            image: "🎮",
+            description: "OLED ekran, daha uzun batareya, güclü APU.",
+            specs: ["7.4' OLED", "AMD APU", "512GB", "SteamOS"],
+            colors: ["Qara"]
+        }, {
+            id: 13,
+            name: "PlayStation 5 Slim",
+            category: "gaming",
+            price: 1200,
+            rating: 4.7,
+            stock: 9,
+            image: "🎮",
+            description: "PS5 Slim, daha kiçik, 1TB SSD, DualSense.",
+            specs: ["1TB SSD", "4K 120Hz", "DualSense", "Ray tracing"],
+            colors: ["Ağ", "Qara"]
+        }, {
+            id: 14,
+            name: "Nintendo Switch OLED",
+            category: "gaming",
+            price: 520,
+            rating: 4.6,
+            stock: 14,
+            image: "🎮",
+            description: "OLED ekran, genişləndirilmiş yaddaş, yeni stend.",
+            specs: ["7' OLED", "64GB", "HDMI", "Joy-Con"],
+            colors: ["Ağ", "Mavi", "Qırmızı"]
+        }, {
+            id: 15,
+            name: "The Pragmatic Programmer",
+            category: "books",
+            price: 45,
+            rating: 4.9,
+            stock: 50,
+            image: "📘",
+            description: "Proqramçılar üçün klassik bələdçi, ən son nəşr.",
+            specs: ["368 səhifə", "İngilis dili", "Mütəxəssis"],
+            colors: ["Kitab"]
+        }, {
+            id: 16,
+            name: "Atomic Habits (Azərbaycanca)",
+            category: "books",
+            price: 32,
+            rating: 4.8,
+            stock: 35,
+            image: "📘",
+            description: "Kiçik vərdişlərin böyük nəticələrə səbəb olması haqqında.",
+            specs: ["320 səhifə", "Azərbaycan dili", "Özünüinkişaf"],
+            colors: ["Kitab"]
+        }, {
+            id: 17,
+            name: "Dune (Frank Herbert)",
+            category: "books",
+            price: 28,
+            rating: 4.7,
+            stock: 40,
+            image: "📘",
+            description: "Əfsanəvi elmi-fantastika romanı, film adaptasiyası.",
+            specs: ["512 səhifə", "Azərbaycan dili", "Elmi fantastika"],
+            colors: ["Kitab"]
+        }, {
+            id: 18,
+            name: "Sapiens (Yuval Noah Harari)",
+            category: "books",
+            price: 38,
+            rating: 4.6,
+            stock: 28,
+            image: "📘",
+            description: "Bəşəriyyətin qısa tarixi — ən çox satılan kitab.",
+            specs: ["512 səhifə", "Azərbaycan dili", "Tarix"],
+            colors: ["Kitab"]
+        }, {
+            id: 19,
+            name: "AirPods Pro 2",
+            category: "electronics",
+            price: 320,
+            rating: 4.7,
+            stock: 20,
+            image: "🎧",
+            description: "Aktiv səs-küçün ləğvi, fərdiləşdirilmiş audio.",
+            specs: ["ANC", "Adaptiv audio", "MagSafe", "6 saat"],
+            colors: ["Ağ"]
+        }, {
+            id: 20,
+            name: "Xiaomi Mi Band 8",
+            category: "electronics",
+            price: 70,
+            rating: 4.3,
+            stock: 45,
+            image: "⌚",
+            description: "Fitness tracker, AMOLED ekran, 16 gün batareya.",
+            specs: ["AMOLED", "SPO2", "Ürək dərəcəsi", "16 gün"],
+            colors: ["Qara", "Mavi", "Çəhrayı"]
+        }, {
+            id: 21,
+            name: "Zara Oversized Blazer",
+            category: "fashion",
+            price: 150,
+            rating: 4.4,
+            stock: 18,
+            image: "🧥",
+            description: "Dəbli oversize blazer, tək düyməli, yun qarışığı.",
+            specs: ["70% yun", "Tək düymə", "Yan ciblər"],
+            colors: ["Boz", "Bej", "Qara"]
+        }, {
+            id: 22,
+            name: "LG OLED evo C4",
+            category: "electronics",
+            price: 2800,
+            rating: 4.9,
+            stock: 6,
+            image: "📺",
+            description: "65 düym 4K OLED, 144Hz, a9 Gen7 AI prosessor.",
+            specs: ["65' 4K", "144Hz", "a9 Gen7", "webOS"],
+            colors: ["Qara"]
+        }];
+
+        // ======================================================================
+        // 2. VƏZİYYƏT (STATE)
+        // ======================================================================
+        let state = {
+            cart: JSON.parse(localStorage.getItem('maqalux_cart')) || [],
+            wishlist: JSON.parse(localStorage.getItem('maqalux_wishlist')) || [],
+            orders: JSON.parse(localStorage.getItem('maqalux_orders')) || [],
+            currentPage: 'home',
+            filteredProducts: [...PRODUCTS],
+        };
+
+        function saveState() {
+            localStorage.setItem('maqalux_cart', JSON.stringify(state.cart));
+            localStorage.setItem('maqalux_wishlist', JSON.stringify(state.wishlist));
+            localStorage.setItem('maqalux_orders', JSON.stringify(state.orders));
+        }
+
+        // ======================================================================
+        // 3. YARDIMÇI FUNKSİYALAR
+        // ======================================================================
+        function formatPrice(p) { return '₼' + p.toFixed(2); }
+
+        function getRatingStars(r) {
+            const full = Math.floor(r);
+            const half = r - full >= 0.5 ? 1 : 0;
+            let s = '';
+            for (let i = 0; i < full; i++) s += '⭐';
+            if (half) s += '⭐';
+            for (let i = 0; i < 5 - full - half; i++) s += '☆';
+            return s;
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ======================================================================
+        // 4. TOAST BİLDİRİŞİ
+        // ======================================================================
+        let toastTimer;
+
+        function showToast(message, icon = '✅') {
+            const el = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            document.querySelector('.toast-icon').textContent = icon;
+            el.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+        }
+
+        // ======================================================================
+        // 5. NAVİQASİYA
+        // ======================================================================
+        function navigateTo(page) {
+            state.currentPage = page;
+            // nav-ları yenilə
+            document.querySelectorAll('nav a, .bottom-nav a').forEach(el => {
+                el.classList.toggle('active', el.dataset.page === page);
+            });
+            // bölmələri göstər/gizlət
+            document.getElementById('shopSection').style.display = (page === 'shop' || page === 'home') ? 'block' : 'none';
+            document.getElementById('ordersSection').style.display = page === 'orders' ? 'block' : 'none';
+            document.getElementById('wishlistSection').style.display = page === 'wishlist' ? 'block' : 'none';
+            document.querySelector('.hero').style.display = (page === 'home') ? 'flex' : 'none';
+            document.querySelector('.search-wrap').style.display = (page === 'shop' || page === 'home') ? 'block' : 'none';
+            document.getElementById('filterWrap').style.display = (page === 'shop' || page === 'home') ? 'flex' : 'none';
+
+            if (page === 'home') {
+                state.filteredProducts = [...PRODUCTS];
+                renderProducts();
+            } else if (page === 'shop') {
+                filterProducts();
+            } else if (page === 'wishlist') {
+                renderWishlist();
+            } else if (page === 'orders') {
+                renderOrders();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ======================================================================
+        // 6. MƏHSULLARI GÖSTƏR
+        // ======================================================================
+        function renderProducts(products = state.filteredProducts) {
+            const grid = document.getElementById('productGrid');
+            const count = document.getElementById('productCount');
+            if (!products.length) {
+                grid.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><h3>Məhsul tapılmadı</h3><p>Filtirləri dəyişin və ya axtarış sözünü yeniləyin.</p></div>`;
+                count.textContent = '(0)';
+                return;
+            }
+            count.textContent = `(${products.length})`;
+            grid.innerHTML = products.map(p => {
+                const inCart = state.cart.find(c => c.id === p.id);
+                const qty = inCart ? inCart.quantity : 0;
+                const inWish = state.wishlist.includes(p.id);
+                const stockOk = p.stock > 0;
+                return `
+              <div class="product-card" data-id="${p.id}">
+                <div class="image-wrap">
+                  <span style="font-size:4rem;opacity:0.6;">${p.image}</span>
+                  ${p.stock < 5 && p.stock > 0 ? `<span class="badge" style="background:#ff8c00;color:#fff;">Son ${p.stock}</span>` : ''}
+                  ${p.stock === 0 ? `<span class="badge" style="background:#ff4444;color:#fff;">Stok yoxdur</span>` : ''}
+                  ${p.rating >= 4.7 ? `<span class="badge new">⭐ Top</span>` : ''}
+                  <button class="wishlist-btn ${inWish ? 'active' : ''}" onclick="toggleWishlist(${p.id})" title="İstək siyahısı">
+                    ${inWish ? '❤️' : '🤍'}
+                  </button>
+                  <div class="quick-view" onclick="showProductDetail(${p.id})">👁️ Tez bax</div>
+                </div>
+                <div class="info">
+                  <h3>${p.name}</h3>
+                  <div class="rating">${getRatingStars(p.rating)} <span>(${p.rating})</span></div>
+                  <div class="price-row">
+                    <span class="current">${formatPrice(p.price)}</span>
+                    ${p.price > 300 ? `<span class="original">${formatPrice(p.price * 1.2)}</span>` : ''}
+                  </div>
+                  <div class="stock-status ${stockOk ? 'in-stock' : 'out-of-stock'}">
+                    ${stockOk ? `✅ Stokda (${p.stock} ədəd)` : '❌ Stokda yoxdur'}
+                  </div>
+                  <button class="add-btn" ${!stockOk ? 'disabled' : ''} onclick="addToCart(${p.id})">
+                    ${qty > 0 ? `🛒 Səbətdə (${qty})` : '➕ Səbətə at'}
+                  </button>
+                </div>
+              </div>
+            `;
+            }).join('');
+        }
+
+        // ======================================================================
+        // 7. FİLTR VƏ AXTARIŞ
+        // ======================================================================
+        function filterProducts() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cat = document.getElementById('categoryFilter').value;
+            const rating = parseFloat(document.getElementById('ratingFilter').value);
+            const maxPrice = parseFloat(document.getElementById('priceRange').value);
+
+            let filtered = PRODUCTS.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search) ||
+                    p.description.toLowerCase().includes(search);
+                const matchCat = cat === 'all' || p.category === cat;
+                const matchRating = rating === 0 || p.rating >= rating;
+                const matchPrice = p.price <= maxPrice;
+                return matchSearch && matchCat && matchRating && matchPrice;
+            });
+
+            state.filteredProducts = filtered;
+            renderProducts(filtered);
+            // əgər shop səhifəsindəyiksə
+            if (state.currentPage === 'shop') {
+                document.getElementById('shopSection').style.display = 'block';
+            }
+        }
+
+        function updatePriceLabel() {
+            const val = document.getElementById('priceRange').value;
+            document.getElementById('priceLabel').textContent = '₼' + val;
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = 'all';
+            document.getElementById('ratingFilter').value = '0';
+            document.getElementById('priceRange').value = '5000';
+            updatePriceLabel();
+            filterProducts();
+            showToast('Filtirlər təmizləndi', '🧹');
+        }
+
+        // ======================================================================
+        // 8. SƏBƏT
+        // ======================================================================
+        function addToCart(productId) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            if (!product || product.stock <= 0) {
+                showToast('Stokda yoxdur!', '❌');
+                return;
+            }
+            const existing = state.cart.find(c => c.id === productId);
+            if (existing) {
+                if (existing.quantity >= product.stock) {
+                    showToast('Stok limitinə çatdı!', '⚠️');
+                    return;
+                }
+                existing.quantity += 1;
+            } else {
+                state.cart.push({ ...product, quantity: 1 });
+            }
+            saveState();
+            updateCartUI();
+            showToast(`${product.name} səbətə əlavə olundu`, '🛒');
+            renderProducts(state.filteredProducts);
+        }
+
+        function removeFromCart(productId) {
+            state.cart = state.cart.filter(c => c.id !== productId);
+            saveState();
+            updateCartUI();
+            renderCartSidebar();
+            renderProducts(state.filteredProducts);
+            showToast('Səbətdən silindi', '🗑️');
+        }
+
+        function updateQty(productId, delta) {
+            const item = state.cart.find(c => c.id === productId);
+            if (!item) return;
+            const product = PRODUCTS.find(p => p.id === productId);
+            const newQty = item.quantity + delta;
+            if (newQty <= 0) {
+                removeFromCart(productId);
+                return;
+            }
+            if (product && newQty > product.stock) {
+                showToast('Stok limiti!', '⚠️');
+                return;
+            }
+            item.quantity = newQty;
+            saveState();
+            updateCartUI();
+            renderCartSidebar();
+            renderProducts(state.filteredProducts);
+        }
+
+        function updateCartUI() {
+            const total = state.cart.reduce((s, c) => s + c.quantity, 0);
+            document.getElementById('cartBadge').textContent = total;
+        }
+
+        function toggleCart() {
+            const overlay = document.getElementById('cartOverlay');
+            overlay.classList.toggle('open');
+            if (overlay.classList.contains('open')) {
+                renderCartSidebar();
+            }
+            document.body.style.overflow = overlay.classList.contains('open') ? 'hidden' : '';
+        }
+
+        function renderCartSidebar() {
+            const container = document.getElementById('cartItems');
+            const summary = document.getElementById('cartSummary');
+            if (!state.cart.length) {
+                container.innerHTML = `<div class="cart-empty-msg">🛒 Səbət boşdur.</div>`;
+                summary.style.display = 'none';
+                return;
+            }
+            container.innerHTML = state.cart.map(c => `
+            <div class="cart-item">
+              <span style="font-size:2rem;">${c.image}</span>
+              <div class="item-info">
+                <h4>${c.name}</h4>
+                <div class="item-price">${formatPrice(c.price)}</div>
+                <div class="qty-control">
+                  <button onclick="updateQty(${c.id}, -1)">−</button>
+                  <span>${c.quantity}</span>
+                  <button onclick="updateQty(${c.id}, 1)">+</button>
+                </div>
+              </div>
+              <button class="remove-item" onclick="removeFromCart(${c.id})">✕</button>
+            </div>
+          `).join('');
+
+            summary.style.display = 'block';
+            const subtotal = state.cart.reduce((s, c) => s + c.price * c.quantity, 0);
+            const shipping = subtotal >= 50 ? 0 : 3;
+            const tax = subtotal * 0.18;
+            const total = subtotal + shipping + tax;
+
+            document.getElementById('subtotal').textContent = formatPrice(subtotal);
+            document.getElementById('shippingCost').textContent = shipping === 0 ? 'Pulsuz' : formatPrice(shipping);
+            document.getElementById('taxAmount').textContent = formatPrice(tax);
+            document.getElementById('grandTotal').textContent = formatPrice(total);
+        }
+
+        // ======================================================================
+        // 9. ÖDƏNİŞ (CHECKOUT)
+        // ======================================================================
+        function openCheckout() {
+            if (!state.cart.length) {
+                showToast('Səbət boşdur!', '⚠️');
+                return;
+            }
+            document.getElementById('checkoutModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const city = document.getElementById('city').value;
+            const address = document.getElementById('address').value.trim();
+            const payment = document.querySelector('input[name="payment"]:checked');
+
+            if (!name || !phone || !city || !address || !payment) {
+                showToast('Bütün sahələri doldurun!', '⚠️');
+                return;
+            }
+
+            if (state.cart.length === 0) {
+                showToast('Səbət boşdur!', '⚠️');
+                return;
+            }
+
+            // Sifariş yarat
+            const order = {
+                id: 'ORD-' + Date.now().toString().slice(-8),
+                date: new Date().toLocaleDateString('az-AZ'),
+                items: [...state.cart],
+                total: state.cart.reduce((s, c) => s + c.price * c.quantity, 0),
+                status: 'Gözləmədə',
+                payment: payment.value,
+                shipping: { name, phone, city, address },
+            };
+
+            state.orders.unshift(order);
+            // Stoku azalt
+            state.cart.forEach(c => {
+                const prod = PRODUCTS.find(p => p.id === c.id);
+                if (prod) prod.stock -= c.quantity;
+            });
+            state.cart = [];
+            saveState();
+            updateCartUI();
+            closeCheckout();
+            showToast('✅ Sifarişiniz qəbul olundu!', '🎉');
+            renderProducts(state.filteredProducts);
+            document.getElementById('checkoutForm').reset();
+        }
+
+        // ======================================================================
+        // 10. İSTƏK SİYAHISI
+        // ======================================================================
+        function toggleWishlist(productId) {
+            const idx = state.wishlist.indexOf(productId);
+            if (idx > -1) {
+                state.wishlist.splice(idx, 1);
+                showToast('İstək siyahısından çıxarıldı', '🤍');
+            } else {
+                state.wishlist.push(productId);
+                showToast('İstək siyahısına əlavə olundu', '❤️');
+            }
+            saveState();
+            renderProducts(state.filteredProducts);
+            if (state.currentPage === 'wishlist') renderWishlist();
+        }
+
+        function renderWishlist() {
+            const grid = document.getElementById('wishlistGrid');
+            const wishItems = PRODUCTS.filter(p => state.wishlist.includes(p.id));
+            if (!wishItems.length) {
+                grid.innerHTML =
+                `<div class="empty-state"><div class="icon">🤍</div><h3>İstək siyahısı boşdur</h3><p>Bəyəndiyiniz məhsulları buraya əlavə edin.</p></div>`;
+                return;
+            }
+            grid.innerHTML = wishItems.map(p => `
+            <div class="product-card">
+              <div class="image-wrap">
+                <span style="font-size:3.5rem;opacity:0.6;">${p.image}</span>
+                <button class="wishlist-btn active" onclick="toggleWishlist(${p.id})">❤️</button>
+              </div>
+              <div class="info">
+                <h3>${p.name}</h3>
+                <div class="rating">${getRatingStars(p.rating)}</div>
+                <div class="price-row"><span class="current">${formatPrice(p.price)}</span></div>
+                <button class="add-btn" onclick="addToCart(${p.id})">🛒 Səbətə at</button>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // ======================================================================
+        // 11. SİFARİŞ TARİXÇƏSİ
+        // ======================================================================
+        function renderOrders() {
+            const container = document.getElementById('orderList');
+            if (!state.orders.length) {
+                container.innerHTML = `<p style="opacity:0.5;text-align:center;padding:30px 0;">📭 Hələ heç bir sifariş yoxdur.</p>`;
+                return;
+            }
+            container.innerHTML = state.orders.map(o => `
+            <div class="order-item">
+              <div>
+                <div class="order-id">${o.id}</div>
+                <div class="order-date">${o.date} • ${o.items.length} məhsul</div>
+              </div>
+              <div>
+                <span class="order-status ${o.status === 'Gözləmədə' ? 'pending' : ''}">${o.status}</span>
+                <span class="order-total">${formatPrice(o.total)}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // ======================================================================
+        // 12. MƏHSUL ƏTRAFLI (MODAL) – SADƏ VERSİYA
+        // ======================================================================
+        function showProductDetail(id) {
+            const p = PRODUCTS.find(p => p.id === id);
+            if (!p) return;
+            alert(
+                `🛍️ ${p.name}\n\n⭐ Reytinq: ${p.rating}\n💰 Qiymət: ${formatPrice(p.price)}\n📦 Stok: ${p.stock} ədəd\n\n📝 ${p.description}\n\n🔧 Xüsusiyyətlər:\n${p.specs.map(s => '• ' + s).join('\n')}\n\n🎨 Rənglər: ${p.colors.join(', ')}`
+            );
+        }
+
+        // ======================================================================
+        // 13. XƏBƏR BÜLLETENİ
+        // ======================================================================
+        function subscribeNewsletter(e) {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            if (input.value) {
+                showToast('✅ Abunə oldunuz!', '📧');
+                input.value = '';
+            }
+        }
+
+        // ======================================================================
+        // 14. HERO SLAYDLARI (sadə)
+        // ======================================================================
+        const heroSlides = [{
+            tag: '🔥 Yeni məhsullar',
+            title: 'Premium <span>keyfiyyət</span>, <br>əlverişli qiymət',
+            desc: 'Elektronika, moda, kitab və daha çoxu — Maqalux-da hər şey var.',
+            btn: 'Alış-verişə başla →'
+        }, {
+            tag: '🚀 Sürətli çatdırılma',
+            title: 'Pulsuz çatdırılma <span>₼50</span> və <br>yuxarı sifarişlərdə',
+            desc: 'Bakı daxili 1 gün, regionlara 2-3 gün ərzində çatdırılma.',
+            btn: 'Ətraflı bax →'
+        }, {
+            tag: '🎯 Həftənin endirimi',
+            title: 'Məhdud təklif — <span>-30%</span> <br>seçilmiş məhsullarda',
+            desc: 'Yalnız bu həftə! Bəyəndiyiniz məhsulları əldən verməyin.',
+            btn: 'Endirimlərə bax →'
+        }];
+
+        let currentSlide = 0;
+
+        function updateHero(index) {
+            const s = heroSlides[index];
+            const content = document.querySelector('.hero-content');
+            content.querySelector('.tag').textContent = s.tag;
+            content.querySelector('h1').innerHTML = s.title;
+            content.querySelector('p').textContent = s.desc;
+            content.querySelector('.btn-primary').textContent = s.btn;
+            document.querySelectorAll('.hero-slide-nav span').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+            currentSlide = index;
+        }
+
+        document.querySelectorAll('.hero-slide-nav span').forEach(el => {
+            el.addEventListener('click', function() {
+                updateHero(parseInt(this.dataset.slide));
+            });
+        });
+
+        // Avtomatik dəyiş (hər 5 saniyə)
+        let heroInterval = setInterval(() => {
+            const next = (currentSlide + 1) % heroSlides.length;
+            updateHero(next);
+        }, 5000);
+
+        // hover zamanı dayandır
+        document.querySelector('.hero').addEventListener('mouseenter', () => clearInterval(heroInterval));
+        document.querySelector('.hero').addEventListener('mouseleave', () => {
+            heroInterval = setInterval(() => {
+                const next = (currentSlide + 1) % heroSlides.length;
+                updateHero(next);
+            }, 5000);
+        });
+
+        // ======================================================================
+        // 15. SCROLL TOP DÜYMƏSİ
+        // ======================================================================
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollTopBtn');
+            if (window.scrollY > 400) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        });
+
+        // ======================================================================
+        // 16. İLK YÜKLƏMƏ
+        // ======================================================================
+        // Səbət UI yenilə
+        updateCartUI();
+        // Ana səhifəni göstər
+        navigateTo('home');
+
+        // Klaviatura qısayolu: Escape ilə səbəti bağla
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('cartOverlay').classList.contains('open')) toggleCart();
+                if (document.getElementById('checkoutModal').classList.contains('open')) closeCheckout();
+            }
+        });
+
+        console.log('🛒 Maqalux E-Ticarət saytı işə düşdü!');
+        console.log(`📦 ${PRODUCTS.length} məhsul, ${state.cart.length} səbət, ${state.orders.length} sifariş`);
+    </script>
+
 </body>
 </html>
