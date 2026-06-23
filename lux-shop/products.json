@@ -1,0 +1,19 @@
+[
+  {
+    "id": "lux-001",
+    "name": "Mystic Gold Chronograph",
+    "price": 12450.00,
+    "currency": "USD",
+    "image": "assets/watch1.webp",
+    "category": "Aksesuarlar",
+    "badge": "Limited Edition"
+  },
+  {
+    "id": "lux-002",
+    "name": "Hand-Stitched Crocodile Bag",
+    "price": 8700.00,
+    "currency": "USD",
+    "image": "assets/bag1.webp",
+    "category": "Çantalar"
+  }
+]
