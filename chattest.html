@@ -331,6 +331,130 @@
       .modal-box.settings-modal-box { max-width: 92vw; max-height: 86vh; overflow-y: auto; }
       .pcw-input-bar { flex-wrap: nowrap; }
     }
+
+    /* ✅ SHORTS MODAL ÜÇÜN XÜSUSİ STİLLƏR */
+    .modal-box.shorts-modal-box {
+      max-width: 480px;
+      padding: 20px 16px 24px;
+      background: rgba(5, 12, 31, 0.92);
+      backdrop-filter: blur(30px);
+      border-radius: 24px;
+    }
+    .shorts-container {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+    .shorts-video-wrapper {
+      position: relative;
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 9 / 16;
+      max-width: 100%;
+      margin: 0 auto;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+    }
+    .shorts-video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .shorts-dots {
+      position: absolute;
+      bottom: 12px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.4));
+      pointer-events: none;
+    }
+    .shorts-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      display: inline-block;
+      transition: background 0.2s;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .shorts-dots span.active-dot {
+      background: #ffaa00;
+      box-shadow: 0 0 8px rgba(255,170,0,0.5);
+    }
+    .shorts-nav-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .shorts-nav-buttons .login-btn {
+      flex: 1;
+      padding: 12px 8px;
+      font-size: 14px;
+      margin: 0;
+    }
+    .shorts-info {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      padding: 0 4px;
+      word-break: break-word;
+    }
+    .shorts-admin-panel {
+      margin-top: 18px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 16px;
+    }
+    .shorts-admin-panel h4 {
+      color: #ffaa00;
+      font-size: 14px;
+      margin: 0 0 12px 0;
+    }
+    .shorts-admin-panel .input-group {
+      gap: 10px;
+    }
+    .shorts-admin-panel .custom-input {
+      padding: 12px 18px;
+      font-size: 13px;
+    }
+    .shorts-empty {
+      text-align: center;
+      padding: 30px 10px;
+      color: rgba(255,255,255,0.5);
+      font-size: 15px;
+    }
+
+    @media (max-width: 700px) {
+      .modal-box.shorts-modal-box {
+        max-width: 98vw;
+        padding: 16px 12px 20px;
+        border-radius: 18px;
+        max-height: 95vh;
+        overflow-y: auto;
+      }
+      .shorts-container {
+        max-width: 100%;
+      }
+      .shorts-video-wrapper {
+        aspect-ratio: 9 / 16;
+        border-radius: 12px;
+      }
+      .shorts-nav-buttons .login-btn {
+        font-size: 13px;
+        padding: 10px 4px;
+      }
+      .shorts-admin-panel .custom-input {
+        font-size: 12px;
+        padding: 10px 14px;
+      }
+    }
+
     /* ====================== SERVERƏ QOŞULMA GÖZLƏMƏ EKRANI ====================== */
     #connectionLoadingOverlay { position: fixed; inset: 0; z-index: 9000; background: linear-gradient(135deg, #090d22 0%, #082962 45%, #0151b1 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; transition: opacity 0.5s ease; }
     #connectionLoadingOverlay.hidden { opacity: 0; pointer-events: none; }
@@ -364,6 +488,8 @@
       <ul>
         <li><a href="../index.html">Ana səhifə</a></li>
         <li><a href="onlinechat.html" class="active">Onlayn çat</a></li>
+        <!-- Yeni "Shorts" düyməsi -->
+        <li><a href="#" onclick="openShorts()">Shorts</a></li>
       </ul> 
     </nav>
   </header>
@@ -558,6 +684,36 @@
     </div>
   </div>
 
+  <!-- ====================== SHORTS MODAL ====================== -->
+  <div class="modal-overlay" id="shortsModal">
+    <div class="modal-box shorts-modal-box">
+      <button class="modal-close" onclick="closeShorts()">✕</button>
+      <h3 style="margin-top: -4px;">🎬 Shorts / Reels</h3>
+      <div class="shorts-container">
+        <div class="shorts-video-wrapper">
+          <iframe id="shortsVideoFrame" src="" allowfullscreen loading="lazy"></iframe>
+          <div class="shorts-dots" id="shortsDots"></div>
+        </div>
+        <div class="shorts-nav-buttons">
+          <button class="login-btn" onclick="prevShort()">◀ Əvvəlki</button>
+          <button class="login-btn" onclick="nextShort()">Növbəti ▶</button>
+        </div>
+        <div class="shorts-info" id="shortsInfo">Videoya baxın</div>
+
+        <!-- Admin paneli (yalnız admin/moderator görə bilər) -->
+        <div class="shorts-admin-panel" id="shortsAdminPanel" style="display: none;">
+          <h4>Admin: video əlavə et</h4>
+          <div class="input-group">
+            <input type="text" id="shortTitleInput" class="custom-input" placeholder="Video başlığı">
+            <input type="text" id="shortUrlInput" class="custom-input" placeholder="YouTube embed URL (məs: https://www.youtube.com/embed/... )">
+            <button class="login-btn" onclick="addShort()">➕ Əlavə et</button>
+          </div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 8px;">Yalnız YouTube embed linkləri dəstəklənir.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ====================== MESAJ KONTEKS MENYUSU (Reply / Forward / Reaksiya / Sil) ====================== -->
   <div id="msgContextMenu" class="msg-context-menu" style="display:none;"></div>
 
@@ -634,10 +790,6 @@
     };
 
     // ====================== FIREBASE AUTH (Google Giriş) ======================
-    // Qeyd: Bu konfiqurasiya dəyərləri public (client-side) Firebase açarlarıdır,
-    // Firebase Console > Authentication > Sign-in method > Google bölməsindən
-    // aktivləşdirilməlidir. Backend (server.js) Realtime Database konfiqurasiyası
-    // environment variable-lar vasitəsilə ayrıca idarə olunur.
     const firebaseClientConfig = {
       apiKey: "FIREBASE_API_KEY_BURAYA",
       authDomain: "FIREBASE_AUTH_DOMAIN_BURAYA",
@@ -780,7 +932,6 @@
     };
 
     // ====================== STİKER / GIF DATASI ====================== 
-    // Stiker dəsti: istifadəçinin verdiyi "Joobi" PNG dəsti
     const STICKER_LIST = [
       "https://maqalux.github.io/stickers/1072-joobiserious.png",
       "https://maqalux.github.io/stickers/1259-joobifangs.png",
@@ -814,8 +965,6 @@
       "https://maqalux.github.io/stickers/9928-joobiwow.png"
     ];
 
-    // GIF dəsti: hələlik boşdur — link siyahısı təmin ediləndə bu array doldurulacaq.
-    // Format: ["https://.../1.gif", "https://.../2.gif", ...]
     const GIF_LIST = [
       "https://maqalux.github.io/Gifs/bubududu1.gif",
       "https://maqalux.github.io/Gifs/bubududu2.gif",
@@ -841,7 +990,6 @@
       if (!panel) return;
       const isOpening = !panel.classList.contains('active');
 
-      // Bütün digər panelləri bağla
       document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
 
       if (isOpening) {
@@ -885,7 +1033,6 @@
       if (panel) panel.classList.remove('active');
     };
 
-    // Panelin xaricinə klikləndikdə bağlamaq
     document.addEventListener('click', (e) => {
       if (window.activeStickerTarget && !e.target.closest('.sticker-panel') && !e.target.closest('.media-label') && !e.target.closest('.pill-icon-btn')) {
         document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
@@ -1013,40 +1160,37 @@
     };
 
     function executeLogin(nick, pass, action = 'login', email = "") {
-  if(!socket.connected) {
-    showConnectionOverlay(false);
-    armSlowConnectionTimer();
-    return;
-  }
-
-  socket.emit('login', { nick, pass, action, email }, (response) => {
-    if (response.success) {
-      window.currentUserNick = nick;
-      window.currentUserRole = response.role || "user";
-      
-      localStorage.setItem('maqalux_nick', nick);
-      localStorage.setItem('maqalux_pass', pass);
-
-      // 🟢 BURA DİQQƏT: Serverdən (Firebase-dən) gələn imgBB linkini tapırıq
-      const userAvatarUrl = response.avatarUrl || "https://www.w3schools.com/howto/img_avatar.png";
-      
-      // HTML-dəki profil şəkli elementini tapıb linki bura yazırıq
-      const myAvatarElement = document.getElementById('myAvatarImg');
-      if (myAvatarElement) {
-        myAvatarElement.src = userAvatarUrl;
+      if(!socket.connected) {
+        showConnectionOverlay(false);
+        armSlowConnectionTimer();
+        return;
       }
 
-      document.getElementById('myDisplayNick').innerHTML = `🟢 ${nick} (${window.currentUserRole})`;
-      window.renderMessages();
-      document.getElementById('loginScreen').classList.remove('active');
-      document.getElementById('mainChatScreen').classList.add('active');
-    } else {
-      alert(response.message);
-      localStorage.removeItem('maqalux_nick');
-      localStorage.removeItem('maqalux_pass');
+      socket.emit('login', { nick, pass, action, email }, (response) => {
+        if (response.success) {
+          window.currentUserNick = nick;
+          window.currentUserRole = response.role || "user";
+          
+          localStorage.setItem('maqalux_nick', nick);
+          localStorage.setItem('maqalux_pass', pass);
+
+          const userAvatarUrl = response.avatarUrl || "https://www.w3schools.com/howto/img_avatar.png";
+          const myAvatarElement = document.getElementById('myAvatarImg');
+          if (myAvatarElement) {
+            myAvatarElement.src = userAvatarUrl;
+          }
+
+          document.getElementById('myDisplayNick').innerHTML = `🟢 ${nick} (${window.currentUserRole})`;
+          window.renderMessages();
+          document.getElementById('loginScreen').classList.remove('active');
+          document.getElementById('mainChatScreen').classList.add('active');
+        } else {
+          alert(response.message);
+          localStorage.removeItem('maqalux_nick');
+          localStorage.removeItem('maqalux_pass');
+        }
+      });
     }
-  });
-}
 
     socket.on('connect', () => {
       connHasConnectedOnce = true;
@@ -1077,7 +1221,7 @@
       location.reload();
     };
 
-    window.replyContext = null; // { id, sender, text } - cavablandırılan mesaj
+    window.replyContext = null;
 
     window.autoGrowTextarea = function(el) {
       el.style.height = 'auto';
@@ -1096,7 +1240,6 @@
       window.replyContext = { id: msg.id, sender: msg.sender, text: msg.isDeleted ? "🗑️ Bu mesaj silinib." : (msg.text || (msg.mediaType !== 'text' ? '📎 Media' : '')) };
 
       if (isPrivate) {
-        // Şəxsi söhbətdə reply preview-i birbaşa input bar-ın üstünə qoyuruq
         const pcw = document.getElementById('pcw-' + targetNick);
         if (pcw) {
           let bar = pcw.querySelector('.pcw-reply-preview');
@@ -1270,7 +1413,6 @@
       return `${h}:${m}`;
     }
 
-    // WhatsApp tipli tarix ayırıcısı: "Bu gün" / "Dünən" / "GG.AA.İİİİ"
     function dateKeyOf(ts) {
       if (!ts) return '';
       const d = new Date(ts);
@@ -1294,10 +1436,6 @@
       return `${dd}.${mm}.${yyyy}`;
     }
 
-    // ====================== GÜN DƏYİŞMƏSİNİ İZLƏYƏN MEXANİZM ======================
-    // Pəncərə uzun müddət açıq qalarsa (gecə yarısını keçərsə), "Bu gün"/"Dünən" yazıları
-    // köhnəlmiş qala bilər. Bu funksiya bütün açıq şəxsi söhbət pəncərələrini və əsas söhbəti
-    // cari günə uyğun olaraq yenidən render edir.
     window.lastKnownDateKey = dateKeyOf(Date.now());
 
     function refreshAllDateSeparatorsIfDayChanged() {
@@ -1305,7 +1443,6 @@
       if (currentDateKey === window.lastKnownDateKey) return;
       window.lastKnownDateKey = currentDateKey;
 
-      // Açıq olan bütün şəxsi söhbət pəncərələrini yenidən render et
       Object.keys(window.openPCWs || {}).forEach(nick => {
         if (document.getElementById('pcw-body-' + nick)) {
           renderPrivateChatWindow(nick);
@@ -1313,19 +1450,15 @@
       });
     }
 
-    // Hər dəqiqə yoxla (yüngül əməliyyatdır, performansa təsiri yoxdur)
     setInterval(refreshAllDateSeparatorsIfDayChanged, 60 * 1000);
 
-    // İstifadəçi tab-a geri qayıdanda da dərhal yoxla (laptop yuxudan oyananda və s. halları üçün)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         refreshAllDateSeparatorsIfDayChanged();
       }
     });
 
-    // WhatsApp tipli tick SVG-ləri: tək xətt (göndərildi), cüt xətt (çatdırıldı/oxundu)
     function ticksSvg(state) {
-      // state: 'sent' | 'delivered' | 'read'
       if (state === 'sent') {
         return `<span class="msg-ticks"><svg viewBox="0 0 16 11"><path class="tick-path" d="M1 5.5 L5.2 9.5 L14 1"/></svg></span>`;
       }
@@ -1345,7 +1478,6 @@
           if (readBy.includes(msg.recipient)) state = 'read';
           else if (deliveredTo.includes(msg.recipient)) state = 'delivered';
         } else {
-          // Ümumi söhbətdə: ən azı 1 nəfər oxuyubsa "oxundu", çatdırılıbsa "çatdırıldı"
           if (readBy.length > 0) state = 'read';
           else if (deliveredTo.length > 0) state = 'delivered';
         }
@@ -1391,7 +1523,6 @@
       div.oncontextmenu = (e) => { e.preventDefault(); openMsgContextMenu(e, msg.id, false, null); };
       attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, null));
 
-      // Serverdən gələn və ya default profil şəkli linki
       const userAvatar = msg.senderAvatar || "https://www.w3schools.com/howto/img_avatar.png";
 
       let content = `
@@ -1429,14 +1560,12 @@
       area.appendChild(div);
       area.scrollTop = area.scrollHeight;
 
-      // Görünən kimi "çatdırıldı" statusu bildir (özümüzün mesajı deyilsə)
       if (msg.sender !== window.currentUserNick && msg.id) {
         socket.emit('markDelivered', { msgId: msg.id, isPrivate: false, reader: window.currentUserNick });
         markMessageReadOnView(div, msg.id, false);
       }
     }
 
-    // Mesaj ekranda göründükdə "oxundu" statusunu bildirən IntersectionObserver
     let msgReadObserver = null;
     function getMsgReadObserver() {
       if (msgReadObserver) return msgReadObserver;
@@ -1457,7 +1586,6 @@
       getMsgReadObserver().observe(el);
     }
 
-    // Uzun-basma (mobil) dəstəyi
     function attachLongPress(el, callback, duration = 480) {
       let timer = null;
       const start = (e) => {
@@ -1539,7 +1667,6 @@
       if (window.openPCWs[otherNick]) {
         appendPrivateMessage(otherNick, msg);
       } else if (msg.sender !== window.currentUserNick) {
-        // Pəncərə açıq deyilsə, bildiriş göstər
         showToast(`${msg.sender}: yeni şəxsi mesaj`, "info");
       }
     });
@@ -1572,7 +1699,6 @@
       }
     });
 
-    // Rol iyerarxiyası: yüksək rəqəm = yüksək səlahiyyət
     const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
     function sortActiveUsersList(usersList) {
@@ -1585,7 +1711,6 @@
       const offlineUsers = visible.filter(u => !u.isBanned && u.role === 'user' && !u.online);
       const bannedUsers = visible.filter(u => u.isBanned);
 
-      // Rolu olanlar: yüksək rol yuxarıda, eyni rolda onlayn yuxarıda, sonra əlifba sırası
       ranked.sort((a, b) => {
         if (ROLE_ORDER[b.role] !== ROLE_ORDER[a.role]) return ROLE_ORDER[b.role] - ROLE_ORDER[a.role];
         if (!!b.online !== !!a.online) return (b.online ? 1 : 0) - (a.online ? 1 : 0);
@@ -1595,7 +1720,6 @@
       onlineUsers.sort((a, b) => a.nick.localeCompare(b.nick, 'az'));
       offlineUsers.sort((a, b) => a.nick.localeCompare(b.nick, 'az'));
 
-      // Banlanmışlar: yüksək rol yuxarıda, sonra əlifba sırası
       bannedUsers.sort((a, b) => {
         if (ROLE_ORDER[b.role] !== ROLE_ORDER[a.role]) return ROLE_ORDER[b.role] - ROLE_ORDER[a.role];
         return a.nick.localeCompare(b.nick, 'az');
@@ -1616,16 +1740,11 @@
       const isMe = user.nick === window.currentUserNick;
       const myRole = window.currentUserRole;
 
-      // Kim bu istifadəçiyə qarşı hansı əməliyyatları görə bilər?
       const targetRank = ROLE_ORDER[user.role] || 1;
       const myRank = ROLE_ORDER[myRole] || 1;
 
       let actionsHtml = '';
       if (!isMe) {
-        // QARA SİYAHI İCAZƏLƏRİ:
-        // Admin -> admin istisna hamını banlaya bilər
-        // Moderator -> admin və digər moderatoru banlaya bilməz
-        // Adi istifadəçi -> yalnız digər adi istifadəçini banlaya bilər (tələb #4)
         let canBan = false;
         let canUnban = false;
         if (myRole === 'admin') {
@@ -1686,7 +1805,6 @@
       return div;
     }
 
-    // ====================== ADMİN / MODERATOR İDARƏETMƏ ƏMƏLİYYATLARI ======================
     window.adminBanUser = function(targetNick) {
       if (!confirm(`${targetNick} istifadəçisini qara siyahıya əlavə etmək istədiyinizdən əminsiniz?`)) return;
       socket.emit('banUser', { targetNick }, (res) => {
@@ -1733,7 +1851,6 @@
       const container = document.getElementById('activeUsersList');
       container.innerHTML = "";
 
-      // Köhnə server versiyası ilə uyğunluq: sadə string massivi gələrsə
       const normalized = usersList.map(u => {
         if (typeof u === 'object') return u;
         return { nick: u, role: 'user', avatarUrl: '', isBanned: false, online: true };
@@ -1744,20 +1861,27 @@
 
       orderedList.forEach(user => container.appendChild(buildUserBadge(user)));
 
-      // Açıq olan şəxsi mesaj pəncərələrində onlayn statusunu yenilə
       Object.keys(window.openPCWs).forEach(nick => {
         const found = normalized.find(u => u.nick === nick);
         const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
         if (dot) dot.classList.toggle('is-online', !!(found && found.online));
       });
-    });
 
+      // Admin panelini göstər/gizlət (Shorts üçün)
+      const adminPanel = document.getElementById('shortsAdminPanel');
+      if (adminPanel) {
+        if (window.currentUserRole === 'admin' || window.currentUserRole === 'moderator') {
+          adminPanel.style.display = 'block';
+        } else {
+          adminPanel.style.display = 'none';
+        }
+      }
+    });
 
     // ====================== ŞƏXSİ MESAJ PƏNCƏRƏLƏRİ ======================
     window.openPrivateChatWindow = function(targetNick) {
       if (targetNick === window.currentUserNick) return;
       if (window.openPCWs[targetNick]) {
-        // Artıq açıqdırsa, minimallaşdırılıbsa açırıq və fokuslayırıq
         const existing = document.getElementById('pcw-' + targetNick);
         if (existing) {
           existing.classList.remove('minimized');
@@ -1851,7 +1975,6 @@
       const body = document.getElementById('pcw-body-' + targetNick);
       if (!body) return;
 
-      // Tarix ayırıcısı: əvvəlki mesajın tarixi ilə bu mesajın tarixi fərqlidirsə araya başlıq qoy
       const thisDateKey = dateKeyOf(msg.timestamp);
       let lastDateKey = forcedLastDateKey;
       if (lastDateKey === undefined) {
@@ -1901,7 +2024,6 @@
 
       if (autoScroll) body.scrollTop = body.scrollHeight;
 
-      // Mesaj çatdırıldı / oxundu statusunu bildir
       if (msg.sender !== window.currentUserNick && msg.id) {
         socket.emit('markDelivered', { msgId: msg.id, isPrivate: true, reader: window.currentUserNick });
         if (window.openPCWs[targetNick]) {
@@ -1972,13 +2094,8 @@
 
         if (result.success) {
           const newAvatarUrl = result.data.url;
-          
-          // Öz ekranımızda dərhal yeniləyirik
           document.getElementById('myAvatarImg').src = newAvatarUrl;
-          
-          // Serverə məlumat göndəririk
           socket.emit('updateAvatar', { nick: window.currentUserNick, avatarUrl: newAvatarUrl });
-          
           alert("Profil şəkliniz uğurla yeniləndi!");
         } else {
           alert("Şəkil yüklənərkən xəta baş verdi.");
@@ -1987,6 +2104,131 @@
         console.error("Avatar yükləmə xətası:", err);
       }
     };
+
+    // ====================== SHORTS FUNKSİYALARI ======================
+    let shortsList = [];
+    let currentShortIndex = 0;
+
+    window.openShorts = function() {
+      document.getElementById('shortsModal').classList.add('active');
+      if (shortsList.length === 0) {
+        socket.emit('getShorts');
+      } else {
+        showShort(currentShortIndex);
+      }
+    };
+
+    window.closeShorts = function() {
+      document.getElementById('shortsModal').classList.remove('active');
+      // Videoni dayandırmaq üçün iframe-i boşalt
+      document.getElementById('shortsVideoFrame').src = '';
+    };
+
+    function showShort(index) {
+      if (shortsList.length === 0) {
+        document.getElementById('shortsInfo').innerText = 'Hələ video yoxdur.';
+        document.getElementById('shortsVideoFrame').src = '';
+        document.getElementById('shortsDots').innerHTML = '';
+        return;
+      }
+      const short = shortsList[index];
+      document.getElementById('shortsVideoFrame').src = short.url;
+      document.getElementById('shortsInfo').innerText = short.title || 'Videoya baxın';
+
+      const dotsContainer = document.getElementById('shortsDots');
+      dotsContainer.innerHTML = '';
+      shortsList.forEach((_, i) => {
+        const dot = document.createElement('span');
+        if (i === index) dot.classList.add('active-dot');
+        dot.onclick = (e) => { e.stopPropagation(); currentShortIndex = i; showShort(i); };
+        dotsContainer.appendChild(dot);
+      });
+    }
+
+    window.nextShort = function() {
+      if (shortsList.length === 0) return;
+      currentShortIndex = (currentShortIndex + 1) % shortsList.length;
+      showShort(currentShortIndex);
+    };
+
+    window.prevShort = function() {
+      if (shortsList.length === 0) return;
+      currentShortIndex = (currentShortIndex - 1 + shortsList.length) % shortsList.length;
+      showShort(currentShortIndex);
+    };
+
+    // Socket hadisələri (shorts)
+    socket.on('loadShorts', (shorts) => {
+      shortsList = shorts;
+      if (shortsList.length > 0) {
+        currentShortIndex = 0;
+        showShort(0);
+      } else {
+        document.getElementById('shortsInfo').innerText = 'Hələ video yoxdur.';
+        document.getElementById('shortsVideoFrame').src = '';
+        document.getElementById('shortsDots').innerHTML = '';
+      }
+    });
+
+    // Yeni video əlavə olunanda real-time yeniləmə
+    socket.on('shortAdded', (newShort) => {
+      // Əgər artıq varsa, yeniləmə
+      const exists = shortsList.some(s => s.id === newShort.id);
+      if (!exists) {
+        shortsList.push(newShort);
+        if (document.getElementById('shortsModal').classList.contains('active')) {
+          // Əgər modal açıqdırsa, cari səhifəni yenidən göstər
+          showShort(currentShortIndex);
+        }
+        showToast(`Yeni video əlavə edildi: ${newShort.title || 'Video'}`, "success");
+      }
+    });
+
+    // Admin: video əlavə et
+    window.addShort = function() {
+      const title = document.getElementById('shortTitleInput').value.trim();
+      const url = document.getElementById('shortUrlInput').value.trim();
+
+      if (!title || !url) {
+        showToast("Zəhmət olmasa başlıq və URL daxil edin.", "error");
+        return;
+      }
+
+      socket.emit('addShort', { title, url }, (response) => {
+        if (response.success) {
+          showToast('Video əlavə edildi!', 'success');
+          document.getElementById('shortTitleInput').value = '';
+          document.getElementById('shortUrlInput').value = '';
+          // Yenidən yüklə
+          socket.emit('getShorts');
+        } else {
+          showToast(response.message || 'Xəta baş verdi.', 'error');
+        }
+      });
+    };
+
+    // Admin paneli görünüşü üçün ilkin yoxlama (updateActiveUsers artıq işləyir)
+    // Lakin əgər istifadəçi artıq daxil olubsa və rol dəyişibsə, paneli göstərmək üçün əlavə yoxlama
+    setTimeout(() => {
+      const adminPanel = document.getElementById('shortsAdminPanel');
+      if (adminPanel && (window.currentUserRole === 'admin' || window.currentUserRole === 'moderator')) {
+        adminPanel.style.display = 'block';
+      }
+    }, 500);
+
+    // Klaviatura ilə naviqasiya (modal açıq olanda)
+    document.addEventListener('keydown', (e) => {
+      if (!document.getElementById('shortsModal').classList.contains('active')) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        nextShort();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        prevShort();
+      } else if (e.key === 'Escape') {
+        closeShorts();
+      }
+    });
   </script>
 </body>
 </html>
