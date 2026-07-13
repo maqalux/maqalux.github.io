@@ -3,299 +3,196 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Xəbərlər | Maqalux</title>
+  <title>Şahmat - Maqalux</title>
   <link rel="icon" href="logo.png" type="image/png">
-  <meta name="description" content="Ən son xəbərlər və yeniliklər Maqalux-da!">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
     body {
       margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1e002f, #0055a5);
+      background: linear-gradient(135deg, #000428, #004e92);
       color: white;
     }
 
-    header {
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 25% 25%, rgba(255,215,0,0.25), transparent 60%),
+                  radial-gradient(circle at 75% 75%, rgba(255,140,0,0.25), transparent 60%);
+      animation: bgMove 10s infinite alternate ease-in-out;
+      z-index: -1;
+    }
+    @keyframes bgMove { 0%{transform:translate(0,0);} 100%{transform:translate(-10%,-10%);} }
+
+    header, footer {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      color: #fff;
+      padding: 15px 30px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(15px);
-      padding: 15px 30px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 25px rgba(0,0,0,0.3);
       position: sticky;
       top: 0;
       z-index: 1000;
-      box-shadow: 0 5px 30px rgba(0,0,0,0.3);
-    }
-
-    header a.logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    header a.logo img {
-      height: 55px;
-      transition: transform 0.4s ease;
-    }
-
-    header a.logo img:hover {
-      transform: scale(1.1) rotate(-3deg);
     }
 
     nav ul {
       list-style: none;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      gap: 15px;
       margin: 0;
       padding: 0;
+      flex-wrap: wrap;
     }
-
     nav ul li a {
       text-decoration: none;
       color: white;
       font-weight: 600;
-      padding: 10px 18px;
+      padding: 8px 16px;
       border-radius: 30px;
       position: relative;
       overflow: hidden;
-      transition: all 0.3s ease;
+      transition: 0.3s;
     }
-
-    nav ul li a::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #FFD700, #FF8C00);
-      transition: width 0.4s ease;
-      z-index: -1;
-      border-radius: 30px;
-    }
-
-    nav ul li a:hover::before { width: 100%; }
-    nav ul li a:hover { color: black; transform: translateY(-2px); }
     nav ul li a.active {
-      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      background: linear-gradient(90deg, #FFD700, #FFA500);
       color: black;
-      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+    }
+    nav ul li a:hover {
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: black;
     }
 
     main {
-      max-width: 900px;
-      margin: 60px auto;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(20px);
-      padding: 40px;
+      max-width: 1100px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(15px);
       border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      animation: fadeIn 1s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    main h1 {
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
       text-align: center;
-      font-size: 2.4em;
+    }
+<div style="display:flex; justify-content:center; margin-bottom:30px;">
+  <iframe 
+    src="https://lichess.org/embed/game?theme=auto&bg=dark"
+    width="600"
+    height="600"
+    frameborder="0"
+    allowfullscreen>
+  </iframe>
+</div>
+
+    h1 {
       background: linear-gradient(90deg, #FFD700, #FFA500);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
-    .news-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-    }
-
-    .news-item {
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 15px;
-      overflow: hidden;
-      transition: 0.4s ease;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-
-    .news-item:hover {
-      transform: translateY(-8px);
-      background: linear-gradient(135deg, #FFD70055, #FF8C0055);
-      box-shadow: 0 0 20px rgba(255,215,0,0.4);
-    }
-
-    .news-item img {
-      width: 100%;
-      border-bottom: 3px solid rgba(255,215,0,0.4);
-    }
-
-    .news-item h3 {
-      margin: 12px;
-      color: #FFD700;
-      font-size: 1.2em;
-    }
-
-    .news-item p {
-      margin: 0 12px 15px;
-      color: #f1f1f1;
-      font-size: 0.95em;
-    }
-
-    .news-item .read-more {
-      display: block;
-      text-align: center;
-      margin: 15px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      text-decoration: none;
-      background: linear-gradient(90deg, #FFD700, #FFA500);
-      color: black;
-      transition: 0.3s;
-    }
-
-    .news-item .read-more:hover {
-      box-shadow: 0 0 15px rgba(255,215,0,0.6);
-      transform: scale(1.05);
-    }
-
-    img {
-      max-width: 100%;
+    iframe {
+      border: 3px solid #FFD700;
       border-radius: 10px;
-      margin-bottom: 15px;
+      box-shadow: 0 0 25px rgba(255,215,0,0.4);
     }
 
-    .back-btn {
+    button {
       background: linear-gradient(90deg, #FFD700, #FFA500);
       border: none;
-      padding: 10px 18px;
+      padding: 10px 20px;
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
-      margin-bottom: 20px;
+      margin: 10px auto;
       color: black;
-      box-shadow: 0 0 10px rgba(255,215,0,0.4);
       transition: 0.3s;
+      display: block;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
     }
 
-    .back-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 20px rgba(255,215,0,0.6);
+    .section {
+      margin-top: 50px;
+      text-align: left;
     }
 
-    .video-container iframe {
-      width: 100%;
-      max-width: 700px;
-      height: 400px;
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 0 25px rgba(255,215,0,0.3);
-      margin-top: 20px;
+    .section h2 {
+      color: #FFD700;
+      border-bottom: 2px solid rgba(255,215,0,0.5);
+      padding-bottom: 5px;
+    }
+
+    .opening, .puzzle {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 10px 0;
     }
 
     footer {
       text-align: center;
-      padding: 20px;
       color: #FFD700;
-      font-weight: 600;
-      margin-top: 40px;
+      font-weight: bold;
+      padding: 20px;
       border-top: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(10px);
     }
 
-    footer:hover {
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      transition: 0.4s;
+    @media (max-width: 700px) {
+      iframe {
+        width: 95%;
+        height: 500px;
+      }
     }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: nowrap;
-      height: 90px;
-      padding: 0 30px;
-      box-sizing: border-box;
-    }
-
-    header a.logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      height: 100%;
-    }
-
-    header a.logo img {
-      height: 55px;
-      width: auto;
-      object-fit: contain;
-      display: block;
-      margin: auto 0;
-    }
-
-    nav ul {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-    }
-
-    nav ul li a {
-      font-size: 16px;
-      padding: 10px 18px;
-      line-height: 1;
-      border-radius: 30px;
-    }
-
-    /* === AUTH MODAL & PROFILE AVATAR STILLƏRİ === */
+  
+    /* === AUTH & PROFİL SİSTEMİ (Maqalux ortaq auth modulu) === */
     .header-right { display: flex; align-items: center; gap: 15px; }
     .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; cursor: pointer; transition: 0.2s; }
     .profile-avatar:hover { transform: scale(1.1); }
+
     .dropdown-menu { position: absolute; top: 70px; right: 20px; background: rgba(13,27,62,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 200px; z-index: 2000; }
     .dropdown-menu.active { display: flex; }
     .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; color: white; transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
     .dropdown-item:hover { background: rgba(255,255,255,0.1); }
     .dropdown-item.danger { color: #ff6b6b; }
+
     .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 5000; padding: 20px; }
     .auth-overlay.hidden { display: none; }
-    .auth-card { background: rgba(13,27,62,0.95); backdrop-filter: blur(20px); padding: 40px 35px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 25px 55px rgba(0,0,0,0.6); width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; animation: fadeInAuth 0.4s ease; }
-    @keyframes fadeInAuth { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+
+    .auth-card { background: rgba(13,27,62,0.95); backdrop-filter: blur(20px); padding: 40px 35px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 25px 55px rgba(0,0,0,0.6); width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; animation: authFadeIn 0.4s ease; }
+    @keyframes authFadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+
+    .auth-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; }
+    .auth-card p.sub { color: rgba(255,255,255,0.6); font-size: 14px; margin: 0 0 30px 0; text-align: center; }
     .input-group { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: white; font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; }
+    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: white; font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif; }
     .custom-input:focus { border-color: #ffa200; background: rgba(255,255,255,0.15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
     .custom-input::placeholder { color: rgba(255,255,255,0.4); }
     .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
     .password-wrapper .custom-input { padding-right: 55px; }
     .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; color: rgba(255,255,255,0.5); user-select: none; }
     .toggle-password:hover { color: white; }
-    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); }
+    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); font-family: 'Poppins', sans-serif; }
     .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,152,0,0.4); }
     .switch-text { color: rgba(255,255,255,0.5); font-size: 13.5px; margin-top: 20px; text-align: center; }
     .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; }
     .switch-text span:hover { color: white; }
     .forgot-pass-link { color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer; text-align: center; margin-top: 14px; text-decoration: underline; }
     .forgot-pass-link:hover { color: #ffb700; }
-    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; }
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; font-family: 'Poppins', sans-serif; }
     .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,255,255,0.2); }
     .google-btn img { width: 19px; height: 19px; }
     .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
     .divider-row .line { flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
     .divider-row span { color: rgba(255,255,255,0.4); font-size: 12.5px; }
-
-    main { pointer-events: none; }
-    body.logged-in main { pointer-events: auto; }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(3,7,20,0.75); backdrop-filter: blur(6px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
     .modal-overlay.active { display: flex; }
@@ -311,37 +208,35 @@
     .toast.toast-success { border-left-color: #2ecc71; }
     .toast.toast-error { border-left-color: #e74c3c; }
 
+    /* Giriş edilməyibsə əsas məzmun kilidlənir (index.html-dəki auth sistemi ilə eyni məntiq) */
+    main { pointer-events: none; }
+    body.logged-in main { pointer-events: auto; }
+
     @media (max-width: 700px) {
-      header { height: auto; flex-direction: column; gap: 10px; padding: 15px 20px; }
-      nav ul { flex-direction: column; align-items: center; width: 100%; }
-      nav ul li a { width: 100%; text-align: center; }
       .header-right { width: 100%; justify-content: flex-end; }
       .dropdown-menu { right: 10px; top: 60px; min-width: 180px; }
+      .auth-card { padding: 30px 20px; }
       #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
     }
-  </style>
+</style>
 </head>
-
 <body>
   <div id="toastContainer"></div>
-
   <header>
-    <a href="index.html" class="logo">
-      <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqo">
-    </a>
+    <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" height="50" alt="Maqalux loqo">
     <nav>
       <ul>
         <li><a href="index.html">Ana səhifə</a></li>
-        <li><a href="xeberler.html" class="active">Xəbərlər</a></li>
+        <li><a href="xeberler.html">Xəbərlər</a></li>
         <li><a href="proqramlar.html">Proqramlar</a></li>
-        <li><a href="şahmat.html">Şahmat</a></li>
+        <li><a href="şahmat.html" class="active">Şahmat</a></li>
         <li><a href="eylence.html">Əyləncə</a></li>
         <li><a href="onlinechat.html" class="active">Onlayn çat</a></li>
         <li><a href="haqqimizda.html">Haqqımızda</a></li>
         <li><a href="elaqe.html">Əlaqə</a></li>
-      </ul> 
+      </ul>
     </nav>
-    <div class="header-right">
+      <div class="header-right">
       <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
       <div class="dropdown-menu" id="dropdownMenu">
         <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
@@ -350,10 +245,11 @@
         <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
       </div>
     </div>
-  </header>
+</header>
 
-  <!-- Auth Modal -->
+  <!-- Auth Modal (hər zaman səhifənin üstündə) -->
   <div class="auth-overlay" id="authOverlay">
+    <!-- Login Form -->
     <div id="loginFormCard" class="auth-card">
       <h2>Maqalux</h2>
       <p class="sub">Daxil olun və saytdan tam faydalanın</p>
@@ -372,6 +268,7 @@
         <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
       </div>
     </div>
+    <!-- Register Form -->
     <div id="registerFormCard" class="auth-card" style="display:none;">
       <h2>Yeni Qeydiyyat</h2>
       <p class="sub">Hesab yaradın və icmaya qoşulun</p>
@@ -392,12 +289,51 @@
     </div>
   </div>
 
-  <main id="content">
-    <h1>Xəbərlər</h1>
-    <div class="news-container" id="newsList"></div>
+ 
+  <main>
+<h1>Dostunuza və ya bota qarşı oyun<h1>
+    <iframe src="https://chess-45a81.web.app/#" width="100%" height="800" frameborder="0"></iframe>
+
+    <h1>Maqalux Şahmat TV<h1>
+      <iframe src="https://lichess.org/embed/broadcast/fide-world-cup-2025/pYWxUzLr" style="width: 100%; aspect-ratio: 4/3;" frameborder="0"></iframe>
+      <iframe src="https://lichess.org/tv/frame?theme=brown&bg=dark" style="width: 400px; aspect-ratio: 10/11;" allowtransparency="true" frameborder="0"></iframe>
+      <iframe src="https://lichess.org/tv/rapid/frame?theme=brown&bg=dark" style="width: 400px; aspect-ratio: 10/11;" allowtransparency="true" frameborder="0"></iframe>
+      <h1>Günün məsələsi</h1>
+    <iframe 
+    id="dailyPuzzle" 
+    src="https://lichess.org/training/frame?theme=brown&bg=dark" 
+    style="width: 400px; aspect-ratio: 10/11;" 
+    allowtransparency="true" 
+    frameborder="0">
+</iframe>
+    <h1>Analiz taxtası</h1>
+    <iframe src="https://lichess.org/embed/analysis" style="width: 100%; aspect-ratio: 4/3;" frameborder="0"></iframe>
+    
+
+
+    <div class="section">
+      
+      
+      
+      <h2>♟️ Şahmat Məsələləri</h2>
+      <div class="puzzle">🧩 Ağlar 2 gedişdə mat verir (Tapşırıq 1)</div>
+      <div class="puzzle">🧩 Qara müdafiə edə bilərmi? (Tapşırıq 2)</div>
+    </div>
+
+    <div class="section">
+      <h2>📖 Açılışlar</h2>
+      <div class="opening"><b>İtalyan açılışı:</b> 1.e4 e5 2.Nf3 Nc6 3.Bc4</div>
+      <div class="opening"><b>Siciliya müdafiəsi:</b> 1.e4 c5</div>
+      <div class="opening"><b>Fransız müdafiəsi:</b> 1.e4 e6</div>
+      <div class="opening"><b>İspan açılışı (Ruy Lopez):</b> 1.e4 e5 2.Nf3 Nc6 3.Bb5</div>
+    </div>
   </main>
 
-  <!-- Modallar -->
+  <footer>
+    &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
+  </footer>
+
+  <!-- Auth ilə bağlı modallar -->
   <div class="modal-overlay" id="forgotPasswordModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
@@ -442,81 +378,13 @@
     </div>
   </div>
 
-  <footer>
-    &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
-  </footer>
-
-  <script>
-    const newsData = [
-      {
-        id: 1,
-        title: "Yeni texnologiya dünyanı dəyişir",
-        image: "xeber1.jpg",
-        short: "Süni intellekt sahəsində baş verən yeniliklər dünya gündəmində.",
-        content: `
-          Dünyada texnologiya sürətlə inkişaf edir və süni intellekt (SI) həyatımızın bir çox sahəsinə nüfuz edir. Bu inkişafların bir tərəfdən faydaları olsa da, digər tərəfdən bəzi peşələrin yox olmasına səbəb ola bilər... (Mətnin ardı qorunub)
-        `,
-        video: "https://www.youtube.com/embed/xypr2g2PH3U"
-      },
-      {
-        id: 2,
-        title: "Azərbaycan şahmatçıları parlaq qələbə qazandı",
-        image: "xeber2.jpg",
-        short: "Bakıda keçirilən beynəlxalq turnirdə şahmatçılarımız uğur qazandılar.",
-        content: `
-          Bakıda baş tutan beynəlxalq şahmat turnirində Azərbaycan təmsilçiləri qızıl medal qazandılar...
-        `,
-        video: ""
-      },
-      {
-        id: 3,
-        title: "Maqalux yeni dizaynla qarşınızda!",
-        image: "logo.png",
-        short: "Saytımız yenilənmiş görünüşü ilə fəaliyyətini devam etdirir.",
-        content: `
-          Maqalux platforması istifadəyə rahatlıq və dizayn baxımından yenilənib...
-        `,
-        video: ""
-      }
-    ];
-
-    const contentDiv = document.getElementById("content");
-    const newsListDiv = document.getElementById("newsList");
-    const params = new URLSearchParams(window.location.search);
-    const newsId = params.get("id");
-
-    if (newsId) {
-      const news = newsData.find(n => n.id == newsId);
-      if (news) {
-        contentDiv.innerHTML = `
-          <button class="back-btn" onclick="window.location='xeberler.html'">← Geri qayıt</button>
-          <h1>${news.title}</h1>
-          <img src="${news.image}" alt="${news.title}">
-          <p>${news.content}</p>
-          ${news.video ? `<div class="video-container"><iframe src="${news.video}" allowfullscreen></iframe></div>` : ""}
-        `;
-      } else {
-        contentDiv.innerHTML = `<p>Xəbər tapılmadı.</p>`;
-      }
-    } else {
-      newsData.forEach(n => {
-        const card = document.createElement("div");
-        card.classList.add("news-item");
-        card.innerHTML = `
-          <img src="${n.image}" alt="${n.title}">
-          <h3>${n.title}</h3>
-          <p>${n.short}</p>
-          <a href="?id=${n.id}" class="read-more">Ətraflı oxu</a>
-        `;
-        newsListDiv.appendChild(card);
-      });
-    }
-  </script>
-
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
   <script>
+    // ============================================================
+    // ORTAQ AUTH SKRİPTİ – BÜTÜN SƏHİFƏLƏR ÜÇÜN EYNİ (index.html ilə eyni)
+    // ============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
       authDomain: "maqalux-chat.firebaseapp.com",
@@ -533,6 +401,7 @@
 
     let currentUserData = null;
 
+    // === KÖMƏKÇİ FUNKSİYALAR ===
     function showToast(msg, type='info', dur=4000) {
       const c = document.getElementById('toastContainer');
       const t = document.createElement('div');
@@ -566,6 +435,7 @@
       }
     });
 
+    // === AUTH STATE ===
     auth.onAuthStateChanged(async (user) => {
       const overlay = document.getElementById('authOverlay');
       if (user) {
@@ -582,8 +452,12 @@
             }
             await db.ref(`users/${user.uid}/online`).set(true);
             db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+
+            // Profil şəkli
             document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            // Auth pəncərəsini gizlət
             overlay.classList.add('hidden');
+            // Səhifəni interaktiv et
             document.body.classList.add('logged-in');
             showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
           } else {
@@ -600,6 +474,7 @@
       }
     });
 
+    // === LOGIN / REGISTER / GOOGLE / LOGOUT ===
     window.handleLogin = async function() {
       const email = document.getElementById('loginEmailInput').value.trim();
       const pass = document.getElementById('loginPasswordInput').value.trim();
@@ -650,4 +525,98 @@
         await db.ref(`users/${auth.currentUser.uid}/online`).set(false);
         await auth.signOut();
         showToast('Çıxış etdiniz.', 'info');
-        document.getElementById('dropdownMenu').classList.remove('active');Я просто языковая модель, и не могу здесь вам помочь.
+        document.getElementById('dropdownMenu').classList.remove('active');
+      }
+    };
+
+    // === ŞİFRƏNİ UNUTDUM ===
+    window.openForgotPasswordModal = function() {
+      document.getElementById('forgotEmailInput').value = '';
+      document.getElementById('forgotPasswordModal').classList.add('active');
+    };
+    window.closeForgotPasswordModal = function() {
+      document.getElementById('forgotPasswordModal').classList.remove('active');
+    };
+    window.submitForgotPassword = function() {
+      const email = document.getElementById('forgotEmailInput').value.trim();
+      if (!email) return showToast('E-poçt ünvanınızı daxil edin.', 'error');
+      auth.sendPasswordResetEmail(email).then(() => {
+        showToast('Bərpa linki e-poçtunuza göndərildi.', 'success');
+        closeForgotPasswordModal();
+      }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+
+    // === ŞİFRƏ DƏYİŞ ===
+    window.openChangePasswordModal = function() {
+      document.getElementById('oldPassInput').value = '';
+      document.getElementById('newPassInput').value = '';
+      document.getElementById('changePasswordModal').classList.add('active');
+      document.getElementById('dropdownMenu').classList.remove('active');
+    };
+    window.closeChangePasswordModal = function() {
+      document.getElementById('changePasswordModal').classList.remove('active');
+    };
+    window.submitChangePassword = function() {
+      const old = document.getElementById('oldPassInput').value.trim();
+      const newp = document.getElementById('newPassInput').value.trim();
+      if (!old || !newp) return showToast('Hər iki xananı doldurun.', 'error');
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
+      user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp))
+        .then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); })
+        .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+
+    // === PROFİL ŞƏKLİ ===
+    window.changeProfilePicture = function() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const fd = new FormData();
+        fd.append('image', file);
+        try {
+          const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.success) {
+            const url = data.data.url;
+            document.getElementById('headerAvatar').src = url;
+            if (auth.currentUser) {
+              await db.ref(`users/${auth.currentUser.uid}/avatarUrl`).set(url);
+            }
+            showToast('Profil şəkli yeniləndi!', 'success');
+          } else { showToast('Şəkil yüklənə bilmədi.', 'error'); }
+        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      };
+      input.click();
+    };
+
+    // === HESABI SİL ===
+    window.deleteAccount = function() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      document.getElementById('deletePassInput').value = '';
+      document.getElementById('deleteAccountModal').classList.add('active');
+    };
+    window.closeDeleteAccountModal = function() {
+      document.getElementById('deleteAccountModal').classList.remove('active');
+    };
+    window.submitDeleteAccount = function() {
+      const pass = document.getElementById('deletePassInput').value.trim();
+      if (!pass) return showToast('Şifrənizi daxil edin.', 'error');
+      if (!confirm('Hesabınızı həmişəlik silmək istədiyinizdən əminsiniz?')) return;
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, pass);
+      user.reauthenticateWithCredential(cred).then(() => db.ref(`users/${user.uid}`).remove())
+        .then(() => user.delete())
+        .then(() => { showToast('Hesabınız silindi.', 'success'); location.reload(); })
+        .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+  </script>
+
+</body>
+</html>
