@@ -159,10 +159,77 @@
       nav ul li a { width: 100%; text-align: center; }
       header { flex-direction: column; gap: 10px; }
     }
-  </style>
+  
+    /* === AUTH & PROFİL SİSTEMİ (Maqalux ortaq auth modulu) === */
+    .header-right { display: flex; align-items: center; gap: 15px; }
+    .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; cursor: pointer; transition: 0.2s; }
+    .profile-avatar:hover { transform: scale(1.1); }
+
+    .dropdown-menu { position: absolute; top: 70px; right: 20px; background: rgba(13,27,62,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 200px; z-index: 2000; }
+    .dropdown-menu.active { display: flex; }
+    .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; color: white; transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    .dropdown-item:hover { background: rgba(255,255,255,0.1); }
+    .dropdown-item.danger { color: #ff6b6b; }
+
+    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 5000; padding: 20px; }
+    .auth-overlay.hidden { display: none; }
+
+    .auth-card { background: rgba(13,27,62,0.95); backdrop-filter: blur(20px); padding: 40px 35px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 25px 55px rgba(0,0,0,0.6); width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; animation: authFadeIn 0.4s ease; }
+    @keyframes authFadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+
+    .auth-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; }
+    .auth-card p.sub { color: rgba(255,255,255,0.6); font-size: 14px; margin: 0 0 30px 0; text-align: center; }
+    .input-group { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: white; font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+    .custom-input:focus { border-color: #ffa200; background: rgba(255,255,255,0.15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
+    .custom-input::placeholder { color: rgba(255,255,255,0.4); }
+    .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+    .password-wrapper .custom-input { padding-right: 55px; }
+    .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; color: rgba(255,255,255,0.5); user-select: none; }
+    .toggle-password:hover { color: white; }
+    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); font-family: 'Poppins', sans-serif; }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,152,0,0.4); }
+    .switch-text { color: rgba(255,255,255,0.5); font-size: 13.5px; margin-top: 20px; text-align: center; }
+    .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; }
+    .switch-text span:hover { color: white; }
+    .forgot-pass-link { color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer; text-align: center; margin-top: 14px; text-decoration: underline; }
+    .forgot-pass-link:hover { color: #ffb700; }
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; font-family: 'Poppins', sans-serif; }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,255,255,0.2); }
+    .google-btn img { width: 19px; height: 19px; }
+    .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
+    .divider-row .line { flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
+    .divider-row span { color: rgba(255,255,255,0.4); font-size: 12.5px; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,7,20,0.75); backdrop-filter: blur(6px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: rgba(13,27,62,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 360px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; }
+    .modal-box h3 { color: #ffaa00; margin: 0 0 8px 0; font-size: 1.4em; }
+    .modal-box p.modal-desc { color: rgba(255,255,255,0.55); font-size: 13.5px; margin: 0 0 22px 0; text-align: center; }
+    .modal-close { align-self: flex-end; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; }
+    .modal-close:hover { color: white; }
+
+    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 5000; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
+    .toast { background: rgba(13,27,62,0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: white; font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.toast-success { border-left-color: #2ecc71; }
+    .toast.toast-error { border-left-color: #e74c3c; }
+
+    /* Giriş edilməyibsə əsas məzmun kilidlənir (index.html-dəki auth sistemi ilə eyni məntiq) */
+    main { pointer-events: none; }
+    body.logged-in main { pointer-events: auto; }
+
+    @media (max-width: 700px) {
+      .header-right { width: 100%; justify-content: flex-end; }
+      .dropdown-menu { right: 10px; top: 60px; min-width: 180px; }
+      .auth-card { padding: 30px 20px; }
+      #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
+    }
+</style>
 </head>
 
 <body>
+  <div id="toastContainer"></div>
   <header>
     <img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu">
     <nav>
@@ -177,7 +244,59 @@
         <li><a href="elaqe.html">Əlaqə</a></li>
       </ul> 
     </nav>
-  </header>
+      <div class="header-right">
+      <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
+        <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
+        <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
+        <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
+      </div>
+    </div>
+</header>
+
+  <!-- Auth Modal (hər zaman səhifənin üstündə) -->
+  <div class="auth-overlay" id="authOverlay">
+    <!-- Login Form -->
+    <div id="loginFormCard" class="auth-card">
+      <h2>Maqalux</h2>
+      <p class="sub">Daxil olun və saytdan tam faydalanın</p>
+      <div class="input-group">
+        <input type="email" id="loginEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+        <div class="password-wrapper">
+          <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="handleLogin()">Daxil ol</button>
+        <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
+        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
+        </button>
+        <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
+      </div>
+    </div>
+    <!-- Register Form -->
+    <div id="registerFormCard" class="auth-card" style="display:none;">
+      <h2>Yeni Qeydiyyat</h2>
+      <p class="sub">Hesab yaradın və icmaya qoşulun</p>
+      <div class="input-group">
+        <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
+        <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+        <div class="password-wrapper">
+          <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
+        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
+        </button>
+        <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
+      </div>
+    </div>
+  </div>
+
 
   <main>
     <h1>Əyləncə Kateqoriyaları</h1>
@@ -230,5 +349,291 @@
   <footer>
     &copy; 2025 Maqalux - Bütün hüquqlar qorunur.
   </footer>
+
+  <!-- Auth ilə bağlı modallar -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
+      <h3>Şifrəni unutmusunuz?</h3>
+      <p class="modal-desc">E-poçt ünvanınızı daxil edin, bərpa linki göndəriləcək.</p>
+      <input type="email" id="forgotEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+      <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeChangePasswordModal()">✕</button>
+      <h3>Şifrəni dəyiş</h3>
+      <p class="modal-desc">Köhnə və yeni şifrəni daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper">
+          <input type="password" id="oldPassInput" class="custom-input" placeholder="Köhnə şifrə">
+          <span class="toggle-password" onclick="togglePasswordVisibility('oldPassInput', this)">👁️</span>
+        </div>
+        <div class="password-wrapper">
+          <input type="password" id="newPassInput" class="custom-input" placeholder="Yeni şifrə">
+          <span class="toggle-password" onclick="togglePasswordVisibility('newPassInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="submitChangePassword()">Şifrəni yenilə</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deleteAccountModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeDeleteAccountModal()">✕</button>
+      <h3>Hesabı sil</h3>
+      <p class="modal-desc">Bu əməliyyat geri qaytarıla bilməz. Davam etmək üçün şifrənizi daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper">
+          <input type="password" id="deletePassInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('deletePassInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" style="background:linear-gradient(90deg,#e74c3c,#c0392b); color:white;" onclick="submitDeleteAccount()">Hesabımı həmişəlik sil</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <script>
+    // ============================================================
+    // ORTAQ AUTH SKRİPTİ – BÜTÜN SƏHİFƏLƏR ÜÇÜN EYNİ (index.html ilə eyni)
+    // ============================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
+      authDomain: "maqalux-chat.firebaseapp.com",
+      databaseURL: "https://maqalux-chat-default-rtdb.firebaseio.com",
+      projectId: "maqalux-chat",
+      storageBucket: "maqalux-chat.firebasestorage.app",
+      messagingSenderId: "127120270719",
+      appId: "1:127120270719:web:7b036b7e27a06f71dee64a"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a";
+
+    let currentUserData = null;
+
+    // === KÖMƏKÇİ FUNKSİYALAR ===
+    function showToast(msg, type='info', dur=4000) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast toast-${type}`;
+      t.innerText = msg;
+      c.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, dur);
+    }
+
+    function togglePasswordVisibility(id, el) {
+      const inp = document.getElementById(id);
+      if (!inp) return;
+      if (inp.type === 'password') { inp.type = 'text'; el.innerText = '🙈'; }
+      else { inp.type = 'password'; el.innerText = '👁️'; }
+    }
+
+    function toggleAuthForms(mode) {
+      document.getElementById('loginFormCard').style.display = mode === 'register' ? 'none' : 'flex';
+      document.getElementById('registerFormCard').style.display = mode === 'register' ? 'flex' : 'none';
+    }
+
+    function toggleDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('dropdownMenu').classList.toggle('active');
+    }
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('dropdownMenu');
+      if (menu && menu.classList.contains('active') && !e.target.closest('.header-right')) {
+        menu.classList.remove('active');
+      }
+    });
+
+    // === AUTH STATE ===
+    auth.onAuthStateChanged(async (user) => {
+      const overlay = document.getElementById('authOverlay');
+      if (user) {
+        try {
+          const snap = await db.ref(`users/${user.uid}`).once('value');
+          if (snap.exists()) {
+            currentUserData = snap.val();
+            currentUserData.uid = user.uid;
+            if (currentUserData.isBanned) {
+              showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
+              await auth.signOut();
+              location.reload();
+              return;
+            }
+            await db.ref(`users/${user.uid}/online`).set(true);
+            db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+
+            // Profil şəkli
+            document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            // Auth pəncərəsini gizlət
+            overlay.classList.add('hidden');
+            // Səhifəni interaktiv et
+            document.body.classList.add('logged-in');
+            showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
+          } else {
+            await auth.signOut();
+          }
+        } catch (err) {
+          showToast('Xəta: ' + err.message, 'error');
+        }
+      } else {
+        currentUserData = null;
+        overlay.classList.remove('hidden');
+        document.body.classList.remove('logged-in');
+        document.getElementById('headerAvatar').src = 'https://www.w3schools.com/howto/img_avatar.png';
+      }
+    });
+
+    // === LOGIN / REGISTER / GOOGLE / LOGOUT ===
+    window.handleLogin = async function() {
+      const email = document.getElementById('loginEmailInput').value.trim();
+      const pass = document.getElementById('loginPasswordInput').value.trim();
+      if (!email || !pass) return showToast('Email və şifrəni daxil edin.', 'error');
+      try { await auth.signInWithEmailAndPassword(email, pass); }
+      catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+    };
+
+    window.handleRegister = async function() {
+      const nick = document.getElementById('registerNicknameInput').value.trim();
+      const email = document.getElementById('registerEmailInput').value.trim();
+      const pass = document.getElementById('registerPasswordInput').value.trim();
+      if (!nick || !email || !pass) return showToast('Bütün xanaları doldurun.', 'error');
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+        await db.ref(`users/${cred.user.uid}`).set({
+          nick, email, role: 'user',
+          avatarUrl: 'https://www.w3schools.com/howto/img_avatar.png',
+          online: true, isBanned: false
+        });
+        showToast('Qeydiyyat uğurludur!', 'success');
+      } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+    };
+
+    window.handleGoogleLogin = async function() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        const snap = await db.ref(`users/${user.uid}`).once('value');
+        if (!snap.exists()) {
+          await db.ref(`users/${user.uid}`).set({
+            nick: user.displayName || 'Google İstifadəçisi',
+            email: user.email,
+            role: 'user',
+            avatarUrl: user.photoURL || 'https://www.w3schools.com/howto/img_avatar.png',
+            online: true, isBanned: false
+          });
+        } else {
+          await db.ref(`users/${user.uid}/online`).set(true);
+        }
+        showToast('Google ilə daxil oldunuz!', 'success');
+      } catch (err) { showToast('Google Xətası: ' + err.message, 'error'); }
+    };
+
+    window.handleLogout = async function() {
+      if (auth.currentUser) {
+        await db.ref(`users/${auth.currentUser.uid}/online`).set(false);
+        await auth.signOut();
+        showToast('Çıxış etdiniz.', 'info');
+        document.getElementById('dropdownMenu').classList.remove('active');
+      }
+    };
+
+    // === ŞİFRƏNİ UNUTDUM ===
+    window.openForgotPasswordModal = function() {
+      document.getElementById('forgotEmailInput').value = '';
+      document.getElementById('forgotPasswordModal').classList.add('active');
+    };
+    window.closeForgotPasswordModal = function() {
+      document.getElementById('forgotPasswordModal').classList.remove('active');
+    };
+    window.submitForgotPassword = function() {
+      const email = document.getElementById('forgotEmailInput').value.trim();
+      if (!email) return showToast('E-poçt ünvanınızı daxil edin.', 'error');
+      auth.sendPasswordResetEmail(email).then(() => {
+        showToast('Bərpa linki e-poçtunuza göndərildi.', 'success');
+        closeForgotPasswordModal();
+      }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+
+    // === ŞİFRƏ DƏYİŞ ===
+    window.openChangePasswordModal = function() {
+      document.getElementById('oldPassInput').value = '';
+      document.getElementById('newPassInput').value = '';
+      document.getElementById('changePasswordModal').classList.add('active');
+      document.getElementById('dropdownMenu').classList.remove('active');
+    };
+    window.closeChangePasswordModal = function() {
+      document.getElementById('changePasswordModal').classList.remove('active');
+    };
+    window.submitChangePassword = function() {
+      const old = document.getElementById('oldPassInput').value.trim();
+      const newp = document.getElementById('newPassInput').value.trim();
+      if (!old || !newp) return showToast('Hər iki xananı doldurun.', 'error');
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
+      user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp))
+        .then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); })
+        .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+
+    // === PROFİL ŞƏKLİ ===
+    window.changeProfilePicture = function() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const fd = new FormData();
+        fd.append('image', file);
+        try {
+          const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.success) {
+            const url = data.data.url;
+            document.getElementById('headerAvatar').src = url;
+            if (auth.currentUser) {
+              await db.ref(`users/${auth.currentUser.uid}/avatarUrl`).set(url);
+            }
+            showToast('Profil şəkli yeniləndi!', 'success');
+          } else { showToast('Şəkil yüklənə bilmədi.', 'error'); }
+        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      };
+      input.click();
+    };
+
+    // === HESABI SİL ===
+    window.deleteAccount = function() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      document.getElementById('deletePassInput').value = '';
+      document.getElementById('deleteAccountModal').classList.add('active');
+    };
+    window.closeDeleteAccountModal = function() {
+      document.getElementById('deleteAccountModal').classList.remove('active');
+    };
+    window.submitDeleteAccount = function() {
+      const pass = document.getElementById('deletePassInput').value.trim();
+      if (!pass) return showToast('Şifrənizi daxil edin.', 'error');
+      if (!confirm('Hesabınızı həmişəlik silmək istədiyinizdən əminsiniz?')) return;
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, pass);
+      user.reauthenticateWithCredential(cred).then(() => db.ref(`users/${user.uid}`).remove())
+        .then(() => user.delete())
+        .then(() => { showToast('Hesabınız silindi.', 'success'); location.reload(); })
+        .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+  </script>
+
 </body>
 </html>
