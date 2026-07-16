@@ -1745,35 +1745,47 @@
         // 4. AUTH
         // ============================================================
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                const snap = await db.ref(`users/${user.uid}`).once('value');
-                if (snap.exists()) {
-                    currentUserData = snap.val();
-                    currentUserData.uid = user.uid;
-                    if (currentUserData.isBanned) {
-                        showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
-                        await auth.signOut();
-                        location.reload();
-                        return;
-                    }
-                    await db.ref(`users/${user.uid}/online`).set(true);
-                    db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+           if (user) {
+    currentUser = user;
 
-                    document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
-                    document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
-                    document.getElementById('loginScreen').classList.remove('active');
-                    document.getElementById('mainChatScreen').classList.add('active');
+    // 🔥 BURADA login ekranını dərhal gizlət
+    document.getElementById('loginScreen').classList.remove('active');
+    document.getElementById('mainChatScreen').classList.add('active');
 
-                    loadMessages();
-                    loadActiveUsers();
-                    loadPrivateMessages();
-                } else {
-                    await auth.signOut();
-                }
-            } else {
-    // İstifadəçi daxil deyil – onu saytın əsas səhifəsinə yönləndir
-    window.location.href = '../https://maqalux.github.io/index.html'; // və ya '/' və ya login səhifəsinin URL-i
+    try {
+        const snap = await db.ref(`users/${user.uid}`).once('value');
+        if (snap.exists()) {
+            currentUserData = snap.val();
+            currentUserData.uid = user.uid;
+
+            if (currentUserData.isBanned) {
+                showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
+                await auth.signOut();
+                location.reload();
+                return;
+            }
+
+            await db.ref(`users/${user.uid}/online`).set(true);
+            db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+
+            document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
+
+            loadMessages();
+            loadActiveUsers();
+            loadPrivateMessages();
+        } else {
+            await auth.signOut();
+        }
+    } catch (error) {
+        console.error('İstifadəçi məlumatları yüklənərkən xəta:', error);
+        showToast('Məlumat yüklənə bilmədi, səhifə yenilənir...', 'error');
+        // İstəyə görə yenidən yönləndirə bilərsiniz
+        // window.location.href = '../index.html';
+    }
+} else {
+    // İstifadəçi daxil deyil – ana səhifəyə yönləndir
+    window.location.href = '../index.html';
 }
         });
 
