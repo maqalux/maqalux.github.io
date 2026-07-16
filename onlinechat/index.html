@@ -1389,55 +1389,6 @@
 
     <main>
         <div class="chat-container">
-
-            <!-- Login Screen -->
-            <div class="chat-screen active" id="loginScreen">
-
-                <div class="login-card" id="loginFormCard">
-                    <h2>Maqalux Çat Platforması</h2>
-                    <p>Söhbətə başlamaq üçün daxil olun</p>
-                    <div class="input-group">
-                        <input type="email" id="loginEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
-                        <div class="password-wrapper">
-                            <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
-                            <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
-                        </div>
-                        <button class="login-btn" onclick="handleLogin()">Söhbətə Qoşul</button>
-                        <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
-
-                        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
-                        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                            Google ilə daxil ol
-                        </button>
-
-                        <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
-                    </div>
-                </div>
-
-                <div class="login-card" id="registerFormCard" style="display: none;">
-                    <h2>Yeni Qeydiyyat</h2>
-                    <p>Platformada yeni hesab yaratmaq üçün doldurun</p>
-                    <div class="input-group">
-                        <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
-                        <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
-                        <div class="password-wrapper">
-                            <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
-                            <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
-                        </div>
-                        <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
-
-                        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
-                        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                            Google ilə daxil ol
-                        </button>
-
-                        <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Main Chat Screen -->
             <div class="chat-screen" id="mainChatScreen">
                 <div class="chat-header">
@@ -1744,12 +1695,11 @@
         // ============================================================
         // 4. AUTH
         // ============================================================
-        auth.onAuthStateChanged(async (user) => {
+       auth.onAuthStateChanged(async (user) => {
            if (user) {
     currentUser = user;
 
-    // 🔥 BURADA login ekranını dərhal gizlət
-    document.getElementById('loginScreen').classList.remove('active');
+    // loginScreen artıq olmadığı üçün yalnız çat ekranını aktiv edirik
     document.getElementById('mainChatScreen').classList.add('active');
 
     try {
