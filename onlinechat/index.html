@@ -1695,13 +1695,23 @@
         // ============================================================
         // 4. AUTH
         // ============================================================
-       auth.onAuthStateChanged(async (user) => {
-           if (user) {
-    currentUser = user;
+      auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        currentUser = user;
 
-    // loginScreen artıq olmadığı üçün yalnız çat ekranını aktiv edirik
-    document.getElementById('mainChatScreen').classList.add('active');
+        // Çat ekranını aktiv edirik
+        const mainChatScreen = document.getElementById('mainChatScreen');
+        if (mainChatScreen) {
+            mainChatScreen.classList.add('active');
+        }
 
+        // Sizin mövcud istifadəçi yükləmə kodlarınız (məsələn: loadChats() və s.) burada olduğu kimi qalsın
+        // ...
+    } else {
+        // Əgər istifadəçi daxil olmayıbsa, heç bir xəta vermədən birbaşa ana səhifəyə yönləndirir
+        window.location.href = "../index.html"; 
+    }
+});
     try {
         const snap = await db.ref(`users/${user.uid}`).once('value');
         if (snap.exists()) {
