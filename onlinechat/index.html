@@ -1389,6 +1389,55 @@
 
     <main>
         <div class="chat-container">
+
+            <!-- Login Screen -->
+            <div class="chat-screen active" id="loginScreen">
+
+                <div class="login-card" id="loginFormCard">
+                    <h2>Maqalux Çat Platforması</h2>
+                    <p>Söhbətə başlamaq üçün daxil olun</p>
+                    <div class="input-group">
+                        <input type="email" id="loginEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+                        <div class="password-wrapper">
+                            <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
+                            <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
+                        </div>
+                        <button class="login-btn" onclick="handleLogin()">Söhbətə Qoşul</button>
+                        <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
+
+                        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+                        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                            Google ilə daxil ol
+                        </button>
+
+                        <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
+                    </div>
+                </div>
+
+                <div class="login-card" id="registerFormCard" style="display: none;">
+                    <h2>Yeni Qeydiyyat</h2>
+                    <p>Platformada yeni hesab yaratmaq üçün doldurun</p>
+                    <div class="input-group">
+                        <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
+                        <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+                        <div class="password-wrapper">
+                            <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
+                            <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
+                        </div>
+                        <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
+
+                        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+                        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                            Google ilə daxil ol
+                        </button>
+
+                        <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Main Chat Screen -->
             <div class="chat-screen" id="mainChatScreen">
                 <div class="chat-header">
@@ -1592,7 +1641,6 @@
             "https://maqalux.github.io/stickers/9913-joobifp.png",
             "https://maqalux.github.io/stickers/9913-joobirose.png",
             "https://maqalux.github.io/stickers/9928-joobiwow.png"
-            "https://maqalux.github.io/stickers/sticker_10.png"
         ];
 
         const GIF_LIST = [
@@ -1695,58 +1743,51 @@
         // ============================================================
         // 4. AUTH
         // ============================================================
-      auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        currentUser = user;
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                const snap = await db.ref(`users/${user.uid}`).once('value');
+                if (snap.exists()) {
+                    currentUserData = snap.val();
+                    currentUserData.uid = user.uid;
+                    if (currentUserData.isBanned) {
+                        showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
+                        await auth.signOut();
+                        location.reload();
+                        return;
+                    }
+                    await db.ref(`users/${user.uid}/online`).set(true);
+                    db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
 
-        // Çat ekranını aktiv edirik
-        const mainChatScreen = document.getElementById('mainChatScreen');
-        if (mainChatScreen) {
-            mainChatScreen.classList.add('active');
-        }
+                    document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+                    document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
+                    document.getElementById('loginScreen').classList.remove('active');
+                    document.getElementById('mainChatScreen').classList.add('active');
 
-        // Sizin mövcud istifadəçi yükləmə kodlarınız (məsələn: loadChats() və s.) burada olduğu kimi qalsın
-        // ...
-    } else {
-        // Əgər istifadəçi daxil olmayıbsa, heç bir xəta vermədən birbaşa ana səhifəyə yönləndirir
-        window.location.href = "../index.html"; 
-    }
-});
-    try {
-        const snap = await db.ref(`users/${user.uid}`).once('value');
-        if (snap.exists()) {
-            currentUserData = snap.val();
-            currentUserData.uid = user.uid;
-
-            if (currentUserData.isBanned) {
-                showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
-                await auth.signOut();
-                location.reload();
-                return;
+                    loadMessages();
+                    loadActiveUsers();
+                    loadPrivateMessages();
+                } else {
+                    await auth.signOut();
+                }
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                isMessagesLoaded = false;
+                document.getElementById('loginScreen').classList.add('active');
+                document.getElementById('mainChatScreen').classList.remove('active');
+                db.ref('messages').off();
+                db.ref('users').off();
+                db.ref('privateMessages').off();
+                // close all private windows
+                Object.keys(openPCWs).forEach(nick => {
+                    const win = document.getElementById('pcw-' + nick);
+                    if (win) win.remove();
+                });
+                openPCWs = {};
+                privateMessagesByNick = {};
+                allMessages = [];
             }
-
-            await db.ref(`users/${user.uid}/online`).set(true);
-            db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
-
-            document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
-            document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
-
-            loadMessages();
-            loadActiveUsers();
-            loadPrivateMessages();
-        } else {
-            await auth.signOut();
-        }
-    } catch (error) {
-        console.error('İstifadəçi məlumatları yüklənərkən xəta:', error);
-        showToast('Məlumat yüklənə bilmədi, səhifə yenilənir...', 'error');
-        // İstəyə görə yenidən yönləndirə bilərsiniz
-        // window.location.href = '../index.html';
-    }
-} else {
-    // İstifadəçi daxil deyil – ana səhifəyə yönləndir
-    window.location.href = '../index.html';
-}
         });
 
         window.handleLogin = async function() {
