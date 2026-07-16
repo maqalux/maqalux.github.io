@@ -1609,7 +1609,7 @@
             "https://maqalux.github.io/stickers/8357-joobithumbsup.png",
             "https://maqalux.github.io/stickers/9913-joobifp.png",
             "https://maqalux.github.io/stickers/9913-joobirose.png",
-            "https://maqalux.github.io/stickers/9928-joobiwow.png"
+            "https://maqalux.github.io/stickers/9928-joobiwow.png",
             "https://maqalux.github.io/stickers/sticker_10.png"
         ];
 
@@ -1713,32 +1713,47 @@
         // ============================================================
         // 4. AUTH
         // ============================================================
+        // Təhlükəsizlik: əgər auth vəziyyəti 8 saniyə ərzində müəyyən olunmasa,
+        // gözləmə ekranında əbədi qalmaq əvəzinə saytın ana səhifəsinə qaytarır.
+        let authResolved = false;
+        setTimeout(() => {
+            if (!authResolved) {
+                window.location.href = '../index.html';
+            }
+        }, 8000);
+
         auth.onAuthStateChanged(async (user) => {
+            authResolved = true;
             if (user) {
-                currentUser = user;
-                const snap = await db.ref(`users/${user.uid}`).once('value');
-                if (snap.exists()) {
-                    currentUserData = snap.val();
-                    currentUserData.uid = user.uid;
-                    if (currentUserData.isBanned) {
-                        showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
+                try {
+                    currentUser = user;
+                    const snap = await db.ref(`users/${user.uid}`).once('value');
+                    if (snap.exists()) {
+                        currentUserData = snap.val();
+                        currentUserData.uid = user.uid;
+                        if (currentUserData.isBanned) {
+                            showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
+                            await auth.signOut();
+                            location.reload();
+                            return;
+                        }
+                        await db.ref(`users/${user.uid}/online`).set(true);
+                        db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+
+                        document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+                        document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
+                        document.getElementById('loginScreen').classList.remove('active');
+                        document.getElementById('mainChatScreen').classList.add('active');
+
+                        loadMessages();
+                        loadActiveUsers();
+                        loadPrivateMessages();
+                    } else {
                         await auth.signOut();
-                        location.reload();
-                        return;
                     }
-                    await db.ref(`users/${user.uid}/online`).set(true);
-                    db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
-
-                    document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
-                    document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
-                    document.getElementById('loginScreen').classList.remove('active');
-                    document.getElementById('mainChatScreen').classList.add('active');
-
-                    loadMessages();
-                    loadActiveUsers();
-                    loadPrivateMessages();
-                } else {
-                    await auth.signOut();
+                } catch (err) {
+                    showToast('Xəta baş verdi: ' + err.message, 'error', 5000);
+                    window.location.href = '../index.html';
                 }
             } else {
                 currentUser = null;
