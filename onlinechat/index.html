@@ -1772,23 +1772,9 @@
                     await auth.signOut();
                 }
             } else {
-                currentUser = null;
-                currentUserData = null;
-                isMessagesLoaded = false;
-                document.getElementById('loginScreen').classList.add('active');
-                document.getElementById('mainChatScreen').classList.remove('active');
-                db.ref('messages').off();
-                db.ref('users').off();
-                db.ref('privateMessages').off();
-                // close all private windows
-                Object.keys(openPCWs).forEach(nick => {
-                    const win = document.getElementById('pcw-' + nick);
-                    if (win) win.remove();
-                });
-                openPCWs = {};
-                privateMessagesByNick = {};
-                allMessages = [];
-            }
+    // İstifadəçi daxil deyil – onu saytın əsas səhifəsinə yönləndir
+    window.location.href = '../index.html'; // və ya '/' və ya login səhifəsinin URL-i
+}
         });
 
         window.handleLogin = async function() {
