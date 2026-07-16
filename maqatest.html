@@ -100,6 +100,17 @@
             align-items: center;
             position: relative;
         }
+        .wait-spinner {
+            width: 46px;
+            height: 46px;
+            border: 4px solid rgba(255, 255, 255, 0.15);
+            border-top-color: #ffaa00;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
         .login-card {
             background: rgba(13, 27, 62, 0.75);
             backdrop-filter: blur(20px);
@@ -1390,52 +1401,10 @@
     <main>
         <div class="chat-container">
 
-            <!-- Login Screen -->
+            <!-- Gözləmə Ekranı (əvvəlki Login Screen) -->
             <div class="chat-screen active" id="loginScreen">
-
-                <div class="login-card" id="loginFormCard">
-                    <h2>Maqalux Çat Platforması</h2>
-                    <p>Söhbətə başlamaq üçün daxil olun</p>
-                    <div class="input-group">
-                        <input type="email" id="loginEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
-                        <div class="password-wrapper">
-                            <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
-                            <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
-                        </div>
-                        <button class="login-btn" onclick="handleLogin()">Söhbətə Qoşul</button>
-                        <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
-
-                        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
-                        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                            Google ilə daxil ol
-                        </button>
-
-                        <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
-                    </div>
-                </div>
-
-                <div class="login-card" id="registerFormCard" style="display: none;">
-                    <h2>Yeni Qeydiyyat</h2>
-                    <p>Platformada yeni hesab yaratmaq üçün doldurun</p>
-                    <div class="input-group">
-                        <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
-                        <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
-                        <div class="password-wrapper">
-                            <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
-                            <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
-                        </div>
-                        <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
-
-                        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
-                        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                            Google ilə daxil ol
-                        </button>
-
-                        <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
-                    </div>
-                </div>
+                <div class="wait-spinner"></div>
+                <p style="margin-top:16px; color:rgba(255,255,255,0.6);">Yüklənir...</p>
             </div>
 
             <!-- Main Chat Screen -->
@@ -1774,8 +1743,6 @@
                 currentUser = null;
                 currentUserData = null;
                 isMessagesLoaded = false;
-                document.getElementById('loginScreen').classList.add('active');
-                document.getElementById('mainChatScreen').classList.remove('active');
                 db.ref('messages').off();
                 db.ref('users').off();
                 db.ref('privateMessages').off();
@@ -1787,6 +1754,8 @@
                 openPCWs = {};
                 privateMessagesByNick = {};
                 allMessages = [];
+                // Çatın öz login formu yoxdur — istifadəçi giriş etməyibsə saytın giriş səhifəsinə yönləndirilir
+                window.location.href = '../index.html';
             }
         });
 
