@@ -46,7 +46,24 @@
       padding: 20px;
     }
     .auth-overlay.hidden { display: none; }
-
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: #030714; /* saytının fon rənginə uyğunlaşdır */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* auth-overlay-dən (5000) də üstün olmalıdır */
+}
+.loading-screen.hidden { display: none; }
+.spinner {
+  width: 42px; height: 42px;
+  border: 4px solid rgba(255,255,255,0.15);
+  border-top-color: #ffaa00;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
     .auth-card {
       background: rgba(13,27,62,0.95);
       backdrop-filter: blur(20px);
@@ -144,6 +161,9 @@
   </style>
 </head>
 <body>
+  <div id="loadingScreen" class="loading-screen">
+  <div class="spinner"></div>
+</div>
   <div id="toastContainer"></div>
 
   <header>
@@ -172,7 +192,7 @@
   </header>
 
   <!-- Auth Modal (hər zaman səhifənin üstündə) -->
-  <div class="auth-overlay" id="authOverlay">
+  <div class="auth-overlay hidden" id="authOverlay">
     <!-- Login Form -->
     <div id="loginFormCard" class="auth-card">
       <h2>Maqalux</h2>
@@ -329,6 +349,7 @@
 
     // === AUTH STATE ===
     auth.onAuthStateChanged(async (user) => {
+      document.getElementById('loadingScreen').classList.add('hidden');
       const overlay = document.getElementById('authOverlay');
       if (user) {
         try {
