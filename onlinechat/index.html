@@ -2037,8 +2037,9 @@
             attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, null));
 
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+            const isOther = msg.sender !== currentUserData.nick;
             let content = `
-                <div class="msg-header">
+                <div class="msg-header"${isOther ? ` onclick="event.stopPropagation(); openPrivateChatWindow('${escapeHtml(msg.sender)}')" style="cursor:pointer;"` : ''}>
                     <img src="${avatar}" class="msg-avatar" alt="Profile">
                     <b>${escapeHtml(msg.sender)}</b>
                 </div>
