@@ -610,12 +610,17 @@
             object-fit: cover;
             border: 1px solid rgba(255, 170, 0, 0.4);
             flex-shrink: 0;
+            -webkit-touch-callout: none;
+            -webkit-user-drag: none;
+            user-select: none;
         }
         .msg-header {
             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 6px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(255, 170, 0, 0.25);
         }
 
         /* Input bar */
@@ -1748,6 +1753,17 @@
                         loadMessages();
                         loadActiveUsers();
                         loadPrivateMessages();
+
+                        // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
+                        // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
+                        // yönləndirməsi zamanı ?query parametrini itirə bilir, #hash isə qalır.
+                        const hashMatch = window.location.hash.match(/^#open=(.+)$/);
+                        const openParam = hashMatch ? decodeURIComponent(hashMatch[1]) : null;
+                        if (openParam) {
+                            setTimeout(() => openPrivateChatWindow(openParam), 600);
+                            const cleanUrl = window.location.pathname + window.location.search;
+                            window.history.replaceState({}, document.title, cleanUrl);
+                        }
                     } else {
                         await auth.signOut();
                     }
@@ -2038,9 +2054,12 @@
 
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             const isOther = msg.sender !== currentUserData.nick;
+            const openPCWAttrs = isOther ?
+                ` onclick="event.stopPropagation(); openPrivateChatWindow('${escapeHtml(msg.sender)}')" ontouchend="event.stopPropagation(); event.preventDefault(); openPrivateChatWindow('${escapeHtml(msg.sender)}')" style="cursor:pointer;"` :
+                '';
             let content = `
-                <div class="msg-header"${isOther ? ` onclick="event.stopPropagation(); openPrivateChatWindow('${escapeHtml(msg.sender)}')" style="cursor:pointer;"` : ''}>
-                    <img src="${avatar}" class="msg-avatar" alt="Profile">
+                <div class="msg-header"${openPCWAttrs}>
+                    <img src="${avatar}" class="msg-avatar" alt="Profile" draggable="false">
                     <b>${escapeHtml(msg.sender)}</b>
                 </div>
                 ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
