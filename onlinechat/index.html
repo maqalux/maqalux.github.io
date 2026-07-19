@@ -1755,8 +1755,15 @@
                             location.reload();
                             return;
                         }
-                        await db.ref(`users/${user.uid}/online`).set(true);
-                        db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+                       const connectedRef = db.ref('.info/connected');
+connectedRef.on('value', (snap) => {
+  if (snap.val() === true && currentUserData) {
+    const onlineRef = db.ref(`users/${currentUserData.uid}/online`);
+    onlineRef.onDisconnect().set(false).then(() => {
+      onlineRef.set(true);
+    });
+  }
+});
 
                         document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
                         document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
