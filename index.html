@@ -23,8 +23,8 @@
     nav ul li a:hover { background: rgba(255,215,0,0.2); }
     nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: #0a1329; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
 
-    .header-right { display: flex; align-items: center; gap: 15px; }
-    .hamburger-btn { display: none; background: none; border: none; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
+    .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+    .hamburger-btn { display: none; background: none; border: none; margin: 0; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
     .msg-icon-wrap { position: relative; cursor: pointer; }
     .msg-icon-wrap .msg-icon { font-size: 22px; display: flex; }
     .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: #fff; font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #030714; }
@@ -279,7 +279,7 @@
       <h1>Ana səhifə</h1>
       <p>Maqalux saytına xoş gəlmisiniz! Burada faydalı məlumatlar, xəbərlər və əyləncəli məzmun tapa bilərsiniz.</p>
       <p style="margin-top:20px; font-size:0.95em; color:rgba(255,255,255,0.7);">
-        Siz daxil olduğunuz üçün onlayn çatda da aktiv görünürsünüz. İstənilən vaxt <a href="onlinechat" style="color:#ffaa00; text-decoration:underline;">çata keçə</a> bilərsiniz.
+        Siz daxil olduğunuz üçün onlayn çatda da aktiv görünürsünüz. İstənilən vaxt <a href="onlinechat.html" style="color:#ffaa00; text-decoration:underline;">çata keçə</a> bilərsiniz.
       </p>
     </div>
   </main>
@@ -534,7 +534,10 @@
             overlay.classList.add('hidden');
             // Səhifəni interaktiv et
             document.body.classList.add('logged-in');
-            showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
+            if (!sessionStorage.getItem('welcomeShown')) {
+              showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
+              sessionStorage.setItem('welcomeShown', '1');
+            }
             initMessageInbox();
           } else {
             await auth.signOut();
@@ -548,6 +551,7 @@
         document.body.classList.remove('logged-in');
         document.getElementById('headerAvatar').src = 'https://www.w3schools.com/howto/img_avatar.png';
         stopMessageInbox();
+        sessionStorage.removeItem('welcomeShown');
       }
     });
 
