@@ -2133,12 +2133,10 @@ connectedRef.on('value', (snap) => {
 
         function markDelivered(msgId, isPrivate) {
             const ref = isPrivate ? db.ref(`privateMessages/${msgId}/deliveredTo`) : db.ref(`messages/${msgId}/deliveredTo`);
-            ref.once('value').then(snap => {
-                const list = snap.val() || [];
-                if (!list.includes(currentUserData.nick)) {
-                    list.push(currentUserData.nick);
-                    ref.set(list);
-                }
+            ref.transaction((list) => {
+                list = list || [];
+                if (!list.includes(currentUserData.nick)) list.push(currentUserData.nick);
+                return list;
             });
         }
 
@@ -2148,12 +2146,10 @@ connectedRef.on('value', (snap) => {
                     if (entry.isIntersecting) {
                         const ref = isPrivate ? db.ref(`privateMessages/${msgId}/readBy`) : db.ref(
                         `messages/${msgId}/readBy`);
-                        ref.once('value').then(snap => {
-                            const list = snap.val() || [];
-                            if (!list.includes(currentUserData.nick)) {
-                                list.push(currentUserData.nick);
-                                ref.set(list);
-                            }
+                        ref.transaction((list) => {
+                            list = list || [];
+                            if (!list.includes(currentUserData.nick)) list.push(currentUserData.nick);
+                            return list;
                         });
                         observer.unobserve(entry.target);
                     }
