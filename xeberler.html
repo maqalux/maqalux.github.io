@@ -402,6 +402,14 @@ nav ul li a {
       nav ul { flex-direction: column; align-items: center; width: 100%; }
       nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
     }
+    /* === SON PRİORİTETLİ QAYDA (bütün köhnə/təkrarlanan qaydaları əzir) === */
+    @media (max-width: 700px) {
+      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; }
+      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 22px !important; margin-left: 0 !important; margin-right: 0 !important; }
+      header > nav { order: 3 !important; width: 100% !important; }
+      header > nav:not(.mobile-nav-open) { display: none !important; }
+      header > nav.mobile-nav-open { display: flex !important; }
+    }
 </style>
 </head>
 
@@ -824,7 +832,10 @@ Mütəxəssislər həmçinin qeyd edirlər ki, süni intellektin peşələr üz�
             overlay.classList.add('hidden');
             // Səhifəni interaktiv et
             document.body.classList.add('logged-in');
-            showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
+            if (!sessionStorage.getItem('welcomeShown')) {
+              showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
+              sessionStorage.setItem('welcomeShown', '1');
+            }
             initMessageInbox();
           } else {
             await auth.signOut();
@@ -838,6 +849,7 @@ Mütəxəssislər həmçinin qeyd edirlər ki, süni intellektin peşələr üz�
         document.body.classList.remove('logged-in');
         document.getElementById('headerAvatar').src = 'https://www.w3schools.com/howto/img_avatar.png';
         stopMessageInbox();
+        sessionStorage.removeItem('welcomeShown');
       }
     });
 
