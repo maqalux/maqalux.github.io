@@ -156,7 +156,7 @@
   
     /* === AUTH & PROFİL SİSTEMİ (Maqalux ortaq auth modulu) === */
     .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
-    .hamburger-btn { display: none; background: none; border: none; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
+    .hamburger-btn { display: none; background: none; border: none; margin: 0; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
     .msg-icon-wrap { position: relative; cursor: pointer; }
     .msg-icon-wrap .msg-icon { font-size: 22px; display: flex; }
     .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: #fff; font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #030714; }
@@ -269,6 +269,14 @@
       nav.mobile-nav-open { display: flex !important; }
       nav ul { flex-direction: column; align-items: center; width: 100%; }
       nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
+    }
+    /* === SON PRİORİTETLİ QAYDA (bütün köhnə/təkrarlanan qaydaları əzir) === */
+    @media (max-width: 700px) {
+      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; }
+      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 22px !important; margin-left: 0 !important; margin-right: 0 !important; }
+      header > nav { order: 3 !important; width: 100% !important; }
+      header > nav:not(.mobile-nav-open) { display: none !important; }
+      header > nav.mobile-nav-open { display: flex !important; }
     }
 </style>
 </head>
@@ -649,7 +657,10 @@
             overlay.classList.add('hidden');
             // Səhifəni interaktiv et
             document.body.classList.add('logged-in');
-            showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
+            if (!sessionStorage.getItem('welcomeShown')) {
+              showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
+              sessionStorage.setItem('welcomeShown', '1');
+            }
             initMessageInbox();
           } else {
             await auth.signOut();
@@ -663,6 +674,7 @@
         document.body.classList.remove('logged-in');
         document.getElementById('headerAvatar').src = 'https://www.w3schools.com/howto/img_avatar.png';
         stopMessageInbox();
+        sessionStorage.removeItem('welcomeShown');
       }
     });
 
