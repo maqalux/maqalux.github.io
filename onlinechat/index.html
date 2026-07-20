@@ -1079,6 +1079,10 @@
             font-weight: 400;
             color: rgba(255, 255, 255, 0.5);
         }
+        .pcw-header .pcw-lastseen.is-typing {
+            color: #ffaa00;
+            font-style: italic;
+        }
         .pcw-header .pcw-online-dot {
             width: 8px;
             height: 8px;
@@ -1187,6 +1191,33 @@
             max-height: 140px;
             border-radius: 10px;
             margin-top: 6px;
+        }
+        .pcw-typing-bubble {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            padding: 11px 15px;
+            display: none;
+        }
+        .pcw-typing-bubble.active {
+            display: inline-flex;
+            align-items: center;
+        }
+        .pcw-typing-bubble .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.65);
+            display: inline-block;
+            margin: 0 2px;
+            animation: typingBounce 1.2s infinite ease-in-out;
+        }
+        .pcw-typing-bubble .dot:nth-child(2) { animation-delay: 0.2s; }
+        .pcw-typing-bubble .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-4px); opacity: 1; }
         }
         .pcw-date-separator {
             align-self: center;
@@ -1702,6 +1733,84 @@
             return `son görülmə: ${formatDateSeparatorLabel(ts).toLowerCase()}, ${formatMsgTime(ts)}`;
         }
 
+        // === YAZIR... GÖSTƏRİCİSİ ===
+        let typingListeners = {};
+        let typingStatus = {};
+        let typingTs = {};
+        let typingTimers = {};
+        let typingActive = {};
+
+        function updatePcwStatusLine(nick) {
+            const el = document.getElementById('pcw-lastseen-' + nick);
+            const bubble = document.getElementById('pcw-typing-' + nick);
+            const body = document.getElementById('pcw-body-' + nick);
+            if (bubble && body) {
+                if (typingStatus[nick]) {
+                    body.appendChild(bubble); // həmişə mesajların ən sonunda qalsın
+                    bubble.classList.add('active');
+                    body.scrollTop = body.scrollHeight;
+                } else {
+                    bubble.classList.remove('active');
+                }
+            }
+            if (!el) return;
+            if (typingStatus[nick]) {
+                el.textContent = 'yazır...';
+                el.classList.add('is-typing');
+                return;
+            }
+            el.classList.remove('is-typing');
+            const found = lastActiveUsersList.find(u => u.nick === nick);
+            el.textContent = (found && found.online) ? 'onlayn' : formatLastSeen(found && found.lastSeen);
+        }
+
+        function watchTypingStatus(targetNick) {
+            typingListeners[targetNick] = db.ref('typing/' + targetNick).on('value', (snap) => {
+                const data = snap.val();
+                const isTyping = !!(data && data.to === currentUserData.nick && data.ts && (Date.now() - data.ts < 5000));
+                typingStatus[targetNick] = isTyping;
+                typingTs[targetNick] = data && data.ts ? data.ts : 0;
+                updatePcwStatusLine(targetNick);
+            });
+        }
+
+        setInterval(() => {
+            Object.keys(typingStatus).forEach(nick => {
+                if (typingStatus[nick] && (Date.now() - (typingTs[nick] || 0) > 5000)) {
+                    typingStatus[nick] = false;
+                    updatePcwStatusLine(nick);
+                }
+            });
+        }, 2000);
+
+        function stopWatchingTypingStatus(targetNick) {
+            if (typingListeners[targetNick]) {
+                db.ref('typing/' + targetNick).off('value', typingListeners[targetNick]);
+                delete typingListeners[targetNick];
+            }
+            delete typingStatus[targetNick];
+        }
+
+        function notifyTyping(targetNick) {
+            if (!currentUserData) return;
+            const ref = db.ref('typing/' + currentUserData.nick);
+            if (!typingActive[targetNick]) {
+                typingActive[targetNick] = true;
+                ref.set({ to: targetNick, ts: firebase.database.ServerValue.TIMESTAMP });
+            }
+            if (typingTimers[targetNick]) clearTimeout(typingTimers[targetNick]);
+            typingTimers[targetNick] = setTimeout(() => {
+                typingActive[targetNick] = false;
+                ref.remove();
+            }, 3000);
+        }
+
+        function clearTypingStatus(targetNick) {
+            if (typingTimers[targetNick]) clearTimeout(typingTimers[targetNick]);
+            typingActive[targetNick] = false;
+            if (currentUserData) db.ref('typing/' + currentUserData.nick).remove();
+        }
+
         function showToast(message, type = 'info', duration = 4000) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -1773,6 +1882,7 @@ connectedRef.on('value', (snap) => {
     userRef.onDisconnect().update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP }).then(() => {
       userRef.update({ online: true });
     });
+    db.ref('typing/' + currentUserData.nick).onDisconnect().remove();
   }
 });
                        
@@ -2423,6 +2533,7 @@ connectedRef.on('value', (snap) => {
             }
             openPCWs[targetNick] = true;
             if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
+            watchTypingStatus(targetNick);
 
             const user = lastActiveUsersList.find(u => u.nick === targetNick);
             const avatar = user && user.avatarUrl ? user.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png';
@@ -2445,11 +2556,15 @@ connectedRef.on('value', (snap) => {
                         <span onclick="event.stopPropagation(); closePrivateChatWindow('${targetNick}')">✕</span>
                     </div>
                 </div>
-                <div class="pcw-body" id="pcw-body-${targetNick}"></div>
+                <div class="pcw-body" id="pcw-body-${targetNick}">
+                    <div class="pcw-typing-bubble" id="pcw-typing-${targetNick}">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                    </div>
+                </div>
                 <div class="pcw-input-bar" style="position:relative;">
                     <div class="input-pill">
                         <div class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${targetNick}')">😊</div>
-                        <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); sendPrivateChatMessage('${targetNick}');}" oninput="autoGrowTextarea(this)"></textarea>
+                        <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); sendPrivateChatMessage('${targetNick}');}" oninput="autoGrowTextarea(this); notifyTyping('${targetNick}');"></textarea>
                         <label class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Şəkil göndər">
                             🖼️
                             <input type="file" accept="image/*" style="display:none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
@@ -2479,6 +2594,7 @@ connectedRef.on('value', (snap) => {
         };
         window.closePrivateChatWindow = function(targetNick) {
             delete openPCWs[targetNick];
+            stopWatchingTypingStatus(targetNick);
             const win = document.getElementById('pcw-' + targetNick);
             if (win) win.remove();
         };
@@ -2502,6 +2618,7 @@ connectedRef.on('value', (snap) => {
             }
             const text = input.value.trim();
             if (!text && !mediaData) return;
+            clearTypingStatus(targetNick);
 
             const payload = {
                 sender: currentUserData.nick,
@@ -2626,10 +2743,7 @@ connectedRef.on('value', (snap) => {
                     const found = list.find(u => u.nick === nick);
                     const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
                     if (dot) dot.classList.toggle('is-online', !!(found && found.online));
-                    const lastSeenEl = document.getElementById('pcw-lastseen-' + nick);
-                    if (lastSeenEl) {
-                        lastSeenEl.textContent = (found && found.online) ? 'onlayn' : formatLastSeen(found && found.lastSeen);
-                    }
+                    updatePcwStatusLine(nick);
                 });
             });
         }
