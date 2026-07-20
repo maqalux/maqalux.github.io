@@ -1192,6 +1192,33 @@
             border-radius: 10px;
             margin-top: 6px;
         }
+        .pcw-typing-bubble {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            padding: 11px 15px;
+            display: none;
+        }
+        .pcw-typing-bubble.active {
+            display: inline-flex;
+            align-items: center;
+        }
+        .pcw-typing-bubble .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.65);
+            display: inline-block;
+            margin: 0 2px;
+            animation: typingBounce 1.2s infinite ease-in-out;
+        }
+        .pcw-typing-bubble .dot:nth-child(2) { animation-delay: 0.2s; }
+        .pcw-typing-bubble .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
         .pcw-date-separator {
             align-self: center;
             margin: 10px 0 6px 0;
@@ -1715,6 +1742,17 @@
 
         function updatePcwStatusLine(nick) {
             const el = document.getElementById('pcw-lastseen-' + nick);
+            const bubble = document.getElementById('pcw-typing-' + nick);
+            const body = document.getElementById('pcw-body-' + nick);
+            if (bubble && body) {
+                if (typingStatus[nick]) {
+                    body.appendChild(bubble); // həmişə mesajların ən sonunda qalsın
+                    bubble.classList.add('active');
+                    body.scrollTop = body.scrollHeight;
+                } else {
+                    bubble.classList.remove('active');
+                }
+            }
             if (!el) return;
             if (typingStatus[nick]) {
                 el.textContent = 'yazır...';
@@ -2518,7 +2556,11 @@ connectedRef.on('value', (snap) => {
                         <span onclick="event.stopPropagation(); closePrivateChatWindow('${targetNick}')">✕</span>
                     </div>
                 </div>
-                <div class="pcw-body" id="pcw-body-${targetNick}"></div>
+                <div class="pcw-body" id="pcw-body-${targetNick}">
+                    <div class="pcw-typing-bubble" id="pcw-typing-${targetNick}">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                    </div>
+                </div>
                 <div class="pcw-input-bar" style="position:relative;">
                     <div class="input-pill">
                         <div class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${targetNick}')">😊</div>
