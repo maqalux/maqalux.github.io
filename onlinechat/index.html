@@ -1422,6 +1422,7 @@
                         </div>
                         <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadProfileAvatar(event)">
                         <h3 id="myDisplayNick">🟢 İstifadəçi</h3>
+                        <span id="typingStatus" style="font-size: 13px; color: #ffc107; font-style: italic; margin-left: 8px;"></span>
 
                         <div class="avatar-dropdown" id="avatarDropdown">
                             <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); document.getElementById('avatarFileInput').click();">📸 Profil şəklini dəyiş</button>
@@ -1453,7 +1454,7 @@
                 <div class="input-bar" style="position: relative;">
                     <div class="input-pill">
                         <div class="pill-icon-btn" title="Stiker və GIF" onclick="toggleStickerPanel('main')">😊</div>
-                        <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this)"></textarea>
+                        <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this); handleTyping()"></textarea>
                         <label class="pill-icon-btn" title="Şəkil göndər">
                             🖼️
                             <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
@@ -1581,7 +1582,8 @@
         let activeStickerTarget = null;
         let lastKnownDateKey = null;
         let isMessagesLoaded = false;
-
+        let typingTimeout = null;
+        
         const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
         const STICKER_LIST = [
@@ -1768,6 +1770,7 @@ connectedRef.on('value', (snap) => {
                         loadMessages();
                         loadActiveUsers();
                         loadPrivateMessages();
+                        listenTypingStatus()
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
@@ -2725,6 +2728,48 @@ connectedRef.on('value', (snap) => {
                 showToast(`${targetNick} qara siyahıdan çıxarıldı.`, 'success');
             });
         };
+
+        // ============================================================
+        // 14. "YAZIR..." (TYPING INDICATOR) FUNKSİYALARI
+        // ============================================================
+        function handleTyping() {
+            if (!currentUserData) return;
+
+            // Firebase-ə yazırıq ki, bu istifadəçi hazırda yığır
+            db.ref('typing/' + currentUserData.nick).set(true);
+
+            // Əgər əvvəldən taymer sayırdısa, onu sıfırlayırıq
+            if (typingTimeout) clearTimeout(typingTimeout);
+
+            // İstifadəçi 2 saniyə düyməyə basmasa, "yazır..." statusunu silirik
+            typingTimeout = setTimeout(() => {
+                db.ref('typing/' + currentUserData.nick).remove();
+            }, 2000);
+        }
+
+        function listenTypingStatus() {
+            db.ref('typing').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const statusEl = document.getElementById('typingStatus');
+                if (!statusEl) return;
+
+                if (!data) {
+                    statusEl.innerText = '';
+                    return;
+                }
+
+                // Öz adımızdan başqa yazan şəxsləri filterləyirik
+                const typers = Object.keys(data).filter(nick => nick !== (currentUserData ? currentUserData.nick : ''));
+
+                if (typers.length === 1) {
+                    statusEl.innerText = `✍️ ${typers[0]} yazır...`;
+                } else if (typers.length > 1) {
+                    statusEl.innerText = '✍️ Bir neçə nəfər yazır...';
+                } else {
+                    statusEl.innerText = '';
+                }
+            });
+        }
         window.adminPromoteUser = function(targetNick) {
             if (!confirm(`${targetNick} istifadəçisini moderator təyin etmək istədiyinizdən əminsiniz?`)) return;
             const u = lastActiveUsersList.find(u => u.nick === targetNick);
