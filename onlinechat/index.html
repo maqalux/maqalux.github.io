@@ -1064,8 +1064,20 @@
             font-size: 13.5px;
             color: white;
             display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1px;
+            min-width: 0;
+        }
+        .pcw-header .pcw-name-row {
+            display: flex;
             align-items: center;
             gap: 6px;
+        }
+        .pcw-header .pcw-lastseen {
+            font-size: 11px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.5);
         }
         .pcw-header .pcw-online-dot {
             width: 8px;
@@ -1422,7 +1434,6 @@
                         </div>
                         <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadProfileAvatar(event)">
                         <h3 id="myDisplayNick">🟢 İstifadəçi</h3>
-                        <span id="typingStatus" style="font-size: 13px; color: #ffc107; font-style: italic; margin-left: 8px;"></span>
 
                         <div class="avatar-dropdown" id="avatarDropdown">
                             <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); document.getElementById('avatarFileInput').click();">📸 Profil şəklini dəyiş</button>
@@ -1454,7 +1465,7 @@
                 <div class="input-bar" style="position: relative;">
                     <div class="input-pill">
                         <div class="pill-icon-btn" title="Stiker və GIF" onclick="toggleStickerPanel('main')">😊</div>
-                        <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this); handleTyping()"></textarea>
+                        <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this)"></textarea>
                         <label class="pill-icon-btn" title="Şəkil göndər">
                             🖼️
                             <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
@@ -1582,8 +1593,7 @@
         let activeStickerTarget = null;
         let lastKnownDateKey = null;
         let isMessagesLoaded = false;
-        let typingTimeout = null;
-        
+
         const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
         const STICKER_LIST = [
@@ -1687,6 +1697,11 @@
             return `${dd}.${mm}.${yyyy}`;
         }
 
+        function formatLastSeen(ts) {
+            if (!ts) return 'son görülmə məlum deyil';
+            return `son görülmə: ${formatDateSeparatorLabel(ts).toLowerCase()}, ${formatMsgTime(ts)}`;
+        }
+
         function showToast(message, type = 'info', duration = 4000) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -1754,9 +1769,9 @@
                         const connectedRef = db.ref('.info/connected');
 connectedRef.on('value', (snap) => {
   if (snap.val() === true && currentUserData) {
-    const onlineRef = db.ref(`users/${currentUserData.uid}/online`);
-    onlineRef.onDisconnect().set(false).then(() => {
-      onlineRef.set(true);
+    const userRef = db.ref(`users/${currentUserData.uid}`);
+    userRef.onDisconnect().update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP }).then(() => {
+      userRef.update({ online: true });
     });
   }
 });
@@ -1770,7 +1785,6 @@ connectedRef.on('value', (snap) => {
                         loadMessages();
                         loadActiveUsers();
                         loadPrivateMessages();
-                        listenTypingStatus()
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
@@ -1868,7 +1882,7 @@ connectedRef.on('value', (snap) => {
 
         window.handleLogout = async function() {
             if (currentUser) {
-                await db.ref(`users/${currentUser.uid}/online`).set(false);
+                await db.ref(`users/${currentUser.uid}`).update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP });
                 await auth.signOut();
             }
         };
@@ -2421,8 +2435,11 @@ connectedRef.on('value', (snap) => {
                 <div class="pcw-header" onclick="togglePCWMinimize('${targetNick}')">
                     <img src="${avatar}" alt="av">
                     <div class="pcw-title">
-                        <span class="pcw-online-dot ${online?'is-online':''}"></span>
-                        ${escapeHtml(targetNick)}
+                        <div class="pcw-name-row">
+                            <span class="pcw-online-dot ${online?'is-online':''}"></span>
+                            ${escapeHtml(targetNick)}
+                        </div>
+                        <div class="pcw-lastseen" id="pcw-lastseen-${targetNick}">${online ? 'onlayn' : formatLastSeen(user && user.lastSeen)}</div>
                     </div>
                     <div class="pcw-actions">
                         <span onclick="event.stopPropagation(); closePrivateChatWindow('${targetNick}')">✕</span>
@@ -2609,6 +2626,10 @@ connectedRef.on('value', (snap) => {
                     const found = list.find(u => u.nick === nick);
                     const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
                     if (dot) dot.classList.toggle('is-online', !!(found && found.online));
+                    const lastSeenEl = document.getElementById('pcw-lastseen-' + nick);
+                    if (lastSeenEl) {
+                        lastSeenEl.textContent = (found && found.online) ? 'onlayn' : formatLastSeen(found && found.lastSeen);
+                    }
                 });
             });
         }
@@ -2728,48 +2749,6 @@ connectedRef.on('value', (snap) => {
                 showToast(`${targetNick} qara siyahıdan çıxarıldı.`, 'success');
             });
         };
-
-        // ============================================================
-        // 14. "YAZIR..." (TYPING INDICATOR) FUNKSİYALARI
-        // ============================================================
-        function handleTyping() {
-            if (!currentUserData) return;
-
-            // Firebase-ə yazırıq ki, bu istifadəçi hazırda yığır
-            db.ref('typing/' + currentUserData.nick).set(true);
-
-            // Əgər əvvəldən taymer sayırdısa, onu sıfırlayırıq
-            if (typingTimeout) clearTimeout(typingTimeout);
-
-            // İstifadəçi 2 saniyə düyməyə basmasa, "yazır..." statusunu silirik
-            typingTimeout = setTimeout(() => {
-                db.ref('typing/' + currentUserData.nick).remove();
-            }, 2000);
-        }
-
-        function listenTypingStatus() {
-            db.ref('typing').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const statusEl = document.getElementById('typingStatus');
-                if (!statusEl) return;
-
-                if (!data) {
-                    statusEl.innerText = '';
-                    return;
-                }
-
-                // Öz adımızdan başqa yazan şəxsləri filterləyirik
-                const typers = Object.keys(data).filter(nick => nick !== (currentUserData ? currentUserData.nick : ''));
-
-                if (typers.length === 1) {
-                    statusEl.innerText = `✍️ ${typers[0]} yazır...`;
-                } else if (typers.length > 1) {
-                    statusEl.innerText = '✍️ Bir neçə nəfər yazır...';
-                } else {
-                    statusEl.innerText = '';
-                }
-            });
-        }
         window.adminPromoteUser = function(targetNick) {
             if (!confirm(`${targetNick} istifadəçisini moderator təyin etmək istədiyinizdən əminsiniz?`)) return;
             const u = lastActiveUsersList.find(u => u.nick === targetNick);
