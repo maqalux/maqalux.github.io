@@ -2285,7 +2285,7 @@ connectedRef.on('value', (snap) => {
         // ============================================================
         // 10. ŞƏXSİ MESAJLAR - FİKS EDİLDİ
         // ============================================================
-        function loadPrivateMessages() {
+    function loadPrivateMessages() {
             db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_added', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
@@ -2303,6 +2303,23 @@ connectedRef.on('value', (snap) => {
                         }
                     }
                 }
+            });
+
+            // YENİ: mövcud mesajın deliveredTo/readBy sahəsi dəyişəndə tiki yenilə
+            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_changed', (snap) => {
+                const msg = snap.val();
+                msg.id = snap.key;
+                if (!currentUserData || msg.sender !== currentUserData.nick) return;
+                const el = document.getElementById('pcwmsg-' + msg.id);
+                if (!el) return;
+                const ticksEl = el.querySelector('.msg-ticks');
+                if (!ticksEl) return;
+                const readBy = msg.readBy || [];
+                const deliveredTo = msg.deliveredTo || [];
+                let state = 'sent';
+                if (readBy.includes(msg.recipient)) state = 'read';
+                else if (deliveredTo.includes(msg.recipient)) state = 'delivered';
+                ticksEl.outerHTML = ticksSvg(state);
             });
         }
 
