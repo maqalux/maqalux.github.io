@@ -487,8 +487,8 @@
       if (!list || !badge) return;
       const entries = Object.entries(msgConversations).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
       const totalUnread = entries.reduce((sum, [, c]) => sum + (c.unreadCount || 0), 0);
-      if (unreadCount > 0) {
-        badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+   if (totalUnread > 0) {
+        badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
         badge.classList.remove('hidden');
       } else {
         badge.classList.add('hidden');
