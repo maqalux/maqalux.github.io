@@ -2208,24 +2208,20 @@ connectedRef.on('value', (snap) => {
                     appendMessage(msg);
                 }
             });
+
+            // 3) Mövcud mesajın istənilən sahəsi (reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
+            db.ref('messages').orderByChild('timestamp').limitToLast(150).on('child_changed', (snap) => {
+                const msg = snap.val();
+                msg.id = snap.key;
+                const idx = allMessages.findIndex(m => m.id === msg.id);
+                if (idx !== -1) allMessages[idx] = msg;
+                const el = document.getElementById('msg-' + msg.id);
+                if (!el) return;
+                el.innerHTML = buildMessageContentHtml(msg);
+            });
         }
 
-        function appendMessage(msg) {
-            if (!msg) return;
-            const area = document.getElementById('chatMessagesArea');
-            if (!area) return;
-
-            // əgər bu mesaj artıq DOM-dadırsa keç
-            if (document.getElementById('msg-' + msg.id)) return;
-
-            const div = document.createElement('div');
-            div.className = 'msg-bubble ' + (msg.sender === currentUserData.nick ? 'msg-me' : 'msg-other');
-            div.id = 'msg-' + msg.id;
-            div.dataset.msgId = msg.id;
-            div.oncontextmenu = (e) => { e.preventDefault();
-                openMsgContextMenu(e, msg.id, false, null); };
-            attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, null));
-
+        function buildMessageContentHtml(msg) {
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             const isOther = msg.sender !== currentUserData.nick;
             const openPCWAttrs = isOther ?
@@ -2279,8 +2275,26 @@ connectedRef.on('value', (snap) => {
             }
             content +=
                 `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">${footerActions}<span class="msg-meta">${formatMsgTime(msg.timestamp)}${isMe ? ticksSvg(state) : ''}</span></div>`;
+            return content;
+        }
 
-            div.innerHTML = content;
+        function appendMessage(msg) {
+            if (!msg) return;
+            const area = document.getElementById('chatMessagesArea');
+            if (!area) return;
+
+            // əgər bu mesaj artıq DOM-dadırsa keç
+            if (document.getElementById('msg-' + msg.id)) return;
+
+            const div = document.createElement('div');
+            div.className = 'msg-bubble ' + (msg.sender === currentUserData.nick ? 'msg-me' : 'msg-other');
+            div.id = 'msg-' + msg.id;
+            div.dataset.msgId = msg.id;
+            div.oncontextmenu = (e) => { e.preventDefault();
+                openMsgContextMenu(e, msg.id, false, null); };
+            attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, null));
+
+            div.innerHTML = buildMessageContentHtml(msg);
             area.appendChild(div);
             area.scrollTop = area.scrollHeight;
 
@@ -2464,47 +2478,20 @@ connectedRef.on('value', (snap) => {
                 }
             });
 
-            // YENİ: mövcud mesajın deliveredTo/readBy sahəsi dəyişəndə tiki yenilə
+            // Mövcud mesajın istənilən sahəsi (tik, reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
             db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_changed', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
-                if (!currentUserData || msg.sender !== currentUserData.nick) return;
+                if (!currentUserData) return;
+                if (msg.sender !== currentUserData.nick && msg.recipient !== currentUserData.nick) return;
                 const el = document.getElementById('pcwmsg-' + msg.id);
                 if (!el) return;
-                const ticksEl = el.querySelector('.msg-ticks');
-                if (!ticksEl) return;
-                const readBy = msg.readBy || [];
-                const deliveredTo = msg.deliveredTo || [];
-                let state = 'sent';
-                if (readBy.includes(msg.recipient)) state = 'read';
-                else if (deliveredTo.includes(msg.recipient)) state = 'delivered';
-                ticksEl.outerHTML = ticksSvg(state);
+                el.innerHTML = buildPrivateMessageContentHtml(msg);
             });
         }
 
-        function appendPrivateMessage(targetNick, msg) {
-            const body = document.getElementById('pcw-body-' + targetNick);
-            if (!body) return;
-            if (document.getElementById('pcwmsg-' + msg.id)) return;
-
-            const thisDateKey = dateKeyOf(msg.timestamp);
-            const lastKey = body.dataset.lastDateKey || null;
-            if (thisDateKey && thisDateKey !== lastKey) {
-                const sep = document.createElement('div');
-                sep.className = 'pcw-date-separator';
-                sep.innerText = formatDateSeparatorLabel(msg.timestamp);
-                body.appendChild(sep);
-                body.dataset.lastDateKey = thisDateKey;
-            }
-            const div = document.createElement('div');
+        function buildPrivateMessageContentHtml(msg) {
             const isMe = msg.sender === currentUserData.nick;
-            div.className = 'pcw-msg ' + (isMe ? 'pcw-msg-me' : 'pcw-msg-other');
-            div.id = 'pcwmsg-' + msg.id;
-            div.dataset.msgId = msg.id;
-            div.oncontextmenu = (e) => { e.preventDefault();
-                openMsgContextMenu(e, msg.id, true, targetNick); };
-            attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, true, targetNick));
-
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             let content = `
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
@@ -2541,8 +2528,33 @@ connectedRef.on('value', (snap) => {
             }
             content +=
                 `<div style="display:flex; justify-content:${isMe?'flex-end':'flex-start'};"><span class="msg-meta">${formatMsgTime(msg.timestamp)}${isMe ? ticksSvg(state) : ''}</span></div>`;
+            return content;
+        }
 
-            div.innerHTML = content;
+        function appendPrivateMessage(targetNick, msg) {
+            const body = document.getElementById('pcw-body-' + targetNick);
+            if (!body) return;
+            if (document.getElementById('pcwmsg-' + msg.id)) return;
+
+            const thisDateKey = dateKeyOf(msg.timestamp);
+            const lastKey = body.dataset.lastDateKey || null;
+            if (thisDateKey && thisDateKey !== lastKey) {
+                const sep = document.createElement('div');
+                sep.className = 'pcw-date-separator';
+                sep.innerText = formatDateSeparatorLabel(msg.timestamp);
+                body.appendChild(sep);
+                body.dataset.lastDateKey = thisDateKey;
+            }
+            const div = document.createElement('div');
+            const isMe = msg.sender === currentUserData.nick;
+            div.className = 'pcw-msg ' + (isMe ? 'pcw-msg-me' : 'pcw-msg-other');
+            div.id = 'pcwmsg-' + msg.id;
+            div.dataset.msgId = msg.id;
+            div.oncontextmenu = (e) => { e.preventDefault();
+                openMsgContextMenu(e, msg.id, true, targetNick); };
+            attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, true, targetNick));
+
+            div.innerHTML = buildPrivateMessageContentHtml(msg);
             body.appendChild(div);
             body.scrollTop = body.scrollHeight;
 
