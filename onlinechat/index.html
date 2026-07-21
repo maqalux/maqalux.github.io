@@ -919,6 +919,11 @@
             padding: 40px 10px;
             line-height: 1.6;
         }
+        .pcw-sticker-panel {
+            bottom: 52px;
+            right: 10px;
+            width: 270px;
+        }
 
         /* Context Menu */
         .msg-context-menu {
@@ -1420,14 +1425,21 @@
                 padding: 14px 16px;
             }
             .sticker-panel {
-                left: 10px;
-                right: 10px;
-                width: auto;
-                bottom: 64px;
-                max-height: 50vh;
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 100%;
+                width: 100%;
+                max-width: 100%;
+                max-height: 44vh;
+                margin-bottom: 0;
+                border-radius: 16px 16px 0 0;
+                border-left: none;
+                border-right: none;
             }
             .sticker-grid {
                 grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
             }
             .msg-context-menu {
                 min-width: 170px;
@@ -2591,7 +2603,7 @@ connectedRef.on('value', (snap) => {
                         </label>
                     </div>
                     <button class="pcw-send-btn" onclick="sendPrivateChatMessage('${targetNick}')">➤</button>
-                    <div class="sticker-panel" id="stickerPanel-${targetNick}" style="bottom:52px;right:10px;width:270px;">
+                    <div class="sticker-panel pcw-sticker-panel" id="stickerPanel-${targetNick}">
                         <div class="sticker-tabs">
                             <div class="sticker-tab active" data-tab="sticker" onclick="switchStickerTab('${targetNick}','sticker')">Stiker</div>
                             <div class="sticker-tab" data-tab="gif" onclick="switchStickerTab('${targetNick}','gif')">GIF</div>
@@ -2717,7 +2729,7 @@ connectedRef.on('value', (snap) => {
 
         // GIPHY-nin ictimai test açarı. Öz layihən üçün pulsuz açar al:
         // https://developers.giphy.com/dashboard/ -> "Create an App" -> API Key-i kopyala
-        const GIPHY_API_KEY = 'WhNJ8gWSYutgDZ5lYidapQQNC8jxBUUu';
+        const GIPHY_API_KEY = 'dc6zaOfrgDrzE';
         let gifSearchTimers = {};
 
         function renderStickerBody(target, tab) {
