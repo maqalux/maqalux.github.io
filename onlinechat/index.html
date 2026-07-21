@@ -859,6 +859,26 @@
             overflow-y: auto;
             padding: 12px;
         }
+        .gif-search-bar {
+            padding: 0 0 10px 0;
+        }
+        .gif-search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            font-size: 12.5px;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+        }
+        .gif-search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .gif-search-input:focus {
+            border-color: #ffaa00;
+        }
         .sticker-body::-webkit-scrollbar {
             width: 5px;
         }
@@ -2695,17 +2715,79 @@ connectedRef.on('value', (snap) => {
             renderStickerBody(target, tab);
         };
 
+        // GIPHY-nin ictimai test açarı. Öz layihən üçün pulsuz açar al:
+        // https://developers.giphy.com/dashboard/ -> "Create an App" -> API Key-i kopyala
+        const GIPHY_API_KEY = 'WhNJ8gWSYutgDZ5lYidapQQNC8jxBUUu';
+        let gifSearchTimers = {};
+
         function renderStickerBody(target, tab) {
             const body = document.getElementById('stickerBody-' + target);
             if (!body) return;
-            const list = tab === 'gif' ? GIF_LIST : STICKER_LIST;
-            if (!list.length) {
-                body.innerHTML =
-                    `<div class="sticker-empty-state">${tab==='gif'?'🎞️ GIF kolleksiyası tezliklə əlavə olunacaq.':'😊 Stiker tapılmadı.'}</div>`;
+
+            if (tab === 'sticker') {
+                if (!STICKER_LIST.length) {
+                    body.innerHTML = `<div class="sticker-empty-state">😊 Stiker tapılmadı.</div>`;
+                    return;
+                }
+                body.innerHTML = `<div class="sticker-grid">${STICKER_LIST.map(url => `<img src="${url}" loading="lazy" onclick="sendStickerOrGif('${target}','${url}','sticker')">`).join('')}</div>`;
                 return;
             }
-            body.innerHTML =
-                `<div class="sticker-grid">${list.map(url => `<img src="${url}" loading="lazy" onclick="sendStickerOrGif('${target}','${url}','${tab}')">`).join('')}</div>`;
+
+            // GIF tab — axtarış paneli + nəticə şəbəkəsi
+            body.innerHTML = `
+                <div class="gif-search-bar">
+                    <input type="text" class="gif-search-input" id="gifSearch-${target}" placeholder="GIF axtar (məs: salam, gülüş...)" oninput="onGifSearchInput('${target}', this.value)">
+                </div>
+                <div class="sticker-grid" id="gifGrid-${target}"></div>
+            `;
+            renderGifGrid(target, GIF_LIST);
+            loadTrendingGifs(target);
+        }
+
+        function renderGifGrid(target, urls) {
+            const grid = document.getElementById('gifGrid-' + target);
+            if (!grid) return;
+            if (!urls.length) {
+                grid.innerHTML = `<div class="sticker-empty-state">🎞️ GIF tapılmadı.</div>`;
+                return;
+            }
+            grid.innerHTML = urls.map(url => `<img src="${url}" loading="lazy" onclick="sendStickerOrGif('${target}','${url}','gif')">`).join('');
+        }
+
+        async function loadTrendingGifs(target) {
+            try {
+                const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=24&rating=pg-13`);
+                const data = await res.json();
+                const urls = (data.data || []).map(g => g.images.fixed_height.url);
+                // yerli kolleksiyanı GIPHY trend GIF-ləri ilə tamamla
+                renderGifGrid(target, [...GIF_LIST, ...urls]);
+            } catch (err) {
+                console.error('GIPHY trend GIF xətası:', err);
+            }
+        }
+
+        window.onGifSearchInput = function(target, query) {
+            if (gifSearchTimers[target]) clearTimeout(gifSearchTimers[target]);
+            gifSearchTimers[target] = setTimeout(() => searchGifs(target, query.trim()), 400);
+        };
+
+        async function searchGifs(target, query) {
+            const grid = document.getElementById('gifGrid-' + target);
+            if (!grid) return;
+            if (!query) {
+                renderGifGrid(target, GIF_LIST);
+                loadTrendingGifs(target);
+                return;
+            }
+            grid.innerHTML = `<div class="sticker-empty-state">Axtarılır...</div>`;
+            try {
+                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=24&rating=pg-13&lang=az`);
+                const data = await res.json();
+                const urls = (data.data || []).map(g => g.images.fixed_height.url);
+                renderGifGrid(target, urls);
+            } catch (err) {
+                grid.innerHTML = `<div class="sticker-empty-state">GIF axtarışı zamanı xəta baş verdi.</div>`;
+            }
         }
 
         window.sendStickerOrGif = function(target, url, tab) {
