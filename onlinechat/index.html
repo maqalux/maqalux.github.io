@@ -466,6 +466,16 @@
             display: flex;
             flex-direction: column;
             cursor: pointer;
+            touch-action: pan-y;
+        }
+        .swipe-reply-icon {
+            position: absolute;
+            top: 50%;
+            left: -32px;
+            transform: translateY(-50%);
+            font-size: 18px;
+            opacity: 0;
+            pointer-events: none;
         }
         .msg-bubble b {
             font-size: 0.85em;
@@ -1215,6 +1225,8 @@
             font-size: 13px;
             word-wrap: break-word;
             align-self: flex-start;
+            position: relative;
+            touch-action: pan-y;
         }
         .pcw-msg.pcw-msg-me {
             background: linear-gradient(135deg, #024397, #00285e);
@@ -2308,6 +2320,7 @@ connectedRef.on('value', (snap) => {
             div.oncontextmenu = (e) => { e.preventDefault();
                 openMsgContextMenu(e, msg.id, false, null); };
             attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, null));
+            attachSwipeToReply(div, () => startReply(msg.id, false, null));
 
             div.innerHTML = buildMessageContentHtml(msg);
             area.appendChild(div);
@@ -2592,6 +2605,7 @@ connectedRef.on('value', (snap) => {
             div.oncontextmenu = (e) => { e.preventDefault();
                 openMsgContextMenu(e, msg.id, true, targetNick); };
             attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, true, targetNick));
+            attachSwipeToReply(div, () => startReply(msg.id, true, targetNick));
 
             div.innerHTML = buildPrivateMessageContentHtml(msg);
             body.appendChild(div);
@@ -3101,6 +3115,52 @@ connectedRef.on('value', (snap) => {
             el.addEventListener('touchstart', start, { passive: true });
             el.addEventListener('touchend', cancel);
             el.addEventListener('touchmove', cancel);
+        }
+
+        function attachSwipeToReply(el, onReply) {
+            const THRESHOLD = 60;
+            const MAX_DRAG = 72;
+            let startX = 0, startY = 0, dragging = false, active = false, currentX = 0, iconEl = null;
+
+            function onStart(e) {
+                if (!e.touches || e.touches.length !== 1) return;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                dragging = false;
+                active = true;
+                currentX = 0;
+            }
+            function onMove(e) {
+                if (!active || !e.touches || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - startX;
+                const dy = e.touches[0].clientY - startY;
+                if (!dragging) {
+                    if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy)) return;
+                    dragging = true;
+                    el.style.transition = 'none';
+                    iconEl = document.createElement('span');
+                    iconEl.className = 'swipe-reply-icon';
+                    iconEl.textContent = '↩️';
+                    el.appendChild(iconEl);
+                }
+                currentX = dx > 0 ? Math.min(dx, MAX_DRAG) : 0;
+                el.style.transform = `translateX(${currentX}px)`;
+                if (iconEl) iconEl.style.opacity = Math.min(currentX / THRESHOLD, 1);
+            }
+            function onEnd() {
+                active = false;
+                if (!dragging) return;
+                dragging = false;
+                el.style.transition = 'transform 0.2s ease';
+                el.style.transform = 'translateX(0)';
+                if (iconEl) { iconEl.remove(); iconEl = null; }
+                if (currentX >= THRESHOLD) onReply();
+                currentX = 0;
+            }
+            el.addEventListener('touchstart', onStart, { passive: true });
+            el.addEventListener('touchmove', onMove, { passive: true });
+            el.addEventListener('touchend', onEnd);
+            el.addEventListener('touchcancel', onEnd);
         }
 
         // ============================================================
