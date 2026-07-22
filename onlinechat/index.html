@@ -912,6 +912,33 @@
             opacity: 0.6;
             font-size: 16px;
         }
+        #editPreviewBar {
+            display: none;
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            align-items: center;
+            gap: 10px;
+        }
+        #editPreviewBar .reply-preview-content {
+            flex: 1;
+            border-left: 3px solid #4fc3f7;
+            padding-left: 10px;
+            font-size: 12.5px;
+            overflow: hidden;
+        }
+        #editPreviewBar .reply-preview-content span {
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        #editPreviewBar .reply-cancel {
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 16px;
+        }
 
         /* Sticker panel */
         .sticker-panel {
@@ -1736,6 +1763,15 @@
                     <span class="reply-cancel" onclick="cancelReply()">✕</span>
                 </div>
 
+                <!-- Edit Preview Bar -->
+                <div id="editPreviewBar" style="display:none;">
+                    <div class="reply-preview-content">
+                        <b style="color:#4fc3f7;">✏️ Mesajı redaktə edirsiniz</b>
+                        <span id="editPreviewText"></span>
+                    </div>
+                    <span class="reply-cancel" onclick="cancelEdit()">✕</span>
+                </div>
+
                 <!-- Input Bar -->
                 <div class="input-bar" style="position: relative;">
                     <div class="input-pill">
@@ -1877,6 +1913,7 @@
         let openPCWs = {};
         let lastActiveUsersList = [];
         let replyContext = null;
+        let editContext = null;
         let activeStickerTarget = null;
         let lastKnownDateKey = null;
         let isMessagesLoaded = false;
@@ -2520,7 +2557,7 @@ connectedRef.on('value', (snap) => {
                 else if (deliveredTo.length > 0) state = 'delivered';
             }
             content +=
-                `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">${footerActions}<span class="msg-meta">${formatMsgTime(msg.timestamp)}${isMe ? ticksSvg(state) : ''}</span></div>`;
+                `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">${footerActions}<span class="msg-meta">${msg.isEdited ? '<span style="opacity:0.65;font-style:italic;">redaktə edilib · </span>' : ''}${formatMsgTime(msg.timestamp)}${isMe ? ticksSvg(state) : ''}</span></div>`;
             return content;
         }
 
@@ -2651,6 +2688,16 @@ connectedRef.on('value', (snap) => {
             const text = input.value.trim();
             if (!text && !mediaData) return;
             if (!currentUserData) return showToast('Zəhmət olmasa daxil olun.', 'error');
+
+            if (editContext && !editContext.isPrivate) {
+                const editId = editContext.id;
+                db.ref(`messages/${editId}`).update({ text: text, isEdited: true }).then(() => {
+                    cancelEdit();
+                }).catch(err => {
+                    showToast('Redaktə edilərkən xəta: ' + err.message, 'error');
+                });
+                return;
+            }
 
             const payload = {
                 sender: currentUserData.nick,
@@ -2792,6 +2839,7 @@ connectedRef.on('value', (snap) => {
             const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
             const msg = list.find(m => m.id === msgId);
             if (!msg || msg.isDeleted) return;
+            cancelEdit();
             const hasMedia = !!(msg.mediaType && msg.mediaType !== 'text' && msg.mediaUrl);
             replyContext = {
                 id: msg.id,
@@ -2833,6 +2881,62 @@ connectedRef.on('value', (snap) => {
             document.getElementById('replyPreviewBar').style.display = 'none';
             document.getElementById('replyPreviewThumb').style.display = 'none';
             document.querySelectorAll('.pcw-reply-preview').forEach(el => el.remove());
+        };
+
+        window.startEdit = function(msgId, isPrivate, targetNick) {
+            const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
+            const msg = list.find(m => m.id === msgId);
+            if (!msg || msg.isDeleted) return;
+            if (msg.sender !== currentUserData.nick) return;
+            cancelReply();
+            editContext = { id: msg.id, isPrivate: isPrivate, targetNick: targetNick || null };
+            if (isPrivate) {
+                const pcw = document.getElementById('pcw-' + targetNick);
+                if (pcw) {
+                    let bar = pcw.querySelector('.pcw-edit-preview');
+                    if (!bar) {
+                        bar = document.createElement('div');
+                        bar.className = 'pcw-reply-preview pcw-edit-preview';
+                        pcw.querySelector('.pcw-input-bar').insertAdjacentElement('beforebegin', bar);
+                    }
+                    bar.innerHTML =
+                        `<div style="flex:1;border-left:2px solid #4fc3f7;padding-left:8px;overflow:hidden;"><b style="color:#4fc3f7;display:block;">✏️ Mesajı redaktə edirsiniz</b></div><span style="cursor:pointer;opacity:0.6;" onclick="cancelEdit()">✕</span>`;
+                    const input = pcw.querySelector('.pcw-text-input');
+                    input.value = msg.text || '';
+                    autoGrowTextarea(input);
+                    input.focus();
+                }
+            } else {
+                document.getElementById('editPreviewText').innerText = (msg.text || '').slice(0, 80);
+                document.getElementById('editPreviewBar').style.display = 'flex';
+                const input = document.getElementById('messageInputField');
+                input.value = msg.text || '';
+                autoGrowTextarea(input);
+                input.focus();
+            }
+            closeMsgContextMenu();
+        };
+
+        window.cancelEdit = function() {
+            if (!editContext) return;
+            const wasPrivate = editContext.isPrivate;
+            const targetNick = editContext.targetNick;
+            editContext = null;
+            if (wasPrivate) {
+                const pcw = document.getElementById('pcw-' + targetNick);
+                if (pcw) {
+                    const bar = pcw.querySelector('.pcw-edit-preview');
+                    if (bar) bar.remove();
+                    const input = pcw.querySelector('.pcw-text-input');
+                    if (input) { input.value = '';
+                        input.style.height = 'auto'; }
+                }
+            } else {
+                document.getElementById('editPreviewBar').style.display = 'none';
+                const input = document.getElementById('messageInputField');
+                if (input) { input.value = '';
+                    input.style.height = 'auto'; }
+            }
         };
 
         window.forwardMessage = function(msgId, isPrivate, targetNick) {
@@ -2940,7 +3044,7 @@ connectedRef.on('value', (snap) => {
                 else if (deliveredTo.includes(msg.recipient)) state = 'delivered';
             }
             content +=
-                `<div style="display:flex; justify-content:${isMe?'flex-end':'flex-start'};"><span class="msg-meta">${formatMsgTime(msg.timestamp)}${isMe ? ticksSvg(state) : ''}</span></div>`;
+                `<div style="display:flex; justify-content:${isMe?'flex-end':'flex-start'};"><span class="msg-meta">${msg.isEdited ? '<span style="opacity:0.65;font-style:italic;">redaktə edilib · </span>' : ''}${formatMsgTime(msg.timestamp)}${isMe ? ticksSvg(state) : ''}</span></div>`;
             return content;
         }
 
@@ -3193,6 +3297,19 @@ connectedRef.on('value', (snap) => {
             }
             const text = input.value.trim();
             if (!text && !mediaData) return;
+
+            if (editContext && editContext.isPrivate && editContext.targetNick === targetNick) {
+                const editId = editContext.id;
+                db.ref(`privateMessages/${editId}`).update({ text: text, isEdited: true }).then(() => {
+                    input.value = '';
+                    input.style.height = 'auto';
+                    cancelEdit();
+                }).catch(err => {
+                    showToast('Redaktə zamanı xəta: ' + err.message, 'error');
+                });
+                return;
+            }
+
             clearTypingStatus(targetNick);
 
             const payload = {
@@ -3521,8 +3638,12 @@ connectedRef.on('value', (snap) => {
                 `<button type="button" class="ctx-item" onclick="forwardMessage('${msgId}', ${isPrivate}, ${targetNick ? `'${targetNick}'` : null})">↪️ Yönləndir</button>`;
 
             const myRole = currentUserData.role;
-            const canModDelete = (myRole === 'admin' || myRole === 'moderator') && !isPrivate;
             const isOwn = msg.sender === currentUserData.nick;
+            if (isOwn) {
+                items +=
+                    `<button type="button" class="ctx-item" onclick="startEdit('${msgId}', ${isPrivate}, ${targetNick ? `'${targetNick}'` : null})">✏️ Redaktə et</button>`;
+            }
+            const canModDelete = (myRole === 'admin' || myRole === 'moderator') && !isPrivate;
             if (canModDelete) {
                 items += `<button type="button" class="ctx-item danger" onclick="requestDelete('${msgId}')">🗑️ Mesajı sil</button>`;
             } else if (isOwn) {
