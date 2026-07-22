@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffaa00">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Maqalux">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -188,7 +194,7 @@
     .msg-conv-item.unread .msg-conv-name { font-weight: 700; }
     .msg-conv-preview { font-size: 12.5px; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
     .msg-conv-item.unread .msg-conv-preview { color: rgba(255,255,255,0.85); }
-    .msg-conv-dot { width: 9px; height: 9px; border-radius: 50%; background: #ffaa00; flex-shrink: 0; }
+    .msg-conv-dot { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ffaa00; color: #030714; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; cursor: pointer; transition: 0.2s; }
     .profile-avatar:hover { transform: scale(1.1); }
 
@@ -283,10 +289,55 @@
       nav ul { flex-direction: column; align-items: center; width: 100%; }
       nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
     }
+    /* === SON PRİORİTETLİ QAYDA (bütün köhnə/təkrarlanan qaydaları əzir) === */
+    @media (max-width: 700px) {
+      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; }
+      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 22px !important; margin-left: 0 !important; margin-right: 0 !important; }
+      header > nav { order: 3 !important; width: 100% !important; }
+      header > nav:not(.mobile-nav-open) { display: none !important; }
+      header > nav.mobile-nav-open { display: flex !important; }
+    }
+    .image-viewer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+    }
+    .image-viewer-overlay.active { display: flex; }
+    .image-viewer-overlay img {
+      max-width: 92vw;
+      max-height: 90vh;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+    .image-viewer-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      font-size: 26px;
+      color: white;
+      cursor: pointer;
+      opacity: 0.8;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .image-viewer-close:hover { opacity: 1; }
 </style>
 </head>
 
 <body>
+  <div class="image-viewer-overlay" id="imageViewerOverlay" onclick="if(event.target.id==='imageViewerOverlay') closeImageViewer();">
+    <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
+    <img id="imageViewerImg" src="" alt="Şəkil">
+  </div>
   <div id="loadingScreen" class="loading-screen">
     <div class="spinner"></div>
   </div>
@@ -308,10 +359,17 @@
       <div class="header-right">
       <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
       <div class="dropdown-menu" id="dropdownMenu">
-        <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
-        <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
-        <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
-        <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
+        <div id="dropdownLevel1">
+          <button class="dropdown-item" onclick="viewOwnAvatarLarge()">🖼️ Profilə bax</button>
+          <button class="dropdown-item" onclick="showSettingsLevel()">⚙️ Ayarlara daxil ol</button>
+        </div>
+        <div id="dropdownLevel2" style="display:none;">
+          <button class="dropdown-item" onclick="backToAvatarMenu()">← Geri</button>
+          <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
+          <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
+          <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
+          <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
+        </div>
       </div>
       <div class="msg-icon-wrap" id="msgIconWrap" onclick="toggleMsgDropdown(event)">
         <i class="far fa-paper-plane msg-icon"></i>
@@ -484,10 +542,35 @@
       e.stopPropagation();
       document.getElementById('dropdownMenu').classList.toggle('active');
     }
+    function closeAvatarDropdownMenu() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      document.getElementById('dropdownLevel1').style.display = 'block';
+      document.getElementById('dropdownLevel2').style.display = 'none';
+    }
+    function showSettingsLevel() {
+      document.getElementById('dropdownLevel1').style.display = 'none';
+      document.getElementById('dropdownLevel2').style.display = 'block';
+    }
+    function backToAvatarMenu() {
+      document.getElementById('dropdownLevel2').style.display = 'none';
+      document.getElementById('dropdownLevel1').style.display = 'block';
+    }
+    function viewOwnAvatarLarge() {
+      closeAvatarDropdownMenu();
+      openImageViewer(document.getElementById('headerAvatar').src);
+    }
+    function openImageViewer(url) {
+      document.getElementById('imageViewerImg').src = url;
+      document.getElementById('imageViewerOverlay').classList.add('active');
+    }
+    function closeImageViewer() {
+      document.getElementById('imageViewerOverlay').classList.remove('active');
+      document.getElementById('imageViewerImg').src = '';
+    }
     document.addEventListener('click', function(e) {
       const menu = document.getElementById('dropdownMenu');
       if (menu && menu.classList.contains('active') && !e.target.closest('.header-right')) {
-        menu.classList.remove('active');
+        closeAvatarDropdownMenu();
       }
     });
 
@@ -557,21 +640,33 @@
           if (!m || m.isDeleted) return;
           const readBy = m.readBy || [];
           const isUnread = !readBy.includes(currentUserData.nick);
-          const existing = convs[m.sender];
-          if (!existing || (m.timestamp || 0) >= (existing.timestamp || 0)) {
+          if (!convs[m.sender]) {
             convs[m.sender] = {
               avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png',
-              text: (m.mediaType && m.mediaType !== 'text') ? '📎 Media' : (m.text || ''),
-              timestamp: m.timestamp || 0,
-              unread: isUnread || (existing && existing.unread)
+              text: '',
+              timestamp: 0,
+              unreadCount: 0
             };
-          } else if (isUnread) {
-            existing.unread = true;
           }
+          const conv = convs[m.sender];
+          if ((m.timestamp || 0) >= conv.timestamp) {
+            conv.avatar = m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+            conv.text = (m.mediaType && m.mediaType !== 'text') ? '📎 Media' : (m.text || '');
+            conv.timestamp = m.timestamp || 0;
+          }
+          if (isUnread) conv.unreadCount++;
         });
         msgConversations = convs;
+        if (msgInboxFirstLoad) {
+          msgPrevCounts = {};
+          Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
+          msgInboxFirstLoad = false;
+        } else {
+          notifyNewMessages(convs);
+        }
         renderMsgDropdown();
       });
+      msgInboxFirstLoad = true;
     }
 
     function stopMessageInbox() {
@@ -580,14 +675,48 @@
       renderMsgDropdown();
     }
 
+    // === PUSH BİLDİRİŞLƏRİ (Firebase Cloud Messaging) ===
+    let msgPrevCounts = {};
+    let msgInboxFirstLoad = true;
+
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    function notifyNewMessages(convs) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        Object.entries(convs).forEach(([nick, c]) => {
+          const prev = msgPrevCounts[nick] || 0;
+          if (c.unreadCount > prev) {
+            try {
+              const notif = new Notification(nick, {
+                body: c.text || 'Yeni mesaj',
+                icon: c.avatar
+              });
+              notif.onclick = () => {
+                window.focus();
+                window.location.href = 'onlinechat#open=' + encodeURIComponent(nick);
+              };
+            } catch (e) {
+              console.error('Bildiriş xətası:', e);
+            }
+          }
+        });
+      }
+      msgPrevCounts = {};
+      Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
+    }
+
     function renderMsgDropdown() {
       const list = document.getElementById('msgDropdownList');
       const badge = document.getElementById('msgBadgeCount');
       if (!list || !badge) return;
       const entries = Object.entries(msgConversations).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
-      const unreadCount = entries.filter(([, c]) => c.unread).length;
-      if (unreadCount > 0) {
-        badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+      const totalUnread = entries.reduce((sum, [, c]) => sum + (c.unreadCount || 0), 0);
+      if (totalUnread > 0) {
+        badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
         badge.classList.remove('hidden');
       } else {
         badge.classList.add('hidden');
@@ -597,13 +726,13 @@
         return;
       }
       list.innerHTML = entries.map(([nick, c]) => `
-        <div class="msg-conv-item ${c.unread ? 'unread' : ''}" onclick="openInboxConversation('${nick.replace(/'/g, "\\'")}')">
+        <div class="msg-conv-item ${c.unreadCount > 0 ? 'unread' : ''}" onclick="openInboxConversation('${nick.replace(/'/g, "\\'")}')">
           <img src="${c.avatar}" class="msg-conv-avatar" alt="av">
           <div class="msg-conv-info">
             <div class="msg-conv-name">${escapeHtml(nick)}</div>
             <div class="msg-conv-preview">${escapeHtml(c.text)}</div>
           </div>
-          ${c.unread ? '<span class="msg-conv-dot"></span>' : ''}
+          ${c.unreadCount > 0 ? `<span class="msg-conv-dot">${c.unreadCount > 9 ? '9+' : c.unreadCount}</span>` : ''}
         </div>
       `).join('');
     }
@@ -642,6 +771,7 @@
               sessionStorage.setItem('welcomeShown', '1');
             }
             initMessageInbox();
+            requestNotificationPermission();
           } else {
             await auth.signOut();
           }
@@ -802,5 +932,12 @@
     };
   </script>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker qeydiyyat xətası:', err));
+      });
+    }
+  </script>
 </body>
 </html>
