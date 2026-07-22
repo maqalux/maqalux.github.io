@@ -2193,11 +2193,29 @@
             }
         });
 
+        // === TAB BAŞLIĞINDA BİLDİRİŞ SAYI ===
+        const originalTabTitle = document.title;
+        let unreadTabCount = 0;
+
+        function bumpTabTitle() {
+            if (document.visibilityState === 'visible' && document.hasFocus()) return;
+            unreadTabCount++;
+            document.title = `(${unreadTabCount}) ${originalTabTitle}`;
+        }
+
+        function resetTabTitle() {
+            unreadTabCount = 0;
+            document.title = originalTabTitle;
+        }
+
+        window.addEventListener('focus', resetTabTitle);
+
         function notifyIfMentioned(msg) {
             if (!currentUserData || msg.sender === currentUserData.nick) return;
             if (!msg.mentions || !msg.mentions.includes(currentUserData.nick)) return;
 
             showToast(`${msg.sender} sizi qeyd etdi: ${(msg.text || '').slice(0, 60)}`, 'info');
+            bumpTabTitle();
 
             if ('Notification' in window) {
                 if (Notification.permission === 'granted') {
@@ -3268,7 +3286,9 @@ connectedRef.on('value', (snap) => {
                         privateMessagesByNick[other].push(msg);
                         if (openPCWs[other]) {
                             appendPrivateMessage(other, msg);
-                        } else if (msg.sender !== currentUserData.nick) {
+                        }
+                        if (msg.sender !== currentUserData.nick) {
+                            bumpTabTitle();
                         }
                     }
                 }
@@ -4051,6 +4071,7 @@ connectedRef.on('value', (snap) => {
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
+                resetTabTitle();
                 const current = dateKeyOf(Date.now());
                 if (current !== lastKnownDateKey) {
                     lastKnownDateKey = current;
