@@ -829,6 +829,12 @@
         .user-action-popup button:hover {
             background: rgba(255, 255, 255, 0.08);
         }
+        .older-msgs-spinner {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
 
         /* Avatar dropdown */
         .avatar-dropdown {
@@ -1861,6 +1867,12 @@
         let currentUser = null;
         let currentUserData = null;
         let allMessages = [];
+        let oldestMessageTimestamp = null;
+        let isLoadingOlderMessages = false;
+        let hasMoreOlderMessages = true;
+        let privateOldestTimestamp = {};
+        let privateOlderLoading = {};
+        let privateNoMoreOlder = {};
         let privateMessagesByNick = {};
         let openPCWs = {};
         let lastActiveUsersList = [];
@@ -2402,6 +2414,9 @@ connectedRef.on('value', (snap) => {
             msgArea.innerHTML = '';
             allMessages = [];
             isMessagesLoaded = false;
+            oldestMessageTimestamp = null;
+            hasMoreOlderMessages = true;
+            isLoadingOlderMessages = false;
 
             // 1) Əvvəlcə bütün mövcud mesajları bir dəfə yüklə (once value)
             db.ref('messages').orderByChild('timestamp').limitToLast(150).once('value', (snapshot) => {
@@ -2417,9 +2432,12 @@ connectedRef.on('value', (snap) => {
                     allMessages.push(msg);
                     appendMessage(msg);
                 });
+                if (loaded.length) oldestMessageTimestamp = loaded[0].timestamp || null;
+                if (loaded.length < 150) hasMoreOlderMessages = false;
                 isMessagesLoaded = true;
                 const area = document.getElementById('chatMessagesArea');
                 area.scrollTop = area.scrollHeight;
+                setupInfiniteScroll(area);
             }).catch(err => {
                 showToast('Mesajlar yüklənərkən xəta: ' + err.message, 'error');
             });
@@ -2506,14 +2524,71 @@ connectedRef.on('value', (snap) => {
             return content;
         }
 
-        function appendMessage(msg) {
-            if (!msg) return;
+        let generalScrollHandlerAttached = false;
+        function setupInfiniteScroll(area) {
+            if (generalScrollHandlerAttached) return;
+            generalScrollHandlerAttached = true;
+            area.addEventListener('scroll', () => {
+                if (area.scrollTop < 60) loadOlderMessages();
+            });
+        }
+
+        function loadOlderMessages() {
+            if (isLoadingOlderMessages || !hasMoreOlderMessages || !oldestMessageTimestamp) return;
+            isLoadingOlderMessages = true;
             const area = document.getElementById('chatMessagesArea');
-            if (!area) return;
 
-            // əgər bu mesaj artıq DOM-dadırsa keç
-            if (document.getElementById('msg-' + msg.id)) return;
+            let spinner = document.getElementById('olderMsgsSpinner');
+            if (!spinner) {
+                spinner = document.createElement('div');
+                spinner.id = 'olderMsgsSpinner';
+                spinner.className = 'older-msgs-spinner';
+                spinner.textContent = 'Yüklənir...';
+                area.insertBefore(spinner, area.firstChild);
+            }
 
+            db.ref('messages').orderByChild('timestamp').endAt(oldestMessageTimestamp - 1).limitToLast(30)
+                .once('value', (snapshot) => {
+                    const loaded = [];
+                    snapshot.forEach((childSnap) => {
+                        const msg = childSnap.val();
+                        msg.id = childSnap.key;
+                        loaded.push(msg);
+                    });
+                    loaded.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                    if (spinner) spinner.remove();
+
+                    if (!loaded.length) {
+                        hasMoreOlderMessages = false;
+                        isLoadingOlderMessages = false;
+                        return;
+                    }
+
+                    const prevScrollHeight = area.scrollHeight;
+                    const prevScrollTop = area.scrollTop;
+
+                    loaded.forEach(msg => {
+                        if (document.getElementById('msg-' + msg.id)) return;
+                        allMessages.unshift(msg);
+                        const div = createMessageBubbleDiv(msg);
+                        area.insertBefore(div, area.firstChild);
+                    });
+
+                    oldestMessageTimestamp = loaded[0].timestamp || oldestMessageTimestamp;
+                    if (loaded.length < 30) hasMoreOlderMessages = false;
+
+                    // skrolu köhnə mövqedə saxla (ekran "sıçramasın")
+                    area.scrollTop = prevScrollTop + (area.scrollHeight - prevScrollHeight);
+                    isLoadingOlderMessages = false;
+                }).catch(err => {
+                    if (spinner) spinner.remove();
+                    isLoadingOlderMessages = false;
+                    console.error('Köhnə mesajlar yüklənərkən xəta:', err);
+                });
+        }
+
+        function createMessageBubbleDiv(msg) {
             const div = document.createElement('div');
             div.className = 'msg-bubble ' + (msg.sender === currentUserData.nick ? 'msg-me' : 'msg-other');
             div.id = 'msg-' + msg.id;
@@ -2522,8 +2597,19 @@ connectedRef.on('value', (snap) => {
                 openMsgContextMenu(e, msg.id, false, null); };
             attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, null));
             attachSwipeToReply(div, () => startReply(msg.id, false, null));
-
             div.innerHTML = buildMessageContentHtml(msg);
+            return div;
+        }
+
+        function appendMessage(msg) {
+            if (!msg) return;
+            const area = document.getElementById('chatMessagesArea');
+            if (!area) return;
+
+            // əgər bu mesaj artıq DOM-dadırsa keç
+            if (document.getElementById('msg-' + msg.id)) return;
+
+            const div = createMessageBubbleDiv(msg);
             area.appendChild(div);
             area.scrollTop = area.scrollHeight;
 
@@ -2858,6 +2944,20 @@ connectedRef.on('value', (snap) => {
             return content;
         }
 
+        function createPrivateMessageBubbleDiv(targetNick, msg) {
+            const div = document.createElement('div');
+            const isMe = msg.sender === currentUserData.nick;
+            div.className = 'pcw-msg ' + (isMe ? 'pcw-msg-me' : 'pcw-msg-other');
+            div.id = 'pcwmsg-' + msg.id;
+            div.dataset.msgId = msg.id;
+            div.oncontextmenu = (e) => { e.preventDefault();
+                openMsgContextMenu(e, msg.id, true, targetNick); };
+            attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, true, targetNick));
+            attachSwipeToReply(div, () => startReply(msg.id, true, targetNick));
+            div.innerHTML = buildPrivateMessageContentHtml(msg);
+            return div;
+        }
+
         function appendPrivateMessage(targetNick, msg) {
             const body = document.getElementById('pcw-body-' + targetNick);
             if (!body) return;
@@ -2872,17 +2972,9 @@ connectedRef.on('value', (snap) => {
                 body.appendChild(sep);
                 body.dataset.lastDateKey = thisDateKey;
             }
-            const div = document.createElement('div');
-            const isMe = msg.sender === currentUserData.nick;
-            div.className = 'pcw-msg ' + (isMe ? 'pcw-msg-me' : 'pcw-msg-other');
-            div.id = 'pcwmsg-' + msg.id;
-            div.dataset.msgId = msg.id;
-            div.oncontextmenu = (e) => { e.preventDefault();
-                openMsgContextMenu(e, msg.id, true, targetNick); };
-            attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, true, targetNick));
-            attachSwipeToReply(div, () => startReply(msg.id, true, targetNick));
+            if (!body.dataset.firstDateKey) body.dataset.firstDateKey = thisDateKey;
 
-            div.innerHTML = buildPrivateMessageContentHtml(msg);
+            const div = createPrivateMessageBubbleDiv(targetNick, msg);
             body.appendChild(div);
             body.scrollTop = body.scrollHeight;
 
@@ -2890,6 +2982,105 @@ connectedRef.on('value', (snap) => {
                 markDelivered(msg.id, true);
                 markMessageReadOnView(div, msg.id, true);
             }
+        }
+
+        function setupPrivateInfiniteScroll(targetNick) {
+            const body = document.getElementById('pcw-body-' + targetNick);
+            if (!body || body.dataset.infiniteScrollAttached) return;
+            body.dataset.infiniteScrollAttached = '1';
+            body.addEventListener('scroll', () => {
+                if (body.scrollTop < 50) loadOlderPrivateMessages(targetNick);
+            });
+        }
+
+        function prependPrivateMessages(targetNick, batch) {
+            const body = document.getElementById('pcw-body-' + targetNick);
+            if (!body || !batch.length) return;
+
+            const fragment = document.createDocumentFragment();
+            let runningDateKey = null;
+            batch.forEach(msg => {
+                if (document.getElementById('pcwmsg-' + msg.id)) return;
+                const thisDateKey = dateKeyOf(msg.timestamp);
+                if (thisDateKey && thisDateKey !== runningDateKey) {
+                    const sep = document.createElement('div');
+                    sep.className = 'pcw-date-separator';
+                    sep.innerText = formatDateSeparatorLabel(msg.timestamp);
+                    fragment.appendChild(sep);
+                    runningDateKey = thisDateKey;
+                }
+                fragment.appendChild(createPrivateMessageBubbleDiv(targetNick, msg));
+            });
+
+            // batch ilə mövcud ilk mesaj eyni günə aiddirsə, təkrarlanan ayırıcını sil
+            if (runningDateKey && runningDateKey === body.dataset.firstDateKey) {
+                const firstSep = body.querySelector('.pcw-date-separator');
+                if (firstSep) firstSep.remove();
+            }
+            body.dataset.firstDateKey = dateKeyOf(batch[0].timestamp) || body.dataset.firstDateKey;
+            body.insertBefore(fragment, body.firstChild);
+        }
+
+        function loadOlderPrivateMessages(targetNick) {
+            if (privateOlderLoading[targetNick] || privateNoMoreOlder[targetNick]) return;
+            const oldestTs = privateOldestTimestamp[targetNick];
+            if (!oldestTs) return;
+            privateOlderLoading[targetNick] = true;
+
+            const body = document.getElementById('pcw-body-' + targetNick);
+            let spinner = document.getElementById('pcw-older-spinner-' + targetNick);
+            if (!spinner && body) {
+                spinner = document.createElement('div');
+                spinner.id = 'pcw-older-spinner-' + targetNick;
+                spinner.className = 'older-msgs-spinner';
+                spinner.textContent = 'Yüklənir...';
+                body.insertBefore(spinner, body.firstChild);
+            }
+
+            const q1 = db.ref('privateMessages').orderByChild('sender').equalTo(currentUserData.nick).once('value');
+            const q2 = db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value');
+
+            Promise.all([q1, q2]).then(([snap1, snap2]) => {
+                const results = [];
+                snap1.forEach(child => {
+                    const m = child.val();
+                    m.id = child.key;
+                    if (m.recipient === targetNick && (m.timestamp || 0) < oldestTs) results.push(m);
+                });
+                snap2.forEach(child => {
+                    const m = child.val();
+                    m.id = child.key;
+                    if (m.recipient === currentUserData.nick && (m.timestamp || 0) < oldestTs) results.push(m);
+                });
+                results.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                const batch = results.slice(0, 30);
+                batch.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                if (spinner) spinner.remove();
+
+                if (!batch.length) {
+                    privateNoMoreOlder[targetNick] = true;
+                    privateOlderLoading[targetNick] = false;
+                    return;
+                }
+
+                const prevScrollHeight = body.scrollHeight;
+                const prevScrollTop = body.scrollTop;
+
+                if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
+                batch.forEach(msg => privateMessagesByNick[targetNick].unshift(msg));
+                prependPrivateMessages(targetNick, batch);
+
+                privateOldestTimestamp[targetNick] = batch[0].timestamp || privateOldestTimestamp[targetNick];
+                if (batch.length < 30) privateNoMoreOlder[targetNick] = true;
+
+                body.scrollTop = prevScrollTop + (body.scrollHeight - prevScrollHeight);
+                privateOlderLoading[targetNick] = false;
+            }).catch(err => {
+                if (spinner) spinner.remove();
+                privateOlderLoading[targetNick] = false;
+                console.error('Köhnə şəxsi mesajlar yüklənərkən xəta:', err);
+            });
         }
 
         window.openPrivateChatWindow = function(targetNick) {
@@ -2956,8 +3147,17 @@ connectedRef.on('value', (snap) => {
 
             const body = document.getElementById('pcw-body-' + targetNick);
             body.dataset.lastDateKey = '';
+            body.dataset.firstDateKey = '';
             (privateMessagesByNick[targetNick] || []).forEach(msg => appendPrivateMessage(targetNick, msg));
             body.scrollTop = body.scrollHeight;
+
+            const existingMsgs = privateMessagesByNick[targetNick] || [];
+            privateOldestTimestamp[targetNick] = existingMsgs.length
+                ? Math.min(...existingMsgs.map(m => m.timestamp || Infinity))
+                : Date.now();
+            privateNoMoreOlder[targetNick] = false;
+            privateOlderLoading[targetNick] = false;
+            setupPrivateInfiniteScroll(targetNick);
         };
 
         window.togglePCWMinimize = function(targetNick) {
@@ -2967,6 +3167,9 @@ connectedRef.on('value', (snap) => {
         window.closePrivateChatWindow = function(targetNick) {
             delete openPCWs[targetNick];
             stopWatchingTypingStatus(targetNick);
+            delete privateOldestTimestamp[targetNick];
+            delete privateOlderLoading[targetNick];
+            delete privateNoMoreOlder[targetNick];
             const win = document.getElementById('pcw-' + targetNick);
             if (win) win.remove();
         };
