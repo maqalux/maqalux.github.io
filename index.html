@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffaa00">
+  <link rel="apple-touch-icon" href="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Maqalux">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -186,9 +192,54 @@
       .auth-card { padding: 30px 20px; }
       #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
     }
-  </style>
+      /* === SON PRİORİTETLİ QAYDA (bütün köhnə/təkrarlanan qaydaları əzir) === */
+    @media (max-width: 700px) {
+      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; }
+      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 22px !important; margin-left: 0 !important; margin-right: 0 !important; }
+      header > nav { order: 3 !important; width: 100% !important; }
+      header > nav:not(.mobile-nav-open) { display: none !important; }
+      header > nav.mobile-nav-open { display: flex !important; }
+    }
+    .image-viewer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+    }
+    .image-viewer-overlay.active { display: flex; }
+    .image-viewer-overlay img {
+      max-width: 92vw;
+      max-height: 90vh;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+    .image-viewer-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      font-size: 26px;
+      color: white;
+      cursor: pointer;
+      opacity: 0.8;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .image-viewer-close:hover { opacity: 1; }
+</style>
 </head>
 <body>
+  <div class="image-viewer-overlay" id="imageViewerOverlay" onclick="if(event.target.id==='imageViewerOverlay') closeImageViewer();">
+    <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
+    <img id="imageViewerImg" src="" alt="Şəkil">
+  </div>
   <div id="loadingScreen" class="loading-screen">
     <div class="spinner"></div>
   </div>
@@ -211,10 +262,17 @@
     <div class="header-right">
       <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
       <div class="dropdown-menu" id="dropdownMenu">
-        <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
-        <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
-        <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
-        <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
+        <div id="dropdownLevel1">
+          <button class="dropdown-item" onclick="viewOwnAvatarLarge()">🖼️ Profilə bax</button>
+          <button class="dropdown-item" onclick="showSettingsLevel()">⚙️ Ayarlara daxil ol</button>
+        </div>
+        <div id="dropdownLevel2" style="display:none;">
+          <button class="dropdown-item" onclick="backToAvatarMenu()">← Geri</button>
+          <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
+          <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
+          <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
+          <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
+        </div>
       </div>
       <div class="msg-icon-wrap" id="msgIconWrap" onclick="toggleMsgDropdown(event)">
         <i class="far fa-paper-plane msg-icon"></i>
@@ -279,7 +337,7 @@
       <h1>Ana səhifə</h1>
       <p>Maqalux saytına xoş gəlmisiniz! Burada faydalı məlumatlar, xəbərlər və əyləncəli məzmun tapa bilərsiniz.</p>
       <p style="margin-top:20px; font-size:0.95em; color:rgba(255,255,255,0.7);">
-        Siz daxil olduğunuz üçün onlayn çatda da aktiv görünürsünüz. İstənilən vaxt <a href="onlinechat" style="color:#ffaa00; text-decoration:underline;">çata keçə</a> bilərsiniz.
+        Siz daxil olduğunuz üçün onlayn çatda da aktiv görünürsünüz. İstənilən vaxt <a href="onlinechat.html" style="color:#ffaa00; text-decoration:underline;">çata keçə</a> bilərsiniz.
       </p>
     </div>
   </main>
@@ -381,10 +439,35 @@
       e.stopPropagation();
       document.getElementById('dropdownMenu').classList.toggle('active');
     }
+    function closeAvatarDropdownMenu() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      document.getElementById('dropdownLevel1').style.display = 'block';
+      document.getElementById('dropdownLevel2').style.display = 'none';
+    }
+    function showSettingsLevel() {
+      document.getElementById('dropdownLevel1').style.display = 'none';
+      document.getElementById('dropdownLevel2').style.display = 'block';
+    }
+    function backToAvatarMenu() {
+      document.getElementById('dropdownLevel2').style.display = 'none';
+      document.getElementById('dropdownLevel1').style.display = 'block';
+    }
+    function viewOwnAvatarLarge() {
+      closeAvatarDropdownMenu();
+      openImageViewer(document.getElementById('headerAvatar').src);
+    }
+    function openImageViewer(url) {
+      document.getElementById('imageViewerImg').src = url;
+      document.getElementById('imageViewerOverlay').classList.add('active');
+    }
+    function closeImageViewer() {
+      document.getElementById('imageViewerOverlay').classList.remove('active');
+      document.getElementById('imageViewerImg').src = '';
+    }
     document.addEventListener('click', function(e) {
       const menu = document.getElementById('dropdownMenu');
       if (menu && menu.classList.contains('active') && !e.target.closest('.header-right')) {
-        menu.classList.remove('active');
+        closeAvatarDropdownMenu();
       }
     });
 
@@ -471,8 +554,16 @@
           if (isUnread) conv.unreadCount++;
         });
         msgConversations = convs;
+        if (msgInboxFirstLoad) {
+          msgPrevCounts = {};
+          Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
+          msgInboxFirstLoad = false;
+        } else {
+          notifyNewMessages(convs);
+        }
         renderMsgDropdown();
       });
+      msgInboxFirstLoad = true;
     }
 
     function stopMessageInbox() {
@@ -481,13 +572,47 @@
       renderMsgDropdown();
     }
 
+    // === PUSH BİLDİRİŞLƏRİ (Firebase Cloud Messaging) ===
+    let msgPrevCounts = {};
+    let msgInboxFirstLoad = true;
+
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    function notifyNewMessages(convs) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        Object.entries(convs).forEach(([nick, c]) => {
+          const prev = msgPrevCounts[nick] || 0;
+          if (c.unreadCount > prev) {
+            try {
+              const notif = new Notification(nick, {
+                body: c.text || 'Yeni mesaj',
+                icon: c.avatar
+              });
+              notif.onclick = () => {
+                window.focus();
+                window.location.href = 'onlinechat#open=' + encodeURIComponent(nick);
+              };
+            } catch (e) {
+              console.error('Bildiriş xətası:', e);
+            }
+          }
+        });
+      }
+      msgPrevCounts = {};
+      Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
+    }
+
     function renderMsgDropdown() {
       const list = document.getElementById('msgDropdownList');
       const badge = document.getElementById('msgBadgeCount');
       if (!list || !badge) return;
       const entries = Object.entries(msgConversations).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
       const totalUnread = entries.reduce((sum, [, c]) => sum + (c.unreadCount || 0), 0);
-   if (totalUnread > 0) {
+      if (totalUnread > 0) {
         badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
         badge.classList.remove('hidden');
       } else {
@@ -497,7 +622,7 @@
         list.innerHTML = '<div class="msg-dropdown-empty">Mesaj yoxdur</div>';
         return;
       }
-    list.innerHTML = entries.map(([nick, c]) => `
+      list.innerHTML = entries.map(([nick, c]) => `
         <div class="msg-conv-item ${c.unreadCount > 0 ? 'unread' : ''}" onclick="openInboxConversation('${nick.replace(/'/g, "\\'")}')">
           <img src="${c.avatar}" class="msg-conv-avatar" alt="av">
           <div class="msg-conv-info">
@@ -543,6 +668,7 @@
               sessionStorage.setItem('welcomeShown', '1');
             }
             initMessageInbox();
+            requestNotificationPermission();
           } else {
             await auth.signOut();
           }
@@ -704,6 +830,13 @@
 
     // Statcounter (əvvəlki kodda varsa)
     (function(){ var sc_project=13301406; var sc_invisible=1; var sc_security="b5648408"; var s=document.createElement('script'); s.type='text/javascript'; s.src='https://www.statcounter.com/counter/counter.js'; s.async=true; document.body.appendChild(s); })();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker qeydiyyat xətası:', err));
+      });
+    }
   </script>
 </body>
 </html>
