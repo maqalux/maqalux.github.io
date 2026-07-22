@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ffaa00">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Maqalux">
     <title>Maqalux - Modern Çat</title>
     <link rel="icon" href="logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -4092,6 +4098,13 @@ connectedRef.on('value', (snap) => {
         console.log('Maqalux Çat - Socket.io istifadə edilmir, tamamilə Firebase ilə işləyir.');
         console.log('✅ Fiks edildi: Ümumi mesajlar indi Ctrl+Shift+R-dən sonra itmir.');
         console.log('✅ Fiks edildi: Şəxsi mesajlar indi işləyir.');
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker qeydiyyat xətası:', err));
+            });
+        }
     </script>
 </body>
 </html>
