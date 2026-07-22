@@ -761,6 +761,45 @@
             opacity: 1;
         }
 
+        /* Tam ekran şəkil baxışı (lightbox) */
+        .image-viewer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9000;
+        }
+        .image-viewer-overlay.active {
+            display: flex;
+        }
+        .image-viewer-overlay img {
+            max-width: 92vw;
+            max-height: 90vh;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        .image-viewer-close {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 26px;
+            color: white;
+            cursor: pointer;
+            opacity: 0.8;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .image-viewer-close:hover {
+            opacity: 1;
+        }
+
         /* Avatar dropdown */
         .avatar-dropdown {
             position: absolute;
@@ -1525,9 +1564,16 @@
                         <h3 id="myDisplayNick">🟢 İstifadəçi</h3>
 
                         <div class="avatar-dropdown" id="avatarDropdown">
-                            <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); document.getElementById('avatarFileInput').click();">📸 Profil şəklini dəyiş</button>
-                            <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); openProfileSettingsModal();">⚙️ Profil ayarları</button>
-                            <button type="button" class="ctx-item danger" onclick="closeAvatarDropdown(); openDeleteOwnAccountModal();">🗑️ Hesabımı sil</button>
+                            <div id="avatarDropdownLevel1">
+                                <button type="button" class="ctx-item" onclick="viewOwnAvatarLarge()">🖼️ Profilə bax</button>
+                                <button type="button" class="ctx-item" onclick="showAvatarSettingsLevel()">⚙️ Ayarlara daxil ol</button>
+                            </div>
+                            <div id="avatarDropdownLevel2" style="display:none;">
+                                <button type="button" class="ctx-item" onclick="backToAvatarMenu()">← Geri</button>
+                                <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); document.getElementById('avatarFileInput').click();">📸 Profil şəklini dəyiş</button>
+                                <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); openProfileSettingsModal();">🔑 Profil ayarları</button>
+                                <button type="button" class="ctx-item danger" onclick="closeAvatarDropdown(); openDeleteOwnAccountModal();">🗑️ Hesabımı sil</button>
+                            </div>
                         </div>
                     </div>
                     <button class="logout-btn" onclick="handleLogout()">Çıxış</button>
@@ -1587,6 +1633,12 @@
             <input type="email" id="forgotEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
             <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
         </div>
+    </div>
+
+    <!-- Tam ekran şəkil baxışı -->
+    <div class="image-viewer-overlay" id="imageViewerOverlay" onclick="if(event.target.id==='imageViewerOverlay') closeImageViewer();">
+        <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
+        <img id="imageViewerImg" src="" alt="Şəkil">
     </div>
 
     <!-- Profile Settings Modal -->
@@ -2185,12 +2237,27 @@ connectedRef.on('value', (snap) => {
         };
         window.closeAvatarDropdown = function() {
             document.getElementById('avatarDropdown').classList.remove('active');
+            document.getElementById('avatarDropdownLevel1').style.display = 'block';
+            document.getElementById('avatarDropdownLevel2').style.display = 'none';
+        };
+        window.showAvatarSettingsLevel = function() {
+            document.getElementById('avatarDropdownLevel1').style.display = 'none';
+            document.getElementById('avatarDropdownLevel2').style.display = 'block';
+        };
+        window.backToAvatarMenu = function() {
+            document.getElementById('avatarDropdownLevel2').style.display = 'none';
+            document.getElementById('avatarDropdownLevel1').style.display = 'block';
+        };
+        window.viewOwnAvatarLarge = function() {
+            closeAvatarDropdown();
+            const url = document.getElementById('myAvatarImg').src;
+            openImageViewer(url);
         };
         document.addEventListener('click', function(e) {
             const dd = document.getElementById('avatarDropdown');
             if (dd && dd.classList.contains('active') && !e.target.closest('.avatar-dropdown') && !e.target.closest(
                     '.avatar-container')) {
-                dd.classList.remove('active');
+                closeAvatarDropdown();
             }
         });
 
@@ -2264,7 +2331,7 @@ connectedRef.on('value', (snap) => {
                 <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : escapeHtml(msg.text)}</div>
             `;
             if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<br><img src="${msg.mediaUrl}" alt="Media">`;
+                content += `<br><img src="${msg.mediaUrl}" alt="Media" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
             }
             if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
                 content += `<br><img src="${msg.mediaUrl}" alt="Stiker" style="max-width:140px; max-height:140px; background:none;">`;
@@ -2419,6 +2486,15 @@ connectedRef.on('value', (snap) => {
             closeMsgContextMenu();
         };
 
+        window.openImageViewer = function(url) {
+            document.getElementById('imageViewerImg').src = url;
+            document.getElementById('imageViewerOverlay').classList.add('active');
+        };
+        window.closeImageViewer = function() {
+            document.getElementById('imageViewerOverlay').classList.remove('active');
+            document.getElementById('imageViewerImg').src = '';
+        };
+
         function replyPreviewLabel(msg) {
             if (msg.text) return msg.text;
             if (msg.mediaType === 'gif') return '🎞️ GIF';
@@ -2555,7 +2631,7 @@ connectedRef.on('value', (snap) => {
                 <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : escapeHtml(msg.text)}</div>
             `;
             if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<img src="${msg.mediaUrl}" alt="Media">`;
+                content += `<img src="${msg.mediaUrl}" alt="Media" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
             }
             if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
                 content += `<img src="${msg.mediaUrl}" alt="Stiker" style="max-width:100px;max-height:100px;background:none;">`;
@@ -2794,7 +2870,7 @@ connectedRef.on('value', (snap) => {
 
         // GIPHY-nin ictimai test açarı. Öz layihən üçün pulsuz açar al:
         // https://developers.giphy.com/dashboard/ -> "Create an App" -> API Key-i kopyala
-        const GIPHY_API_KEY = 'WhNJ8gWSYutgDZ5lYidapQQNC8jxBUUu';
+        const GIPHY_API_KEY = 'dc6zaOfrgDrzE';
         let gifSearchTimers = {};
 
         function renderStickerBody(target, tab) {
