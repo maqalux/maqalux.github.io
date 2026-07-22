@@ -1125,6 +1125,73 @@
             font-size: 1.4em;
             text-align: center;
         }
+        .forward-preview {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.25);
+            border-left: 3px solid #ffaa00;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .forward-preview b {
+            color: #ffc107;
+        }
+        .forward-target-list {
+            width: 100%;
+            max-height: 260px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: 10px;
+        }
+        .forward-target-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .forward-target-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .forward-target-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 170, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .forward-target-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .forward-target-name {
+            flex: 1;
+            font-size: 13.5px;
+            color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .forward-online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ecc71;
+            flex-shrink: 0;
+        }
         .modal-box p.modal-desc {
             color: rgba(255, 255, 255, 0.55);
             font-size: 13.5px;
@@ -1807,6 +1874,17 @@
             <p class="modal-desc">E-poçt ünvanınızı daxil edin, bərpa linki göndəriləcək.</p>
             <input type="email" id="forgotEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
             <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
+        </div>
+    </div>
+
+    <!-- Mesajı yönləndir Modal -->
+    <div class="modal-overlay" id="forwardModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeForwardModal()">✕</button>
+            <h3>Mesajı yönləndir</h3>
+            <div class="forward-preview" id="forwardPreview"></div>
+            <input type="text" id="forwardSearchInput" class="custom-input" placeholder="İstifadəçi axtar..." oninput="renderForwardTargetList(this.value)">
+            <div class="forward-target-list" id="forwardTargetList"></div>
         </div>
     </div>
 
@@ -2939,22 +3017,64 @@ connectedRef.on('value', (snap) => {
             }
         };
 
+        let forwardMsgContext = null;
+
         window.forwardMessage = function(msgId, isPrivate, targetNick) {
             const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
             const msg = list.find(m => m.id === msgId);
             if (!msg || msg.isDeleted) return;
             closeMsgContextMenu();
-            const recipients = lastActiveUsersList.filter(u => u.nick !== currentUserData.nick).map(u => u.nick);
-            if (!recipients.length) return showToast('Yönləndirmək üçün başqa istifadəçi yoxdur.', 'info');
-            const target = prompt('Mesajı hansı istifadəçiyə yönləndirmək istəyirsiniz?\n\n' + recipients.join(', '));
-            if (!target || !recipients.includes(target)) {
-                if (target) showToast('Bu adda istifadəçi tapılmadı.', 'error');
-                return;
+            forwardMsgContext = msg;
+
+            const previewText = (msg.mediaType && msg.mediaType !== 'text')
+                ? (msg.mediaType === 'gif' ? '🎞️ GIF' : (msg.mediaType === 'sticker' ? '😊 Stiker' : '🖼️ Şəkil'))
+                : (msg.text || '').slice(0, 90);
+            document.getElementById('forwardPreview').innerHTML =
+                `<b>${escapeHtml(msg.sender)}</b><br>${escapeHtml(previewText)}`;
+
+            document.getElementById('forwardSearchInput').value = '';
+            renderForwardTargetList('');
+            document.getElementById('forwardModal').classList.add('active');
+        };
+
+        window.closeForwardModal = function() {
+            document.getElementById('forwardModal').classList.remove('active');
+            forwardMsgContext = null;
+        };
+
+        window.renderForwardTargetList = function(query) {
+            const container = document.getElementById('forwardTargetList');
+            const q = (query || '').toLowerCase().trim();
+            const users = lastActiveUsersList.filter(u => u.nick !== currentUserData.nick && !u.isBanned);
+            const filtered = q ? users.filter(u => u.nick.toLowerCase().includes(q)) : users;
+            filtered.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0));
+
+            let html = '';
+            if (!q) {
+                html += `<div class="forward-target-item" onclick="confirmForwardTo(null)">
+                    <span class="forward-target-icon">📢</span>
+                    <span class="forward-target-name">Ümumi çat</span>
+                </div>`;
             }
+            html += filtered.map(u => `
+                <div class="forward-target-item" onclick="confirmForwardTo('${u.nick.replace(/'/g, "\\'")}')">
+                    <img src="${u.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png'}" class="forward-target-avatar" alt="av">
+                    <span class="forward-target-name">${escapeHtml(u.nick)}</span>
+                    ${u.online ? '<span class="forward-online-dot"></span>' : ''}
+                </div>
+            `).join('');
+
+            container.innerHTML = html || '<div class="sticker-empty-state">İstifadəçi tapılmadı.</div>';
+        };
+
+        window.confirmForwardTo = function(targetNickOrNull) {
+            if (!forwardMsgContext) return;
+            const msg = forwardMsgContext;
+            const isGeneral = targetNickOrNull === null;
+
             const payload = {
                 sender: currentUserData.nick,
                 senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
-                recipient: target,
                 text: msg.text || '',
                 mediaType: msg.mediaType || 'text',
                 mediaUrl: msg.mediaUrl || '',
@@ -2966,10 +3086,18 @@ connectedRef.on('value', (snap) => {
                 deliveredTo: [],
                 readBy: []
             };
-            const newRef = db.ref('privateMessages').push();
-            newRef.set(payload).then(() => {
-                showToast(`Mesaj ${target} istifadəçisinə yönləndirildi.`, 'success');
-            });
+
+            if (isGeneral) {
+                db.ref('messages').push().set(payload).then(() => {
+                    showToast('Mesaj Ümumi çata yönləndirildi.', 'success');
+                }).catch(err => showToast('Xəta: ' + err.message, 'error'));
+            } else {
+                payload.recipient = targetNickOrNull;
+                db.ref('privateMessages').push().set(payload).then(() => {
+                    showToast(`Mesaj ${targetNickOrNull} istifadəçisinə yönləndirildi.`, 'success');
+                }).catch(err => showToast('Xəta: ' + err.message, 'error'));
+            }
+            closeForwardModal();
         };
 
         // ============================================================
