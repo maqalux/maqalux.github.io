@@ -835,6 +835,57 @@
             font-size: 12px;
             color: rgba(255, 255, 255, 0.5);
         }
+        .mention-suggestions {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            margin-bottom: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+            background: rgba(13, 27, 62, 0.97);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 6px;
+            z-index: 2500;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .mention-suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+        .mention-suggestion-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .mention-suggestion-item img {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .mention-suggestion-item span {
+            font-size: 13px;
+            color: white;
+        }
+        .mention {
+            color: #4fc3f7;
+            font-weight: 600;
+            background: rgba(79, 195, 247, 0.12);
+            border-radius: 4px;
+            padding: 0 3px;
+        }
+        .mention-me {
+            color: #ffaa00;
+            background: rgba(255, 170, 0, 0.18);
+        }
 
         /* Avatar dropdown */
         .avatar-dropdown {
@@ -1841,9 +1892,10 @@
 
                 <!-- Input Bar -->
                 <div class="input-bar" style="position: relative;">
+                    <div id="mentionSuggestions" class="mention-suggestions" style="display:none;"></div>
                     <div class="input-pill">
                         <div class="pill-icon-btn" title="Stiker və GIF" onclick="toggleStickerPanel('main')">😊</div>
-                        <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this)"></textarea>
+                        <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this); handleMentionAutocomplete(this);"></textarea>
                         <label class="pill-icon-btn" title="Şəkil göndər">
                             🖼️
                             <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
@@ -2071,6 +2123,103 @@
             const d = document.createElement('div');
             d.innerText = str;
             return d.innerHTML;
+        }
+
+        // === @MENTION ===
+        function extractMentions(text) {
+            const matches = text.match(/@([a-zA-ZğüşöçıİĞÜŞÖÇ0-9_]+)/g) || [];
+            const found = new Set();
+            matches.forEach(m => {
+                const name = m.slice(1).toLowerCase();
+                const match = lastActiveUsersList.find(u => u.nick.toLowerCase() === name);
+                if (match) found.add(match.nick);
+            });
+            return Array.from(found);
+        }
+
+        function highlightMentions(text, mentions) {
+            let escaped = escapeHtml(text);
+            (mentions || []).forEach(nick => {
+                const safe = escapeHtml(nick);
+                const isMe = currentUserData && nick === currentUserData.nick;
+                const re = new RegExp('@' + safe.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![a-zA-Z0-9_])', 'g');
+                escaped = escaped.replace(re, `<span class="mention${isMe ? ' mention-me' : ''}">@${safe}</span>`);
+            });
+            return escaped;
+        }
+
+        window.handleMentionAutocomplete = function(input) {
+            const text = input.value;
+            const cursor = input.selectionStart;
+            const beforeCursor = text.slice(0, cursor);
+            const match = beforeCursor.match(/@([a-zA-ZğüşöçıİĞÜŞÖÇ0-9_]*)$/);
+            const box = document.getElementById('mentionSuggestions');
+            if (!match) { box.style.display = 'none';
+                return; }
+            const partial = match[1].toLowerCase();
+            const candidates = lastActiveUsersList
+                .filter(u => u.nick !== currentUserData.nick && !u.isBanned && u.nick.toLowerCase().startsWith(partial))
+                .slice(0, 6);
+            if (!candidates.length) { box.style.display = 'none';
+                return; }
+            box.innerHTML = candidates.map(u => `
+                <div class="mention-suggestion-item" onmousedown="event.preventDefault(); insertMention('${u.nick.replace(/'/g, "\\'")}')">
+                    <img src="${u.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png'}" alt="av">
+                    <span>${escapeHtml(u.nick)}</span>
+                </div>
+            `).join('');
+            box.style.display = 'flex';
+        };
+
+        window.insertMention = function(nick) {
+            const input = document.getElementById('messageInputField');
+            const text = input.value;
+            const cursor = input.selectionStart;
+            const beforeCursor = text.slice(0, cursor);
+            const afterCursor = text.slice(cursor);
+            const newBefore = beforeCursor.replace(/@([a-zA-ZğüşöçıİĞÜŞÖÇ0-9_]*)$/, '@' + nick + ' ');
+            input.value = newBefore + afterCursor;
+            document.getElementById('mentionSuggestions').style.display = 'none';
+            input.focus();
+            const pos = newBefore.length;
+            input.setSelectionRange(pos, pos);
+            autoGrowTextarea(input);
+        };
+
+        document.addEventListener('click', function(e) {
+            const box = document.getElementById('mentionSuggestions');
+            if (box && box.style.display !== 'none' && !e.target.closest('#mentionSuggestions') && !e.target.closest('#messageInputField')) {
+                box.style.display = 'none';
+            }
+        });
+
+        function notifyIfMentioned(msg) {
+            if (!currentUserData || msg.sender === currentUserData.nick) return;
+            if (!msg.mentions || !msg.mentions.includes(currentUserData.nick)) return;
+
+            showToast(`${msg.sender} sizi qeyd etdi: ${(msg.text || '').slice(0, 60)}`, 'info');
+
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    fireMentionNotification(msg);
+                } else if (Notification.permission === 'default') {
+                    Notification.requestPermission().then(perm => {
+                        if (perm === 'granted') fireMentionNotification(msg);
+                    });
+                }
+            }
+        }
+
+        function fireMentionNotification(msg) {
+            try {
+                const notif = new Notification(`${msg.sender} sizi qeyd etdi`, {
+                    body: (msg.text || '').slice(0, 120),
+                    icon: msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png'
+                });
+                notif.onclick = () => { window.focus(); };
+            } catch (e) {
+                console.error('Bildiriş xətası:', e);
+            }
         }
 
         function formatMsgTime(ts) {
@@ -2566,6 +2715,7 @@ connectedRef.on('value', (snap) => {
                 if (!exists) {
                     allMessages.push(msg);
                     appendMessage(msg);
+                    notifyIfMentioned(msg);
                 }
             });
 
@@ -2595,7 +2745,7 @@ connectedRef.on('value', (snap) => {
                 </div>
                 ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
                 ${msg.replyTo ? `<div class="msg-reply-preview">${msg.replyTo.mediaUrl ? `<img src="${msg.replyTo.mediaUrl}" class="reply-thumb" alt="">` : ''}<div class="reply-text-wrap"><b>${escapeHtml(msg.replyTo.sender)}</b><span class="reply-text">${escapeHtml(msg.replyTo.text || '')}</span></div></div>` : ''}
-                <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : escapeHtml(msg.text)}</div>
+                <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : highlightMentions(msg.text, msg.mentions)}</div>
             `;
             if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<br><img src="${msg.mediaUrl}" alt="Media" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
@@ -2769,7 +2919,7 @@ connectedRef.on('value', (snap) => {
 
             if (editContext && !editContext.isPrivate) {
                 const editId = editContext.id;
-                db.ref(`messages/${editId}`).update({ text: text, isEdited: true }).then(() => {
+                db.ref(`messages/${editId}`).update({ text: text, isEdited: true, mentions: extractMentions(text) }).then(() => {
                     cancelEdit();
                 }).catch(err => {
                     showToast('Redaktə edilərkən xəta: ' + err.message, 'error');
@@ -2785,6 +2935,7 @@ connectedRef.on('value', (snap) => {
                 mediaUrl: mediaData || '',
                 replyTo: replyContext ? { sender: replyContext.sender, text: replyContext.text, mediaType: replyContext.mediaType, mediaUrl: replyContext.mediaUrl } : null,
                 forwardedFrom: null,
+                mentions: extractMentions(text),
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 isDeleted: false,
                 reactions: {},
@@ -3517,7 +3668,7 @@ connectedRef.on('value', (snap) => {
 
         // GIPHY-nin ictimai test açarı. Öz layihən üçün pulsuz açar al:
         // https://developers.giphy.com/dashboard/ -> "Create an App" -> API Key-i kopyala
-        const GIPHY_API_KEY = 'WhNJ8gWSYutgDZ5lYidapQQNC8jxBUUu';
+        const GIPHY_API_KEY = 'dc6zaOfrgDrzE';
         let gifSearchTimers = {};
 
         function renderStickerBody(target, tab) {
