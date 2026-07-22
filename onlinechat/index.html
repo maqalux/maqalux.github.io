@@ -799,6 +799,36 @@
         .image-viewer-close:hover {
             opacity: 1;
         }
+        .user-action-popup {
+            position: fixed;
+            display: none;
+            flex-direction: column;
+            background: rgba(13, 27, 62, 0.97);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 6px;
+            z-index: 9500;
+            min-width: 190px;
+        }
+        .user-action-popup.active {
+            display: flex;
+        }
+        .user-action-popup button {
+            background: none;
+            border: none;
+            color: white;
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 9px;
+            font-size: 13.5px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+        .user-action-popup button:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
 
         /* Avatar dropdown */
         .avatar-dropdown {
@@ -1419,6 +1449,11 @@
                 overflow-y: hidden;
                 padding: 4px 15px 12px 15px;
                 align-items: flex-start;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            #activeUsersList::-webkit-scrollbar {
+                display: none;
             }
             .user-badge {
                 flex-direction: column;
@@ -1561,6 +1596,67 @@
                 max-height: 86vh;
                 overflow-y: auto;
             }
+        }
+        /* === SON PRİORİTETLİ QAYDA: mobil "Aktiv istifadəçilər" — dairəvi, ad aşağıda (Facebook-vari) === */
+        @media (max-width: 700px) {
+            .chat-body { flex-direction: column !important; }
+            .sidebar-users {
+                width: 100% !important;
+                height: auto !important;
+                max-height: 118px;
+                border-left: none !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                order: -1 !important;
+                flex-shrink: 0;
+            }
+            #activeUsersList {
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                align-items: flex-start !important;
+                gap: 16px !important;
+                padding: 6px 14px 12px 14px !important;
+            }
+            .user-badge {
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: 5px !important;
+                padding: 0 !important;
+                background: none !important;
+                border: none !important;
+                width: 58px !important;
+                flex-shrink: 0 !important;
+                white-space: normal !important;
+            }
+            .user-badge:hover { background: none !important; transform: none !important; }
+            .user-badge .sidebar-avatar-wrap { width: 54px !important; height: 54px !important; }
+            .user-badge .sidebar-avatar {
+                width: 54px !important;
+                height: 54px !important;
+                border-radius: 50% !important;
+                object-fit: cover !important;
+                border: 2px solid rgba(255, 170, 0, 0.55) !important;
+            }
+            .user-badge .online-dot {
+                width: 13px !important;
+                height: 13px !important;
+                border-width: 2px !important;
+                right: -1px !important;
+                bottom: 0 !important;
+            }
+            .user-badge > span:not(.sidebar-avatar-wrap) {
+                font-size: 11px !important;
+                text-align: center !important;
+                max-width: 58px !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                display: block !important;
+            }
+            .user-badge .role-tag,
+            .user-badge .badge-actions { display: none !important; }
         }
     </style>
 </head>
@@ -2524,6 +2620,41 @@ connectedRef.on('value', (snap) => {
             closeMsgContextMenu();
         };
 
+        function showUserActionPopup(e, nick, avatarUrl) {
+            e.stopPropagation();
+            let popup = document.getElementById('userActionPopup');
+            if (!popup) {
+                popup = document.createElement('div');
+                popup.id = 'userActionPopup';
+                popup.className = 'user-action-popup';
+                document.body.appendChild(popup);
+            }
+            const safeNick = nick.replace(/'/g, "\\'");
+            popup.innerHTML = `
+                <button onclick="closeUserActionPopup(); openImageViewer('${avatarUrl}')">🖼️ Profil şəklinə bax</button>
+                <button onclick="closeUserActionPopup(); openPrivateChatWindow('${safeNick}')">💬 Mesaj göndər</button>
+            `;
+            const rect = (e.currentTarget || e.target).getBoundingClientRect();
+            const popupWidth = 190;
+            let left = rect.left;
+            if (left + popupWidth > window.innerWidth - 10) left = window.innerWidth - popupWidth - 10;
+            if (left < 10) left = 10;
+            let top = rect.bottom + 8;
+            popup.style.left = left + 'px';
+            popup.style.top = top + 'px';
+            popup.classList.add('active');
+        }
+        window.closeUserActionPopup = function() {
+            const popup = document.getElementById('userActionPopup');
+            if (popup) popup.classList.remove('active');
+        };
+        document.addEventListener('click', function(e) {
+            const popup = document.getElementById('userActionPopup');
+            if (popup && popup.classList.contains('active') && !e.target.closest('.user-action-popup')) {
+                closeUserActionPopup();
+            }
+        });
+
         window.openImageViewer = function(url) {
             document.getElementById('imageViewerImg').src = url;
             document.getElementById('imageViewerOverlay').classList.add('active');
@@ -2908,7 +3039,7 @@ connectedRef.on('value', (snap) => {
 
         // GIPHY-nin ictimai test açarı. Öz layihən üçün pulsuz açar al:
         // https://developers.giphy.com/dashboard/ -> "Create an App" -> API Key-i kopyala
-        const GIPHY_API_KEY = 'WhNJ8gWSYutgDZ5lYidapQQNC8jxBUUu';
+        const GIPHY_API_KEY = 'dc6zaOfrgDrzE';
         let gifSearchTimers = {};
 
         function renderStickerBody(target, tab) {
@@ -3104,16 +3235,11 @@ connectedRef.on('value', (snap) => {
             `;
 
             if (!isMe) {
-                const wrap = div.querySelector('.sidebar-avatar-wrap');
-                wrap.style.cursor = 'zoom-in';
-                wrap.onclick = (e) => { e.stopPropagation();
-                    openImageViewer(avatar); };
-                const nameSpan = div.querySelector('span');
-                if (nameSpan) {
-                    nameSpan.style.cursor = 'pointer';
-                    nameSpan.onclick = (e) => { e.stopPropagation();
-                        openPrivateChatWindow(user.nick); };
-                }
+                div.style.cursor = 'pointer';
+                div.addEventListener('click', (e) => {
+                    if (e.target.closest('.badge-action-icon')) return;
+                    showUserActionPopup(e, user.nick, avatar);
+                });
             }
             return div;
         }
