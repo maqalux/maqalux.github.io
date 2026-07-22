@@ -2318,13 +2318,14 @@ connectedRef.on('value', (snap) => {
         function buildMessageContentHtml(msg) {
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             const isOther = msg.sender !== currentUserData.nick;
-            const openPCWAttrs = isOther ?
+            const avatarClickAttrs = isOther ? ` onclick="event.stopPropagation(); openImageViewer('${avatar}')" style="cursor:zoom-in;"` : '';
+            const nameClickAttrs = isOther ?
                 ` onclick="event.stopPropagation(); openPrivateChatWindow('${escapeHtml(msg.sender)}')" ontouchend="event.stopPropagation(); event.preventDefault(); openPrivateChatWindow('${escapeHtml(msg.sender)}')" style="cursor:pointer;"` :
                 '';
             let content = `
-                <div class="msg-header"${openPCWAttrs}>
-                    <img src="${avatar}" class="msg-avatar" alt="Profile" draggable="false">
-                    <b>${escapeHtml(msg.sender)}</b>
+                <div class="msg-header">
+                    <img src="${avatar}" class="msg-avatar" alt="Profile" draggable="false"${avatarClickAttrs}>
+                    <b${nameClickAttrs}>${escapeHtml(msg.sender)}</b>
                 </div>
                 ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
                 ${msg.replyTo ? `<div class="msg-reply-preview">${msg.replyTo.mediaUrl ? `<img src="${msg.replyTo.mediaUrl}" class="reply-thumb" alt="">` : ''}<div class="reply-text-wrap"><b>${escapeHtml(msg.replyTo.sender)}</b><span class="reply-text">${escapeHtml(msg.replyTo.text || '')}</span></div></div>` : ''}
@@ -2623,7 +2624,7 @@ connectedRef.on('value', (snap) => {
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             let content = `
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-                    <img src="${avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;" alt="av">
+                    <img src="${avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;cursor:zoom-in;" alt="av" onclick="event.stopPropagation(); openImageViewer('${avatar}')">
                     <b style="font-size:0.8em;opacity:0.85;color:#ffc107;">${escapeHtml(msg.sender)}</b>
                 </div>
                 ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
@@ -2717,7 +2718,7 @@ connectedRef.on('value', (snap) => {
             win.id = 'pcw-' + targetNick;
             win.innerHTML = `
                 <div class="pcw-header" onclick="togglePCWMinimize('${targetNick}')">
-                    <img src="${avatar}" alt="av">
+                    <img src="${avatar}" alt="av" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${avatar}')">
                     <div class="pcw-title">
                         <div class="pcw-name-row">
                             <span class="pcw-online-dot ${online?'is-online':''}"></span>
@@ -2870,7 +2871,7 @@ connectedRef.on('value', (snap) => {
 
         // GIPHY-nin ictimai test açarı. Öz layihən üçün pulsuz açar al:
         // https://developers.giphy.com/dashboard/ -> "Create an App" -> API Key-i kopyala
-        const GIPHY_API_KEY = 'WhNJ8gWSYutgDZ5lYidapQQNC8jxBUUu';
+        const GIPHY_API_KEY = 'dc6zaOfrgDrzE';
         let gifSearchTimers = {};
 
         function renderStickerBody(target, tab) {
@@ -3067,9 +3068,9 @@ connectedRef.on('value', (snap) => {
 
             if (!isMe) {
                 const wrap = div.querySelector('.sidebar-avatar-wrap');
-                wrap.style.cursor = 'pointer';
+                wrap.style.cursor = 'zoom-in';
                 wrap.onclick = (e) => { e.stopPropagation();
-                    openPrivateChatWindow(user.nick); };
+                    openImageViewer(avatar); };
                 const nameSpan = div.querySelector('span');
                 if (nameSpan) {
                     nameSpan.style.cursor = 'pointer';
