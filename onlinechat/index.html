@@ -1403,7 +1403,7 @@
             }
             .sidebar-users {
                 width: 100%;
-                height: 90px;
+                height: 108px;
                 border-left: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                 order: -1;
@@ -1414,16 +1414,53 @@
             }
             #activeUsersList {
                 flex-direction: row;
-                gap: 8px;
+                gap: 14px;
                 overflow-x: auto;
                 overflow-y: hidden;
-                padding: 6px 15px 10px 15px;
+                padding: 4px 15px 12px 15px;
+                align-items: flex-start;
             }
             .user-badge {
-                padding: 4px 10px;
-                font-size: 12px;
-                white-space: nowrap;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 4px;
+                padding: 0;
+                background: none;
+                border: none !important;
+                width: 56px;
                 flex-shrink: 0;
+                white-space: normal;
+            }
+            .user-badge:hover {
+                background: none;
+                transform: none;
+            }
+            .user-badge .sidebar-avatar-wrap {
+                width: 50px;
+                height: 50px;
+            }
+            .user-badge .sidebar-avatar {
+                width: 50px;
+                height: 50px;
+                border: 2px solid rgba(255, 170, 0, 0.5);
+            }
+            .user-badge .online-dot {
+                width: 12px;
+                height: 12px;
+                border-width: 2px;
+            }
+            .user-badge > span:not(.sidebar-avatar-wrap) {
+                font-size: 11px;
+                text-align: center;
+                max-width: 56px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .user-badge .role-tag,
+            .user-badge .badge-actions {
+                display: none;
             }
             .input-bar {
                 padding: 10px;
