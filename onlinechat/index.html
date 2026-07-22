@@ -810,7 +810,7 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
             padding: 6px;
             z-index: 9500;
-            min-width: 190px;
+            min-width: 220px;
         }
         .user-action-popup.active {
             display: flex;
@@ -2620,7 +2620,7 @@ connectedRef.on('value', (snap) => {
             closeMsgContextMenu();
         };
 
-        function showUserActionPopup(e, nick, avatarUrl) {
+        function showUserActionPopup(e, user, avatarUrl) {
             e.stopPropagation();
             let popup = document.getElementById('userActionPopup');
             if (!popup) {
@@ -2629,20 +2629,50 @@ connectedRef.on('value', (snap) => {
                 popup.className = 'user-action-popup';
                 document.body.appendChild(popup);
             }
-            const safeNick = nick.replace(/'/g, "\\'");
-            popup.innerHTML = `
-                <button onclick="closeUserActionPopup(); openImageViewer('${avatarUrl}')">🖼️ Profil şəklinə bax</button>
-                <button onclick="closeUserActionPopup(); openPrivateChatWindow('${safeNick}')">💬 Mesaj göndər</button>
-            `;
+            const safeNick = user.nick.replace(/'/g, "\\'");
+            const items = [
+                { label: '🖼️ Profil şəklinə bax', action: `openImageViewer('${avatarUrl}')` },
+                { label: '💬 Mesaj göndər', action: `openPrivateChatWindow('${safeNick}')` }
+            ];
+
+            const myRole = currentUserData.role;
+            let canBan = false, canUnban = false;
+            if (myRole === 'admin') { canBan = user.role !== 'admin';
+                canUnban = user.role !== 'admin'; } else if (myRole === 'moderator') { canBan = user.role === 'user';
+                canUnban = user.role === 'user'; } else { canBan = user.role === 'user'; }
+
+            if (user.isBanned) {
+                if (canUnban) items.push({ label: '♻️ Qara siyahıdan çıxar', action: `adminUnbanUser('${safeNick}')` });
+            } else if (canBan) {
+                items.push({ label: '🚫 Qara siyahıya əlavə et', action: `adminBanUser('${safeNick}')` });
+            }
+
+            if (myRole === 'admin' && user.role !== 'admin') {
+                if (user.role === 'moderator') {
+                    items.push({ label: '⬇️ Moderatorluqdan çıxar', action: `adminDemoteUser('${safeNick}')` });
+                } else {
+                    items.push({ label: '⬆️ Moderator təyin et', action: `adminPromoteUser('${safeNick}')` });
+                }
+                items.push({ label: '🧹 Bütün mesajlarını sil', action: `adminDeleteAllMessages('${safeNick}')` });
+                items.push({ label: '❌ Hesabı sil', action: `adminDeleteAccount('${safeNick}')` });
+            }
+
+            popup.innerHTML = items.map(it => `<button onclick="closeUserActionPopup(); ${it.action}">${it.label}</button>`).join('');
+
             const rect = (e.currentTarget || e.target).getBoundingClientRect();
-            const popupWidth = 190;
+            const popupWidth = 220;
             let left = rect.left;
             if (left + popupWidth > window.innerWidth - 10) left = window.innerWidth - popupWidth - 10;
             if (left < 10) left = 10;
-            let top = rect.bottom + 8;
             popup.style.left = left + 'px';
-            popup.style.top = top + 'px';
+            popup.style.top = (rect.bottom + 8) + 'px';
             popup.classList.add('active');
+            requestAnimationFrame(() => {
+                const pRect = popup.getBoundingClientRect();
+                if (pRect.bottom > window.innerHeight - 10) {
+                    popup.style.top = Math.max(10, rect.top - pRect.height - 8) + 'px';
+                }
+            });
         }
         window.closeUserActionPopup = function() {
             const popup = document.getElementById('userActionPopup');
@@ -3188,40 +3218,6 @@ connectedRef.on('value', (snap) => {
 
             const avatar = user.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
             const isMe = user.nick === currentUserData.nick;
-            const myRole = currentUserData.role;
-            const targetRank = ROLE_ORDER[user.role] || 1;
-            const myRank = ROLE_ORDER[myRole] || 1;
-
-            let actionsHtml = '';
-            if (!isMe) {
-                let canBan = false,
-                    canUnban = false;
-                if (myRole === 'admin') { canBan = user.role !== 'admin';
-                    canUnban = user.role !== 'admin'; } else if (myRole === 'moderator') { canBan = user.role === 'user';
-                    canUnban = user.role === 'user'; } else { canBan = user.role === 'user'; }
-
-                if (user.isBanned) {
-                    if (canUnban) actionsHtml +=
-                        `<span class="badge-action-icon" title="Qara siyahıdan çıxar" onclick="event.stopPropagation(); adminUnbanUser('${user.nick}')">♻️</span>`;
-                } else if (canBan) {
-                    actionsHtml +=
-                        `<span class="badge-action-icon" title="Qara siyahıya əlavə et" onclick="event.stopPropagation(); adminBanUser('${user.nick}')">🚫</span>`;
-                }
-
-                if (myRole === 'admin' && user.role !== 'admin') {
-                    if (user.role === 'moderator') {
-                        actionsHtml +=
-                            `<span class="badge-action-icon" title="Moderatorluqdan çıxar" onclick="event.stopPropagation(); adminDemoteUser('${user.nick}')">⬇️</span>`;
-                    } else {
-                        actionsHtml +=
-                            `<span class="badge-action-icon" title="Moderator təyin et" onclick="event.stopPropagation(); adminPromoteUser('${user.nick}')">⬆️</span>`;
-                    }
-                    actionsHtml +=
-                        `<span class="badge-action-icon" title="Bütün mesajlarını sil" onclick="event.stopPropagation(); adminDeleteAllMessages('${user.nick}')">🧹</span>`;
-                    actionsHtml +=
-                        `<span class="badge-action-icon" title="Hesabı sil" onclick="event.stopPropagation(); adminDeleteAccount('${user.nick}')">❌</span>`;
-                }
-            }
 
             const roleLabel = user.role === 'admin' ? 'Admin' : (user.role === 'moderator' ? 'Moderator' : '');
             div.innerHTML = `
@@ -3231,14 +3227,12 @@ connectedRef.on('value', (snap) => {
                 </div>
                 <span>${user.isBanned ? '🚫 ' : ''}${escapeHtml(user.nick)}${isMe ? ' (siz)' : ''}</span>
                 ${roleLabel ? `<span class="role-tag">${roleLabel}</span>` : ''}
-                ${actionsHtml ? `<span class="badge-actions">${actionsHtml}</span>` : ''}
             `;
 
             if (!isMe) {
                 div.style.cursor = 'pointer';
                 div.addEventListener('click', (e) => {
-                    if (e.target.closest('.badge-action-icon')) return;
-                    showUserActionPopup(e, user.nick, avatar);
+                    showUserActionPopup(e, user, avatar);
                 });
             }
             return div;
