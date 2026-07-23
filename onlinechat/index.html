@@ -16,6 +16,7 @@
     <style>
         :root {
             --bg-page: linear-gradient(135deg, #090d22 0%, #082962 45%, #0151b1 100%);
+            --wallpaper-image: none;
             --text-main: white;
             --text-55: rgba(255, 255, 255, 0.55);
             --text-50: rgba(255, 255, 255, 0.5);
@@ -62,6 +63,32 @@
         }
         .theme-toggle-btn:hover {
             background: var(--panel-06);
+        }
+        .wallpaper-preset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-top: 4px;
+        }
+        .wallpaper-swatch {
+            height: 64px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid var(--border-10);
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .wallpaper-swatch:hover {
+            transform: scale(1.04);
+            border-color: #ffaa00;
+        }
+        .wallpaper-swatch.none-swatch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: var(--panel-08);
+            color: var(--text-main);
         }
 
         /* ====================== BÜTÜN STILLƏR ====================== */
@@ -382,7 +409,10 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            background: rgba(0, 0, 0, 0.15);
+            background-image: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), var(--wallpaper-image);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         .messages-area::-webkit-scrollbar {
             width: 6px;
@@ -1439,7 +1469,10 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            background: rgba(0, 0, 0, 0.15);
+            background-image: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), var(--wallpaper-image);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         .pcw-body::-webkit-scrollbar {
             width: 5px;
@@ -1913,6 +1946,7 @@
                                 <button type="button" class="ctx-item" onclick="backToAvatarMenu()">← Geri</button>
                                 <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); document.getElementById('avatarFileInput').click();">📸 Profil şəklini dəyiş</button>
                                 <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); openProfileSettingsModal();">🔑 Profil ayarları</button>
+                                <button type="button" class="ctx-item" onclick="closeAvatarDropdown(); openWallpaperModal();">🖼️ Söhbət arxa fonu</button>
                                 <button type="button" class="ctx-item danger" onclick="closeAvatarDropdown(); openDeleteOwnAccountModal();">🗑️ Hesabımı sil</button>
                             </div>
                         </div>
@@ -1994,6 +2028,20 @@
             <div class="forward-preview" id="forwardPreview"></div>
             <input type="text" id="forwardSearchInput" class="custom-input" placeholder="İstifadəçi axtar..." oninput="renderForwardTargetList(this.value)">
             <div class="forward-target-list" id="forwardTargetList"></div>
+        </div>
+    </div>
+
+    <!-- Söhbət arxa fonu Modal -->
+    <div class="modal-overlay" id="wallpaperModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeWallpaperModal()">✕</button>
+            <h3>Söhbət arxa fonu</h3>
+            <p class="modal-desc">Hazır fonlardan seç, ya da öz şəklini yüklə.</p>
+            <div class="wallpaper-preset-grid" id="wallpaperPresetGrid"></div>
+            <label class="login-btn" style="display:block; text-align:center; margin-top:14px; cursor:pointer; box-sizing:border-box;">
+                🖼️ Öz şəklini yüklə
+                <input type="file" id="wallpaperFileInput" accept="image/*" style="display:none;" onchange="handleWallpaperUpload(event)">
+            </label>
         </div>
     </div>
 
@@ -2194,6 +2242,71 @@
             if (btn) btn.textContent = isLight ? '☀️' : '🌙';
         };
         applySavedTheme();
+
+        // === SÖHBƏT ARXA FONU (WALLPAPER) ===
+        const WALLPAPER_PRESETS = [
+            { name: 'Gecə mavisi', value: 'linear-gradient(135deg, #0f1c3f, #1a2a5e)' },
+            { name: 'Bənövşəyi toz', value: 'linear-gradient(135deg, #2d1b4e, #4a2f7a)' },
+            { name: 'Meşə yaşılı', value: 'linear-gradient(135deg, #0f2e1f, #1d4d38)' },
+            { name: 'Gün batımı', value: 'linear-gradient(135deg, #4a1942, #a13d5c)' },
+            { name: 'Qəhvəyi', value: 'linear-gradient(135deg, #2e1f14, #4a3524)' },
+            { name: 'Qraniti boz', value: 'linear-gradient(135deg, #23262b, #3a3f47)' }
+        ];
+
+        function applyWallpaperValue(value) {
+            if (!value || value === 'none') {
+                document.documentElement.style.setProperty('--wallpaper-image', 'none');
+            } else if (value.startsWith('http') || value.startsWith('data:')) {
+                document.documentElement.style.setProperty('--wallpaper-image', `url('${value}')`);
+            } else {
+                document.documentElement.style.setProperty('--wallpaper-image', value);
+            }
+        }
+
+        window.openWallpaperModal = function() {
+            const grid = document.getElementById('wallpaperPresetGrid');
+            let html = `<div class="wallpaper-swatch none-swatch" onclick="setWallpaper('none')" title="Standart">↩️</div>`;
+            html += WALLPAPER_PRESETS.map(p =>
+                `<div class="wallpaper-swatch" style="background:${p.value};" onclick="setWallpaper('${p.value.replace(/'/g, "\\'")}')" title="${p.name}"></div>`
+            ).join('');
+            grid.innerHTML = html;
+            document.getElementById('wallpaperModal').classList.add('active');
+        };
+        window.closeWallpaperModal = function() {
+            document.getElementById('wallpaperModal').classList.remove('active');
+        };
+
+        window.setWallpaper = function(value) {
+            applyWallpaperValue(value);
+            localStorage.setItem('maqaluxWallpaper', value);
+            closeWallpaperModal();
+            showToast('Söhbət arxa fonu dəyişdirildi.', 'success');
+        };
+
+        window.handleWallpaperUpload = async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('image', file);
+            try {
+                showToast('Şəkil yüklənir...', 'info');
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    setWallpaper(data.data.url);
+                } else {
+                    showToast('Şəkil yüklənərkən xəta baş verdi.', 'error');
+                }
+            } catch (err) {
+                showToast('Şəkil yüklənərkən xəta: ' + err.message, 'error');
+            }
+            e.target.value = '';
+        };
+
+        (function loadSavedWallpaper() {
+            const saved = localStorage.getItem('maqaluxWallpaper');
+            if (saved) applyWallpaperValue(saved);
+        })();
 
         function escapeHtml(str) {
             if (!str) return '';
