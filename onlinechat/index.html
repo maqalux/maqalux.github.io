@@ -603,7 +603,7 @@
 
         .msg-me {
             background: linear-gradient(135deg, #024397, #00285e);
-            color: var(--text-main);
+            color: white;
             align-self: flex-end;
             border-bottom-right-radius: 5px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -631,6 +631,9 @@
             color: #ff4d4d;
             text-decoration: underline;
         }
+        .msg-me .delete-btn {
+            color: rgba(255, 255, 255, 0.7);
+        }
 
         .msg-meta {
             display: flex;
@@ -645,6 +648,10 @@
         .msg-other .msg-meta {
             align-self: flex-start;
         }
+        .msg-me .msg-meta,
+        .pcw-msg-me .msg-meta {
+            color: rgba(255, 255, 255, 0.75);
+        }
         .msg-ticks {
             display: inline-flex;
             align-items: center;
@@ -657,7 +664,7 @@
         }
         .msg-ticks .tick-path {
             fill: none;
-            stroke: var(--text-55);
+            stroke: rgba(255, 255, 255, 0.75);
             stroke-width: 1.6;
             stroke-linecap: round;
             stroke-linejoin: round;
@@ -1564,6 +1571,7 @@
         }
         .pcw-msg.pcw-msg-me {
             background: linear-gradient(135deg, #024397, #00285e);
+            color: white;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
