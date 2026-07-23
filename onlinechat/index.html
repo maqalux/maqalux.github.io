@@ -29,7 +29,17 @@
             --panel-06: rgba(255, 255, 255, 0.06);
             --panel-05: rgba(255, 255, 255, 0.05);
             --dropdown-bg: rgba(13, 27, 62, 0.97);
-            --chat-container-bg: rgba(10, 22, 52, 0.5);
+            --surface-rgb: 5, 12, 31;
+            --chat-container-bg: rgba(var(--surface-rgb), 0.5);
+            --toast-bg: rgba(13, 27, 62, 0.97);
+            --toast-text: white;
+        }
+        body.dark-theme {
+            --bg-page: linear-gradient(135deg, #0c0c10 0%, #17171c 50%, #101014 100%);
+            --dropdown-bg: rgba(24, 24, 28, 0.97);
+            --surface-rgb: 10, 10, 13;
+            --toast-bg: rgba(24, 24, 28, 0.97);
+            --toast-text: white;
         }
         body.light-theme {
             --bg-page: linear-gradient(135deg, #eef2f9 0%, #e2ecf9 45%, #d3e4fb 100%);
@@ -45,7 +55,10 @@
             --panel-06: rgba(22, 33, 62, 0.045);
             --panel-05: rgba(22, 33, 62, 0.035);
             --dropdown-bg: rgba(255, 255, 255, 0.98);
+            --surface-rgb: 255, 255, 255;
             --chat-container-bg: rgba(255, 255, 255, 0.75);
+            --toast-bg: rgba(255, 255, 255, 0.98);
+            --toast-text: #16213e;
         }
         .theme-toggle-btn {
             background: var(--panel-08);
@@ -383,7 +396,7 @@
 
         /* Çat başlığı */
         .chat-header {
-            background: rgba(5, 12, 31, 0.5);
+            background: rgba(var(--surface-rgb), 0.5);
             padding: 18px 25px;
             display: flex;
             justify-content: space-between;
@@ -437,7 +450,7 @@
         /* Yan panel */
         .sidebar-users {
             width: 220px;
-            background: rgba(5, 12, 31, 0.3);
+            background: rgba(var(--surface-rgb), 0.3);
             border-left: 1px solid var(--panel-08);
             padding: 0;
             overflow: hidden;
@@ -450,7 +463,7 @@
             border-bottom: 1px solid rgba(255, 162, 0, 0.2);
             padding: 20px 20px 12px 20px;
             flex-shrink: 0;
-            background: rgba(5, 12, 31, 0.55);
+            background: rgba(var(--surface-rgb), 0.55);
             backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
@@ -748,7 +761,7 @@
         /* Input bar */
         .input-bar {
             padding: 15px 20px;
-            background: rgba(5, 12, 31, 0.5);
+            background: rgba(var(--surface-rgb), 0.5);
             border-top: 1px solid var(--border-10);
             display: flex;
             gap: 12px;
@@ -1096,7 +1109,7 @@
             right: 20px;
             width: 320px;
             max-height: 380px;
-            background: rgba(10, 22, 52, 0.97);
+            background: rgba(var(--surface-rgb), 0.97);
             backdrop-filter: blur(25px);
             border: 1px solid var(--border-12);
             border-radius: 18px;
@@ -1390,7 +1403,7 @@
         .private-chat-window {
             width: 300px;
             height: 400px;
-            background: rgba(10, 22, 52, 0.92);
+            background: rgba(var(--surface-rgb), 0.92);
             backdrop-filter: blur(25px);
             border: 1px solid var(--border-12);
             border-bottom: none;
@@ -1495,7 +1508,7 @@
         }
         .pcw-input-bar {
             padding: 10px;
-            background: rgba(5, 12, 31, 0.6);
+            background: rgba(var(--surface-rgb), 0.6);
             border-top: 1px solid var(--border-10);
             display: flex;
             gap: 8px;
@@ -1623,14 +1636,14 @@
             max-width: 340px;
         }
         .toast {
-            background: rgba(13, 27, 62, 0.92);
+            background: var(--toast-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--border-12);
             border-left: 4px solid #ffaa00;
             border-radius: 14px;
             padding: 14px 18px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            color: var(--text-main);
+            color: var(--toast-text);
             font-size: 14px;
             line-height: 1.4;
             opacity: 0;
@@ -2235,23 +2248,26 @@
         // ============================================================
         // 3. KÖMƏKÇİ FONKSİYALAR
         // ============================================================
-        // === TEMA SEÇİMİ (Açıq/Tünd) ===
+        // === TEMA SEÇİMİ (Sayt rəngi / Açıq / Tünd) ===
         function applySavedTheme() {
-            const saved = localStorage.getItem('maqaluxTheme');
+            const saved = localStorage.getItem('maqaluxTheme') || 'site';
             const btn = document.getElementById('themeToggleBtn');
+            document.body.classList.remove('light-theme', 'dark-theme');
             if (saved === 'light') {
                 document.body.classList.add('light-theme');
-                if (btn) btn.textContent = '☀️';
-            } else {
-                document.body.classList.remove('light-theme');
                 if (btn) btn.textContent = '🌙';
+            } else if (saved === 'dark') {
+                document.body.classList.add('dark-theme');
+                if (btn) btn.textContent = '🎨';
+            } else {
+                if (btn) btn.textContent = '☀️';
             }
         }
         window.toggleSiteTheme = function() {
-            const isLight = document.body.classList.toggle('light-theme');
-            localStorage.setItem('maqaluxTheme', isLight ? 'light' : 'dark');
-            const btn = document.getElementById('themeToggleBtn');
-            if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+            const current = localStorage.getItem('maqaluxTheme') || 'site';
+            const next = current === 'site' ? 'light' : (current === 'light' ? 'dark' : 'site');
+            localStorage.setItem('maqaluxTheme', next);
+            applySavedTheme();
         };
         applySavedTheme();
 
