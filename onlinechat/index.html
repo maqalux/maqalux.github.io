@@ -4151,6 +4151,12 @@ connectedRef.on('value', (snap) => {
             privateNoMoreOlder[targetNick] = false;
             privateOlderLoading[targetNick] = false;
             setupPrivateInfiniteScroll(targetNick);
+
+            // Qlobal 200-mesaj limiti səbəbindən bu söhbətin heç bir mesajı yüklənməyibsə,
+            // boş pəncərədə sürüşdürmə mümkün olmadığı üçün tarixçəni özümüz tələb edək.
+            if (!existingMsgs.length) {
+                loadOlderPrivateMessages(targetNick);
+            }
         };
 
         window.togglePCWMinimize = function(targetNick) {
