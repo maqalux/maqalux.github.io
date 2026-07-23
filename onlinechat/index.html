@@ -67,11 +67,23 @@
         .wallpaper-preset-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 12px 10px;
             width: 100%;
             margin-top: 4px;
         }
+        .wallpaper-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .wallpaper-option span {
+            font-size: 10.5px;
+            color: var(--text-50);
+            text-align: center;
+        }
         .wallpaper-swatch {
+            width: 100%;
             height: 64px;
             border-radius: 12px;
             cursor: pointer;
@@ -2245,12 +2257,12 @@
 
         // === SÖHBƏT ARXA FONU (WALLPAPER) ===
         const WALLPAPER_PRESETS = [
-            { name: 'Gecə mavisi', value: 'linear-gradient(135deg, #0f1c3f, #1a2a5e)' },
-            { name: 'Bənövşəyi toz', value: 'linear-gradient(135deg, #2d1b4e, #4a2f7a)' },
-            { name: 'Meşə yaşılı', value: 'linear-gradient(135deg, #0f2e1f, #1d4d38)' },
-            { name: 'Gün batımı', value: 'linear-gradient(135deg, #4a1942, #a13d5c)' },
-            { name: 'Qəhvəyi', value: 'linear-gradient(135deg, #2e1f14, #4a3524)' },
-            { name: 'Qraniti boz', value: 'linear-gradient(135deg, #23262b, #3a3f47)' }
+            { name: 'Xallar', value: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiMwZjFjM2YiLz4KPGRlZnM+PHBhdHRlcm4gaWQ9InAiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxjaXJjbGUgY3g9IjE4IiBjeT0iMTgiIHI9IjEuNyIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjE2KSIvPgo8L3BhdHRlcm4+PC9kZWZzPgo8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0idXJsKCNwKSIvPgo8L3N2Zz4=')", swatchBg: '#0f1c3f' },
+            { name: 'Yarpaqlar', value: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiMyZDFiNGUiLz4KPGRlZnM+PHBhdHRlcm4gaWQ9InAiIHdpZHRoPSI1MiIgaGVpZ2h0PSI1MiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxwYXRoIGQ9Ik0yNiAxMCBDMzQgMTgsIDM0IDI2LCAyNiAzNCBDMTggMjYsIDE4IDE4LCAyNiAxMCBaIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4xNikiIHN0cm9rZS13aWR0aD0iMS4zIi8+CjwvcGF0dGVybj48L2RlZnM+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSJ1cmwoI3ApIi8+Cjwvc3ZnPg==')", swatchBg: '#2d1b4e' },
+            { name: 'Altıbucaqlar', value: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiMxMDI0MWMiLz4KPGRlZnM+PHBhdHRlcm4gaWQ9InAiIHdpZHRoPSI0NCIgaGVpZ2h0PSI3NiIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxwYXRoIGQ9Ik0yMiAyIEw0MCAxMyBMNDAgMzUgTDIyIDQ2IEw0IDM1IEw0IDEzIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjE0KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KPHBhdGggZD0iTTIyIDQwIEw0MCA1MSBMNDAgNzMgTDIyIDg0IEw0IDczIEw0IDUxIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjE0KSIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KPC9wYXR0ZXJuPjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9InVybCgjcCkiLz4KPC9zdmc+')", swatchBg: '#10241c' },
+            { name: 'Ulduzlar', value: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiMzYTE2MzgiLz4KPGRlZnM+PHBhdHRlcm4gaWQ9InAiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxwYXRoIGQ9Ik0yNCAxNCBMMjYuNSAyMS41IEwzNCAyNCBMMjYuNSAyNi41IEwyNCAzNCBMMjEuNSAyNi41IEwxNCAyNCBMMjEuNSAyMS41IFoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNykiLz4KPC9wYXR0ZXJuPjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9InVybCgjcCkiLz4KPC9zdmc+')", swatchBg: '#3a1638' },
+            { name: 'Zolaqlar', value: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiMyZTFmMTQiLz4KPGRlZnM+PHBhdHRlcm4gaWQ9InAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcGF0dGVyblRyYW5zZm9ybT0icm90YXRlKDIwKSI+CjxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSI0MCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTApIiBzdHJva2Utd2lkdGg9IjEwIi8+CjwvcGF0dGVybj48L2RlZnM+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSJ1cmwoI3ApIi8+Cjwvc3ZnPg==')", swatchBg: '#2e1f14' },
+            { name: 'Şəbəkə', value: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj4KPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiMyMzI2MmIiLz4KPGRlZnM+PHBhdHRlcm4gaWQ9InAiIHdpZHRoPSIzNCIgaGVpZ2h0PSIzNCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxwYXRoIGQ9Ik0xNyAxMSBMMTcgMjMgTTExIDE3IEwyMyAxNyIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTUpIiBzdHJva2Utd2lkdGg9IjEuNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjwvcGF0dGVybj48L2RlZnM+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSJ1cmwoI3ApIi8+Cjwvc3ZnPg==')", swatchBg: '#23262b' }
         ];
 
         function applyWallpaperValue(value) {
@@ -2265,10 +2277,13 @@
 
         window.openWallpaperModal = function() {
             const grid = document.getElementById('wallpaperPresetGrid');
-            let html = `<div class="wallpaper-swatch none-swatch" onclick="setWallpaper('none')" title="Standart">↩️</div>`;
-            html += WALLPAPER_PRESETS.map(p =>
-                `<div class="wallpaper-swatch" style="background:${p.value};" onclick="setWallpaper('${p.value.replace(/'/g, "\\'")}')" title="${p.name}"></div>`
-            ).join('');
+            let html = `<div class="wallpaper-option"><div class="wallpaper-swatch none-swatch" onclick="setWallpaper('none')">↩️</div><span>Standart</span></div>`;
+            html += WALLPAPER_PRESETS.map(p => `
+                <div class="wallpaper-option">
+                    <div class="wallpaper-swatch" style="background-color:${p.swatchBg}; background-image:${p.value}; background-size:cover; background-position:center;" onclick="setWallpaper('${p.value.replace(/'/g, "\\'")}')"></div>
+                    <span>${p.name}</span>
+                </div>
+            `).join('');
             grid.innerHTML = html;
             document.getElementById('wallpaperModal').classList.add('active');
         };
