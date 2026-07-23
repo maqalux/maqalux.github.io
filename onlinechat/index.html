@@ -867,6 +867,17 @@
         .pill-icon-btn:hover {
             background: var(--border-10);
         }
+        .mic-cancel-btn.hidden {
+            display: none;
+        }
+        .mic-btn.recording {
+            background: rgba(231, 76, 60, 0.25);
+            animation: micPulse 1.1s infinite ease-in-out;
+        }
+        @keyframes micPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.5); }
+            50% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); }
+        }
 
         .send-btn {
             background: linear-gradient(90deg, #ffc107, #ff9800);
@@ -2105,6 +2116,8 @@
                             🖼️
                             <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
                         </label>
+                        <div class="pill-icon-btn mic-cancel-btn hidden" id="micCancel-main" title="Ləğv et" onclick="cancelVoiceRecording('main')">✕</div>
+                        <div class="pill-icon-btn mic-btn" id="micBtn-main" title="Səs mesajı" onclick="toggleVoiceRecording('main')"><i class="fa-solid fa-microphone"></i></div>
                     </div>
                     <button class="send-btn" onclick="triggerMessageSend()">➤</button>
 
@@ -3239,6 +3252,9 @@ connectedRef.on('value', (snap) => {
             if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
                 content += `<br><img src="${msg.mediaUrl}" alt="Stiker" style="max-width:140px; max-height:140px; background:none;">`;
             }
+            if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
+                content += `<br><audio controls src="${msg.mediaUrl}" style="max-width:220px; height:34px;"></audio>`;
+            }
 
             const reactions = msg.reactions || {};
             const counts = {};
@@ -3548,6 +3564,7 @@ connectedRef.on('value', (snap) => {
             if (msg.mediaType === 'gif') return '🎞️ GIF';
             if (msg.mediaType === 'sticker') return '😊 Stiker';
             if (msg.mediaType === 'image') return '🖼️ Şəkil';
+            if (msg.mediaType === 'audio') return '🎤 Səs mesajı';
             return '📎 Media';
         }
 
@@ -3794,6 +3811,9 @@ connectedRef.on('value', (snap) => {
             if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
                 content += `<img src="${msg.mediaUrl}" alt="Stiker" style="max-width:100px;max-height:100px;background:none;">`;
             }
+            if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
+                content += `<audio controls src="${msg.mediaUrl}" style="max-width:200px; height:32px;"></audio>`;
+            }
             const reactions = msg.reactions || {};
             const counts = {};
             Object.values(reactions).forEach(em => { counts[em] = (counts[em] || 0) + 1; });
@@ -4005,6 +4025,8 @@ connectedRef.on('value', (snap) => {
                             🖼️
                             <input type="file" accept="image/*" style="display:none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
                         </label>
+                        <div class="pill-icon-btn mic-cancel-btn hidden" style="width:26px;height:26px;font-size:15px;" id="micCancel-${targetNick}" title="Ləğv et" onclick="cancelVoiceRecording('${targetNick}')">✕</div>
+                        <div class="pill-icon-btn mic-btn" style="width:26px;height:26px;font-size:15px;" id="micBtn-${targetNick}" title="Səs mesajı" onclick="toggleVoiceRecording('${targetNick}')"><i class="fa-solid fa-microphone"></i></div>
                     </div>
                     <button class="pcw-send-btn" onclick="sendPrivateChatMessage('${targetNick}')">➤</button>
                     <div class="sticker-panel pcw-sticker-panel" id="stickerPanel-${targetNick}">
@@ -4494,6 +4516,112 @@ connectedRef.on('value', (snap) => {
         // ============================================================
         // 15. MEDIA UPLOAD (ÜMUMİ)
         // ============================================================
+        // === SƏS MESAJLARI ===
+        let voiceRecorders = {};
+        const MAX_VOICE_SECONDS = 60;
+
+        function formatRecTime(totalSeconds) {
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function getVoiceInputEl(target) {
+            if (target === 'main') return document.getElementById('messageInputField');
+            const win = document.getElementById('pcw-' + target);
+            return win ? win.querySelector('.pcw-text-input') : null;
+        }
+
+        function setMicButtonState(target, recording) {
+            const micBtn = document.getElementById('micBtn-' + target);
+            const cancelBtn = document.getElementById('micCancel-' + target);
+            if (micBtn) {
+                micBtn.classList.toggle('recording', recording);
+                micBtn.innerHTML = recording ? '<i class="fa-solid fa-stop"></i>' : '<i class="fa-solid fa-microphone"></i>';
+                micBtn.title = recording ? 'Dayandır və göndər' : 'Səs mesajı';
+            }
+            if (cancelBtn) cancelBtn.classList.toggle('hidden', !recording);
+        }
+
+        window.toggleVoiceRecording = async function(target) {
+            const existing = voiceRecorders[target];
+            if (existing && existing.recording) {
+                stopVoiceRecording(target, true);
+                return;
+            }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showToast('Bu brauzer mikrofonu dəstəkləmir.', 'error');
+                return;
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const mediaRecorder = new MediaRecorder(stream);
+                const chunks = [];
+                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+                voiceRecorders[target] = { mediaRecorder, chunks, stream, seconds: 0, recording: true, shouldSend: false };
+
+                mediaRecorder.onstop = () => {
+                    const rec = voiceRecorders[target];
+                    const blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                    stream.getTracks().forEach(t => t.stop());
+                    setMicButtonState(target, false);
+                    const inputEl = getVoiceInputEl(target);
+                    if (inputEl) inputEl.disabled = false;
+
+                    if (rec && rec.shouldSend && blob.size > 500) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64 = reader.result;
+                            if (target === 'main') {
+                                triggerMessageSend(base64, 'audio');
+                            } else {
+                                sendPrivateChatMessage(target, base64, 'audio');
+                            }
+                        };
+                        reader.readAsDataURL(blob);
+                    }
+                    delete voiceRecorders[target];
+                };
+
+                mediaRecorder.start();
+                setMicButtonState(target, true);
+                const inputEl = getVoiceInputEl(target);
+                if (inputEl) {
+                    inputEl.disabled = true;
+                    inputEl.placeholder = '🔴 Səs yazılır... 0:00';
+                }
+
+                voiceRecorders[target].timerInterval = setInterval(() => {
+                    const rec = voiceRecorders[target];
+                    if (!rec) return;
+                    rec.seconds++;
+                    if (inputEl) inputEl.placeholder = `🔴 Səs yazılır... ${formatRecTime(rec.seconds)}`;
+                    if (rec.seconds >= MAX_VOICE_SECONDS) {
+                        showToast('Maksimum 60 saniyəlik səs mesajı göndərilə bilər.', 'info');
+                        stopVoiceRecording(target, true);
+                    }
+                }, 1000);
+            } catch (err) {
+                showToast('Mikrofona icazə verilmədi.', 'error');
+            }
+        };
+
+        function stopVoiceRecording(target, send) {
+            const rec = voiceRecorders[target];
+            if (!rec) return;
+            clearInterval(rec.timerInterval);
+            rec.shouldSend = send;
+            rec.recording = false;
+            const inputEl = getVoiceInputEl(target);
+            if (inputEl) inputEl.placeholder = target === 'main' ? 'Mesajınızı bura yazın...' : 'Mesaj yaz...';
+            if (rec.mediaRecorder.state !== 'inactive') rec.mediaRecorder.stop();
+        }
+
+        window.cancelVoiceRecording = function(target) {
+            stopVoiceRecording(target, false);
+        };
+
         window.handleMediaUpload = async function(e) {
             const file = e.target.files[0];
             if (!file) return;
