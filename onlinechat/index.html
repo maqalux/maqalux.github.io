@@ -2116,9 +2116,9 @@
                     <div class="input-pill">
                         <div class="pill-icon-btn" title="Stiker və GIF" onclick="toggleStickerPanel('main')">😊</div>
                         <textarea id="messageInputField" class="message-input" placeholder="Mesajınızı bura yazın..." rows="1" onkeydown="handleKeyPress(event)" oninput="autoGrowTextarea(this); handleMentionAutocomplete(this);"></textarea>
-                        <label class="pill-icon-btn" title="Şəkil göndər">
+                        <label class="pill-icon-btn" title="Şəkil / Video göndər">
                             🖼️
-                            <input type="file" id="mediaFileInput" accept="image/*" style="display: none;" onchange="handleMediaUpload(event)">
+                            <input type="file" id="mediaFileInput" accept="image/*,video/*" style="display: none;" onchange="handleMediaUpload(event)">
                         </label>
                         <div class="pill-icon-btn mic-cancel-btn hidden" id="micCancel-main" title="Ləğv et" onclick="cancelVoiceRecording('main')">✕</div>
                         <div class="pill-icon-btn mic-btn" id="micBtn-main" title="Səs mesajı" onclick="toggleVoiceRecording('main')"><i class="fa-solid fa-microphone"></i></div>
@@ -3259,6 +3259,9 @@ connectedRef.on('value', (snap) => {
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<br><audio controls src="${msg.mediaUrl}" style="max-width:220px; height:34px;"></audio>`;
             }
+            if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
+                content += `<br><video controls src="${msg.mediaUrl}" style="max-width:220px; max-height:220px; border-radius:10px;"></video>`;
+            }
 
             const reactions = msg.reactions || {};
             const counts = {};
@@ -3569,6 +3572,7 @@ connectedRef.on('value', (snap) => {
             if (msg.mediaType === 'sticker') return '😊 Stiker';
             if (msg.mediaType === 'image') return '🖼️ Şəkil';
             if (msg.mediaType === 'audio') return '🎤 Səs mesajı';
+            if (msg.mediaType === 'video') return '🎬 Video';
             return '📎 Media';
         }
 
@@ -3818,6 +3822,9 @@ connectedRef.on('value', (snap) => {
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<audio controls src="${msg.mediaUrl}" style="max-width:200px; height:32px;"></audio>`;
             }
+            if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
+                content += `<video controls src="${msg.mediaUrl}" style="max-width:200px; max-height:200px; border-radius:10px;"></video>`;
+            }
             const reactions = msg.reactions || {};
             const counts = {};
             Object.values(reactions).forEach(em => { counts[em] = (counts[em] || 0) + 1; });
@@ -4025,9 +4032,9 @@ connectedRef.on('value', (snap) => {
                     <div class="input-pill">
                         <div class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${targetNick}')">😊</div>
                         <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); sendPrivateChatMessage('${targetNick}');}" oninput="autoGrowTextarea(this); notifyTyping('${targetNick}');"></textarea>
-                        <label class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Şəkil göndər">
+                        <label class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Şəkil / Video göndər">
                             🖼️
-                            <input type="file" accept="image/*" style="display:none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
+                            <input type="file" accept="image/*,video/*" style="display:none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
                         </label>
                         <div class="pill-icon-btn mic-cancel-btn hidden" style="width:26px;height:26px;font-size:15px;" id="micCancel-${targetNick}" title="Ləğv et" onclick="cancelVoiceRecording('${targetNick}')">✕</div>
                         <div class="pill-icon-btn mic-btn" style="width:26px;height:26px;font-size:15px;" id="micBtn-${targetNick}" title="Səs mesajı" onclick="toggleVoiceRecording('${targetNick}')"><i class="fa-solid fa-microphone"></i></div>
@@ -4144,6 +4151,13 @@ connectedRef.on('value', (snap) => {
         window.handlePrivateMediaUpload = async function(e, targetNick) {
             const file = e.target.files[0];
             if (!file) return;
+
+            if (file.type.startsWith('video/')) {
+                sendVideoAsBase64(file, (data, type) => sendPrivateChatMessage(targetNick, data, type));
+                e.target.value = '';
+                return;
+            }
+
             const formData = new FormData();
             formData.append('image', file);
             try {
@@ -4157,6 +4171,7 @@ connectedRef.on('value', (snap) => {
             } catch (err) {
                 showToast('Xəta: ' + err.message, 'error');
             }
+            e.target.value = '';
         };
 
         // ============================================================
@@ -4626,10 +4641,39 @@ connectedRef.on('value', (snap) => {
             stopVoiceRecording(target, false);
         };
 
+        const MAX_VIDEO_BYTES = 8 * 1024 * 1024; // 8 MB
+
+        function sendVideoAsBase64(file, sendFn) {
+            if (file.size > MAX_VIDEO_BYTES) {
+                showToast('Video çox böyükdür. Maksimum 8MB (bir neçə saniyəlik qısa video) icazəlidir.', 'error', 5000);
+                return false;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                sendFn(reader.result, 'video');
+            };
+            reader.onerror = () => {
+                showToast('Video oxunarkən xəta baş verdi.', 'error');
+            };
+            reader.readAsDataURL(file);
+            return true;
+        }
+
         window.handleMediaUpload = async function(e) {
             const file = e.target.files[0];
             if (!file) return;
             const inputField = document.getElementById('messageInputField');
+
+            if (file.type.startsWith('video/')) {
+                inputField.placeholder = '🎬 Video hazırlanır...';
+                inputField.disabled = true;
+                sendVideoAsBase64(file, (data, type) => triggerMessageSend(data, type));
+                inputField.placeholder = 'Mesajınızı bura yazın...';
+                inputField.disabled = false;
+                e.target.value = '';
+                return;
+            }
+
             inputField.placeholder = '📸 Şəkil yüklənir...';
             inputField.disabled = true;
             const formData = new FormData();
