@@ -1061,6 +1061,54 @@
             color: #ffaa00;
             background: rgba(255, 170, 0, 0.18);
         }
+        .msg-link {
+            color: #4fc3f7;
+            text-decoration: underline;
+            word-break: break-all;
+        }
+        .yt-embed-wrap {
+            position: relative;
+            width: 260px;
+            max-width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+            background: #000;
+            cursor: pointer;
+        }
+        .yt-embed-wrap .yt-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .yt-embed-wrap .yt-play-btn {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.25);
+        }
+        .yt-embed-wrap .yt-play-btn i {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(230, 33, 23, 0.9);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            padding-left: 3px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .yt-embed-wrap iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
         /* Avatar dropdown */
         .avatar-dropdown {
@@ -2619,6 +2667,37 @@
             return Array.from(found);
         }
 
+        function linkifyText(html) {
+            const urlRegex = /(https?:\/\/[^\s<]+)/g;
+            return html.replace(urlRegex, (url) => {
+                const cleanUrl = url.replace(/[).,;!?]+$/, '');
+                return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="msg-link">${cleanUrl}</a>`;
+            });
+        }
+
+        function extractYouTubeId(text) {
+            if (!text) return null;
+            const match = text.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return match ? match[1] : null;
+        }
+
+        function buildYouTubeEmbedHtml(videoId) {
+            return `
+                <div class="yt-embed-wrap" data-video-id="${videoId}">
+                    <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="YouTube video" class="yt-thumb" loading="lazy">
+                    <div class="yt-play-btn" onclick="event.stopPropagation(); loadYouTubeEmbed(this)">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.loadYouTubeEmbed = function(btnEl) {
+            const wrap = btnEl.closest('.yt-embed-wrap');
+            const videoId = wrap.dataset.videoId;
+            wrap.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        };
+
         function highlightMentions(text, mentions) {
             let escaped = escapeHtml(text);
             (mentions || []).forEach(nick => {
@@ -2627,7 +2706,7 @@
                 const re = new RegExp('@' + safe.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![a-zA-Z0-9_])', 'g');
                 escaped = escaped.replace(re, `<span class="mention${isMe ? ' mention-me' : ''}">@${safe}</span>`);
             });
-            return escaped;
+            return linkifyText(escaped);
         }
 
         window.handleMentionAutocomplete = function(input) {
@@ -3262,6 +3341,10 @@ connectedRef.on('value', (snap) => {
             if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<br><video controls src="${msg.mediaUrl}" style="max-width:220px; max-height:220px; border-radius:10px;"></video>`;
             }
+            if (!msg.isDeleted) {
+                const ytId = extractYouTubeId(msg.text);
+                if (ytId) content += buildYouTubeEmbedHtml(ytId);
+            }
 
             const reactions = msg.reactions || {};
             const counts = {};
@@ -3811,7 +3894,7 @@ connectedRef.on('value', (snap) => {
                 </div>
                 ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
                 ${msg.replyTo ? `<div class="msg-reply-preview">${msg.replyTo.mediaUrl ? `<img src="${msg.replyTo.mediaUrl}" class="reply-thumb" alt="">` : ''}<div class="reply-text-wrap"><b>${escapeHtml(msg.replyTo.sender)}</b><span class="reply-text">${escapeHtml(msg.replyTo.text || '')}</span></div></div>` : ''}
-                <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : escapeHtml(msg.text)}</div>
+                <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : linkifyText(escapeHtml(msg.text))}</div>
             `;
             if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<img src="${msg.mediaUrl}" alt="Media" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
@@ -3824,6 +3907,10 @@ connectedRef.on('value', (snap) => {
             }
             if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<video controls src="${msg.mediaUrl}" style="max-width:200px; max-height:200px; border-radius:10px;"></video>`;
+            }
+            if (!msg.isDeleted) {
+                const ytId = extractYouTubeId(msg.text);
+                if (ytId) content += buildYouTubeEmbedHtml(ytId);
             }
             const reactions = msg.reactions || {};
             const counts = {};
