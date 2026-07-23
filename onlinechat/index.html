@@ -1948,6 +1948,7 @@
             </ul>
         </nav>
         <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()" title="Tema dəyiş">🌙</button>
+        <button type="button" class="theme-toggle-btn" id="soundToggleBtn" onclick="toggleSound()" title="Səsi aç/bağla">🔊</button>
     </header>
 
     <main>
@@ -2171,6 +2172,7 @@
         let currentUser = null;
         let currentUserData = null;
         let allMessages = [];
+        const pageLoadTimestamp = Date.now();
         let oldestMessageTimestamp = null;
         let isLoadingOlderMessages = false;
         let hasMoreOlderMessages = true;
@@ -2278,6 +2280,63 @@
             applySavedTheme();
         };
         applySavedTheme();
+
+        // === SƏS EFFEKTLƏRİ ===
+        let audioCtx = null;
+        let soundEnabled = localStorage.getItem('maqaluxSound') !== 'off';
+
+        function getAudioCtx() {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                audioCtx = new AC();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+        document.addEventListener('click', () => getAudioCtx(), { once: true });
+
+        function playTone(freq, duration, startTime, volume, type) {
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(volume, ctx.currentTime + startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + startTime);
+            osc.stop(ctx.currentTime + startTime + duration);
+        }
+
+        function playSentSound() {
+            if (!soundEnabled) return;
+            try {
+                playTone(680, 0.07, 0, 0.10, 'sine');
+                playTone(920, 0.08, 0.05, 0.09, 'sine');
+            } catch (e) {}
+        }
+        function playReceivedSound() {
+            if (!soundEnabled) return;
+            try {
+                playTone(520, 0.09, 0, 0.10, 'sine');
+                playTone(680, 0.11, 0.07, 0.10, 'sine');
+            } catch (e) {}
+        }
+
+        window.toggleSound = function() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('maqaluxSound', soundEnabled ? 'on' : 'off');
+            const btn = document.getElementById('soundToggleBtn');
+            if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) playSentSound();
+        };
+        (function initSoundBtn() {
+            const btn = document.getElementById('soundToggleBtn');
+            if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
+        })();
 
         // === SÖHBƏT ARXA FONU (WALLPAPER) ===
         const WALLPAPER_PRESETS = [
@@ -2963,6 +3022,7 @@ connectedRef.on('value', (snap) => {
                     allMessages.push(msg);
                     appendMessage(msg);
                     notifyIfMentioned(msg);
+                    if (msg.sender !== currentUserData.nick) playReceivedSound();
                 }
             });
 
@@ -3194,6 +3254,7 @@ connectedRef.on('value', (snap) => {
                 input.value = '';
                 input.style.height = 'auto';
                 cancelReply();
+                playSentSound();
             }).catch(err => {
                 showToast('Mesaj göndərilərkən xəta: ' + err.message, 'error');
             });
@@ -3518,6 +3579,7 @@ connectedRef.on('value', (snap) => {
                         }
                         if (msg.sender !== currentUserData.nick) {
                             bumpTabTitle();
+                            if ((msg.timestamp || 0) > pageLoadTimestamp) playReceivedSound();
                         }
                     }
                 }
@@ -3868,6 +3930,7 @@ connectedRef.on('value', (snap) => {
                 privateMessagesByNick[targetNick].push(msgCopy);
                 appendPrivateMessage(targetNick, msgCopy);
                 showToast('Mesaj göndərildi', 'success', 1500);
+                playSentSound();
             }).catch(err => {
                 showToast('Şəxsi mesaj göndərilərkən xəta: ' + err.message, 'error');
             });
