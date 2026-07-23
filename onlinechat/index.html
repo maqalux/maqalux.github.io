@@ -12,6 +12,7 @@
     <title>Maqalux - Modern Çat</title>
     <link rel="icon" href="/icon-192.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
     <style>
         :root {
@@ -147,6 +148,42 @@
         header a.logo img:hover {
             transform: scale(1.1) rotate(-3deg);
         }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #ffaa00;
+            font-size: 20px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+        }
+        .msg-icon-wrap { position: relative; cursor: pointer; }
+        .msg-icon-wrap .msg-icon { font-size: 19px; color: var(--text-main); display: flex; }
+        .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 3px; border: 2px solid rgb(var(--surface-rgb)); }
+        .msg-badge.hidden { display: none; }
+        .msg-dropdown { position: absolute; top: 38px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; z-index: 6000; }
+        .msg-dropdown.active { display: block; }
+        .msg-dropdown-header { padding: 14px 16px; font-weight: 700; color: #FFD700; border-bottom: 1px solid var(--border-10); }
+        .msg-dropdown-list { display: flex; flex-direction: column; }
+        .msg-dropdown-empty { padding: 24px 16px; text-align: center; color: var(--text-50); font-size: 14px; }
+        .msg-conv-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--border-10); }
+        .msg-conv-item:hover { background: var(--panel-06); }
+        .msg-conv-item.unread { background: rgba(255,170,0,0.08); }
+        .msg-conv-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,170,0,0.3); }
+        .msg-conv-info { flex: 1; min-width: 0; }
+        .msg-conv-name { font-size: 13.5px; color: var(--text-main); }
+        .msg-conv-item.unread .msg-conv-name { font-weight: 700; }
+        .msg-conv-preview { font-size: 12px; color: var(--text-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+        .msg-conv-item.unread .msg-conv-preview { color: var(--text-main); opacity: 0.85; }
+        .msg-conv-dot { min-width: 17px; height: 17px; padding: 0 5px; border-radius: 9px; background: #ffaa00; color: #030714; font-size: 10.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
         nav ul {
             list-style: none;
@@ -1682,11 +1719,27 @@
         /* Mobil */
         @media (max-width: 700px) {
             header {
-                height: auto;
-                flex-direction: column;
-                padding: 10px;
+                height: auto !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                padding: 10px 14px;
                 gap: 8px;
+                position: relative;
             }
+            header > .header-right {
+                order: 2;
+                width: 100%;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center;
+                gap: 18px;
+            }
+            .hamburger-btn { display: flex; }
+            header > nav { order: 3; width: 100%; display: none; }
+            header > nav.mobile-nav-open { display: flex !important; }
+            header > nav ul { flex-direction: column; align-items: center; width: 100%; }
+            header > nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
+            .msg-dropdown { right: -10px; width: 92vw; max-width: 340px; }
             main {
                 padding: 0;
             }
@@ -1947,8 +2000,23 @@
                 <li><a href="onlinechat.html" class="active">Onlayn çat</a></li>
             </ul>
         </nav>
-        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()" title="Tema dəyiş">🌙</button>
-        <button type="button" class="theme-toggle-btn" id="soundToggleBtn" onclick="toggleSound()" title="Səsi aç/bağla">🔊</button>
+        <div class="header-right">
+            <div class="msg-icon-wrap" id="msgIconWrap" onclick="toggleMsgDropdown(event)">
+                <i class="far fa-paper-plane msg-icon"></i>
+                <span class="msg-badge hidden" id="msgBadgeCount">0</span>
+                <div class="msg-dropdown" id="msgDropdownPanel">
+                    <div class="msg-dropdown-header">Mesajlar</div>
+                    <div class="msg-dropdown-list" id="msgDropdownList">
+                        <div class="msg-dropdown-empty">Mesaj yoxdur</div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()" title="Tema dəyiş">🌙</button>
+            <button type="button" class="theme-toggle-btn" id="soundToggleBtn" onclick="toggleSound()" title="Səsi aç/bağla">🔊</button>
+            <button type="button" class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileNav(event)" aria-label="Menyu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </header>
 
     <main>
@@ -2280,6 +2348,103 @@
             applySavedTheme();
         };
         applySavedTheme();
+
+        // === MOBİL HAMBURGER MENYU ===
+        window.toggleMobileNav = function(e) {
+            e.stopPropagation();
+            document.querySelector('header > nav').classList.toggle('mobile-nav-open');
+        };
+        document.addEventListener('click', function(e) {
+            const navEl = document.querySelector('header > nav');
+            if (navEl && navEl.classList.contains('mobile-nav-open') && !e.target.closest('header > nav') && !e.target.closest('.hamburger-btn')) {
+                navEl.classList.remove('mobile-nav-open');
+            }
+        });
+
+        // === MESAJ QUTUSU (header) ===
+        let msgInboxRef = null;
+        let msgConversations = {};
+
+        window.toggleMsgDropdown = function(e) {
+            e.stopPropagation();
+            document.getElementById('msgDropdownPanel').classList.toggle('active');
+        };
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('msgDropdownPanel');
+            if (panel && panel.classList.contains('active') && !e.target.closest('.msg-icon-wrap')) {
+                panel.classList.remove('active');
+            }
+        });
+
+        function initHeaderMessageInbox() {
+            if (!currentUserData) return;
+            if (msgInboxRef) msgInboxRef.off();
+            msgConversations = {};
+            msgInboxRef = db.ref('privateMessages').orderByChild('recipient').equalTo(currentUserData.nick);
+            msgInboxRef.on('value', (snap) => {
+                const convs = {};
+                snap.forEach((child) => {
+                    const m = child.val();
+                    if (!m || m.isDeleted) return;
+                    const readBy = m.readBy || [];
+                    const isUnread = !readBy.includes(currentUserData.nick);
+                    if (!convs[m.sender]) {
+                        convs[m.sender] = {
+                            avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png',
+                            text: '', timestamp: 0, unreadCount: 0
+                        };
+                    }
+                    const conv = convs[m.sender];
+                    if ((m.timestamp || 0) >= conv.timestamp) {
+                        conv.avatar = m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+                        conv.text = (m.mediaType && m.mediaType !== 'text') ? '📎 Media' : (m.text || '');
+                        conv.timestamp = m.timestamp || 0;
+                    }
+                    if (isUnread) conv.unreadCount++;
+                });
+                msgConversations = convs;
+                renderHeaderMsgDropdown();
+            });
+        }
+
+        function stopHeaderMessageInbox() {
+            if (msgInboxRef) { msgInboxRef.off(); msgInboxRef = null; }
+            msgConversations = {};
+            renderHeaderMsgDropdown();
+        }
+
+        function renderHeaderMsgDropdown() {
+            const list = document.getElementById('msgDropdownList');
+            const badge = document.getElementById('msgBadgeCount');
+            if (!list || !badge) return;
+            const entries = Object.entries(msgConversations).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+            const totalUnread = entries.reduce((sum, [, c]) => sum + (c.unreadCount || 0), 0);
+            if (totalUnread > 0) {
+                badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+            if (!entries.length) {
+                list.innerHTML = '<div class="msg-dropdown-empty">Mesaj yoxdur</div>';
+                return;
+            }
+            list.innerHTML = entries.map(([nick, c]) => `
+                <div class="msg-conv-item ${c.unreadCount > 0 ? 'unread' : ''}" onclick="openHeaderInboxConversation('${nick.replace(/'/g, "\\'")}')">
+                    <img src="${c.avatar}" class="msg-conv-avatar" alt="av">
+                    <div class="msg-conv-info">
+                        <div class="msg-conv-name">${escapeHtml(nick)}</div>
+                        <div class="msg-conv-preview">${escapeHtml(c.text)}</div>
+                    </div>
+                    ${c.unreadCount > 0 ? `<span class="msg-conv-dot">${c.unreadCount > 9 ? '9+' : c.unreadCount}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        window.openHeaderInboxConversation = function(nick) {
+            document.getElementById('msgDropdownPanel').classList.remove('active');
+            openPrivateChatWindow(nick);
+        };
 
         // === SƏS EFFEKTLƏRİ ===
         let audioCtx = null;
@@ -2721,6 +2886,7 @@ connectedRef.on('value', (snap) => {
                         loadMessages();
                         loadActiveUsers();
                         loadPrivateMessages();
+                        initHeaderMessageInbox();
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
@@ -2746,6 +2912,7 @@ connectedRef.on('value', (snap) => {
                 db.ref('messages').off();
                 db.ref('users').off();
                 db.ref('privateMessages').off();
+                stopHeaderMessageInbox();
                 // close all private windows
                 Object.keys(openPCWs).forEach(nick => {
                     const win = document.getElementById('pcw-' + nick);
