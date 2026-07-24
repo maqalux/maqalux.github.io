@@ -405,7 +405,7 @@
       <h2>Maqalux</h2>
       <p class="sub">Daxil olun və saytdan tam faydalanın</p>
       <div class="input-group">
-        <input type="email" id="loginEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+        <input type="text" id="loginEmailInput" class="custom-input" placeholder="E-poçt və ya istifadəçi adı">
         <div class="password-wrapper">
           <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
           <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
@@ -495,10 +495,10 @@
   <div class="modal-overlay" id="changePasswordModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeChangePasswordModal()">✕</button>
-      <h3>Şifrəni dəyiş</h3>
-      <p class="modal-desc">Köhnə və yeni şifrəni daxil edin.</p>
+      <h3 id="changePassTitle">Şifrəni dəyiş</h3>
+      <p class="modal-desc" id="changePassDesc">Köhnə və yeni şifrəni daxil edin.</p>
       <div class="input-group">
-        <div class="password-wrapper">
+        <div class="password-wrapper" id="oldPassWrapper">
           <input type="password" id="oldPassInput" class="custom-input" placeholder="Köhnə şifrə">
           <span class="toggle-password" onclick="togglePasswordVisibility('oldPassInput', this)">👁️</span>
         </div>
@@ -830,11 +830,37 @@
 
     // === LOGIN / REGISTER / GOOGLE / LOGOUT ===
     window.handleLogin = async function() {
-      const email = document.getElementById('loginEmailInput').value.trim();
+      const identifier = document.getElementById('loginEmailInput').value.trim();
       const pass = document.getElementById('loginPasswordInput').value.trim();
-      if (!email || !pass) return showToast('Email və şifrəni daxil edin.', 'error');
-      try { await auth.signInWithEmailAndPassword(email, pass); }
-      catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      if (!identifier || !pass) return showToast('E-poçt/istifadəçi adı və şifrəni daxil edin.', 'error');
+
+      let email = identifier;
+      try {
+        if (!identifier.includes('@')) {
+          // İstifadəçi adı ilə giriş cəhdi — əvvəlcə uyğun e-poçtu bazadan tap
+          const snap = await db.ref('users').orderByChild('nick').equalTo(identifier).once('value');
+          if (!snap.exists()) {
+            return showToast('Bu adda istifadəçi tapılmadı.', 'error');
+          }
+          let foundEmail = null;
+          snap.forEach(child => { foundEmail = child.val().email; });
+          if (!foundEmail) return showToast('Bu istifadəçinin e-poçt ünvanı tapılmadı.', 'error');
+          email = foundEmail;
+        }
+
+        const methods = await auth.fetchSignInMethodsForEmail(email);
+        if (methods.length && !methods.includes('password')) {
+          return showToast('Bu hesab Google ilə qeydiyyatdan keçib. "Google ilə daxil ol" düyməsini istifadə edin, ya da daxil olduqdan sonra profil ayarlarından şifrə təyin edin.', 'error', 7000);
+        }
+
+        await auth.signInWithEmailAndPassword(email, pass);
+      } catch (err) {
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+          showToast('E-poçt/istifadəçi adı və ya şifrə yanlışdır.', 'error');
+        } else {
+          showToast('Xəta: ' + err.message, 'error');
+        }
+      }
     };
 
     window.handleRegister = async function() {
@@ -904,6 +930,20 @@
     window.openChangePasswordModal = function() {
       document.getElementById('oldPassInput').value = '';
       document.getElementById('newPassInput').value = '';
+      const user = auth.currentUser;
+      const hasPasswordProvider = user && user.providerData.some(p => p.providerId === 'password');
+      const oldWrapper = document.getElementById('oldPassWrapper');
+      const title = document.getElementById('changePassTitle');
+      const desc = document.getElementById('changePassDesc');
+      if (hasPasswordProvider) {
+        oldWrapper.style.display = 'flex';
+        title.textContent = 'Şifrəni dəyiş';
+        desc.textContent = 'Köhnə və yeni şifrəni daxil edin.';
+      } else {
+        oldWrapper.style.display = 'none';
+        title.textContent = 'Şifrə təyin et';
+        desc.textContent = 'Hesabınız Google ilə qeydiyyatdan keçib. Bundan sonra istifadəçi adı/e-poçt və bu şifrə ilə də daxil ola bilmək üçün yeni şifrə təyin edin.';
+      }
       document.getElementById('changePasswordModal').classList.add('active');
       document.getElementById('dropdownMenu').classList.remove('active');
     };
@@ -913,13 +953,24 @@
     window.submitChangePassword = function() {
       const old = document.getElementById('oldPassInput').value.trim();
       const newp = document.getElementById('newPassInput').value.trim();
-      if (!old || !newp) return showToast('Hər iki xananı doldurun.', 'error');
       const user = auth.currentUser;
       if (!user) return showToast('Daxil olmamısınız.', 'error');
-      const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
-      user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp))
-        .then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); })
-        .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      if (!newp) return showToast('Yeni şifrəni daxil edin.', 'error');
+
+      const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
+
+      if (hasPasswordProvider) {
+        if (!old) return showToast('Köhnə şifrənizi daxil edin.', 'error');
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
+        user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp))
+          .then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); })
+          .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      } else {
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, newp);
+        user.linkWithCredential(cred)
+          .then(() => { showToast('Şifrə təyin edildi! İndi e-poçt/istifadəçi adı və bu şifrə ilə də daxil ola bilərsiniz.', 'success', 6000); closeChangePasswordModal(); })
+          .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      }
     };
 
     // === PROFİL ŞƏKLİ ===
