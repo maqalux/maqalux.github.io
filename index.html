@@ -795,6 +795,9 @@
             }
             await db.ref(`users/${user.uid}/online`).set(true);
             db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+            if (currentUserData.nick && currentUserData.email) {
+              db.ref(`usernameToEmail/${currentUserData.nick}`).set(currentUserData.email);
+            }
 
             // Profil şəkli
             document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
@@ -837,15 +840,12 @@
       let email = identifier;
       try {
         if (!identifier.includes('@')) {
-          // İstifadəçi adı ilə giriş cəhdi — əvvəlcə uyğun e-poçtu bazadan tap
-          const snap = await db.ref('users').orderByChild('nick').equalTo(identifier).once('value');
+          // İstifadəçi adı ilə giriş cəhdi — açıq (auth tələb etməyən) xəritədən e-poçtu tap
+          const snap = await db.ref(`usernameToEmail/${identifier}`).once('value');
           if (!snap.exists()) {
             return showToast('Bu adda istifadəçi tapılmadı.', 'error');
           }
-          let foundEmail = null;
-          snap.forEach(child => { foundEmail = child.val().email; });
-          if (!foundEmail) return showToast('Bu istifadəçinin e-poçt ünvanı tapılmadı.', 'error');
-          email = foundEmail;
+          email = snap.val();
         }
 
         const methods = await auth.fetchSignInMethodsForEmail(email);
@@ -875,6 +875,7 @@
           avatarUrl: 'https://www.w3schools.com/howto/img_avatar.png',
           online: true, isBanned: false
         });
+        await db.ref(`usernameToEmail/${nick}`).set(email);
         showToast('Qeydiyyat uğurludur!', 'success');
       } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
     };
@@ -886,15 +887,18 @@
         const user = result.user;
         const snap = await db.ref(`users/${user.uid}`).once('value');
         if (!snap.exists()) {
+          const nick = user.displayName || 'Google İstifadəçisi';
           await db.ref(`users/${user.uid}`).set({
-            nick: user.displayName || 'Google İstifadəçisi',
+            nick,
             email: user.email,
             role: 'user',
             avatarUrl: user.photoURL || 'https://www.w3schools.com/howto/img_avatar.png',
             online: true, isBanned: false
           });
+          await db.ref(`usernameToEmail/${nick}`).set(user.email);
         } else {
           await db.ref(`users/${user.uid}/online`).set(true);
+          await db.ref(`usernameToEmail/${snap.val().nick}`).set(user.email);
         }
         showToast('Google ilə daxil oldunuz!', 'success');
       } catch (err) { showToast('Google Xətası: ' + err.message, 'error'); }
