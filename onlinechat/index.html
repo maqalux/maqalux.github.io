@@ -539,7 +539,7 @@
             cursor: pointer;
             transition: 0.25s;
             position: relative;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
         .user-badge:hover {
             background: rgba(255, 255, 255, 0.13);
@@ -559,6 +559,14 @@
             font-size: 10px;
             opacity: 0.7;
             margin-left: auto;
+            flex-shrink: 0;
+        }
+        .user-badge .user-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 1 1 auto;
         }
 
         .badge-actions {
@@ -2974,6 +2982,9 @@
                     if (snap.exists()) {
                         currentUserData = snap.val();
                         currentUserData.uid = user.uid;
+                        if (currentUserData.nick && currentUserData.email) {
+                            db.ref(`usernameToEmail/${currentUserData.nick}`).set(currentUserData.email);
+                        }
                         const connectedRef = db.ref('.info/connected');
 connectedRef.on('value', (snap) => {
   if (snap.val() === true && currentUserData) {
@@ -4433,6 +4444,19 @@ connectedRef.on('value', (snap) => {
             ordered.forEach(user => container.appendChild(buildUserBadge(user)));
         }
 
+        function shrinkTextToFit(el, minFontSize) {
+            if (!el) return;
+            minFontSize = minFontSize || 9;
+            el.style.fontSize = '';
+            let fontSize = parseFloat(getComputedStyle(el).fontSize);
+            let attempts = 0;
+            while (el.scrollWidth > el.clientWidth + 1 && fontSize > minFontSize && attempts < 20) {
+                fontSize -= 0.5;
+                el.style.fontSize = fontSize + 'px';
+                attempts++;
+            }
+        }
+
         function buildUserBadge(user) {
             const div = document.createElement('div');
             div.className = 'user-badge';
@@ -4449,7 +4473,7 @@ connectedRef.on('value', (snap) => {
                     <img src="${avatar}" class="sidebar-avatar" alt="av">
                     <span class="online-dot ${user.online ? 'is-online' : ''}"></span>
                 </div>
-                <span>${user.isBanned ? '🚫 ' : ''}${escapeHtml(user.nick)}${isMe ? ' (siz)' : ''}</span>
+                <span class="user-name">${user.isBanned ? '🚫 ' : ''}${escapeHtml(user.nick)}${isMe ? ' (siz)' : ''}</span>
                 ${roleLabel ? `<span class="role-tag">${roleLabel}</span>` : ''}
             `;
 
@@ -4459,6 +4483,7 @@ connectedRef.on('value', (snap) => {
                     showUserActionPopup(e, user, avatar);
                 });
             }
+            requestAnimationFrame(() => shrinkTextToFit(div.querySelector('.user-name')));
             return div;
         }
 
@@ -4737,7 +4762,8 @@ connectedRef.on('value', (snap) => {
         const MAX_VIDEO_BYTES = 8 * 1024 * 1024; // 8 MB
 
         function sendVideoAsBase64(file, sendFn) {
-            if (file.size > MAX_VIDEO_BYTES) {
+            const isPrivileged = currentUserData && (currentUserData.role === 'admin' || currentUserData.nick === 'Nərgiz');
+            if (!isPrivileged && file.size > MAX_VIDEO_BYTES) {
                 showToast('Video çox böyükdür. Maksimum 8MB (bir neçə saniyəlik qısa video) icazəlidir.', 'error', 5000);
                 return false;
             }
