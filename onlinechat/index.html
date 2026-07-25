@@ -1,4 +1,4 @@
-v<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8" />
@@ -3025,6 +3025,14 @@ connectedRef.on('value', (snap) => {
                     window.location.href = '../index.html';
                 }
             } else {
+                // Diqqət: bura bəzən HƏQİQİ çıxışda deyil, böyük mesaj (məs. iri video)
+                // göndərilərkən bağlantının qısa müddətə "tərəddüd etməsi" səbəbindən də düşə bilər.
+                // Dərhal ana səhifəyə atmadan əvvəl, bunun HƏQİQƏTƏN çıxış olduğunu təsdiqləyək.
+                await new Promise(r => setTimeout(r, 1500));
+                if (auth.currentUser) {
+                    // Yalan həyəcan siqnalı imiş — bağlantı özü bərpa olub, heç nə etmə.
+                    return;
+                }
                 currentUser = null;
                 currentUserData = null;
                 isMessagesLoaded = false;
@@ -4257,7 +4265,19 @@ connectedRef.on('value', (snap) => {
             if (!file) return;
 
             if (file.type.startsWith('video/')) {
-                sendVideoAsBase64(file, (data, type) => sendPrivateChatMessage(targetNick, data, type));
+                const win = document.getElementById('pcw-' + targetNick);
+                const input = win ? win.querySelector('.pcw-text-input') : null;
+                if (input) {
+                    input.placeholder = '🎬 Video hazırlanır... 0%';
+                    input.disabled = true;
+                }
+                await sendVideoAsBase64(file, (data, type) => sendPrivateChatMessage(targetNick, data, type), (percent, done) => {
+                    if (input) input.placeholder = done ? '📤 Göndərilir...' : `🎬 Video hazırlanır... ${percent}%`;
+                });
+                if (input) {
+                    input.placeholder = 'Mesaj yaz...';
+                    input.disabled = false;
+                }
                 e.target.value = '';
                 return;
             }
@@ -4759,23 +4779,38 @@ connectedRef.on('value', (snap) => {
             stopVoiceRecording(target, false);
         };
 
-        const MAX_VIDEO_BYTES = 8 * 1024 * 1024; // 8 MB
+        const MAX_VIDEO_BYTES = 8 * 1024 * 1024; // 8 MB - adi istifadəçilər üçün
+        const MAX_VIDEO_BYTES_ABSOLUTE = 20 * 1024 * 1024; // 20 MB - "imtiyazlı" istifadəçilər üçün belə keçilməz həddi
 
-        function sendVideoAsBase64(file, sendFn) {
+        function sendVideoAsBase64(file, sendFn, onProgress) {
             const isPrivileged = currentUserData && (currentUserData.nick === 'Maqalux' || currentUserData.nick === 'Nərgiz');
-            if (!isPrivileged && file.size > MAX_VIDEO_BYTES) {
-                showToast('Video çox böyükdür. Maksimum 8MB (bir neçə saniyəlik qısa video) icazəlidir.', 'error', 5000);
-                return false;
+            if (file.size > MAX_VIDEO_BYTES_ABSOLUTE) {
+                showToast(`Video həddindən artıq böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 20MB icazəlidir (imtiyazlı istifadəçilər üçün belə) — Firebase-in verilənlər bazası bundan böyük faylı etibarlı şəkildə göndərə bilmir.`, 'error', 9000);
+                return Promise.resolve(false);
             }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                sendFn(reader.result, 'video');
-            };
-            reader.onerror = () => {
-                showToast('Video oxunarkən xəta baş verdi.', 'error');
-            };
-            reader.readAsDataURL(file);
-            return true;
+            if (!isPrivileged && file.size > MAX_VIDEO_BYTES) {
+                showToast(`Video çox böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 8MB (bir neçə saniyəlik qısa video) icazəlidir.`, 'error', 6000);
+                return Promise.resolve(false);
+            }
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onprogress = (e) => {
+                    if (e.lengthComputable && onProgress) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        onProgress(percent);
+                    }
+                };
+                reader.onloadend = () => {
+                    if (onProgress) onProgress(100, true); // true = hazırlanma bitdi, indi göndərilir
+                    sendFn(reader.result, 'video');
+                    resolve(true);
+                };
+                reader.onerror = () => {
+                    showToast('Video oxunarkən xəta baş verdi. Fayl zədəli ola bilər.', 'error', 6000);
+                    resolve(false);
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         window.handleMediaUpload = async function(e) {
@@ -4784,9 +4819,11 @@ connectedRef.on('value', (snap) => {
             const inputField = document.getElementById('messageInputField');
 
             if (file.type.startsWith('video/')) {
-                inputField.placeholder = '🎬 Video hazırlanır...';
+                inputField.placeholder = '🎬 Video hazırlanır... 0%';
                 inputField.disabled = true;
-                sendVideoAsBase64(file, (data, type) => triggerMessageSend(data, type));
+                await sendVideoAsBase64(file, (data, type) => triggerMessageSend(data, type), (percent, done) => {
+                    inputField.placeholder = done ? '📤 Göndərilir...' : `🎬 Video hazırlanır... ${percent}%`;
+                });
                 inputField.placeholder = 'Mesajınızı bura yazın...';
                 inputField.disabled = false;
                 e.target.value = '';
