@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8" />
@@ -4762,7 +4762,7 @@ connectedRef.on('value', (snap) => {
         const MAX_VIDEO_BYTES = 8 * 1024 * 1024; // 8 MB
 
         function sendVideoAsBase64(file, sendFn) {
-            const isPrivileged = currentUserData && (currentUserData.role === 'admin' || currentUserData.nick === 'Nərgiz');
+            const isPrivileged = currentUserData && (currentUserData.nick === 'Maqalux' || currentUserData.nick === 'Nərgiz');
             if (!isPrivileged && file.size > MAX_VIDEO_BYTES) {
                 showToast('Video çox böyükdür. Maksimum 8MB (bir neçə saniyəlik qısa video) icazəlidir.', 'error', 5000);
                 return false;
