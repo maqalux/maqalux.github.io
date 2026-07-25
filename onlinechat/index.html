@@ -4271,12 +4271,12 @@ connectedRef.on('value', (snap) => {
                 const win = document.getElementById('pcw-' + targetNick);
                 const input = win ? win.querySelector('.pcw-text-input') : null;
                 if (input) {
-                    input.placeholder = '🎬 Video hazırlanır... 0%';
+                    input.placeholder = '🎬 Video yüklənir... 0%';
                     input.disabled = true;
                 }
                 try {
-                    const ok = await sendVideoAsBase64(file, (data, type) => sendPrivateChatMessage(targetNick, data, type), (percent, done) => {
-                        if (input) input.placeholder = done ? '📤 Göndərilir...' : `🎬 Video hazırlanır... ${percent}%`;
+                    const ok = await uploadVideoToStorage(file, (data, type) => sendPrivateChatMessage(targetNick, data, type), (percent, done) => {
+                        if (input) input.placeholder = done ? '📤 Göndərilir...' : `🎬 Video yüklənir... ${percent}%`;
                     });
                     if (!ok) {
                         showToast('Video göndərilmədi. Fayl oxuna bilmədi və ya çox böyükdür.', 'error', 6000);
@@ -4790,51 +4790,60 @@ connectedRef.on('value', (snap) => {
             stopVoiceRecording(target, false);
         };
 
-        const MAX_VIDEO_BYTES = 8 * 1024 * 1024; // 8 MB - adi istifadəçilər üçün
-        const MAX_VIDEO_BYTES_ABSOLUTE = 20 * 1024 * 1024; // 20 MB - "imtiyazlı" istifadəçilər üçün belə keçilməz həddi
+        const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
 
-        function sendVideoAsBase64(file, sendFn, onProgress) {
-            const isPrivileged = currentUserData && (currentUserData.nick === 'Maqalux' || currentUserData.nick === 'Nərgiz');
-            if (file.size > MAX_VIDEO_BYTES_ABSOLUTE) {
-                showToast(`Video həddindən artıq böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 20MB icazəlidir (imtiyazlı istifadəçilər üçün belə) — Firebase-in verilənlər bazası bundan böyük faylı etibarlı şəkildə göndərə bilmir.`, 'error', 9000);
+        // Pulsuz video yükləmə üçün Cloudinary (kart tələb etmir).
+        // ÖZ hesabını yaratmaq üçün: https://cloudinary.com/users/register/free
+        // Sonra: Settings -> Upload -> "Add upload preset" -> Signing Mode: "Unsigned" et,
+        // Cloud Name-i və preset adını aşağıda dəyiş.
+        const CLOUDINARY_CLOUD_NAME = "tkcanoov";
+        const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+
+        function uploadVideoToStorage(file, sendFn, onProgress) {
+            if (file.size > MAX_VIDEO_BYTES) {
+                showToast(`Video həddindən artıq böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 150MB icazəlidir.`, 'error', 7000);
                 return Promise.resolve(false);
             }
-            if (!isPrivileged && file.size > MAX_VIDEO_BYTES) {
-                showToast(`Video çox böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 8MB (bir neçə saniyəlik qısa video) icazəlidir.`, 'error', 6000);
+            if (CLOUDINARY_CLOUD_NAME === "BURAYA_CLOUD_NAME_YAZ") {
+                showToast('Video yükləmə xidməti hələ qurulmayıb. Sayt sahibi Cloudinary hesabını qoşmalıdır.', 'error', 7000);
                 return Promise.resolve(false);
             }
             return new Promise((resolve) => {
-                let settled = false;
-                const safetyTimer = setTimeout(() => {
-                    if (settled) return;
-                    settled = true;
-                    showToast('Video 45 saniyə ərzində hazırlana bilmədi. Bu, telefonunuzda bulud (Google Fotolar və s.) üzərindən saxlanan, cihazda hələ tam yüklənməmiş videolarla baş verə bilər. Zəhmət olmasa əvvəlcə videonu cihazınıza tam endirib yenidən cəhd edin.', 'error', 9000);
-                    resolve(false);
-                }, 45000);
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                formData.append('resource_type', 'video');
 
-                const reader = new FileReader();
-                reader.onprogress = (e) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`, true);
+
+                xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable && onProgress) {
                         const percent = Math.round((e.loaded / e.total) * 100);
-                        onProgress(percent);
+                        onProgress(percent, false);
                     }
                 };
-                reader.onloadend = () => {
-                    if (settled) return;
-                    settled = true;
-                    clearTimeout(safetyTimer);
-                    if (onProgress) onProgress(100, true); // true = hazırlanma bitdi, indi göndərilir
-                    sendFn(reader.result, 'video');
-                    resolve(true);
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (onProgress) onProgress(100, true);
+                            sendFn(data.secure_url, 'video');
+                            resolve(true);
+                        } catch (err) {
+                            showToast('Video cavabı oxuna bilmədi: ' + err.message, 'error', 6000);
+                            resolve(false);
+                        }
+                    } else {
+                        showToast('Video yüklənə bilmədi (server xətası).', 'error', 6000);
+                        resolve(false);
+                    }
                 };
-                reader.onerror = () => {
-                    if (settled) return;
-                    settled = true;
-                    clearTimeout(safetyTimer);
-                    showToast('Video oxunarkən xəta baş verdi. Fayl zədəli ola bilər.', 'error', 6000);
+                xhr.onerror = () => {
+                    showToast('Video yüklənərkən internet xətası baş verdi.', 'error', 6000);
                     resolve(false);
                 };
-                reader.readAsDataURL(file);
+                xhr.send(formData);
             });
         }
 
@@ -4847,11 +4856,11 @@ connectedRef.on('value', (snap) => {
             }
 
             if (file.type.startsWith('video/')) {
-                inputField.placeholder = '🎬 Video hazırlanır... 0%';
+                inputField.placeholder = '🎬 Video yüklənir... 0%';
                 inputField.disabled = true;
                 try {
-                    const ok = await sendVideoAsBase64(file, (data, type) => triggerMessageSend(data, type), (percent, done) => {
-                        inputField.placeholder = done ? '📤 Göndərilir...' : `🎬 Video hazırlanır... ${percent}%`;
+                    const ok = await uploadVideoToStorage(file, (data, type) => triggerMessageSend(data, type), (percent, done) => {
+                        inputField.placeholder = done ? '📤 Göndərilir...' : `🎬 Video yüklənir... ${percent}%`;
                     });
                     if (!ok) {
                         showToast('Video göndərilmədi. Fayl oxuna bilmədi və ya çox böyükdür.', 'error', 6000);
