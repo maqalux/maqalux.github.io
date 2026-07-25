@@ -783,7 +783,13 @@
       const overlay = document.getElementById('authOverlay');
       if (user) {
         try {
-          const snap = await db.ref(`users/${user.uid}`).once('value');
+          let snap = await db.ref(`users/${user.uid}`).once('value');
+          if (!snap.exists()) {
+            // Qeyd hələ yaranmamış ola bilər (məs. Google ilə TƏZƏ hesab yaradılarkən
+            // bazaya yazma bir az vaxt apara bilər) - dərhal çıxış etmədən bir daha yoxlayaq.
+            await new Promise(r => setTimeout(r, 1500));
+            snap = await db.ref(`users/${user.uid}`).once('value');
+          }
           if (snap.exists()) {
             currentUserData = snap.val();
             currentUserData.uid = user.uid;
