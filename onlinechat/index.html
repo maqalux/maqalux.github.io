@@ -4262,7 +4262,10 @@ connectedRef.on('value', (snap) => {
 
         window.handlePrivateMediaUpload = async function(e, targetNick) {
             const file = e.target.files[0];
-            if (!file) return;
+            if (!file) {
+                showToast('Fayl seçilə bilmədi. Telefonunuzda "Google Fotolar" kimi bulud tətbiqindən seçdiyiniz videolar bəzən bunu yarada bilir — faylı əvvəlcə cihazınıza endirib, sonra "Fayllar" tətbiqindən seçməyi yoxlayın.', 'error', 8000);
+                return;
+            }
 
             if (file.type.startsWith('video/')) {
                 const win = document.getElementById('pcw-' + targetNick);
@@ -4271,14 +4274,22 @@ connectedRef.on('value', (snap) => {
                     input.placeholder = '🎬 Video hazırlanır... 0%';
                     input.disabled = true;
                 }
-                await sendVideoAsBase64(file, (data, type) => sendPrivateChatMessage(targetNick, data, type), (percent, done) => {
-                    if (input) input.placeholder = done ? '📤 Göndərilir...' : `🎬 Video hazırlanır... ${percent}%`;
-                });
-                if (input) {
-                    input.placeholder = 'Mesaj yaz...';
-                    input.disabled = false;
+                try {
+                    const ok = await sendVideoAsBase64(file, (data, type) => sendPrivateChatMessage(targetNick, data, type), (percent, done) => {
+                        if (input) input.placeholder = done ? '📤 Göndərilir...' : `🎬 Video hazırlanır... ${percent}%`;
+                    });
+                    if (!ok) {
+                        showToast('Video göndərilmədi. Fayl oxuna bilmədi və ya çox böyükdür.', 'error', 6000);
+                    }
+                } catch (err) {
+                    showToast('Video göndərilərkən gözlənilməz xəta: ' + err.message, 'error', 6000);
+                } finally {
+                    if (input) {
+                        input.placeholder = 'Mesaj yaz...';
+                        input.disabled = false;
+                    }
+                    e.target.value = '';
                 }
-                e.target.value = '';
                 return;
             }
 
@@ -4793,6 +4804,14 @@ connectedRef.on('value', (snap) => {
                 return Promise.resolve(false);
             }
             return new Promise((resolve) => {
+                let settled = false;
+                const safetyTimer = setTimeout(() => {
+                    if (settled) return;
+                    settled = true;
+                    showToast('Video 45 saniyə ərzində hazırlana bilmədi. Bu, telefonunuzda bulud (Google Fotolar və s.) üzərindən saxlanan, cihazda hələ tam yüklənməmiş videolarla baş verə bilər. Zəhmət olmasa əvvəlcə videonu cihazınıza tam endirib yenidən cəhd edin.', 'error', 9000);
+                    resolve(false);
+                }, 45000);
+
                 const reader = new FileReader();
                 reader.onprogress = (e) => {
                     if (e.lengthComputable && onProgress) {
@@ -4801,11 +4820,17 @@ connectedRef.on('value', (snap) => {
                     }
                 };
                 reader.onloadend = () => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(safetyTimer);
                     if (onProgress) onProgress(100, true); // true = hazırlanma bitdi, indi göndərilir
                     sendFn(reader.result, 'video');
                     resolve(true);
                 };
                 reader.onerror = () => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(safetyTimer);
                     showToast('Video oxunarkən xəta baş verdi. Fayl zədəli ola bilər.', 'error', 6000);
                     resolve(false);
                 };
@@ -4815,18 +4840,29 @@ connectedRef.on('value', (snap) => {
 
         window.handleMediaUpload = async function(e) {
             const file = e.target.files[0];
-            if (!file) return;
             const inputField = document.getElementById('messageInputField');
+            if (!file) {
+                showToast('Fayl seçilə bilmədi. Telefonunuzda "Google Fotolar" kimi bulud tətbiqindən seçdiyiniz videolar bəzən bunu yarada bilir — faylı əvvəlcə cihazınıza endirib, sonra "Fayllar" tətbiqindən seçməyi yoxlayın.', 'error', 8000);
+                return;
+            }
 
             if (file.type.startsWith('video/')) {
                 inputField.placeholder = '🎬 Video hazırlanır... 0%';
                 inputField.disabled = true;
-                await sendVideoAsBase64(file, (data, type) => triggerMessageSend(data, type), (percent, done) => {
-                    inputField.placeholder = done ? '📤 Göndərilir...' : `🎬 Video hazırlanır... ${percent}%`;
-                });
-                inputField.placeholder = 'Mesajınızı bura yazın...';
-                inputField.disabled = false;
-                e.target.value = '';
+                try {
+                    const ok = await sendVideoAsBase64(file, (data, type) => triggerMessageSend(data, type), (percent, done) => {
+                        inputField.placeholder = done ? '📤 Göndərilir...' : `🎬 Video hazırlanır... ${percent}%`;
+                    });
+                    if (!ok) {
+                        showToast('Video göndərilmədi. Fayl oxuna bilmədi və ya çox böyükdür.', 'error', 6000);
+                    }
+                } catch (err) {
+                    showToast('Video göndərilərkən gözlənilməz xəta: ' + err.message, 'error', 6000);
+                } finally {
+                    inputField.placeholder = 'Mesajınızı bura yazın...';
+                    inputField.disabled = false;
+                    e.target.value = '';
+                }
                 return;
             }
 
