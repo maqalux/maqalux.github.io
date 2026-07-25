@@ -4835,12 +4835,19 @@ connectedRef.on('value', (snap) => {
                             resolve(false);
                         }
                     } else {
-                        showToast('Video yüklənə bilmədi (server xətası).', 'error', 6000);
+                        let detail = xhr.responseText || '';
+                        try {
+                            const errJson = JSON.parse(xhr.responseText);
+                            if (errJson.error && errJson.error.message) detail = errJson.error.message;
+                        } catch (e) {}
+                        console.error('Cloudinary yükləmə xətası:', xhr.status, xhr.responseText);
+                        showToast(`Video yüklənmədi (kod: ${xhr.status}). Səbəb: ${detail.slice(0, 200)}`, 'error', 9000);
                         resolve(false);
                     }
                 };
                 xhr.onerror = () => {
-                    showToast('Video yüklənərkən internet xətası baş verdi.', 'error', 6000);
+                    console.error('Cloudinary XHR şəbəkə xətası. Status:', xhr.status, 'ReadyState:', xhr.readyState);
+                    showToast(`Video yüklənərkən şəbəkə xətası (Cloud Name "${CLOUDINARY_CLOUD_NAME}" düzgündürmü? İnternetiniz sabitdirmi?).`, 'error', 8000);
                     resolve(false);
                 };
                 xhr.send(formData);
