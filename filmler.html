@@ -577,7 +577,7 @@
         <div class="detail-genres" id="detailGenres"></div>
         <p class="synopsis" id="detailSynopsis"></p>
         <div class="trailer-section" id="detailTrailerSection" style="display:none;">
-          <h4>Rəsmi Treyler (YouTube)</h4>
+          <h4>Tam film izlə</h4>
           <div id="detailTrailerBody"></div>
         </div>
       </div>
@@ -1189,13 +1189,7 @@
 
       document.getElementById('detailOverlay').classList.add('active');
 
-      const key = await findTrailerKey(m.tmdbType, m.id);
-      if (key) {
-        trailerBody.innerHTML = `<div class="trailer-frame-wrap"><iframe src="https://www.youtube.com/embed/${key}" title="YouTube treyler" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-      } else {
-        trailerBody.innerHTML = `<p class="trailer-empty">Bu məzmun üçün rəsmi treyler tapılmadı.</p>`;
-      }
-    }
+      trailerBody.innerHTML = `<div class="trailer-frame-wrap"><iframe width="100%" height="400" src="https://ok.ru/videoembed/16162499004929" frameborder="0" allow="autoplay" allowfullscreen style="border-radius: 15px;"></iframe></div>`;
 
     window.closeDetail = function() {
       document.getElementById('detailOverlay').classList.remove('active');
