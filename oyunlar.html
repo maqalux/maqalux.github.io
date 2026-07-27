@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffaa00">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Maqalux">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Oyunlar | Maqalux</title>
+  <link rel="icon" href="/icon-192.png" type="image/png">
+  <meta name="description" content="Brauzerdə birbaşa oyna: İlan, 2048, Yaddaş oyunu, X-O, Reaksiya sürəti və Daş-Kağız-Qayçı – Maqalux-da!">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-page: linear-gradient(135deg, #1e002f, #0055a5);
+      --text-main: white;
+      --text-55: rgba(255,255,255,0.55);
+      --text-50: rgba(255,255,255,0.5);
+      --text-40: rgba(255,255,255,0.4);
+      --border-20: rgba(255,255,255,0.2);
+      --border-15: rgba(255,255,255,0.15);
+      --border-12: rgba(255,255,255,0.12);
+      --border-10: rgba(255,255,255,0.1);
+      --panel-08: rgba(255,255,255,0.08);
+      --panel-06: rgba(255,255,255,0.06);
+      --panel-05: rgba(255,255,255,0.05);
+      --dropdown-bg: rgba(13,27,62,0.97);
+      --toast-bg: rgba(13,27,62,0.97);
+      --toast-text: white;
+    }
+    body.dark-theme {
+      --bg-page: linear-gradient(135deg, #0c0c10 0%, #17171c 50%, #101014 100%);
+      --dropdown-bg: rgba(24,24,28,0.97);
+      --toast-bg: rgba(24,24,28,0.97);
+      --toast-text: white;
+    }
+    body.light-theme {
+      --bg-page: linear-gradient(135deg, #eef2f9 0%, #e2ecf9 45%, #d3e4fb 100%);
+      --text-main: #16213e;
+      --text-55: rgba(22,33,62,0.62);
+      --text-50: rgba(22,33,62,0.55);
+      --text-40: rgba(22,33,62,0.45);
+      --border-20: rgba(22,33,62,0.16);
+      --border-15: rgba(22,33,62,0.14);
+      --border-12: rgba(22,33,62,0.12);
+      --border-10: rgba(22,33,62,0.1);
+      --panel-08: rgba(22,33,62,0.06);
+      --panel-06: rgba(22,33,62,0.045);
+      --panel-05: rgba(22,33,62,0.035);
+      --dropdown-bg: rgba(255,255,255,0.98);
+      --toast-bg: rgba(255,255,255,0.98);
+      --toast-text: #16213e;
+    }
+
+    .theme-toggle-btn { background: var(--panel-08); border: 1px solid var(--border-10); color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+    .theme-toggle-btn:hover { background: var(--panel-06); }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header CSS */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: var(--border-10);
+      backdrop-filter: blur(15px);
+      padding: 15px 30px;
+      border-bottom: 1px solid var(--border-20);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header img { height: 55px; }
+    nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }
+    nav ul li a {
+      text-decoration: none; color: var(--text-main); font-weight: 600; padding: 10px 18px; border-radius: 30px; position: relative; overflow: hidden; display: inline-block; z-index: 1; transition: all 0.3s ease;
+    }
+    nav ul li a::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%; background: linear-gradient(90deg, #FFD700, #FF8C00); transition: width 0.4s ease; z-index: -1; border-radius: 30px;
+    }
+    nav ul li a:hover::before { width: 100%; }
+    nav ul li a:hover { color: black; }
+    nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: black; box-shadow: 0 0 20px rgba(255,215,0,0.6); }
+
+    .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+    .hamburger-btn { display: none; background: none; border: none; margin: 0; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
+    .msg-icon-wrap { position: relative; cursor: pointer; }
+    .msg-icon-wrap .msg-icon { font-size: 22px; display: flex; }
+    .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: var(--text-main); font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #030714; }
+    .msg-badge.hidden { display: none; }
+    .msg-dropdown { position: absolute; top: 38px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; z-index: 6000; }
+    .msg-dropdown.active { display: block; }
+    .msg-dropdown-header { padding: 14px 16px; font-weight: 700; color: #FFD700; border-bottom: 1px solid var(--border-10); }
+    .msg-dropdown-list { display: flex; flex-direction: column; }
+    .msg-dropdown-empty { padding: 24px 16px; text-align: center; color: var(--text-50); font-size: 14px; }
+    .msg-conv-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--panel-05); }
+    .msg-conv-item:hover { background: var(--panel-06); }
+    .msg-conv-item.unread { background: rgba(255,170,0,0.08); }
+    .msg-conv-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,170,0,0.3); }
+    .msg-conv-info { flex: 1; min-width: 0; }
+    .msg-conv-name { font-size: 14px; color: var(--text-main); }
+    .msg-conv-item.unread .msg-conv-name { font-weight: 700; }
+    .msg-conv-preview { font-size: 12.5px; color: var(--text-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .msg-conv-item.unread .msg-conv-preview { color: rgba(255,255,255,0.85); }
+    .msg-conv-dot { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ffaa00; color: #030714; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; cursor: pointer; transition: 0.2s; }
+    .profile-avatar:hover { transform: scale(1.1); }
+
+    .dropdown-menu { position: absolute; top: 70px; right: 20px; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 200px; z-index: 2000; }
+    .dropdown-menu.active { display: flex; }
+    .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--text-main); transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    .dropdown-item:hover { background: var(--border-10); }
+    .dropdown-item.danger { color: #ff6b6b; }
+
+    /* Auth & Modals CSS */
+    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 5000; padding: 20px; }
+    .auth-overlay.hidden { display: none; }
+    .loading-screen { position: fixed; inset: 0; background: #030714; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    .loading-screen.hidden { display: none; }
+    .spinner { width: 42px; height: 42px; border: 4px solid var(--border-15); border-top-color: #ffaa00; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .auth-card { background: var(--dropdown-bg); backdrop-filter: blur(20px); padding: 40px 35px; border-radius: 24px; border: 1px solid var(--panel-08); box-shadow: 0 25px 55px rgba(0,0,0,0.6); width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; animation: authFadeIn 0.4s ease; }
+    @keyframes authFadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+    .auth-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; }
+    .auth-card p.sub { color: rgba(255,255,255,0.6); font-size: 14px; margin: 0 0 30px 0; text-align: center; }
+    .input-group { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid var(--border-15); background: var(--panel-08); color: var(--text-main); font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+    .custom-input:focus { border-color: #ffa200; background: var(--border-15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
+    .custom-input::placeholder { color: var(--text-40); }
+    .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+    .password-wrapper .custom-input { padding-right: 55px; }
+    .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; color: var(--text-50); user-select: none; }
+    .toggle-password:hover { color: var(--text-main); }
+    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); font-family: 'Poppins', sans-serif; }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,152,0,0.4); }
+    .switch-text { color: var(--text-50); font-size: 13.5px; margin-top: 20px; text-align: center; }
+    .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; }
+    .switch-text span:hover { color: var(--text-main); }
+    .forgot-pass-link { color: var(--text-50); font-size: 13px; cursor: pointer; text-align: center; margin-top: 14px; text-decoration: underline; }
+    .forgot-pass-link:hover { color: #ffb700; }
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid var(--border-20); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; font-family: 'Poppins', sans-serif; }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--border-20); }
+    .google-btn img { width: 19px; height: 19px; }
+    .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
+    .divider-row .line { flex: 1; height: 1px; background: var(--border-15); }
+    .divider-row span { color: var(--text-40); font-size: 12.5px; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,7,20,0.75); backdrop-filter: blur(6px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: var(--dropdown-bg); border: 1px solid var(--border-10); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 360px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; }
+    .modal-box h3 { color: #ffaa00; margin: 0 0 8px 0; font-size: 1.4em; }
+    .modal-box p.modal-desc { color: var(--text-55); font-size: 13.5px; margin: 0 0 22px 0; text-align: center; }
+    .modal-close { align-self: flex-end; background: none; border: none; color: var(--text-50); font-size: 22px; cursor: pointer; }
+    .modal-close:hover { color: var(--text-main); }
+
+    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 9500; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
+    .toast { background: var(--toast-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: var(--toast-text); font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.toast-success { border-left-color: #2ecc71; }
+    .toast.toast-error { border-left-color: #e74c3c; }
+
+    /* OYUN SAYTI ÜÇÜN XÜSUSİ DİZAYN */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 0 20px;
+      pointer-events: none; /* Giriş edilməyibsə kilidlənir */
+    }
+    body.logged-in main { pointer-events: auto; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .games-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 40px;
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+    .games-header .back-link { align-self: flex-start; color: var(--text-50); text-decoration: none; font-size: 13px; margin-bottom: 14px; }
+    .games-header .back-link:hover { color: #FFD700; }
+    .games-header h1 {
+      font-size: 2.6em;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 12px 0;
+    }
+    .games-intro { color: var(--text-55); font-size: 15px; max-width: 600px; margin: 0; }
+
+    /* Oyun Şəbəkəsi */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 25px;
+      padding-bottom: 50px;
+    }
+    .game-card {
+      background: var(--panel-05);
+      border: 1px solid var(--border-10);
+      border-radius: 16px;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    .game-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); border-color: var(--border-20); }
+    .game-card-icon { font-size: 2.6em; margin-bottom: 10px; }
+    .game-card-tag { background: rgba(255,215,0,0.12); border: 1px solid rgba(255,215,0,0.3); color: #FFD700; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; }
+    .game-card h2 { font-size: 17px; margin: 0 0 8px 0; color: var(--text-main); }
+    .game-card p { font-size: 13.5px; color: var(--text-55); line-height: 1.5; margin: 0 0 18px 0; flex: 1; }
+    .play-btn {
+      background: rgba(255,215,0,0.1);
+      border: 1px solid rgba(255,215,0,0.3);
+      color: #FFD700;
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .play-btn:hover { background: linear-gradient(90deg, #FFD700, #FF8C00); color: #030714; border-color: transparent; }
+
+    /* Oyun Modalı */
+    .game-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+      z-index: 8000; display: none; justify-content: center; align-items: center; padding: 20px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .game-modal-overlay.active { display: flex; opacity: 1; }
+    .game-modal-content {
+      background: var(--dropdown-bg); width: 100%; max-width: 560px; border-radius: 20px;
+      border: 1px solid var(--border-15); box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      overflow: hidden; display: flex; flex-direction: column; position: relative;
+      transform: scale(0.95); transition: transform 0.3s ease; max-height: 90vh;
+    }
+    .game-modal-overlay.active .game-modal-content { transform: scale(1); }
+    .game-modal-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-10); background: rgba(0,0,0,0.2); }
+    .game-modal-title { font-weight: 700; font-size: 1.2em; color: #FFD700; margin: 0; }
+    .game-modal-close { background: none; border: none; color: var(--text-55); font-size: 24px; cursor: pointer; transition: 0.2s; }
+    .game-modal-close:hover { color: var(--text-main); transform: scale(1.1); }
+    .game-modal-body { padding: 24px 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+
+    .game-toolbar { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .game-score-pill { background: var(--panel-08); border: 1px solid var(--border-15); padding: 6px 14px; border-radius: 20px; font-weight: 700; color: #FFD700; font-size: 13px; }
+    .game-btn { background: linear-gradient(90deg, #FFD700, #FF8C00); color: #030714; border: none; padding: 9px 20px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: 'Poppins', sans-serif; transition: 0.3s; }
+    .game-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,215,0,0.3); }
+    .game-btn.secondary { background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); }
+    .game-over-msg { margin-top: 14px; color: #e74c3c; font-weight: 700; text-align: center; min-height: 20px; font-size: 14px; }
+
+    .dpad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px); gap: 6px; justify-content: center; margin-top: 16px; }
+    .dpad button { background: var(--panel-08); border: 1px solid var(--border-20); border-radius: 10px; color: var(--text-main); font-size: 18px; cursor: pointer; }
+    .dpad button:hover { background: var(--panel-06); }
+    .dpad-up { grid-column: 2; grid-row: 1; }
+    .dpad-left { grid-column: 1; grid-row: 2; }
+    .dpad-right { grid-column: 3; grid-row: 2; }
+    .dpad-down { grid-column: 2; grid-row: 3; }
+
+    #snakeCanvas { background: #0a0a12; border-radius: 10px; border: 1px solid var(--border-20); display: block; margin: 0 auto; touch-action: none; }
+
+    .g2048-board { display: grid; grid-template-columns: repeat(4, 70px); grid-template-rows: repeat(4, 70px); gap: 8px; background: var(--panel-08); padding: 8px; border-radius: 12px; margin: 0 auto; }
+    .g2048-tile { display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 800; font-size: 22px; color: #3a3a3a; background: rgba(255,255,255,0.15); transition: background 0.15s ease; }
+
+    .memory-board { display: grid; grid-template-columns: repeat(4, 64px); grid-template-rows: repeat(4, 64px); gap: 8px; margin: 0 auto; }
+    .memory-card { background: var(--panel-08); border: 1px solid var(--border-20); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; user-select: none; color: var(--text-main); padding: 0; }
+    .memory-card.flipped, .memory-card.matched { background: linear-gradient(135deg, #FFD70055, #FF8C0055); }
+    .memory-card.matched { cursor: default; opacity: 0.7; }
+
+    .ttt-board { display: grid; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(3, 80px); gap: 6px; margin: 0 auto; }
+    .ttt-cell { background: var(--panel-08); border: 1px solid var(--border-20); border-radius: 10px; font-size: 36px; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #FFD700; font-family: 'Poppins', sans-serif; }
+    .ttt-cell.filled, .ttt-cell:disabled { cursor: default; }
+
+    .reaction-box { width: 260px; height: 180px; border-radius: 16px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; font-size: 17px; cursor: pointer; margin: 0 auto; transition: background 0.15s ease; padding: 16px; box-sizing: border-box; }
+    .reaction-box.idle { background: var(--panel-08); border: 2px dashed var(--border-20); color: var(--text-main); }
+    .reaction-box.waiting { background: #c0392b; color: #fff; border: 2px solid #c0392b; }
+    .reaction-box.ready { background: #27ae60; color: #fff; border: 2px solid #27ae60; }
+    .reaction-box.early { background: #e67e22; color: #fff; border: 2px solid #e67e22; }
+
+    .rps-choices { display: flex; gap: 14px; justify-content: center; margin: 10px 0; }
+    .rps-choice-btn { font-size: 38px; background: var(--panel-08); border: 1px solid var(--border-20); border-radius: 14px; width: 70px; height: 70px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .rps-choice-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(255,215,0,0.25); }
+    .rps-result { margin-top: 14px; font-size: 15px; text-align: center; color: var(--text-main); }
+    .rps-score { display: flex; gap: 6px; justify-content: center; margin-top: 10px; font-size: 13px; color: var(--text-55); }
+
+    footer { text-align: center; padding: 20px; color: #FFD700; font-weight: 600; margin-top: auto; border-top: 1px solid var(--border-20); background: var(--panel-05); backdrop-filter: blur(10px); }
+
+    /* Mobil uyğunlaşdırma */
+    @media (max-width: 700px) {
+      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; padding: 15px 20px; position: relative; }
+      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 22px !important; margin-left: 0 !important; margin-right: 0 !important; }
+      .hamburger-btn { display: flex; }
+      header > nav { order: 3 !important; width: 100% !important; }
+      header > nav:not(.mobile-nav-open) { display: none !important; }
+      header > nav.mobile-nav-open { display: flex !important; }
+      nav ul { flex-direction: column; align-items: center; width: 100%; }
+      nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
+      .msg-dropdown { right: -10px; width: 92vw; max-width: 340px; }
+      .dropdown-menu { right: 10px; top: 60px; min-width: 180px; }
+      .auth-card { padding: 30px 20px; }
+      #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
+
+      .games-header h1 { font-size: 2em; }
+      .game-modal-content { border-radius: 12px; }
+      .game-modal-body { padding: 18px 12px; }
+    }
+
+    @media (max-width: 420px) {
+      .g2048-board { grid-template-columns: repeat(4, 60px); grid-template-rows: repeat(4, 60px); }
+      .g2048-tile { font-size: 18px; }
+      .memory-board { grid-template-columns: repeat(4, 56px); grid-template-rows: repeat(4, 56px); }
+      .memory-card { font-size: 22px; }
+      .ttt-board { grid-template-columns: repeat(3, 70px); grid-template-rows: repeat(3, 70px); }
+      .ttt-cell { font-size: 30px; }
+      #snakeCanvas { width: 260px; height: 260px; }
+      .reaction-box { width: 220px; height: 160px; font-size: 15px; }
+    }
+
+    .image-viewer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); display: none; align-items: center; justify-content: center; z-index: 9000; }
+    .image-viewer-overlay.active { display: flex; }
+    .image-viewer-overlay img { max-width: 92vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+    .image-viewer-close { position: absolute; top: 18px; right: 22px; font-size: 26px; color: var(--text-main); cursor: pointer; opacity: 0.8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--border-10); }
+    .image-viewer-close:hover { opacity: 1; }
+  </style>
+</head>
+
+<body>
+  <div class="image-viewer-overlay" id="imageViewerOverlay" onclick="if(event.target.id==='imageViewerOverlay') closeImageViewer();">
+    <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
+    <img id="imageViewerImg" src="" alt="Şəkil">
+  </div>
+  <div id="loadingScreen" class="loading-screen"><div class="spinner"></div></div>
+  <div id="toastContainer"></div>
+
+  <header>
+    <a href="index.html" class="logo"><img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu"></a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="xeberler.html">Xəbərlər</a></li>
+        <li><a href="proqramlar.html">Proqramlar</a></li>
+        <li><a href="şahmat.html">Şahmat</a></li>
+        <li><a href="eylence.html" class="active">Əyləncə</a></li>
+        <li><a href="onlinechat">Onlayn çat</a></li>
+        <li><a href="haqqimizda.html">Haqqımızda</a></li>
+        <li><a href="elaqe.html">Əlaqə</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()" title="Tema dəyiş">☀️</button>
+      <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <div id="dropdownLevel1">
+          <button class="dropdown-item" onclick="viewOwnAvatarLarge()">🖼️ Profilə bax</button>
+          <button class="dropdown-item" onclick="showSettingsLevel()">⚙️ Ayarlara daxil ol</button>
+        </div>
+        <div id="dropdownLevel2" style="display:none;">
+          <button class="dropdown-item" onclick="backToAvatarMenu()">← Geri</button>
+          <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
+          <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
+          <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
+          <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
+        </div>
+      </div>
+      <div class="msg-icon-wrap" id="msgIconWrap" onclick="toggleMsgDropdown(event)">
+        <i class="far fa-paper-plane msg-icon"></i>
+        <span class="msg-badge hidden" id="msgBadgeCount">0</span>
+        <div class="msg-dropdown" id="msgDropdownPanel">
+          <div class="msg-dropdown-header">Mesajlar</div>
+          <div class="msg-dropdown-list" id="msgDropdownList">
+            <div class="msg-dropdown-empty">Mesaj yoxdur</div>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileNav(event)" aria-label="Menyu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Auth Modal -->
+  <div class="auth-overlay hidden" id="authOverlay">
+    <div id="loginFormCard" class="auth-card">
+      <h2>Maqalux</h2>
+      <p class="sub">Daxil olun və saytdan tam faydalanın</p>
+      <div class="input-group">
+        <input type="text" id="loginEmailInput" class="custom-input" placeholder="E-poçt və ya istifadəçi adı">
+        <div class="password-wrapper">
+          <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="handleLogin()">Daxil ol</button>
+        <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
+        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
+        </button>
+        <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
+      </div>
+    </div>
+    <div id="registerFormCard" class="auth-card" style="display:none;">
+      <h2>Yeni Qeydiyyat</h2>
+      <p class="sub">Hesab yaradın və icmaya qoşulun</p>
+      <div class="input-group">
+        <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
+        <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+        <div class="password-wrapper">
+          <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
+        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
+        </button>
+        <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div class="games-header">
+      <a href="eylence.html" class="back-link">← Əyləncəyə qayıt</a>
+      <h1>Oyunlar</h1>
+      <p class="games-intro">Brauzerdə birbaşa oynaya biləcəyin mini-oyunlar — heç bir yükləmə tələb olunmur, kartın üstünə klikləyib başla!</p>
+    </div>
+
+    <div class="games-grid" id="gamesGrid"></div>
+  </main>
+
+  <!-- Oyun Modalı -->
+  <div class="game-modal-overlay" id="gameModalOverlay" onclick="if(event.target.id==='gameModalOverlay') closeGameModal();">
+    <div class="game-modal-content">
+      <div class="game-modal-header">
+        <h3 class="game-modal-title" id="gameModalTitle">Oyun</h3>
+        <button class="game-modal-close" onclick="closeGameModal()">✕</button>
+      </div>
+      <div class="game-modal-body" id="gameModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Settings Modals -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
+      <h3>Şifrəni unutmusunuz?</h3>
+      <p class="modal-desc">E-poçt ünvanınızı daxil edin, bərpa linki göndəriləcək.</p>
+      <input type="email" id="forgotEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+      <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
+    </div>
+  </div>
+  <div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeChangePasswordModal()">✕</button>
+      <h3 id="changePassTitle">Şifrəni dəyiş</h3>
+      <p class="modal-desc" id="changePassDesc">Köhnə və yeni şifrəni daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper" id="oldPassWrapper">
+          <input type="password" id="oldPassInput" class="custom-input" placeholder="Köhnə şifrə">
+          <span class="toggle-password" onclick="togglePasswordVisibility('oldPassInput', this)">👁️</span>
+        </div>
+        <div class="password-wrapper">
+          <input type="password" id="newPassInput" class="custom-input" placeholder="Yeni şifrə">
+          <span class="toggle-password" onclick="togglePasswordVisibility('newPassInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="submitChangePassword()">Şifrəni yenilə</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="deleteAccountModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeDeleteAccountModal()">✕</button>
+      <h3>Hesabı sil</h3>
+      <p class="modal-desc">Bu əməliyyat geri qaytarıla bilməz. Davam etmək üçün şifrənizi daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper">
+          <input type="password" id="deletePassInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('deletePassInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" style="background:linear-gradient(90deg,#e74c3c,#c0392b); color:white;" onclick="submitDeleteAccount()">Hesabımı həmişəlik sil</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>&copy; 2025 Maqalux - Bütün hüquqlar qorunur.</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+
+  <!-- OYUN SAYTI DATASI VƏ FUNKSİYALARI -->
+  <script>
+    const gamesData = [
+      { id: 'snake', icon: '🐍', title: 'İlan (Snake)', tag: 'Arkada', desc: 'İlanı idarə et, alma yı, divara və özünlə toqquşmadan qaç.' },
+      { id: '2048', icon: '🔢', title: '2048', tag: 'Tapmaca', desc: 'Eyni rəqəmləri birləşdirərək 2048 xanasına çatmağa çalış.' },
+      { id: 'memory', icon: '🧠', title: 'Yaddaş Oyunu', tag: 'Tapmaca', desc: 'Kartların cütlərini tap və yaddaşını sına.' },
+      { id: 'tictactoe', icon: '❌⭕', title: 'X-O', tag: 'Strategiya', desc: 'Kompüterə qarşı klassik X-O (tic-tac-toe) oyunu.' },
+      { id: 'reaction', icon: '⚡', title: 'Reaksiya Sürəti', tag: 'Sürət', desc: 'Reaksiya sürətini millisaniyə ilə ölç, ən yaxşı nəticəni tap.' },
+      { id: 'rps', icon: '✊✋✌️', title: 'Daş-Kağız-Qayçı', tag: 'Əyləncə', desc: 'Kompüterə qarşı klassik daş-kağız-qayçı oyunu.' }
+    ];
+
+    function renderGames() {
+      const grid = document.getElementById('gamesGrid');
+      grid.innerHTML = gamesData.map(g => `
+        <div class="game-card">
+          <div class="game-card-icon">${g.icon}</div>
+          <span class="game-card-tag">${g.tag}</span>
+          <h2>${g.title}</h2>
+          <p>${g.desc}</p>
+          <button class="play-btn" onclick="openGameModal('${g.id}')"><i class="fas fa-play"></i> Oyna</button>
+        </div>
+      `).join('');
+    }
+    document.addEventListener('DOMContentLoaded', renderGames);
+
+    let currentGameCleanup = null;
+
+    const gameInitializers = {
+      snake: initSnakeGame,
+      '2048': init2048Game,
+      memory: initMemoryGame,
+      tictactoe: initTicTacToeGame,
+      reaction: initReactionGame,
+      rps: initRPSGame
+    };
+
+    window.openGameModal = function(gameId) {
+      const meta = gamesData.find(g => g.id === gameId);
+      if (!meta) return;
+      document.getElementById('gameModalTitle').innerText = meta.icon + ' ' + meta.title;
+      const body = document.getElementById('gameModalBody');
+      body.innerHTML = '';
+      document.getElementById('gameModalOverlay').classList.add('active');
+      const initFn = gameInitializers[gameId];
+      currentGameCleanup = initFn ? (initFn(body) || null) : null;
+    };
+
+    window.closeGameModal = function() {
+      document.getElementById('gameModalOverlay').classList.remove('active');
+      if (typeof currentGameCleanup === 'function') { currentGameCleanup(); currentGameCleanup = null; }
+      setTimeout(() => { document.getElementById('gameModalBody').innerHTML = ''; }, 300);
+    };
+
+    // ==================== İLAN (SNAKE) ====================
+    function initSnakeGame(container) {
+      container.innerHTML = `
+        <div class="game-toolbar">
+          <span class="game-score-pill">Xal: <span id="snakeScore">0</span></span>
+          <button class="game-btn secondary" id="snakeRestartBtn">🔄 Yenidən başla</button>
+        </div>
+        <canvas id="snakeCanvas" width="300" height="300"></canvas>
+        <p style="color:var(--text-50);font-size:13px;margin-top:10px;text-align:center;">Ox düymələri (və ya aşağıdakı düymələr) ilə idarə et.</p>
+        <div class="dpad">
+          <button class="dpad-up">▲</button>
+          <button class="dpad-left">◀</button>
+          <button class="dpad-right">▶</button>
+          <button class="dpad-down">▼</button>
+        </div>
+      `;
+      const canvas = container.querySelector('#snakeCanvas');
+      const ctx = canvas.getContext('2d');
+      const cell = 20, cols = 15, rows = 15;
+      let snake, dir, nextDir, food, score, alive, loop;
+
+      function reset() {
+        snake = [{ x: 7, y: 7 }, { x: 6, y: 7 }, { x: 5, y: 7 }];
+        dir = { x: 1, y: 0 }; nextDir = dir;
+        score = 0; alive = true;
+        placeFood();
+        container.querySelector('#snakeScore').textContent = score;
+        if (loop) clearInterval(loop);
+        loop = setInterval(tick, 130);
+        draw();
+      }
+      function placeFood() {
+        let pos;
+        do { pos = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) }; }
+        while (snake.some(s => s.x === pos.x && s.y === pos.y));
+        food = pos;
+      }
+      function tick() {
+        if (!alive) return;
+        dir = nextDir;
+        const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+        if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snake.some(s => s.x === head.x && s.y === head.y)) {
+          alive = false; clearInterval(loop); drawGameOver(); return;
+        }
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) { score++; container.querySelector('#snakeScore').textContent = score; placeFood(); }
+        else snake.pop();
+        draw();
+      }
+      function draw() {
+        ctx.fillStyle = '#0a0a12'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(food.x * cell + 2, food.y * cell + 2, cell - 4, cell - 4);
+        snake.forEach((s, i) => {
+          ctx.fillStyle = i === 0 ? '#FFD700' : '#FF8C00';
+          ctx.fillRect(s.x * cell + 1, s.y * cell + 1, cell - 2, cell - 2);
+        });
+      }
+      function drawGameOver() {
+        ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 18px Poppins, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('Oyun bitdi!', canvas.width / 2, canvas.height / 2 - 10);
+        ctx.font = '14px Poppins, sans-serif';
+        ctx.fillText('Xal: ' + score, canvas.width / 2, canvas.height / 2 + 14);
+      }
+      function setDir(nx, ny) {
+        if (!alive) return;
+        if (dir.x === -nx && dir.y === -ny) return;
+        nextDir = { x: nx, y: ny };
+      }
+      function keyHandler(e) {
+        const map = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+        const m = map[e.key];
+        if (m) { e.preventDefault(); setDir(m[0], m[1]); }
+      }
+      document.addEventListener('keydown', keyHandler);
+      container.querySelector('.dpad-up').onclick = () => setDir(0, -1);
+      container.querySelector('.dpad-down').onclick = () => setDir(0, 1);
+      container.querySelector('.dpad-left').onclick = () => setDir(-1, 0);
+      container.querySelector('.dpad-right').onclick = () => setDir(1, 0);
+      container.querySelector('#snakeRestartBtn').onclick = reset;
+
+      reset();
+
+      return function cleanup() {
+        document.removeEventListener('keydown', keyHandler);
+        if (loop) clearInterval(loop);
+      };
+    }
+
+    // ==================== 2048 ====================
+    function init2048Game(container) {
+      container.innerHTML = `
+        <div class="game-toolbar">
+          <span class="game-score-pill">Xal: <span id="g2048Score">0</span></span>
+          <span class="game-score-pill">Ən yaxşı: <span id="g2048Best">0</span></span>
+          <button class="game-btn secondary" id="g2048RestartBtn">🔄 Yenidən başla</button>
+        </div>
+        <div class="g2048-board" id="g2048Board"></div>
+        <div class="game-over-msg" id="g2048Over"></div>
+        <p style="color:var(--text-50);font-size:13px;margin-top:6px;text-align:center;">Ox düymələri ilə sürüşdür, eyni rəqəmləri birləşdir.</p>
+        <div class="dpad">
+          <button class="dpad-up">▲</button>
+          <button class="dpad-left">◀</button>
+          <button class="dpad-right">▶</button>
+          <button class="dpad-down">▼</button>
+        </div>
+      `;
+      const boardEl = container.querySelector('#g2048Board');
+      const scoreEl = container.querySelector('#g2048Score');
+      const bestEl = container.querySelector('#g2048Best');
+      const overEl = container.querySelector('#g2048Over');
+      const tileColors = { 2: '#eee4da', 4: '#ede0c8', 8: '#f2b179', 16: '#f59563', 32: '#f67c5f', 64: '#f65e3b', 128: '#edcf72', 256: '#edcc61', 512: '#edc850', 1024: '#edc53f', 2048: '#edc22e' };
+      let board, score, best, over;
+
+      function init() {
+        board = Array.from({ length: 4 }, () => Array(4).fill(0));
+        score = 0; over = false;
+        best = parseInt(localStorage.getItem('maqalux2048Best') || '0', 10);
+        overEl.textContent = '';
+        addTile(); addTile();
+        render();
+      }
+      function addTile() {
+        const empty = [];
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) if (board[r][c] === 0) empty.push([r, c]);
+        if (!empty.length) return;
+        const [r, c] = empty[Math.floor(Math.random() * empty.length)];
+        board[r][c] = Math.random() < 0.9 ? 2 : 4;
+      }
+      function render() {
+        boardEl.innerHTML = '';
+        board.forEach(row => row.forEach(v => {
+          const tile = document.createElement('div');
+          tile.className = 'g2048-tile';
+          if (v) {
+            tile.textContent = v;
+            tile.style.background = tileColors[v] || '#3c3a32';
+            tile.style.color = v <= 4 ? '#5a5248' : '#fff';
+            tile.style.fontSize = v >= 1024 ? '16px' : '22px';
+          } else {
+            tile.style.background = 'rgba(255,255,255,0.08)';
+          }
+          boardEl.appendChild(tile);
+        }));
+        scoreEl.textContent = score;
+        bestEl.textContent = best;
+      }
+      function slideRowLeft(row) {
+        const nums = row.filter(v => v !== 0);
+        const merged = [];
+        for (let i = 0; i < nums.length; i++) {
+          if (nums[i] === nums[i + 1]) { merged.push(nums[i] * 2); score += nums[i] * 2; i++; }
+          else merged.push(nums[i]);
+        }
+        while (merged.length < 4) merged.push(0);
+        return merged;
+      }
+      function transpose(b) {
+        const res = Array.from({ length: 4 }, () => Array(4).fill(0));
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) res[c][r] = b[r][c];
+        return res;
+      }
+      function reverseRows(b) { return b.map(row => [...row].reverse()); }
+      function move(direction) {
+        if (over) return;
+        let working = board.map(r => [...r]);
+        if (direction === 'up' || direction === 'down') working = transpose(working);
+        if (direction === 'right' || direction === 'down') working = reverseRows(working);
+
+        let moved = false;
+        working = working.map(row => {
+          const merged = slideRowLeft(row);
+          if (merged.join(',') !== row.join(',')) moved = true;
+          return merged;
+        });
+
+        if (direction === 'right' || direction === 'down') working = reverseRows(working);
+        if (direction === 'up' || direction === 'down') working = transpose(working);
+
+        if (!moved) return;
+        board = working;
+        addTile();
+        if (score > best) { best = score; localStorage.setItem('maqalux2048Best', String(best)); }
+        render();
+        checkGameOver();
+      }
+      function checkGameOver() {
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+          if (board[r][c] === 0) return;
+          if (c < 3 && board[r][c] === board[r][c + 1]) return;
+          if (r < 3 && board[r][c] === board[r + 1][c]) return;
+        }
+        over = true;
+        overEl.textContent = 'Oyun bitdi! Xal: ' + score;
+      }
+      function keyHandler(e) {
+        const map = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' };
+        const d = map[e.key];
+        if (d) { e.preventDefault(); move(d); }
+      }
+      document.addEventListener('keydown', keyHandler);
+      container.querySelector('.dpad-up').onclick = () => move('up');
+      container.querySelector('.dpad-down').onclick = () => move('down');
+      container.querySelector('.dpad-left').onclick = () => move('left');
+      container.querySelector('.dpad-right').onclick = () => move('right');
+      container.querySelector('#g2048RestartBtn').onclick = init;
+
+      init();
+
+      return function cleanup() { document.removeEventListener('keydown', keyHandler); };
+    }
+
+    // ==================== YADDAŞ OYUNU ====================
+    function initMemoryGame(container) {
+      container.innerHTML = `
+        <div class="game-toolbar">
+          <span class="game-score-pill">Gediş: <span id="memMoves">0</span></span>
+          <button class="game-btn secondary" id="memRestartBtn">🔄 Yenidən başla</button>
+        </div>
+        <div class="memory-board" id="memBoard"></div>
+        <div class="game-over-msg" id="memMsg"></div>
+      `;
+      const boardEl = container.querySelector('#memBoard');
+      const movesEl = container.querySelector('#memMoves');
+      const msgEl = container.querySelector('#memMsg');
+      const emojis = ['🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🥝', '🍑'];
+      let cards, flipped, matchedCount, moves, locked, active = true;
+
+      function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[arr[i], arr[j]] = [arr[j], arr[i]]; }
+        return arr;
+      }
+      function init() {
+        cards = shuffle([...emojis, ...emojis].map((e, i) => ({ id: i, emoji: e, flipped: false, matched: false })));
+        flipped = []; matchedCount = 0; moves = 0; locked = false;
+        movesEl.textContent = moves; msgEl.textContent = '';
+        render();
+      }
+      function render() {
+        boardEl.innerHTML = '';
+        cards.forEach(card => {
+          const btn = document.createElement('button');
+          btn.className = 'memory-card' + (card.flipped || card.matched ? ' flipped' : '') + (card.matched ? ' matched' : '');
+          btn.textContent = (card.flipped || card.matched) ? card.emoji : '❓';
+          btn.disabled = card.matched;
+          btn.onclick = () => handleFlip(card.id);
+          boardEl.appendChild(btn);
+        });
+      }
+      function handleFlip(id) {
+        if (locked) return;
+        const card = cards.find(c => c.id === id);
+        if (!card || card.flipped || card.matched) return;
+        card.flipped = true;
+        flipped.push(card);
+        render();
+        if (flipped.length === 2) {
+          moves++; movesEl.textContent = moves;
+          locked = true;
+          const [a, b] = flipped;
+          if (a.emoji === b.emoji) {
+            a.matched = true; b.matched = true; matchedCount += 2;
+            flipped = []; locked = false; render();
+            if (matchedCount === cards.length) msgEl.textContent = `Təbriklər! ${moves} gedişdə bitirdiniz.`;
+          } else {
+            setTimeout(() => {
+              if (!active) return;
+              a.flipped = false; b.flipped = false;
+              flipped = []; locked = false; render();
+            }, 700);
+          }
+        }
+      }
+      container.querySelector('#memRestartBtn').onclick = init;
+      init();
+
+      return function cleanup() { active = false; };
+    }
+
+    // ==================== X-O (TIC-TAC-TOE) ====================
+    function initTicTacToeGame(container) {
+      container.innerHTML = `
+        <div class="game-toolbar">
+          <span class="game-score-pill" id="tttStatus">Sənin növbən (X)</span>
+          <button class="game-btn secondary" id="tttRestartBtn">🔄 Yenidən başla</button>
+        </div>
+        <div class="ttt-board" id="tttBoard"></div>
+      `;
+      const boardEl = container.querySelector('#tttBoard');
+      const statusEl = container.querySelector('#tttStatus');
+      const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+      let cells, gameOver, active = true;
+
+      function init() {
+        cells = Array(9).fill(null);
+        gameOver = false;
+        statusEl.textContent = 'Sənin növbən (X)';
+        render();
+      }
+      function render() {
+        boardEl.innerHTML = '';
+        cells.forEach((v, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'ttt-cell' + (v ? ' filled' : '');
+          btn.textContent = v || '';
+          btn.disabled = !!v || gameOver;
+          btn.onclick = () => playerMove(i);
+          boardEl.appendChild(btn);
+        });
+      }
+      function winner(bd) {
+        for (const [a, b, c] of lines) if (bd[a] && bd[a] === bd[b] && bd[a] === bd[c]) return bd[a];
+        if (bd.every(v => v)) return 'draw';
+        return null;
+      }
+      function playerMove(i) {
+        if (gameOver || cells[i]) return;
+        cells[i] = 'X';
+        render();
+        const w = winner(cells);
+        if (w) { finish(w); return; }
+        statusEl.textContent = 'Kompüter düşünür...';
+        setTimeout(computerMove, 400);
+      }
+      function computerMove() {
+        if (gameOver || !active) return;
+        const i = pickComputerMove();
+        if (i !== -1) cells[i] = 'O';
+        const w = winner(cells);
+        if (w) { finish(w); return; }
+        statusEl.textContent = 'Sənin növbən (X)';
+        render();
+      }
+      function pickComputerMove() {
+        const empty = cells.map((v, i) => v ? null : i).filter(i => i !== null);
+        for (const i of empty) { const t = [...cells]; t[i] = 'O'; if (winner(t) === 'O') return i; }
+        for (const i of empty) { const t = [...cells]; t[i] = 'X'; if (winner(t) === 'X') return i; }
+        if (cells[4] === null) return 4;
+        const corners = [0, 2, 6, 8].filter(i => cells[i] === null);
+        if (corners.length) return corners[Math.floor(Math.random() * corners.length)];
+        return empty.length ? empty[Math.floor(Math.random() * empty.length)] : -1;
+      }
+      function finish(w) {
+        gameOver = true;
+        if (w === 'draw') statusEl.textContent = 'Heç-heçə!';
+        else statusEl.textContent = w === 'X' ? 'Təbriklər, qazandın! 🎉' : 'Kompüter qazandı!';
+        render();
+      }
+      container.querySelector('#tttRestartBtn').onclick = init;
+      init();
+
+      return function cleanup() { active = false; };
+    }
+
+    // ==================== REAKSİYA SÜRƏTİ ====================
+    function initReactionGame(container) {
+      container.innerHTML = `
+        <div class="reaction-box idle" id="reactionBox">Başlamaq üçün klikləyin</div>
+        <div class="game-score-pill" style="margin-top:14px;" id="reactionBest">Ən yaxşı nəticə: —</div>
+      `;
+      const box = container.querySelector('#reactionBox');
+      const bestEl = container.querySelector('#reactionBest');
+      let state = 'idle';
+      let timeoutId = null;
+      let startTime = 0;
+      let best = null;
+      let active = true;
+
+      function setState(s, text) {
+        state = s;
+        box.className = 'reaction-box ' + s;
+        box.textContent = text;
+      }
+      box.onclick = function() {
+        if (state === 'idle') {
+          setState('waiting', 'Gözlə...');
+          const delay = 1000 + Math.random() * 2000;
+          timeoutId = setTimeout(() => {
+            if (!active) return;
+            setState('ready', 'İNDİ KLİKLƏ!');
+            startTime = performance.now();
+          }, delay);
+        } else if (state === 'waiting') {
+          clearTimeout(timeoutId);
+          setState('early', 'Tez oldun! Yenidən sınamaq üçün klikləyin.');
+          timeoutId = setTimeout(() => { if (active && state === 'early') setState('idle', 'Başlamaq üçün klikləyin'); }, 1200);
+        } else if (state === 'ready') {
+          const reaction = Math.round(performance.now() - startTime);
+          if (best === null || reaction < best) { best = reaction; bestEl.textContent = 'Ən yaxşı nəticə: ' + best + ' ms'; }
+          setState('idle', `Reaksiyanız: ${reaction} ms — yenidən sınamaq üçün klikləyin`);
+        }
+      };
+
+      return function cleanup() { active = false; if (timeoutId) clearTimeout(timeoutId); };
+    }
+
+    // ==================== DAŞ-KAĞIZ-QAYÇI ====================
+    function initRPSGame(container) {
+      container.innerHTML = `
+        <div class="rps-choices">
+          <button class="rps-choice-btn" data-choice="daş">✊</button>
+          <button class="rps-choice-btn" data-choice="kağız">✋</button>
+          <button class="rps-choice-btn" data-choice="qayçı">✌️</button>
+        </div>
+        <div class="rps-result" id="rpsResult">Bir seçim et!</div>
+        <div class="rps-score" id="rpsScore">Sən: 0 | Bərabər: 0 | Kompüter: 0</div>
+        <button class="game-btn secondary" id="rpsResetBtn" style="margin-top:14px;">🔄 Xalları sıfırla</button>
+      `;
+      const resultEl = container.querySelector('#rpsResult');
+      const scoreEl = container.querySelector('#rpsScore');
+      const options = ['daş', 'kağız', 'qayçı'];
+      const emojiMap = { 'daş': '✊', 'kağız': '✋', 'qayçı': '✌️' };
+      const beats = { 'daş': 'qayçı', 'kağız': 'daş', 'qayçı': 'kağız' };
+      let wins = 0, draws = 0, losses = 0;
+
+      function play(choice) {
+        const comp = options[Math.floor(Math.random() * 3)];
+        let outcome;
+        if (choice === comp) { outcome = 'draw'; draws++; }
+        else if (beats[choice] === comp) { outcome = 'win'; wins++; }
+        else { outcome = 'lose'; losses++; }
+        const outcomeText = outcome === 'draw' ? 'Heç-heçə!' : outcome === 'win' ? 'Qazandın! 🎉' : 'Uduzdun!';
+        resultEl.textContent = `Sən: ${emojiMap[choice]}  Kompüter: ${emojiMap[comp]}  —  ${outcomeText}`;
+        scoreEl.textContent = `Sən: ${wins} | Bərabər: ${draws} | Kompüter: ${losses}`;
+      }
+      container.querySelectorAll('.rps-choice-btn').forEach(btn => { btn.onclick = () => play(btn.dataset.choice); });
+      container.querySelector('#rpsResetBtn').onclick = () => {
+        wins = 0; draws = 0; losses = 0;
+        resultEl.textContent = 'Bir seçim et!';
+        scoreEl.textContent = 'Sən: 0 | Bərabər: 0 | Kompüter: 0';
+      };
+      return null;
+    }
+  </script>
+
+  <!-- AUTH VƏ ORTAQ SİSTEM SCRIPTİ -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
+      authDomain: "maqalux-chat.firebaseapp.com",
+      databaseURL: "https://maqalux-chat-default-rtdb.firebaseio.com",
+      projectId: "maqalux-chat",
+      storageBucket: "maqalux-chat.firebasestorage.app",
+      messagingSenderId: "127120270719",
+      appId: "1:127120270719:web:7b036b7e27a06f71dee64a"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a";
+
+    let currentUserData = null;
+
+    function showToast(msg, type='info', dur=4000) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast toast-${type}`;
+      t.innerText = msg;
+      c.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, dur);
+    }
+
+    function togglePasswordVisibility(id, el) {
+      const inp = document.getElementById(id);
+      if (!inp) return;
+      if (inp.type === 'password') { inp.type = 'text'; el.innerText = '🙈'; }
+      else { inp.type = 'password'; el.innerText = '👁️'; }
+    }
+
+    function toggleAuthForms(mode) {
+      document.getElementById('loginFormCard').style.display = mode === 'register' ? 'none' : 'flex';
+      document.getElementById('registerFormCard').style.display = mode === 'register' ? 'flex' : 'none';
+    }
+
+    function toggleDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('dropdownMenu').classList.toggle('active');
+    }
+    function closeAvatarDropdownMenu() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      document.getElementById('dropdownLevel1').style.display = 'block';
+      document.getElementById('dropdownLevel2').style.display = 'none';
+    }
+    function showSettingsLevel() {
+      document.getElementById('dropdownLevel1').style.display = 'none';
+      document.getElementById('dropdownLevel2').style.display = 'block';
+    }
+    function backToAvatarMenu() {
+      document.getElementById('dropdownLevel2').style.display = 'none';
+      document.getElementById('dropdownLevel1').style.display = 'block';
+    }
+    function viewOwnAvatarLarge() {
+      closeAvatarDropdownMenu();
+      openImageViewer(document.getElementById('headerAvatar').src);
+    }
+    function openImageViewer(url) {
+      document.getElementById('imageViewerImg').src = url;
+      document.getElementById('imageViewerOverlay').classList.add('active');
+    }
+    function closeImageViewer() {
+      document.getElementById('imageViewerOverlay').classList.remove('active');
+      document.getElementById('imageViewerImg').src = '';
+    }
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('dropdownMenu');
+      if (menu && menu.classList.contains('active') && !e.target.closest('.header-right')) {
+        closeAvatarDropdownMenu();
+      }
+    });
+
+    function toggleMobileNav(e) {
+      e.stopPropagation();
+      document.querySelector('nav').classList.toggle('mobile-nav-open');
+    }
+    document.addEventListener('click', function(e) {
+      const navEl = document.querySelector('nav');
+      if (navEl && navEl.classList.contains('mobile-nav-open') && !e.target.closest('nav') && !e.target.closest('.hamburger-btn')) {
+        navEl.classList.remove('mobile-nav-open');
+      }
+    });
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.innerText = str == null ? '' : String(str);
+      return div.innerHTML;
+    }
+
+    let msgInboxRef = null;
+    let msgConversations = {};
+
+    function toggleMsgDropdown(e) {
+      e.stopPropagation();
+      const panel = document.getElementById('msgDropdownPanel');
+      const willOpen = !panel.classList.contains('active');
+      panel.classList.toggle('active');
+      if (willOpen && window.innerWidth <= 700) {
+        const headerEl = document.querySelector('header');
+        const rect = headerEl.getBoundingClientRect();
+        panel.style.position = 'fixed';
+        panel.style.top = (rect.bottom + 8) + 'px';
+        panel.style.left = '50%';
+        panel.style.right = 'auto';
+        panel.style.transform = 'translateX(-50%)';
+        panel.style.width = '92vw';
+        panel.style.maxWidth = '380px';
+      } else {
+        panel.style.position = ''; panel.style.top = ''; panel.style.left = ''; panel.style.right = ''; panel.style.transform = ''; panel.style.width = ''; panel.style.maxWidth = '';
+      }
+    }
+    document.addEventListener('click', function(e) {
+      const panel = document.getElementById('msgDropdownPanel');
+      if (panel && panel.classList.contains('active') && !e.target.closest('.msg-icon-wrap')) {
+        panel.classList.remove('active');
+      }
+    });
+
+    function initMessageInbox() {
+      if (!currentUserData) return;
+      if (msgInboxRef) msgInboxRef.off();
+      msgConversations = {};
+      msgInboxRef = db.ref('privateMessages').orderByChild('recipient').equalTo(currentUserData.nick);
+      msgInboxRef.on('value', (snap) => {
+        const convs = {};
+        snap.forEach((child) => {
+          const m = child.val();
+          if (!m || m.isDeleted) return;
+          const readBy = m.readBy || [];
+          const isUnread = !readBy.includes(currentUserData.nick);
+          if (!convs[m.sender]) {
+            convs[m.sender] = { avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png', text: '', timestamp: 0, unreadCount: 0 };
+          }
+          const conv = convs[m.sender];
+          if ((m.timestamp || 0) >= conv.timestamp) {
+            conv.avatar = m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+            conv.text = (m.mediaType && m.mediaType !== 'text') ? '📎 Media' : (m.text || '');
+            conv.timestamp = m.timestamp || 0;
+          }
+          if (isUnread) conv.unreadCount++;
+        });
+        msgConversations = convs;
+        if (msgInboxFirstLoad) {
+          msgPrevCounts = {};
+          Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
+          msgInboxFirstLoad = false;
+        } else {
+          notifyNewMessages(convs);
+        }
+        renderMsgDropdown();
+      });
+      msgInboxFirstLoad = true;
+    }
+
+    function stopMessageInbox() {
+      if (msgInboxRef) { msgInboxRef.off(); msgInboxRef = null; }
+      msgConversations = {};
+      renderMsgDropdown();
+    }
+
+    let msgPrevCounts = {};
+    let msgInboxFirstLoad = true;
+
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') { Notification.requestPermission(); }
+    }
+
+    function notifyNewMessages(convs) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        Object.entries(convs).forEach(([nick, c]) => {
+          const prev = msgPrevCounts[nick] || 0;
+          if (c.unreadCount > prev) {
+            try {
+              const notif = new Notification(nick, { body: c.text || 'Yeni mesaj', icon: c.avatar });
+              notif.onclick = () => { window.focus(); window.location.href = 'onlinechat#open=' + encodeURIComponent(nick); };
+            } catch (e) { console.error('Bildiriş xətası:', e); }
+          }
+        });
+      }
+      msgPrevCounts = {};
+      Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
+    }
+
+    function renderMsgDropdown() {
+      const list = document.getElementById('msgDropdownList');
+      const badge = document.getElementById('msgBadgeCount');
+      if (!list || !badge) return;
+      const entries = Object.entries(msgConversations).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+      const totalUnread = entries.reduce((sum, [, c]) => sum + (c.unreadCount || 0), 0);
+      if (totalUnread > 0) {
+        badge.textContent = totalUnread > 9 ? '9+' : totalUnread; badge.classList.remove('hidden');
+      } else { badge.classList.add('hidden'); }
+      if (!entries.length) { list.innerHTML = '<div class="msg-dropdown-empty">Mesaj yoxdur</div>'; return; }
+      list.innerHTML = entries.map(([nick, c]) => `
+        <div class="msg-conv-item ${c.unreadCount > 0 ? 'unread' : ''}" onclick="openInboxConversation('${nick.replace(/'/g, "\\'")}')">
+          <img src="${c.avatar}" class="msg-conv-avatar" alt="av">
+          <div class="msg-conv-info">
+            <div class="msg-conv-name">${escapeHtml(nick)}</div>
+            <div class="msg-conv-preview">${escapeHtml(c.text)}</div>
+          </div>
+          ${c.unreadCount > 0 ? `<span class="msg-conv-dot">${c.unreadCount > 9 ? '9+' : c.unreadCount}</span>` : ''}
+        </div>
+      `).join('');
+    }
+
+    window.openInboxConversation = function(nick) { window.location.href = 'onlinechat#open=' + encodeURIComponent(nick); };
+
+    auth.onAuthStateChanged(async (user) => {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      const overlay = document.getElementById('authOverlay');
+      if (user) {
+        try {
+          let snap = await db.ref(`users/${user.uid}`).once('value');
+          if (!snap.exists()) {
+            await new Promise(r => setTimeout(r, 1500));
+            snap = await db.ref(`users/${user.uid}`).once('value');
+          }
+          if (snap.exists()) {
+            currentUserData = snap.val();
+            currentUserData.uid = user.uid;
+            if (currentUserData.isBanned) {
+              showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
+              await auth.signOut();
+              location.reload();
+              return;
+            }
+            await db.ref(`users/${user.uid}/online`).set(true);
+            db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+            if (currentUserData.nick && currentUserData.email) {
+              db.ref(`usernameToEmail/${currentUserData.nick}`).set(currentUserData.email);
+            }
+            document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            overlay.classList.add('hidden');
+            document.body.classList.add('logged-in');
+            initMessageInbox();
+            requestNotificationPermission();
+          } else { await auth.signOut(); }
+        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      } else {
+        currentUserData = null;
+        overlay.classList.remove('hidden');
+        document.body.classList.remove('logged-in');
+        document.getElementById('headerAvatar').src = 'https://www.w3schools.com/howto/img_avatar.png';
+        stopMessageInbox();
+      }
+    });
+
+    window.handleLogin = async function() {
+      const identifier = document.getElementById('loginEmailInput').value.trim();
+      const pass = document.getElementById('loginPasswordInput').value.trim();
+      if (!identifier || !pass) return showToast('E-poçt/istifadəçi adı və şifrəni daxil edin.', 'error');
+      let email = identifier;
+      try {
+        if (!identifier.includes('@')) {
+          const snap = await db.ref(`usernameToEmail/${identifier}`).once('value');
+          if (!snap.exists()) { return showToast('Bu adda istifadəçi tapılmadı.', 'error'); }
+          email = snap.val();
+        }
+        const methods = await auth.fetchSignInMethodsForEmail(email);
+        if (methods.length && !methods.includes('password')) {
+          return showToast('Bu hesab Google ilə qeydiyyatdan keçib. "Google ilə daxil ol" düyməsini istifadə edin.', 'error', 7000);
+        }
+        await auth.signInWithEmailAndPassword(email, pass);
+      } catch (err) {
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') { showToast('E-poçt/istifadəçi adı və ya şifrə yanlışdır.', 'error'); }
+        else { showToast('Xəta: ' + err.message, 'error'); }
+      }
+    };
+
+    window.handleRegister = async function() {
+      const nick = document.getElementById('registerNicknameInput').value.trim();
+      const email = document.getElementById('registerEmailInput').value.trim();
+      const pass = document.getElementById('registerPasswordInput').value.trim();
+      if (!nick || !email || !pass) return showToast('Bütün xanaları doldurun.', 'error');
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+        await db.ref(`users/${cred.user.uid}`).set({ nick, email, role: 'user', avatarUrl: 'https://www.w3schools.com/howto/img_avatar.png', online: true, isBanned: false });
+        await db.ref(`usernameToEmail/${nick}`).set(email);
+        showToast('Qeydiyyat uğurludur!', 'success');
+      } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+    };
+
+    window.handleGoogleLogin = async function() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        const snap = await db.ref(`users/${user.uid}`).once('value');
+        if (!snap.exists()) {
+          const nick = user.displayName || 'Google İstifadəçisi';
+          await db.ref(`users/${user.uid}`).set({ nick, email: user.email, role: 'user', avatarUrl: user.photoURL || 'https://www.w3schools.com/howto/img_avatar.png', online: true, isBanned: false });
+          await db.ref(`usernameToEmail/${nick}`).set(user.email);
+        } else {
+          await db.ref(`users/${user.uid}/online`).set(true);
+          await db.ref(`usernameToEmail/${snap.val().nick}`).set(user.email);
+        }
+        showToast('Google ilə daxil oldunuz!', 'success');
+      } catch (err) { showToast('Google Xətası: ' + err.message, 'error'); }
+    };
+
+    window.handleLogout = async function() {
+      if (auth.currentUser) {
+        await db.ref(`users/${auth.currentUser.uid}/online`).set(false);
+        await auth.signOut();
+        showToast('Çıxış etdiniz.', 'info');
+        document.getElementById('dropdownMenu').classList.remove('active');
+      }
+    };
+
+    window.openForgotPasswordModal = function() { document.getElementById('forgotEmailInput').value = ''; document.getElementById('forgotPasswordModal').classList.add('active'); };
+    window.closeForgotPasswordModal = function() { document.getElementById('forgotPasswordModal').classList.remove('active'); };
+    window.submitForgotPassword = function() {
+      const email = document.getElementById('forgotEmailInput').value.trim();
+      if (!email) return showToast('E-poçt ünvanınızı daxil edin.', 'error');
+      auth.sendPasswordResetEmail(email).then(() => { showToast('Bərpa linki e-poçtunuza göndərildi.', 'success'); closeForgotPasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+
+    window.openChangePasswordModal = function() {
+      document.getElementById('oldPassInput').value = ''; document.getElementById('newPassInput').value = '';
+      const user = auth.currentUser;
+      const hasPasswordProvider = user && user.providerData.some(p => p.providerId === 'password');
+      const oldWrapper = document.getElementById('oldPassWrapper');
+      const title = document.getElementById('changePassTitle');
+      const desc = document.getElementById('changePassDesc');
+      if (hasPasswordProvider) { oldWrapper.style.display = 'flex'; title.textContent = 'Şifrəni dəyiş'; desc.textContent = 'Köhnə və yeni şifrəni daxil edin.'; }
+      else { oldWrapper.style.display = 'none'; title.textContent = 'Şifrə təyin et'; desc.textContent = 'Hesabınız Google ilə qeydiyyatdan keçib. Yeni şifrə təyin edin.'; }
+      document.getElementById('changePasswordModal').classList.add('active'); document.getElementById('dropdownMenu').classList.remove('active');
+    };
+    window.closeChangePasswordModal = function() { document.getElementById('changePasswordModal').classList.remove('active'); };
+    window.submitChangePassword = function() {
+      const old = document.getElementById('oldPassInput').value.trim(); const newp = document.getElementById('newPassInput').value.trim();
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      if (!newp) return showToast('Yeni şifrəni daxil edin.', 'error');
+      const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
+      if (hasPasswordProvider) {
+        if (!old) return showToast('Köhnə şifrənizi daxil edin.', 'error');
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
+        user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp)).then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      } else {
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, newp);
+        user.linkWithCredential(cred).then(() => { showToast('Şifrə təyin edildi!', 'success', 6000); closeChangePasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      }
+    };
+
+    window.changeProfilePicture = function() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
+      input.onchange = async function(e) {
+        const file = e.target.files[0]; if (!file) return;
+        const fd = new FormData(); fd.append('image', file);
+        try {
+          const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.success) {
+            const url = data.data.url; document.getElementById('headerAvatar').src = url;
+            if (auth.currentUser) { await db.ref(`users/${auth.currentUser.uid}/avatarUrl`).set(url); }
+            showToast('Profil şəkli yeniləndi!', 'success');
+          } else { showToast('Şəkil yüklənə bilmədi.', 'error'); }
+        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      };
+      input.click();
+    };
+
+    window.deleteAccount = function() {
+      document.getElementById('dropdownMenu').classList.remove('active'); document.getElementById('deletePassInput').value = ''; document.getElementById('deleteAccountModal').classList.add('active');
+    };
+    window.closeDeleteAccountModal = function() { document.getElementById('deleteAccountModal').classList.remove('active'); };
+    window.submitDeleteAccount = function() {
+      const pass = document.getElementById('deletePassInput').value.trim();
+      if (!pass) return showToast('Şifrənizi daxil edin.', 'error');
+      if (!confirm('Hesabınızı həmişəlik silmək istədiyinizdən əminsiniz?')) return;
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, pass);
+      user.reauthenticateWithCredential(cred).then(() => db.ref(`users/${user.uid}`).remove()).then(() => user.delete()).then(() => { showToast('Hesabınız silindi.', 'success'); location.reload(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker qeydiyyat xətası:', err));
+      });
+    }
+
+    function applySavedTheme() {
+      const saved = localStorage.getItem('maqaluxTheme') || 'site';
+      const btn = document.getElementById('themeToggleBtn');
+      document.body.classList.remove('light-theme', 'dark-theme');
+      if (saved === 'light') {
+        document.body.classList.add('light-theme'); if (btn) btn.textContent = '🌙';
+      } else if (saved === 'dark') {
+        document.body.classList.add('dark-theme'); if (btn) btn.textContent = '🎨';
+      } else {
+        if (btn) btn.textContent = '☀️';
+      }
+    }
+    window.toggleSiteTheme = function() {
+      const current = localStorage.getItem('maqaluxTheme') || 'site';
+      const next = current === 'site' ? 'light' : (current === 'light' ? 'dark' : 'site');
+      localStorage.setItem('maqaluxTheme', next); applySavedTheme();
+    };
+    applySavedTheme();
+  </script>
+</body>
+</html>
