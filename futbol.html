@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffaa00">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Maqalux">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Futbol Mərkəzi | Maqalux</title>
+  <link rel="icon" href="/icon-192.png" type="image/png">
+  <meta name="description" content="Canlı oyun nəticələri, oyun statistikası, matç arxivi, futbolçu və komanda transfer dəyərləri - Maqalux Futbol!">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-page: linear-gradient(135deg, #1e002f, #0055a5);
+      --text-main: white;
+      --text-55: rgba(255,255,255,0.55);
+      --text-50: rgba(255,255,255,0.5);
+      --text-40: rgba(255,255,255,0.4);
+      --border-20: rgba(255,255,255,0.2);
+      --border-15: rgba(255,255,255,0.15);
+      --border-12: rgba(255,255,255,0.12);
+      --border-10: rgba(255,255,255,0.1);
+      --panel-08: rgba(255,255,255,0.08);
+      --panel-06: rgba(255,255,255,0.06);
+      --panel-05: rgba(255,255,255,0.05);
+      --dropdown-bg: rgba(13,27,62,0.97);
+      --toast-bg: rgba(13,27,62,0.97);
+      --toast-text: white;
+    }
+    body.dark-theme {
+      --bg-page: linear-gradient(135deg, #0c0c10 0%, #17171c 50%, #101014 100%);
+      --dropdown-bg: rgba(24,24,28,0.97);
+      --toast-bg: rgba(24,24,28,0.97);
+      --toast-text: white;
+    }
+    body.light-theme {
+      --bg-page: linear-gradient(135deg, #eef2f9 0%, #e2ecf9 45%, #d3e4fb 100%);
+      --text-main: #16213e;
+      --text-55: rgba(22,33,62,0.62);
+      --text-50: rgba(22,33,62,0.55);
+      --text-40: rgba(22,33,62,0.45);
+      --border-20: rgba(22,33,62,0.16);
+      --border-15: rgba(22,33,62,0.14);
+      --border-12: rgba(22,33,62,0.12);
+      --border-10: rgba(22,33,62,0.1);
+      --panel-08: rgba(22,33,62,0.06);
+      --panel-06: rgba(22,33,62,0.045);
+      --panel-05: rgba(22,33,62,0.035);
+      --dropdown-bg: rgba(255,255,255,0.98);
+      --toast-bg: rgba(255,255,255,0.98);
+      --toast-text: #16213e;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- Header --- */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: var(--border-10);
+      backdrop-filter: blur(15px);
+      padding: 15px 30px;
+      border-bottom: 1px solid var(--border-20);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: 90px;
+    }
+    header a.logo img { height: 55px; transition: 0.3s; }
+    header a.logo img:hover { transform: scale(1.05); }
+    nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; align-items: center; }
+    nav ul li a {
+      text-decoration: none; color: var(--text-main); font-weight: 600; padding: 10px 18px; border-radius: 30px; transition: 0.3s; font-size: 16px;
+    }
+    nav ul li a:hover { background: rgba(255,215,0,0.2); }
+    nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: #0a1329; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+
+    .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+    .theme-toggle-btn { background: var(--panel-08); border: 1px solid var(--border-10); color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+    .theme-toggle-btn:hover { background: var(--panel-06); }
+    .hamburger-btn { display: none; background: none; border: none; margin: 0; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
+    .msg-icon-wrap { position: relative; cursor: pointer; }
+    .msg-icon-wrap .msg-icon { font-size: 22px; display: flex; }
+    .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: var(--text-main); font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #030714; }
+    .msg-badge.hidden { display: none; }
+    .msg-dropdown { position: absolute; top: 38px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; z-index: 6000; }
+    .msg-dropdown.active { display: block; }
+    .msg-dropdown-header { padding: 14px 16px; font-weight: 700; color: #FFD700; border-bottom: 1px solid var(--border-10); }
+    .msg-dropdown-list { display: flex; flex-direction: column; }
+    .msg-dropdown-empty { padding: 24px 16px; text-align: center; color: var(--text-50); font-size: 14px; }
+    .msg-conv-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--panel-05); }
+    .msg-conv-item:hover { background: var(--panel-06); }
+    .msg-conv-item.unread { background: rgba(255,170,0,0.08); }
+    .msg-conv-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,170,0,0.3); }
+    .msg-conv-info { flex: 1; min-width: 0; }
+    .msg-conv-name { font-size: 14px; color: var(--text-main); }
+    .msg-conv-item.unread .msg-conv-name { font-weight: 700; }
+    .msg-conv-preview { font-size: 12.5px; color: var(--text-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .msg-conv-dot { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ffaa00; color: #030714; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; cursor: pointer; transition: 0.2s; }
+    .profile-avatar:hover { transform: scale(1.1); }
+
+    .dropdown-menu { position: absolute; top: 70px; right: 20px; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 200px; z-index: 2000; }
+    .dropdown-menu.active { display: flex; }
+    .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--text-main); transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    .dropdown-item:hover { background: var(--border-10); }
+    .dropdown-item.danger { color: #ff6b6b; }
+
+    /* --- Auth Overlay --- */
+    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 5000; padding: 20px; }
+    .auth-overlay.hidden { display: none; }
+    .loading-screen { position: fixed; inset: 0; background: #030714; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    .loading-screen.hidden { display: none; }
+    .spinner { width: 42px; height: 42px; border: 4px solid var(--border-15); border-top-color: #ffaa00; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .auth-card { background: var(--dropdown-bg); backdrop-filter: blur(20px); padding: 40px 35px; border-radius: 24px; border: 1px solid var(--panel-08); box-shadow: 0 25px 55px rgba(0,0,0,0.6); width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+    .auth-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; }
+    .auth-card p.sub { color: rgba(255,255,255,0.6); font-size: 14px; margin: 0 0 30px 0; text-align: center; }
+    .input-group { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid var(--border-15); background: var(--panel-08); color: var(--text-main); font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+    .custom-input:focus { border-color: #ffa200; background: var(--border-15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
+    .custom-input::placeholder { color: var(--text-40); }
+    .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+    .password-wrapper .custom-input { padding-right: 55px; }
+    .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; color: var(--text-50); user-select: none; }
+    .toggle-password:hover { color: var(--text-main); }
+    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); font-family: 'Poppins', sans-serif; }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,152,0,0.4); }
+    .switch-text { color: var(--text-50); font-size: 13.5px; margin-top: 20px; text-align: center; }
+    .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; }
+    .switch-text span:hover { color: var(--text-main); }
+    .forgot-pass-link { color: var(--text-50); font-size: 13px; cursor: pointer; text-align: center; margin-top: 14px; text-decoration: underline; }
+    .forgot-pass-link:hover { color: #ffb700; }
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid var(--border-20); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; font-family: 'Poppins', sans-serif; }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--border-20); }
+    .google-btn img { width: 19px; height: 19px; }
+    .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
+    .divider-row .line { flex: 1; height: 1px; background: var(--border-15); }
+    .divider-row span { color: var(--text-40); font-size: 12.5px; }
+
+    /* Modals & Toast */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,7,20,0.75); backdrop-filter: blur(6px); z-index: 5500; display: none; justify-content: center; align-items: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: var(--dropdown-bg); border: 1px solid var(--border-10); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 450px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; }
+    .modal-box h3 { color: #ffaa00; margin: 0 0 8px 0; font-size: 1.4em; }
+    .modal-box p.modal-desc { color: var(--text-55); font-size: 13.5px; margin: 0 0 22px 0; }
+    .modal-close { align-self: flex-end; background: none; border: none; color: var(--text-50); font-size: 22px; cursor: pointer; }
+    .modal-close:hover { color: var(--text-main); }
+
+    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 9500; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
+    .toast { background: var(--toast-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: var(--toast-text); font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.toast-success { border-left-color: #2ecc71; }
+    .toast.toast-error { border-left-color: #e74c3c; }
+
+    /* --- FUTBOL MƏRKƏZİ - MAIN LAYOUT --- */
+    main {
+      flex: 1;
+      max-width: 1240px;
+      margin: 40px auto;
+      padding: 0 20px;
+      width: 100%;
+      pointer-events: none;
+    }
+    body.logged-in main { pointer-events: auto; }
+
+    .football-hero {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .football-hero h1 {
+      font-size: 2.5em;
+      margin: 0 0 8px 0;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .football-hero p {
+      color: var(--text-55);
+      font-size: 15px;
+      margin: 0 0 25px 0;
+    }
+
+    /* Universal Axtarış Zolağı (Transfermarkt + Flashscore) */
+    .football-search-box {
+      position: relative;
+      max-width: 650px;
+      margin: 0 auto 30px auto;
+    }
+    .football-search-box input {
+      width: 100%;
+      padding: 16px 24px 16px 50px;
+      border-radius: 30px;
+      border: 1px solid var(--border-20);
+      background: var(--panel-08);
+      color: var(--text-main);
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+      font-family: 'Poppins', sans-serif;
+    }
+    .football-search-box input:focus {
+      border-color: #ffaa00;
+      box-shadow: 0 0 18px rgba(255, 170, 0, 0.3);
+      background: var(--panel-15);
+    }
+    .football-search-box i {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffaa00;
+      font-size: 18px;
+    }
+
+    /* Tab Naviqasiyası */
+    .football-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .tab-btn {
+      background: var(--panel-08);
+      border: 1px solid var(--border-15);
+      color: var(--text-main);
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tab-btn:hover { background: var(--panel-15); transform: translateY(-2px); }
+    .tab-btn.active {
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      color: #030714;
+      border-color: transparent;
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.35);
+    }
+
+    /* Flashscore/Sofascore Match List */
+    .league-section {
+      background: var(--border-10);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      border: 1px solid var(--border-15);
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .league-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #FFD700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-10);
+      margin-bottom: 15px;
+    }
+    .league-title img { width: 22px; height: 22px; object-fit: contain; }
+
+    .match-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: var(--panel-05);
+      border: 1px solid var(--panel-08);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+    .match-card:hover {
+      background: var(--panel-15);
+      transform: scale(1.01);
+      border-color: rgba(255,215,0,0.3);
+    }
+    .match-card:last-child { margin-bottom: 0; }
+
+    .match-status-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 75px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-live {
+      background: #e74c3c;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    .badge-finished { color: var(--text-50); }
+    .badge-upcoming { color: #ffaa00; }
+
+    .match-teams-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 20px;
+    }
+    .team-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14.5px;
+      font-weight: 600;
+    }
+    .team-info { display: flex; align-items: center; gap: 10px; }
+    .team-flag { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+    .team-score { font-size: 16px; font-weight: 800; color: #FFD700; }
+
+    .match-actions-col {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-50);
+      font-size: 13px;
+    }
+
+    /* Transfermarkt - Futbolçu və Komanda kartları grid */
+    .tm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .tm-card {
+      background: var(--border-10);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--border-15);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .tm-card:hover { transform: translateY(-5px); border-color: #ffaa00; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .tm-avatar { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 3px solid #ffaa00; margin-bottom: 12px; }
+    .tm-name { font-size: 17px; font-weight: 700; margin: 0 0 4px 0; color: var(--text-main); }
+    .tm-sub { font-size: 12.5px; color: var(--text-55); margin-bottom: 14px; }
+    .tm-value-badge {
+      background: linear-gradient(90deg, #2ecc71, #27ae60);
+      color: white;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+    }
+    .tm-stats-row {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-top: 15px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-10);
+      font-size: 12px;
+      color: var(--text-55);
+    }
+    .tm-stats-item strong { display: block; font-size: 14px; color: #FFD700; }
+
+    /* Sofascore - Matç Detalları Modalı */
+    .sofa-modal {
+      max-width: 750px !important;
+    }
+    .sofa-header {
+      background: var(--panel-08);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-10);
+    }
+    .sofa-team { text-align: center; width: 35%; }
+    .sofa-team img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; margin-bottom: 8px; }
+    .sofa-team-name { font-weight: 700; font-size: 15px; }
+    .sofa-score-box { text-align: center; }
+    .sofa-score { font-size: 2.2em; font-weight: 800; color: #FFD700; }
+    .sofa-status { font-size: 12px; color: #e74c3c; font-weight: 700; }
+
+    .sofa-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border-10); padding-bottom: 10px; margin-bottom: 20px; }
+    .sofa-tab-btn { background: none; border: none; color: var(--text-55); font-weight: 600; font-size: 14px; cursor: pointer; padding: 6px 14px; border-radius: 12px; font-family: 'Poppins', sans-serif; }
+    .sofa-tab-btn.active { background: rgba(255,215,0,0.15); color: #FFD700; }
+
+    .stat-row { margin-bottom: 14px; }
+    .stat-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .stat-bar-bg { height: 8px; background: var(--panel-08); border-radius: 4px; overflow: hidden; display: flex; }
+    .stat-bar-fill { height: 100%; background: linear-gradient(90deg, #FFD700, #FF8C00); }
+
+    .events-timeline { display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; }
+    .event-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--panel-05); border-radius: 10px; }
+    .event-min { font-weight: 700; color: #FFD700; min-width: 35px; }
+
+    footer { text-align: center; padding: 20px; color: #FFD700; font-weight: 600; border-top: 1px solid var(--border-20); background: var(--panel-05); backdrop-filter: blur(10px); }
+
+    /* Mobil */
+    @media (max-width: 700px) {
+      header { height: auto; flex-direction: column; gap: 10px; padding: 15px 20px; position: relative; }
+      .header-right { order: 2; width: 100%; justify-content: center; gap: 22px; }
+      .hamburger-btn { display: flex; }
+      nav { order: 3; width: 100%; display: none; }
+      nav.mobile-nav-open { display: flex; }
+      nav ul { flex-direction: column; align-items: center; width: 100%; }
+      nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
+      .dropdown-menu { right: 10px; top: 60px; min-width: 180px; }
+      .msg-dropdown { right: -10px; width: 92vw; max-width: 340px; }
+      .football-hero h1 { font-size: 1.8em; }
+      .match-card { padding: 12px; }
+      .match-teams-col { padding: 0 10px; }
+      .team-row { font-size: 13px; }
+      .sofa-team img { width: 40px; height: 40px; }
+      .sofa-score { font-size: 1.7em; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="image-viewer-overlay" id="imageViewerOverlay" onclick="if(event.target.id==='imageViewerOverlay') closeImageViewer();">
+    <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
+    <img id="imageViewerImg" src="" alt="Şəkil">
+  </div>
+  <div id="loadingScreen" class="loading-screen"><div class="spinner"></div></div>
+  <div id="toastContainer"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="index.html" class="logo"><img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux"></a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="xeberler.html">Xəbərlər</a></li>
+        <li><a href="proqramlar.html">Proqramlar</a></li>
+        <li><a href="şahmat.html">Şahmat</a></li>
+        <li><a href="eylence.html" class="active">Əyləncə</a></li>
+        <li><a href="onlinechat">Onlayn çat</a></li>  
+        <li><a href="haqqimizda.html">Haqqımızda</a></li>
+        <li><a href="elaqe.html">Əlaqə</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()" title="Tema dəyiş">☀️</button>
+      <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <div id="dropdownLevel1">
+          <button class="dropdown-item" onclick="viewOwnAvatarLarge()">🖼️ Profilə bax</button>
+          <button class="dropdown-item" onclick="showSettingsLevel()">⚙️ Ayarlara daxil ol</button>
+        </div>
+        <div id="dropdownLevel2" style="display:none;">
+          <button class="dropdown-item" onclick="backToAvatarMenu()">← Geri</button>
+          <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
+          <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
+          <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
+          <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
+        </div>
+      </div>
+      <div class="msg-icon-wrap" id="msgIconWrap" onclick="toggleMsgDropdown(event)">
+        <i class="far fa-paper-plane msg-icon"></i>
+        <span class="msg-badge hidden" id="msgBadgeCount">0</span>
+        <div class="msg-dropdown" id="msgDropdownPanel">
+          <div class="msg-dropdown-header">Mesajlar</div>
+          <div class="msg-dropdown-list" id="msgDropdownList">
+            <div class="msg-dropdown-empty">Mesaj yoxdur</div>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileNav(event)" aria-label="Menyu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Auth Modal -->
+  <div class="auth-overlay hidden" id="authOverlay">
+    <div id="loginFormCard" class="auth-card">
+      <h2>Maqalux Futbol</h2>
+      <p class="sub">Daxil olun və canlı matçları, statistikaları izləyin</p>
+      <div class="input-group">
+        <input type="text" id="loginEmailInput" class="custom-input" placeholder="E-poçt və ya istifadəçi adı">
+        <div class="password-wrapper">
+          <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="handleLogin()">Daxil ol</button>
+        <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
+        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
+        </button>
+        <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
+      </div>
+    </div>
+    <div id="registerFormCard" class="auth-card" style="display:none;">
+      <h2>Yeni Qeydiyyat</h2>
+      <p class="sub">Hesab yaradın və futbol icmasına qoşulun</p>
+      <div class="input-group">
+        <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
+        <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+        <div class="password-wrapper">
+          <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
+        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
+        </button>
+        <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Football Hub -->
+  <main>
+    <div class="football-hero">
+      <h1><i class="fa-solid fa-futbol"></i> Maqalux Futbol Mərkəzi</h1>
+      <p>Flashscore canlı nəticələri + Sofascore matç statistikası + Transfermarkt bazar dəyərləri tək bir ünvanda!</p>
+
+      <!-- Universal Search Bar -->
+      <div class="football-search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="globalFootballSearch" placeholder="Komanda, futbolçu və ya liqa adını yazın (Məs: Messi, Qarabağ, Real Madrid)..." oninput="handleGlobalSearch()">
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="football-tabs">
+        <button class="tab-btn active" id="tabLive" onclick="switchTab('live')"><i class="fa-solid fa-bolt"></i> Canlı & Oyunlar (Flashscore)</button>
+        <button class="tab-btn" id="tabArchive" onclick="switchTab('archive')"><i class="fa-solid fa-clock-rotate-left"></i> Oyun Arxivi</button>
+        <button class="tab-btn" id="tabTransfermarkt" onclick="switchTab('transfermarkt')"><i class="fa-solid fa-sack-dollar"></i> Transfermarkt & Profillər</button>
+      </div>
+    </div>
+
+    <!-- Match List Section -->
+    <div id="matchesContainer">
+      <!-- Direct JS Generation -->
+    </div>
+
+    <!-- Transfermarkt Grid Section (Initially Hidden) -->
+    <div id="transfermarktContainer" style="display: none;">
+      <!-- Direct JS Generation -->
+    </div>
+  </main>
+
+  <!-- Sofascore Match Details Modal -->
+  <div class="modal-overlay" id="matchDetailModal">
+    <div class="modal-box sofa-modal">
+      <button class="modal-close" onclick="closeMatchDetailModal()">✕</button>
+      
+      <div class="sofa-header" id="sofaHeader">
+        <!-- JS content -->
+      </div>
+
+      <div class="sofa-tabs">
+        <button class="sofa-tab-btn active" onclick="switchSofaSubTab('stats', this)">Statistika</button>
+        <button class="sofa-tab-btn" onclick="switchSofaSubTab('events', this)">Hadisələr</button>
+        <button class="sofa-tab-btn" onclick="switchSofaSubTab('lineups', this)">Heyətlər</button>
+      </div>
+
+      <div id="sofaTabStats"></div>
+      <div id="sofaTabEvents" style="display:none;"></div>
+      <div id="sofaTabLineups" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Settings Modals -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
+      <h3>Şifrəni unutmusunuz?</h3>
+      <p class="modal-desc">E-poçt ünvanınızı daxil edin, bərpa linki göndəriləcək.</p>
+      <input type="email" id="forgotEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+      <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeChangePasswordModal()">✕</button>
+      <h3 id="changePassTitle">Şifrəni dəyiş</h3>
+      <p class="modal-desc" id="changePassDesc">Köhnə və yeni şifrəni daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper" id="oldPassWrapper">
+          <input type="password" id="oldPassInput" class="custom-input" placeholder="Köhnə şifrə">
+          <span class="toggle-password" onclick="togglePasswordVisibility('oldPassInput', this)">👁️</span>
+        </div>
+        <div class="password-wrapper">
+          <input type="password" id="newPassInput" class="custom-input" placeholder="Yeni şifrə">
+          <span class="toggle-password" onclick="togglePasswordVisibility('newPassInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="submitChangePassword()">Şifrəni yenilə</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deleteAccountModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeDeleteAccountModal()">✕</button>
+      <h3>Hesabı sil</h3>
+      <p class="modal-desc">Bu əməliyyat geri qaytarıla bilməz. Davam etmək üçün şifrənizi daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper">
+          <input type="password" id="deletePassInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('deletePassInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" style="background:linear-gradient(90deg,#e74c3c,#c0392b); color:white;" onclick="submitDeleteAccount()">Hesabımı həmişəlik sil</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>&copy; 2026 Maqalux - Bütün hüquqlar qorunur.</footer>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+
+  <script>
+    // ============================================================
+    // FOOTBALL DATA ENGINE (FLASHSCORE + SOFASCORE + TRANSFERMARKT)
+    // ============================================================
+    const matchesDatabase = [
+      {
+        id: "m1",
+        league: "UEFA Şempionlar Liqası",
+        leagueLogo: "https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Europe.svg",
+        homeTeam: "Real Madrid",
+        homeFlag: "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg",
+        awayTeam: "Manchester City",
+        awayFlag: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg",
+        homeScore: 2,
+        awayScore: 1,
+        status: "LIVE 74'",
+        type: "live",
+        stats: {
+          possession: [58, 42],
+          shotsOnTarget: [7, 3],
+          fouls: [9, 12],
+          corners: [6, 4]
+        },
+        events: [
+          { min: "18'", type: "goal", text: "Vinicius Jr (Real Madrid)" },
+          { min: "34'", type: "yellow", text: "Rodri (Manchester City)" },
+          { min: "52'", type: "goal", text: "Erling Haaland (Manchester City)" },
+          { min: "68'", type: "goal", text: "Jude Bellingham (Real Madrid)" }
+        ],
+        lineups: {
+          home: "Courtois, Carvajal, Rudiger, Alaba, Mendy, Valverde, Camavinga, Bellingham, Rodrygo, Vinicius, Mbappe",
+          away: "Ederson, Walker, Dias, Ake, Gvardiol, Rodri, De Bruyne, Bernardo, Foden, Grealish, Haaland"
+        }
+      },
+      {
+        id: "m2",
+        league: "Azərbaycan Premyer Liqası",
+        leagueLogo: "https://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Azerbaijan.svg",
+        homeTeam: "Qarabağ Ağdam",
+        homeFlag: "https://upload.wikimedia.org/wikipedia/az/d/d8/Qaraba%C4%9F_FK_logo.png",
+        awayTeam: "Neftçi Bakı",
+        awayFlag: "https://upload.wikimedia.org/wikipedia/az/0/07/Neft%C3%A7i_Bak%C3%B1_logo.png",
+        homeScore: 3,
+        awayScore: 0,
+        status: "BİTDİ",
+        type: "archive",
+        stats: {
+          possession: [64, 36],
+          shotsOnTarget: [9, 1],
+          fouls: [8, 14],
+          corners: [8, 2]
+        },
+        events: [
+          { min: "12'", type: "goal", text: "Zubir (Qarabağ)" },
+          { min: "45'", type: "goal", text: "Juninho (Qarabağ)" },
+          { min: "81'", type: "goal", text: "Kady Borges (Qarabağ)" }
+        ],
+        lineups: {
+          home: "Buntic, Vesovic, Mustafazade, Medina, Jafarguliyev, Jankovic, Patrick Andrade, Leandro Andrade, Kady, Zubir, Juninho",
+          away: "Rzaev, Buludov, Tamas, Stankovic, Azarov, Mahmudov, Eddy, Saief, Bogomolsky, Lebon, Saldanha"
+        }
+      },
+      {
+        id: "m3",
+        league: "İspaniya La Liga",
+        leagueLogo: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg",
+        homeTeam: "FC Barcelona",
+        homeFlag: "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+        awayTeam: "Atletico Madrid",
+        awayFlag: "https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_2017_logo.svg",
+        homeScore: 1,
+        awayScore: 1,
+        status: "LIVE 88'",
+        type: "live",
+        stats: {
+          possession: [62, 38],
+          shotsOnTarget: [5, 4],
+          fouls: [11, 16],
+          corners: [5, 3]
+        },
+        events: [
+          { min: "29'", type: "goal", text: "Lamine Yamal (Barcelona)" },
+          { min: "61'", type: "goal", text: "Griezmann (Atletico Madrid)" }
+        ],
+        lineups: {
+          home: "Ter Stegen, Kounde, Araujo, Cubarsi, Balde, Pedri, De Jong, Gavi, Yamal, Raphinha, Lewandowski",
+          away: "Oblak, Molina, Gimenez, Le Normand, Reinildo, De Paul, Koke, Llorente, Barrios, Griezmann, Alvarez"
+        }
+      }
+    ];
+
+    const tmDatabase = [
+      {
+        name: "Lamine Yamal",
+        type: "player",
+        club: "FC Barcelona",
+        position: "Sağ Vinger",
+        age: 19,
+        nationality: "İspaniya",
+        marketValue: "180.00 M€",
+        avatar: "https://picsum.photos/200/200?random=11",
+        stats: { goals: 18, assists: 14 }
+      },
+      {
+        name: "Kylian Mbappé",
+        type: "player",
+        club: "Real Madrid",
+        position: "Mərkəz Hücumçusu",
+        age: 27,
+        nationality: "Fransa",
+        marketValue: "180.00 M€",
+        avatar: "https://picsum.photos/200/200?random=12",
+        stats: { goals: 32, assists: 9 }
+      },
+      {
+        name: "Juninho",
+        type: "player",
+        club: "Qarabağ FK",
+        position: "Hücumçu",
+        age: 29,
+        nationality: "Braziliya",
+        marketValue: "5.00 M€",
+        avatar: "https://picsum.photos/200/200?random=13",
+        stats: { goals: 24, assists: 7 }
+      },
+      {
+        name: "Real Madrid CF",
+        type: "team",
+        club: "La Liga (İspaniya)",
+        position: "Klub",
+        age: 124,
+        nationality: "İspaniya",
+        marketValue: "1.34 Mlrd €",
+        avatar: "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg",
+        stats: { goals: "15x ÇL", assists: "36x La Liga" }
+      }
+    ];
+
+    let currentTab = 'live';
+
+    function renderMatches(filterText = '') {
+      const container = document.getElementById('matchesContainer');
+      container.innerHTML = '';
+
+      let filtered = matchesDatabase.filter(m => {
+        if (currentTab === 'live' && m.type !== 'live') return false;
+        if (currentTab === 'archive' && m.type !== 'archive') return false;
+        if (filterText) {
+          const q = filterText.toLowerCase();
+          return m.homeTeam.toLowerCase().includes(q) || m.awayTeam.toLowerCase().includes(q) || m.league.toLowerCase().includes(q);
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-50);">Axtarışa uyğun uyğun matç tapılmadı.</div>`;
+        return;
+      }
+
+      // Group by league
+      const grouped = {};
+      filtered.forEach(m => {
+        if (!grouped[m.league]) grouped[m.league] = [];
+        grouped[m.league].push(m);
+      });
+
+      Object.keys(grouped).forEach(league => {
+        const leagueData = grouped[league];
+        const section = document.createElement('div');
+        section.className = 'league-section';
+        
+        let html = `
+          <div class="league-title">
+            <img src="${leagueData[0].leagueLogo}" alt="L">
+            <span>${league}</span>
+          </div>
+        `;
+
+        leagueData.forEach(m => {
+          const isLive = m.type === 'live';
+          html += `
+            <div class="match-card" onclick="openMatchDetail('${m.id}')">
+              <div class="match-status-col">
+                <span class="${isLive ? 'badge-live' : 'badge-finished'}">${m.status}</span>
+              </div>
+              <div class="match-teams-col">
+                <div class="team-row">
+                  <div class="team-info">
+                    <img src="${m.homeFlag}" class="team-flag" alt="F">
+                    <span>${m.homeTeam}</span>
+                  </div>
+                  <span class="team-score">${m.homeScore}</span>
+                </div>
+                <div class="team-row">
+                  <div class="team-info">
+                    <img src="${m.awayFlag}" class="team-flag" alt="F">
+                    <span>${m.awayTeam}</span>
+                  </div>
+                  <span class="team-score">${m.awayScore}</span>
+                </div>
+              </div>
+              <div class="match-actions-col">
+                <i class="fa-solid fa-chart-simple" title="Sofascore Statistika"></i>
+                <i class="fa-solid fa-chevron-right"></i>
+              </div>
+            </div>
+          `;
+        });
+
+        section.innerHTML = html;
+        container.appendChild(section);
+      });
+    }
+
+    function renderTransfermarkt(filterText = '') {
+      const container = document.getElementById('transfermarktContainer');
+      container.innerHTML = '';
+
+      let filtered = tmDatabase.filter(item => {
+        if (filterText) {
+          const q = filterText.toLowerCase();
+          return item.name.toLowerCase().includes(q) || item.club.toLowerCase().includes(q);
+        }
+        return true;
+      });
+
+      const grid = document.createElement('div');
+      grid.className = 'tm-grid';
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'tm-card';
+        card.innerHTML = `
+          <img src="${item.avatar}" class="tm-avatar" alt="A">
+          <div class="tm-name">${item.name}</div>
+          <div class="tm-sub">${item.position} • ${item.club}</div>
+          <div class="tm-value-badge"><i class="fa-solid fa-tag"></i> ${item.marketValue}</div>
+          <div class="tm-stats-row">
+            <div class="tm-stats-item"><strong>${item.stats.goals}</strong> Qol / Uğur</div>
+            <div class="tm-stats-item"><strong>${item.stats.assists}</strong> Assist / Trophies</div>
+            <div class="tm-stats-item"><strong>${item.nationality}</strong> Ölkə</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      container.appendChild(grid);
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabLive').classList.toggle('active', tab === 'live');
+      document.getElementById('tabArchive').classList.toggle('active', tab === 'archive');
+      document.getElementById('tabTransfermarkt').classList.toggle('active', tab === 'transfermarkt');
+
+      if (tab === 'transfermarkt') {
+        document.getElementById('matchesContainer').style.display = 'none';
+        document.getElementById('transfermarktContainer').style.display = 'block';
+        renderTransfermarkt();
+      } else {
+        document.getElementById('matchesContainer').style.display = 'block';
+        document.getElementById('transfermarktContainer').style.display = 'none';
+        renderMatches();
+      }
+    }
+
+    function handleGlobalSearch() {
+      const query = document.getElementById('globalFootballSearch').value.trim();
+      if (currentTab === 'transfermarkt') {
+        renderTransfermarkt(query);
+      } else {
+        renderMatches(query);
+      }
+    }
+
+    // --- Sofascore Match Detail Modal ---
+    function openMatchDetail(matchId) {
+      const match = matchesDatabase.find(m => m.id === matchId);
+      if (!match) return;
+
+      const sofaHeader = document.getElementById('sofaHeader');
+      sofaHeader.innerHTML = `
+        <div class="sofa-team">
+          <img src="${match.homeFlag}" alt="T">
+          <div class="sofa-team-name">${match.homeTeam}</div>
+        </div>
+        <div class="sofa-score-box">
+          <div class="sofa-score">${match.homeScore} - ${match.awayScore}</div>
+          <div class="sofa-status">${match.status}</div>
+        </div>
+        <div class="sofa-team">
+          <img src="${match.awayFlag}" alt="T">
+          <div class="sofa-team-name">${match.awayTeam}</div>
+        </div>
+      `;
+
+      // Render Stats Tab
+      const statsTab = document.getElementById('sofaTabStats');
+      const posH = match.stats.possession[0];
+      const posA = match.stats.possession[1];
+
+      statsTab.innerHTML = `
+        <div class="stat-row">
+          <div class="stat-labels"><span>${posH}%</span><span>Topa Sahibolma</span><span>${posA}%</span></div>
+          <div class="stat-bar-bg">
+            <div class="stat-bar-fill" style="width: ${posH}%;"></div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-labels"><span>${match.stats.shotsOnTarget[0]}</span><span>Çərçivəyə Zərbələr</span><span>${match.stats.shotsOnTarget[1]}</span></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-labels"><span>${match.stats.fouls[0]}</span><span>Faullar</span><span>${match.stats.fouls[1]}</span></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-labels"><span>${match.stats.corners[0]}</span><span>Künc Zərbələri</span><span>${match.stats.corners[1]}</span></div>
+        </div>
+      `;
+
+      // Render Events Tab
+      const eventsTab = document.getElementById('sofaTabEvents');
+      eventsTab.innerHTML = `<div class="events-timeline">` + 
+        match.events.map(ev => `
+          <div class="event-item">
+            <span class="event-min">${ev.min}</span>
+            <i class="fa-solid ${ev.type==='goal'?'fa-futbol':ev.type==='yellow'?'fa-square':'fa-square-check'}" style="color:${ev.type==='goal'?'#2ecc71':ev.type==='yellow'?'#f1c40f':'#e74c3c'}"></i>
+            <span>${ev.text}</span>
+          </div>
+        `).join('') + `</div>`;
+
+      // Render Lineups Tab
+      const lineupsTab = document.getElementById('sofaTabLineups');
+      lineupsTab.innerHTML = `
+        <div style="font-size:13.5px; line-height: 1.6;">
+          <p style="color:#FFD700; font-weight:700;">${match.homeTeam}:</p>
+          <p style="color:var(--text-55);">${match.lineups.home}</p>
+          <p style="color:#FFD700; font-weight:700; margin-top:15px;">${match.awayTeam}:</p>
+          <p style="color:var(--text-55);">${match.lineups.away}</p>
+        </div>
+      `;
+
+      document.getElementById('matchDetailModal').classList.add('active');
+    }
+
+    function closeMatchDetailModal() {
+      document.getElementById('matchDetailModal').classList.remove('active');
+    }
+
+    function switchSofaSubTab(sub, btn) {
+      document.querySelectorAll('.sofa-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.getElementById('sofaTabStats').style.display = sub === 'stats' ? 'block' : 'none';
+      document.getElementById('sofaTabEvents').style.display = sub === 'events' ? 'block' : 'none';
+      document.getElementById('sofaTabLineups').style.display = sub === 'lineups' ? 'block' : 'none';
+    }
+
+    // Init Page
+    renderMatches();
+  </script>
+
+  <!-- ORTAQ AUTH & THEME SYSTEM -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
+      authDomain: "maqalux-chat.firebaseapp.com",
+      databaseURL: "https://maqalux-chat-default-rtdb.firebaseio.com",
+      projectId: "maqalux-chat",
+      storageBucket: "maqalux-chat.firebasestorage.app",
+      messagingSenderId: "127120270719",
+      appId: "1:127120270719:web:7b036b7e27a06f71dee64a"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a";
+
+    let currentUserData = null;
+
+    function showToast(msg, type='info', dur=4000) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast toast-${type}`;
+      t.innerText = msg;
+      c.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, dur);
+    }
+
+    function togglePasswordVisibility(id, el) {
+      const inp = document.getElementById(id);
+      if (!inp) return;
+      if (inp.type === 'password') { inp.type = 'text'; el.innerText = '🙈'; }
+      else { inp.type = 'password'; el.innerText = '👁️'; }
+    }
+
+    function toggleAuthForms(mode) {
+      document.getElementById('loginFormCard').style.display = mode === 'register' ? 'none' : 'flex';
+      document.getElementById('registerFormCard').style.display = mode === 'register' ? 'flex' : 'none';
+    }
+
+    function toggleDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('dropdownMenu').classList.toggle('active');
+    }
+    function closeAvatarDropdownMenu() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      document.getElementById('dropdownLevel1').style.display = 'block';
+      document.getElementById('dropdownLevel2').style.display = 'none';
+    }
+    function showSettingsLevel() {
+      document.getElementById('dropdownLevel1').style.display = 'none';
+      document.getElementById('dropdownLevel2').style.display = 'block';
+    }
+    function backToAvatarMenu() {
+      document.getElementById('dropdownLevel2').style.display = 'none';
+      document.getElementById('dropdownLevel1').style.display = 'block';
+    }
+    function viewOwnAvatarLarge() {
+      closeAvatarDropdownMenu();
+      openImageViewer(document.getElementById('headerAvatar').src);
+    }
+    function openImageViewer(url) {
+      document.getElementById('imageViewerImg').src = url;
+      document.getElementById('imageViewerOverlay').classList.add('active');
+    }
+    function closeImageViewer() {
+      document.getElementById('imageViewerOverlay').classList.remove('active');
+      document.getElementById('imageViewerImg').src = '';
+    }
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('dropdownMenu');
+      if (menu && menu.classList.contains('active') && !e.target.closest('.header-right')) {
+        closeAvatarDropdownMenu();
+      }
+    });
+
+    function toggleMobileNav(e) {
+      e.stopPropagation();
+      document.querySelector('nav').classList.toggle('mobile-nav-open');
+    }
+
+    // Auth state Listener
+    auth.onAuthStateChanged(async (user) => {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      const overlay = document.getElementById('authOverlay');
+      if (user) {
+        try {
+          let snap = await db.ref(`users/${user.uid}`).once('value');
+          if (snap.exists()) {
+            currentUserData = snap.val();
+            currentUserData.uid = user.uid;
+            document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            overlay.classList.add('hidden');
+            document.body.classList.add('logged-in');
+          } else { await auth.signOut(); }
+        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      } else {
+        currentUserData = null;
+        overlay.classList.remove('hidden');
+        document.body.classList.remove('logged-in');
+      }
+    });
+
+    window.handleLogin = async function() {
+      const identifier = document.getElementById('loginEmailInput').value.trim();
+      const pass = document.getElementById('loginPasswordInput').value.trim();
+      if (!identifier || !pass) return showToast('Məlumatları tam doldurun.', 'error');
+      try {
+        await auth.signInWithEmailAndPassword(identifier, pass);
+      } catch (err) { showToast('Giriş xətası: ' + err.message, 'error'); }
+    };
+
+    window.handleLogout = async function() {
+      await auth.signOut();
+      location.reload();
+    };
+
+    function applySavedTheme() {
+      const saved = localStorage.getItem('maqaluxTheme') || 'site';
+      const btn = document.getElementById('themeToggleBtn');
+      document.body.classList.remove('light-theme', 'dark-theme');
+      if (saved === 'light') { document.body.classList.add('light-theme'); if(btn) btn.textContent = '🌙'; }
+      else if (saved === 'dark') { document.body.classList.add('dark-theme'); if(btn) btn.textContent = '🎨'; }
+      else { if(btn) btn.textContent = '☀️'; }
+    }
+    window.toggleSiteTheme = function() {
+      const current = localStorage.getItem('maqaluxTheme') || 'site';
+      const next = current === 'site' ? 'light' : (current === 'light' ? 'dark' : 'site');
+      localStorage.setItem('maqaluxTheme', next);
+      applySavedTheme();
+    };
+    applySavedTheme();
+  </script>
+</body>
+</html>
