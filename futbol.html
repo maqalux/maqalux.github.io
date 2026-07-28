@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffaa00">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Maqalux">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Futbol | Maqalux</title>
+  <link rel="icon" href="/icon-192.png" type="image/png">
+  <meta name="description" content="Futbol nəticələri, cədvəllər, bombardirlər, arxiv və komanda axtarışı – Maqalux-da!">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-page: linear-gradient(135deg, #1e002f, #0055a5);
+      --text-main: white;
+      --text-55: rgba(255,255,255,0.55);
+      --text-50: rgba(255,255,255,0.5);
+      --text-40: rgba(255,255,255,0.4);
+      --border-20: rgba(255,255,255,0.2);
+      --border-15: rgba(255,255,255,0.15);
+      --border-12: rgba(255,255,255,0.12);
+      --border-10: rgba(255,255,255,0.1);
+      --panel-08: rgba(255,255,255,0.08);
+      --panel-06: rgba(255,255,255,0.06);
+      --panel-05: rgba(255,255,255,0.05);
+      --dropdown-bg: rgba(13,27,62,0.97);
+      --toast-bg: rgba(13,27,62,0.97);
+      --toast-text: white;
+    }
+    body.dark-theme {
+      --bg-page: linear-gradient(135deg, #0c0c10 0%, #17171c 50%, #101014 100%);
+      --dropdown-bg: rgba(24,24,28,0.97);
+      --toast-bg: rgba(24,24,28,0.97);
+      --toast-text: white;
+    }
+    body.light-theme {
+      --bg-page: linear-gradient(135deg, #eef2f9 0%, #e2ecf9 45%, #d3e4fb 100%);
+      --text-main: #16213e;
+      --text-55: rgba(22,33,62,0.62);
+      --text-50: rgba(22,33,62,0.55);
+      --text-40: rgba(22,33,62,0.45);
+      --border-20: rgba(22,33,62,0.16);
+      --border-15: rgba(22,33,62,0.14);
+      --border-12: rgba(22,33,62,0.12);
+      --border-10: rgba(22,33,62,0.1);
+      --panel-08: rgba(22,33,62,0.06);
+      --panel-06: rgba(22,33,62,0.045);
+      --panel-05: rgba(22,33,62,0.035);
+      --dropdown-bg: rgba(255,255,255,0.98);
+      --toast-bg: rgba(255,255,255,0.98);
+      --toast-text: #16213e;
+    }
+
+    .theme-toggle-btn { background: var(--panel-08); border: 1px solid var(--border-10); color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+    .theme-toggle-btn:hover { background: var(--panel-06); }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header CSS */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: var(--border-10);
+      backdrop-filter: blur(15px);
+      padding: 15px 30px;
+      border-bottom: 1px solid var(--border-20);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header img { height: 55px; }
+    nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }
+    nav ul li a {
+      text-decoration: none; color: var(--text-main); font-weight: 600; padding: 10px 18px; border-radius: 30px; position: relative; overflow: hidden; display: inline-block; z-index: 1; transition: all 0.3s ease;
+    }
+    nav ul li a::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%; background: linear-gradient(90deg, #FFD700, #FF8C00); transition: width 0.4s ease; z-index: -1; border-radius: 30px;
+    }
+    nav ul li a:hover::before { width: 100%; }
+    nav ul li a:hover { color: black; }
+    nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: black; box-shadow: 0 0 20px rgba(255,215,0,0.6); }
+
+    .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+    .hamburger-btn { display: none; background: none; border: none; margin: 0; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
+    .msg-icon-wrap { position: relative; cursor: pointer; }
+    .msg-icon-wrap .msg-icon { font-size: 22px; display: flex; }
+    .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: var(--text-main); font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #030714; }
+    .msg-badge.hidden { display: none; }
+    .msg-dropdown { position: absolute; top: 38px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; z-index: 6000; }
+    .msg-dropdown.active { display: block; }
+    .msg-dropdown-header { padding: 14px 16px; font-weight: 700; color: #FFD700; border-bottom: 1px solid var(--border-10); }
+    .msg-dropdown-list { display: flex; flex-direction: column; }
+    .msg-dropdown-empty { padding: 24px 16px; text-align: center; color: var(--text-50); font-size: 14px; }
+    .msg-conv-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--panel-05); }
+    .msg-conv-item:hover { background: var(--panel-06); }
+    .msg-conv-item.unread { background: rgba(255,170,0,0.08); }
+    .msg-conv-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,170,0,0.3); }
+    .msg-conv-info { flex: 1; min-width: 0; }
+    .msg-conv-name { font-size: 14px; color: var(--text-main); }
+    .msg-conv-item.unread .msg-conv-name { font-weight: 700; }
+    .msg-conv-preview { font-size: 12.5px; color: var(--text-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .msg-conv-item.unread .msg-conv-preview { color: rgba(255,255,255,0.85); }
+    .msg-conv-dot { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ffaa00; color: #030714; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; cursor: pointer; transition: 0.2s; }
+    .profile-avatar:hover { transform: scale(1.1); }
+
+    .dropdown-menu { position: absolute; top: 70px; right: 20px; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 200px; z-index: 2000; }
+    .dropdown-menu.active { display: flex; }
+    .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--text-main); transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    .dropdown-item:hover { background: var(--border-10); }
+    .dropdown-item.danger { color: #ff6b6b; }
+
+    /* Auth & Modals CSS */
+    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 5000; padding: 20px; }
+    .auth-overlay.hidden { display: none; }
+    .loading-screen { position: fixed; inset: 0; background: #030714; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    .loading-screen.hidden { display: none; }
+    .spinner { width: 42px; height: 42px; border: 4px solid var(--border-15); border-top-color: #ffaa00; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .auth-card { background: var(--dropdown-bg); backdrop-filter: blur(20px); padding: 40px 35px; border-radius: 24px; border: 1px solid var(--panel-08); box-shadow: 0 25px 55px rgba(0,0,0,0.6); width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; animation: authFadeIn 0.4s ease; }
+    @keyframes authFadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+    .auth-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; }
+    .auth-card p.sub { color: rgba(255,255,255,0.6); font-size: 14px; margin: 0 0 30px 0; text-align: center; }
+    .input-group { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid var(--border-15); background: var(--panel-08); color: var(--text-main); font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+    .custom-input:focus { border-color: #ffa200; background: var(--border-15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
+    .custom-input::placeholder { color: var(--text-40); }
+    .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+    .password-wrapper .custom-input { padding-right: 55px; }
+    .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; color: var(--text-50); user-select: none; }
+    .toggle-password:hover { color: var(--text-main); }
+    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); font-family: 'Poppins', sans-serif; }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,152,0,0.4); }
+    .switch-text { color: var(--text-50); font-size: 13.5px; margin-top: 20px; text-align: center; }
+    .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; }
+    .switch-text span:hover { color: var(--text-main); }
+    .forgot-pass-link { color: var(--text-50); font-size: 13px; cursor: pointer; text-align: center; margin-top: 14px; text-decoration: underline; }
+    .forgot-pass-link:hover { color: #ffb700; }
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid var(--border-20); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; font-family: 'Poppins', sans-serif; }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--border-20); }
+    .google-btn img { width: 19px; height: 19px; }
+    .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
+    .divider-row .line { flex: 1; height: 1px; background: var(--border-15); }
+    .divider-row span { color: var(--text-40); font-size: 12.5px; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,7,20,0.75); backdrop-filter: blur(6px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: var(--dropdown-bg); border: 1px solid var(--border-10); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 360px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; }
+    .modal-box h3 { color: #ffaa00; margin: 0 0 8px 0; font-size: 1.4em; }
+    .modal-box p.modal-desc { color: var(--text-55); font-size: 13.5px; margin: 0 0 22px 0; text-align: center; }
+    .modal-close { align-self: flex-end; background: none; border: none; color: var(--text-50); font-size: 22px; cursor: pointer; }
+    .modal-close:hover { color: var(--text-main); }
+
+    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 9500; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
+    .toast { background: var(--toast-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: var(--toast-text); font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.toast-success { border-left-color: #2ecc71; }
+    .toast.toast-error { border-left-color: #e74c3c; }
+
+    /* FUTBOL SAYTI ÜÇÜN XÜSUSİ DİZAYN */
+    main {
+      flex: 1;
+      max-width: 1100px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 0 20px;
+      pointer-events: none; /* Giriş edilməyibsə kilidlənir */
+    }
+    body.logged-in main { pointer-events: auto; }
+
+    .fb-hero { text-align: center; margin-bottom: 24px; }
+    .fb-hero .back-link { display: inline-block; color: var(--text-50); text-decoration: none; font-size: 13px; margin-bottom: 14px; }
+    .fb-hero .back-link:hover { color: #FFD700; }
+    .fb-hero h1 { font-size: 2.6em; background: linear-gradient(90deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 10px 0; }
+    .fb-hero p.sub { color: var(--text-55); font-size: 14.5px; max-width: 600px; margin: 0 auto; }
+
+    .fb-config-banner { background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.4); color: #ff8a80; padding: 16px 20px; border-radius: 14px; margin-bottom: 22px; font-size: 13.5px; line-height: 1.6; text-align: center; }
+    .fb-config-banner code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 5px; }
+
+    .fb-comp-bar { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 16px; margin-bottom: 6px; scrollbar-width: thin; }
+    .fb-comp-pill { flex-shrink: 0; background: var(--panel-08); border: 1px solid var(--border-15); color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: 0.2s; white-space: nowrap; }
+    .fb-comp-pill:hover { background: var(--panel-06); }
+    .fb-comp-pill.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: #030714; border-color: transparent; box-shadow: 0 4px 15px rgba(255,215,0,0.35); }
+
+    .fb-tabs { position: relative; display: inline-flex; gap: 2px; background: var(--panel-08); border: 1px solid var(--border-15); border-radius: 30px; padding: 5px; margin-bottom: 26px; flex-wrap: wrap; justify-content: center; }
+    .fb-tab-btn { position: relative; z-index: 1; background: none; border: none; padding: 9px 16px; border-radius: 24px; color: var(--text-main); font-weight: 600; font-size: 13px; font-family: 'Poppins', sans-serif; cursor: pointer; transition: color 0.3s ease; white-space: nowrap; }
+    .fb-tab-btn.active { color: #030714; }
+    .fb-tab-indicator { position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); background: linear-gradient(90deg, #FFD700, #FF8C00); border-radius: 24px; transition: transform 0.35s cubic-bezier(.4,0,.2,1), width 0.35s cubic-bezier(.4,0,.2,1); box-shadow: 0 4px 15px rgba(255,215,0,0.4); z-index: 0; }
+
+    .fb-content { min-height: 200px; padding-bottom: 50px; }
+    .fb-panel-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .fb-panel-title h2 { font-size: 1.2em; color: #FFD700; margin: 0; }
+    .fb-note { font-size: 12px; color: var(--text-40); margin: 0 0 16px 0; }
+
+    .fb-loading { text-align: center; padding: 40px 20px; color: var(--text-50); }
+    .fb-empty { text-align: center; padding: 40px 20px; color: var(--text-50); }
+    .fb-error { text-align: center; padding: 30px 20px; color: #ff8a80; background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); border-radius: 14px; }
+    .fb-retry-btn { margin-top: 14px; background: var(--panel-08); border: 1px solid var(--border-20); color: var(--text-main); padding: 8px 18px; border-radius: 16px; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 13px; }
+
+    /* Matç sətri */
+    .fb-matchday-group { margin-bottom: 22px; }
+    .fb-matchday-group h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-40); margin: 0 0 10px 4px; }
+    .fb-match-row { display: flex; align-items: center; gap: 10px; padding: 13px 16px; background: var(--panel-05); border: 1px solid var(--border-10); border-radius: 14px; margin-bottom: 9px; transition: 0.2s; }
+    .fb-match-row:hover { background: var(--panel-06); }
+    .fb-team { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+    .fb-team.away { flex-direction: row-reverse; text-align: right; }
+    .fb-team img { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; }
+    .fb-team span { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fb-match-mid { min-width: 78px; text-align: center; flex-shrink: 0; }
+    .fb-score { font-weight: 800; font-size: 15px; color: #FFD700; }
+    .fb-time { font-size: 13px; color: var(--text-55); }
+    .fb-live-badge { display: inline-flex; align-items: center; gap: 4px; background: #e74c3c; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; animation: fbPulse 1.4s infinite; }
+    @keyframes fbPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .fb-status-finished { font-size: 10px; color: var(--text-40); text-transform: uppercase; }
+    .fb-status-other { font-size: 11px; color: var(--text-50); }
+
+    /* Cədvəl */
+    .fb-standings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .fb-standings-table th { text-align: left; padding: 8px 6px; color: var(--text-40); font-size: 11px; text-transform: uppercase; border-bottom: 1px solid var(--border-15); }
+    .fb-standings-table td { padding: 9px 6px; border-bottom: 1px solid var(--panel-05); }
+    .fb-standings-table td.center, .fb-standings-table th.center { text-align: center; }
+    .fb-standings-table tr.top4 td:first-child { border-left: 3px solid #2ecc71; }
+    .fb-standings-table tr.relegation td:first-child { border-left: 3px solid #e74c3c; }
+    .fb-team-cell { display: flex; align-items: center; gap: 8px; }
+    .fb-team-cell img { width: 20px; height: 20px; object-fit: contain; }
+    .fb-pts { font-weight: 800; color: #FFD700; }
+
+    /* Bombardirlər */
+    .fb-scorer-row { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: var(--panel-05); border: 1px solid var(--border-10); border-radius: 12px; margin-bottom: 8px; }
+    .fb-scorer-rank { width: 24px; text-align: center; font-weight: 800; color: var(--text-40); flex-shrink: 0; }
+    .fb-scorer-info { flex: 1; min-width: 0; }
+    .fb-scorer-name { font-size: 13.5px; font-weight: 700; }
+    .fb-scorer-team { font-size: 11.5px; color: var(--text-55); }
+    .fb-scorer-goals { font-weight: 800; color: #FFD700; font-size: 15px; }
+
+    /* Arxiv matchday naviqasiyası */
+    .fb-matchday-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 20px; }
+    .fb-nav-btn { background: var(--panel-08); border: 1px solid var(--border-20); color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-size: 16px; }
+    .fb-nav-btn:hover { background: var(--panel-06); }
+    .fb-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .fb-matchday-label { font-weight: 700; font-size: 15px; min-width: 110px; text-align: center; }
+
+    /* Axtarış */
+    .fb-search-bar { position: relative; max-width: 460px; margin: 0 auto 22px; }
+    .fb-search-bar input { width: 100%; padding: 14px 18px 14px 42px; border-radius: 26px; border: 1px solid var(--border-20); background: var(--panel-08); color: var(--text-main); font-size: 14.5px; font-family: 'Poppins', sans-serif; outline: none; box-sizing: border-box; }
+    .fb-search-bar input:focus { border-color: #ffaa00; }
+    .fb-search-bar i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-50); }
+    .fb-search-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .fb-search-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--panel-05); border: 1px solid var(--border-10); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+    .fb-search-item:hover { transform: translateY(-3px); background: var(--panel-06); }
+    .fb-search-item img { width: 34px; height: 34px; object-fit: contain; flex-shrink: 0; }
+    .fb-search-item-name { font-size: 13.5px; font-weight: 700; }
+    .fb-search-item-comp { font-size: 11px; color: var(--text-55); }
+    .fb-search-progress { text-align: center; color: var(--text-50); font-size: 13px; padding: 20px; }
+
+    /* Komanda modalı */
+    .fb-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 8000; display: none; justify-content: center; align-items: center; padding: 20px; }
+    .fb-modal-overlay.active { display: flex; }
+    .fb-modal-content { background: var(--dropdown-bg); width: 100%; max-width: 640px; max-height: 85vh; overflow-y: auto; border-radius: 20px; border: 1px solid var(--border-15); box-shadow: 0 25px 60px rgba(0,0,0,0.8); padding: 26px 24px; position: relative; }
+    .fb-modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-55); font-size: 24px; cursor: pointer; }
+    .fb-modal-close:hover { color: var(--text-main); }
+    .fb-team-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .fb-team-header img { width: 60px; height: 60px; object-fit: contain; }
+    .fb-team-header h2 { margin: 0 0 4px 0; font-size: 1.3em; color: #FFD700; }
+    .fb-team-header p { margin: 0; font-size: 12.5px; color: var(--text-55); }
+    .fb-modal-section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-40); margin: 20px 0 10px; }
+    .fb-squad-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+    .fb-squad-item { background: var(--panel-05); border: 1px solid var(--border-10); border-radius: 10px; padding: 9px 12px; font-size: 12.5px; }
+    .fb-squad-item .name { font-weight: 700; }
+    .fb-squad-item .pos { color: var(--text-55); font-size: 11px; }
+
+    footer { text-align: center; padding: 20px; color: #FFD700; font-weight: 600; margin-top: auto; border-top: 1px solid var(--border-20); background: var(--panel-05); backdrop-filter: blur(10px); }
+
+    /* Mobil uyğunlaşdırma */
+    @media (max-width: 700px) {
+      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; padding: 15px 20px; position: relative; }
+      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 22px !important; margin-left: 0 !important; margin-right: 0 !important; }
+      .hamburger-btn { display: flex; }
+      header > nav { order: 3 !important; width: 100% !important; }
+      header > nav:not(.mobile-nav-open) { display: none !important; }
+      header > nav.mobile-nav-open { display: flex !important; }
+      nav ul { flex-direction: column; align-items: center; width: 100%; }
+      nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
+      .msg-dropdown { right: -10px; width: 92vw; max-width: 340px; }
+      .dropdown-menu { right: 10px; top: 60px; min-width: 180px; }
+      .auth-card { padding: 30px 20px; }
+      #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
+
+      .fb-hero h1 { font-size: 2em; }
+      .fb-tab-btn { padding: 8px 12px; font-size: 12px; }
+      .fb-standings-table { font-size: 11.5px; }
+      .fb-team span { font-size: 12px; }
+    }
+
+    .image-viewer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); display: none; align-items: center; justify-content: center; z-index: 9000; }
+    .image-viewer-overlay.active { display: flex; }
+    .image-viewer-overlay img { max-width: 92vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+    .image-viewer-close { position: absolute; top: 18px; right: 22px; font-size: 26px; color: var(--text-main); cursor: pointer; opacity: 0.8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--border-10); }
+    .image-viewer-close:hover { opacity: 1; }
+  </style>
+</head>
+
+<body>
+  <div class="image-viewer-overlay" id="imageViewerOverlay" onclick="if(event.target.id==='imageViewerOverlay') closeImageViewer();">
+    <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
+    <img id="imageViewerImg" src="" alt="Şəkil">
+  </div>
+  <div id="loadingScreen" class="loading-screen"><div class="spinner"></div></div>
+  <div id="toastContainer"></div>
+
+  <header>
+    <a href="index.html" class="logo"><img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu"></a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Ana səhifə</a></li>
+        <li><a href="xeberler.html">Xəbərlər</a></li>
+        <li><a href="proqramlar.html">Proqramlar</a></li>
+        <li><a href="şahmat.html">Şahmat</a></li>
+        <li><a href="eylence.html" class="active">Əyləncə</a></li>
+        <li><a href="onlinechat">Onlayn çat</a></li>
+        <li><a href="haqqimizda.html">Haqqımızda</a></li>
+        <li><a href="elaqe.html">Əlaqə</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()" title="Tema dəyiş">☀️</button>
+      <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
+      <div class="dropdown-menu" id="dropdownMenu">
+        <div id="dropdownLevel1">
+          <button class="dropdown-item" onclick="viewOwnAvatarLarge()">🖼️ Profilə bax</button>
+          <button class="dropdown-item" onclick="showSettingsLevel()">⚙️ Ayarlara daxil ol</button>
+        </div>
+        <div id="dropdownLevel2" style="display:none;">
+          <button class="dropdown-item" onclick="backToAvatarMenu()">← Geri</button>
+          <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
+          <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
+          <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
+          <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
+        </div>
+      </div>
+      <div class="msg-icon-wrap" id="msgIconWrap" onclick="toggleMsgDropdown(event)">
+        <i class="far fa-paper-plane msg-icon"></i>
+        <span class="msg-badge hidden" id="msgBadgeCount">0</span>
+        <div class="msg-dropdown" id="msgDropdownPanel">
+          <div class="msg-dropdown-header">Mesajlar</div>
+          <div class="msg-dropdown-list" id="msgDropdownList">
+            <div class="msg-dropdown-empty">Mesaj yoxdur</div>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileNav(event)" aria-label="Menyu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Auth Modal -->
+  <div class="auth-overlay hidden" id="authOverlay">
+    <div id="loginFormCard" class="auth-card">
+      <h2>Maqalux</h2>
+      <p class="sub">Daxil olun və saytdan tam faydalanın</p>
+      <div class="input-group">
+        <input type="text" id="loginEmailInput" class="custom-input" placeholder="E-poçt və ya istifadəçi adı">
+        <div class="password-wrapper">
+          <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="handleLogin()">Daxil ol</button>
+        <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
+        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
+        </button>
+        <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
+      </div>
+    </div>
+    <div id="registerFormCard" class="auth-card" style="display:none;">
+      <h2>Yeni Qeydiyyat</h2>
+      <p class="sub">Hesab yaradın və icmaya qoşulun</p>
+      <div class="input-group">
+        <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
+        <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+        <div class="password-wrapper">
+          <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
+        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
+        </button>
+        <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div class="fb-hero">
+      <a href="eylence.html" class="back-link">← Əyləncəyə qayıt</a>
+      <h1>Futbol</h1>
+      <p class="sub">Bugünkü matçlar, cədvəllər, bombardirlər, arxiv nəticələr və komanda axtarışı — 12 əsas Avropa liqası və millilər (football-data.org üzərindən real data, pulsuz plan bir qədər gecikmə ilə yenilənir).</p>
+    </div>
+
+    <div id="configBanner" class="fb-config-banner" style="display:none;">
+      ⚠️ Futbol datası hələ bağlanmayıb. <code>futbol.html</code> faylının aşağı hissəsindəki <code>API_PROXY_URL</code> sabitinə Cloudflare Worker URL-inizi yazın (Worker qurmaq üçün <code>cf-worker.js</code> faylındakı təlimata baxın).
+    </div>
+
+    <div class="fb-comp-bar" id="compBar"></div>
+
+    <div class="fb-tabs" id="fbTabs">
+      <div class="fb-tab-indicator" id="fbTabIndicator"></div>
+      <button class="fb-tab-btn active" onclick="setFbTab('today', this)">📅 Bugün</button>
+      <button class="fb-tab-btn" onclick="setFbTab('standings', this)">📊 Cədvəl</button>
+      <button class="fb-tab-btn" onclick="setFbTab('scorers', this)">⚽ Bombardirlər</button>
+      <button class="fb-tab-btn" onclick="setFbTab('archive', this)">🗂 Arxiv</button>
+      <button class="fb-tab-btn" onclick="setFbTab('search', this)">🔍 Axtarış</button>
+    </div>
+
+    <div class="fb-content" id="fbContent"></div>
+  </main>
+
+  <!-- Komanda Modalı -->
+  <div class="fb-modal-overlay" id="teamModalOverlay" onclick="if(event.target.id==='teamModalOverlay') closeTeamModal();">
+    <div class="fb-modal-content">
+      <button class="fb-modal-close" onclick="closeTeamModal()">✕</button>
+      <div id="teamModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Settings Modals -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
+      <h3>Şifrəni unutmusunuz?</h3>
+      <p class="modal-desc">E-poçt ünvanınızı daxil edin, bərpa linki göndəriləcək.</p>
+      <input type="email" id="forgotEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+      <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
+    </div>
+  </div>
+  <div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeChangePasswordModal()">✕</button>
+      <h3 id="changePassTitle">Şifrəni dəyiş</h3>
+      <p class="modal-desc" id="changePassDesc">Köhnə və yeni şifrəni daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper" id="oldPassWrapper">
+          <input type="password" id="oldPassInput" class="custom-input" placeholder="Köhnə şifrə">
+          <span class="toggle-password" onclick="togglePasswordVisibility('oldPassInput', this)">👁️</span>
+        </div>
+        <div class="password-wrapper">
+          <input type="password" id="newPassInput" class="custom-input" placeholder="Yeni şifrə">
+          <span class="toggle-password" onclick="togglePasswordVisibility('newPassInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" onclick="submitChangePassword()">Şifrəni yenilə</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="deleteAccountModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeDeleteAccountModal()">✕</button>
+      <h3>Hesabı sil</h3>
+      <p class="modal-desc">Bu əməliyyat geri qaytarıla bilməz. Davam etmək üçün şifrənizi daxil edin.</p>
+      <div class="input-group">
+        <div class="password-wrapper">
+          <input type="password" id="deletePassInput" class="custom-input" placeholder="Şifrəniz">
+          <span class="toggle-password" onclick="togglePasswordVisibility('deletePassInput', this)">👁️</span>
+        </div>
+        <button class="login-btn" style="background:linear-gradient(90deg,#e74c3c,#c0392b); color:white;" onclick="submitDeleteAccount()">Hesabımı həmişəlik sil</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>&copy; 2025 Maqalux - Bütün hüquqlar qorunur. Futbol datası: football-data.org</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+
+  <!-- FUTBOL SAYTI DATASI VƏ FUNKSİYALARI -->
+  <script>
+    // ============================================================
+    // BURA Cloudflare Worker URL-inizi yazın (sonunda "/" OLMASIN).
+    // Worker qurmaq üçün eyni qovluqdakı cf-worker.js faylındakı təlimata baxın.
+    // Nümunə: 'https://maqalux-futbol-proxy.senin-adin.workers.dev'
+    // ============================================================
+    const API_PROXY_URL = 'PASTE_YOUR_WORKER_URL_HERE';
+
+    const COMPETITIONS = [
+      { code: 'PL', name: 'Premier Liqa', flag: '🏴' },
+      { code: 'PD', name: 'La Liga', flag: '🇪🇸' },
+      { code: 'BL1', name: 'Bundesliqa', flag: '🇩🇪' },
+      { code: 'SA', name: 'Seriya A', flag: '🇮🇹' },
+      { code: 'FL1', name: 'Liqa 1', flag: '🇫🇷' },
+      { code: 'DED', name: 'Eredivizi', flag: '🇳🇱' },
+      { code: 'PPL', name: 'Primeira Liqa', flag: '🇵🇹' },
+      { code: 'ELC', name: 'Çempionşip', flag: '🏴' },
+      { code: 'CL', name: 'Çempionlar Liqası', flag: '⭐' },
+      { code: 'EL', name: 'Avropa Liqası', flag: '🌟' },
+      { code: 'EC', name: 'Avropa Çempionatı', flag: '🇪🇺' },
+      { code: 'WC', name: 'Dünya Çempionatı', flag: '🌍' }
+    ];
+
+    let currentComp = 'PL';
+    let currentFbTab = 'today';
+    let liveRefreshInterval = null;
+    let currentMatchday = null;
+    let currentMatchdaySeasonStart = 1;
+    let currentMatchdaySeasonEnd = 38;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (isProxyConfigured()) {
+        document.getElementById('configBanner').style.display = 'none';
+      } else {
+        document.getElementById('configBanner').style.display = 'block';
+      }
+      renderCompBar();
+      const firstTab = document.querySelector('.fb-tab-btn.active');
+      if (firstTab) moveFbTabIndicator(firstTab);
+      loadCurrentTab();
+    });
+    window.addEventListener('resize', () => {
+      const active = document.querySelector('.fb-tab-btn.active');
+      if (active) moveFbTabIndicator(active);
+    });
+
+    function isProxyConfigured() {
+      return API_PROXY_URL && !API_PROXY_URL.includes('PASTE_YOUR_WORKER_URL_HERE');
+    }
+
+    // === API köməkçiləri ===
+    async function apiGet(path) {
+      if (!isProxyConfigured()) throw new Error('CONFIG_MISSING');
+      const res = await fetch(API_PROXY_URL + path);
+      if (res.status === 429) throw new Error('RATE_LIMITED');
+      if (!res.ok) throw new Error('API_ERROR_' + res.status);
+      return res.json();
+    }
+    async function cachedApiGet(path, ttlMs) {
+      ttlMs = ttlMs || 4 * 60 * 1000;
+      const cacheKey = 'fbCache:' + path;
+      try {
+        const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+        if (cached && Date.now() - cached.ts < ttlMs) return cached.data;
+      } catch (e) {}
+      const data = await apiGet(path);
+      try { sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data })); } catch (e) {}
+      return data;
+    }
+
+    function errorMessageFor(err) {
+      if (err.message === 'CONFIG_MISSING') return 'Futbol datası hələ bağlanmayıb. Yuxarıdakı xəbərdarlığa baxın.';
+      if (err.message === 'RATE_LIMITED') return 'Sorğu limiti doldu. Bir azdan yenidən cəhd edin.';
+      return 'Data yüklənərkən xəta baş verdi.';
+    }
+
+    // === Liqa seçimi paneli ===
+    function renderCompBar() {
+      const bar = document.getElementById('compBar');
+      bar.innerHTML = COMPETITIONS.map(c =>
+        `<button class="fb-comp-pill ${c.code === currentComp ? 'active' : ''}" onclick="selectCompetition('${c.code}', this)">${c.flag} ${c.name}</button>`
+      ).join('');
+    }
+    window.selectCompetition = function(code, btnEl) {
+      currentComp = code;
+      document.querySelectorAll('.fb-comp-pill').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      currentMatchday = null;
+      loadCurrentTab();
+    };
+
+    // === Tab keçidi ===
+    window.setFbTab = function(tab, btnEl) {
+      currentFbTab = tab;
+      document.querySelectorAll('.fb-tab-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      moveFbTabIndicator(btnEl);
+      loadCurrentTab();
+    };
+    function moveFbTabIndicator(btnEl) {
+      const indicator = document.getElementById('fbTabIndicator');
+      if (!indicator) return;
+      indicator.style.width = btnEl.offsetWidth + 'px';
+      indicator.style.transform = `translateX(${btnEl.offsetLeft - 5}px)`;
+    }
+
+    function stopLiveRefresh() {
+      if (liveRefreshInterval) { clearInterval(liveRefreshInterval); liveRefreshInterval = null; }
+    }
+
+    function loadCurrentTab() {
+      stopLiveRefresh();
+      const content = document.getElementById('fbContent');
+      content.innerHTML = '<div class="fb-loading"><div class="spinner" style="margin:0 auto 14px;"></div>Yüklənir...</div>';
+      if (currentFbTab === 'today') {
+        renderTodayTab();
+        liveRefreshInterval = setInterval(renderTodayTab, 60000);
+      } else if (currentFbTab === 'standings') {
+        renderStandingsTab();
+      } else if (currentFbTab === 'scorers') {
+        renderScorersTab();
+      } else if (currentFbTab === 'archive') {
+        renderArchiveTab();
+      } else if (currentFbTab === 'search') {
+        renderSearchTab();
+      }
+    }
+
+    // === Matç köməkçiləri ===
+    function todayISO() { return new Date().toISOString().slice(0, 10); }
+    function formatKickoff(utcDate) {
+      try { return new Date(utcDate).toLocaleString('az-AZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+      catch (e) { return utcDate; }
+    }
+    function formatTime(utcDate) {
+      try { return new Date(utcDate).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' }); }
+      catch (e) { return ''; }
+    }
+    function matchStatusHtml(m) {
+      const s = m.status;
+      if (s === 'IN_PLAY' || s === 'PAUSED') {
+        return `<span class="fb-live-badge">🔴 ${s === 'PAUSED' ? 'Fasilə' : 'Canlı'}</span>`;
+      }
+      if (s === 'FINISHED') return `<span class="fb-status-finished">Bitib</span>`;
+      if (s === 'POSTPONED') return `<span class="fb-status-other">Təxirə salınıb</span>`;
+      if (s === 'SUSPENDED') return `<span class="fb-status-other">Dayandırılıb</span>`;
+      if (s === 'CANCELLED') return `<span class="fb-status-other">Ləğv edilib</span>`;
+      return `<span class="fb-time">${formatTime(m.utcDate)}</span>`;
+    }
+    function scoreHtml(m) {
+      const full = m.score && m.score.fullTime;
+      if (full && (full.home !== null && full.home !== undefined)) {
+        return `<div class="fb-score">${full.home} - ${full.away}</div>`;
+      }
+      return '';
+    }
+    function matchRowHtml(m) {
+      return `
+        <div class="fb-match-row">
+          <div class="fb-team home">
+            <img src="${m.homeTeam.crest || ''}" alt="" onerror="this.style.visibility='hidden'">
+            <span>${m.homeTeam.shortName || m.homeTeam.name}</span>
+          </div>
+          <div class="fb-match-mid">
+            ${scoreHtml(m)}
+            ${matchStatusHtml(m)}
+          </div>
+          <div class="fb-team away">
+            <img src="${m.awayTeam.crest || ''}" alt="" onerror="this.style.visibility='hidden'">
+            <span>${m.awayTeam.shortName || m.awayTeam.name}</span>
+          </div>
+        </div>`;
+    }
+
+    // === Tab: Bugün ===
+    async function renderTodayTab() {
+      const content = document.getElementById('fbContent');
+      try {
+        const d = todayISO();
+        const data = await cachedApiGet(`/competitions/${currentComp}/matches?dateFrom=${d}&dateTo=${d}`, 55000);
+        const matches = data.matches || [];
+        if (!matches.length) {
+          content.innerHTML = `<div class="fb-panel-title"><h2>📅 Bugünkü matçlar</h2></div><p class="fb-note">Nəticələr pulsuz planda bir qədər gecikmə ilə yenilənir.</p><div class="fb-empty">Bu gün seçilmiş liqada matç yoxdur.</div>`;
+          return;
+        }
+        content.innerHTML = `
+          <div class="fb-panel-title"><h2>📅 Bugünkü matçlar</h2></div>
+          <p class="fb-note">Nəticələr pulsuz planda bir qədər gecikmə ilə yenilənir, hər 60 saniyədən bir avtomatik təzələnir.</p>
+          ${matches.map(matchRowHtml).join('')}
+        `;
+      } catch (err) {
+        content.innerHTML = `<div class="fb-error">${errorMessageFor(err)}<br><button class="fb-retry-btn" onclick="renderTodayTab()">Yenidən cəhd et</button></div>`;
+      }
+    }
+
+    // === Tab: Cədvəl ===
+    async function renderStandingsTab() {
+      const content = document.getElementById('fbContent');
+      try {
+        const data = await cachedApiGet(`/competitions/${currentComp}/standings`, 10 * 60000);
+        const total = (data.standings || []).find(s => s.type === 'TOTAL');
+        const table = total ? total.table : [];
+        if (!table.length) {
+          content.innerHTML = `<div class="fb-panel-title"><h2>📊 Cədvəl</h2></div><div class="fb-empty">Bu liqa üçün cədvəl mövcud deyil (kubok tipli yarışlarda cədvəl olmur).</div>`;
+          return;
+        }
+        const rows = table.map(row => {
+          const cls = row.position <= 4 ? 'top4' : (row.position > table.length - 3 ? 'relegation' : '');
+          return `
+            <tr class="${cls}">
+              <td class="center">${row.position}</td>
+              <td><div class="fb-team-cell"><img src="${row.team.crest || ''}" alt="" onerror="this.style.visibility='hidden'"><span>${row.team.shortName || row.team.name}</span></div></td>
+              <td class="center">${row.playedGames}</td>
+              <td class="center">${row.won}</td>
+              <td class="center">${row.draw}</td>
+              <td class="center">${row.lost}</td>
+              <td class="center">${row.goalsFor}:${row.goalsAgainst}</td>
+              <td class="center">${row.goalDifference}</td>
+              <td class="center fb-pts">${row.points}</td>
+            </tr>`;
+        }).join('');
+        content.innerHTML = `
+          <div class="fb-panel-title"><h2>📊 Cədvəl</h2></div>
+          <div style="overflow-x:auto;">
+          <table class="fb-standings-table">
+            <thead><tr><th class="center">#</th><th>Komanda</th><th class="center">O</th><th class="center">Q</th><th class="center">B</th><th class="center">M</th><th class="center">A:B</th><th class="center">FQ</th><th class="center">Xal</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          </div>`;
+      } catch (err) {
+        content.innerHTML = `<div class="fb-error">${errorMessageFor(err)}<br><button class="fb-retry-btn" onclick="renderStandingsTab()">Yenidən cəhd et</button></div>`;
+      }
+    }
+
+    // === Tab: Bombardirlər ===
+    async function renderScorersTab() {
+      const content = document.getElementById('fbContent');
+      try {
+        const data = await cachedApiGet(`/competitions/${currentComp}/scorers?limit=20`, 10 * 60000);
+        const scorers = data.scorers || [];
+        if (!scorers.length) {
+          content.innerHTML = `<div class="fb-panel-title"><h2>⚽ Bombardirlər</h2></div><div class="fb-empty">Bu liqa üçün bombardir siyahısı mövcud deyil.</div>`;
+          return;
+        }
+        content.innerHTML = `
+          <div class="fb-panel-title"><h2>⚽ Bombardirlər</h2></div>
+          ${scorers.map((s, i) => `
+            <div class="fb-scorer-row">
+              <div class="fb-scorer-rank">${i + 1}</div>
+              <div class="fb-scorer-info">
+                <div class="fb-scorer-name">${s.player.name}</div>
+                <div class="fb-scorer-team">${s.team.name}</div>
+              </div>
+              <div class="fb-scorer-goals">${s.goals} ⚽</div>
+            </div>
+          `).join('')}`;
+      } catch (err) {
+        content.innerHTML = `<div class="fb-error">${errorMessageFor(err)}<br><button class="fb-retry-btn" onclick="renderScorersTab()">Yenidən cəhd et</button></div>`;
+      }
+    }
+
+    // === Tab: Arxiv (tur naviqasiyası) ===
+    async function renderArchiveTab() {
+      const content = document.getElementById('fbContent');
+      content.innerHTML = '<div class="fb-loading"><div class="spinner" style="margin:0 auto 14px;"></div>Yüklənir...</div>';
+      try {
+        if (currentMatchday === null) {
+          const compInfo = await cachedApiGet(`/competitions/${currentComp}`, 30 * 60000);
+          currentMatchday = (compInfo.currentSeason && compInfo.currentSeason.currentMatchday) || 1;
+          currentMatchdaySeasonStart = 1;
+          currentMatchdaySeasonEnd = 60;
+        }
+        await loadMatchdayContent();
+      } catch (err) {
+        content.innerHTML = `<div class="fb-error">${errorMessageFor(err)}<br><button class="fb-retry-btn" onclick="renderArchiveTab()">Yenidən cəhd et</button></div>`;
+      }
+    }
+    async function loadMatchdayContent() {
+      const content = document.getElementById('fbContent');
+      try {
+        const data = await cachedApiGet(`/competitions/${currentComp}/matches?matchday=${currentMatchday}`, 5 * 60000);
+        const matches = data.matches || [];
+        content.innerHTML = `
+          <div class="fb-panel-title"><h2>🗂 Arxiv nəticələr</h2></div>
+          <div class="fb-matchday-nav">
+            <button class="fb-nav-btn" onclick="changeMatchday(-1)" ${currentMatchday <= 1 ? 'disabled' : ''}>‹</button>
+            <span class="fb-matchday-label">${matches.length && matches[0].stage && matches[0].stage !== 'REGULAR_SEASON' ? matches[0].stage : 'Tur ' + currentMatchday}</span>
+            <button class="fb-nav-btn" onclick="changeMatchday(1)" ${currentMatchday >= currentMatchdaySeasonEnd ? 'disabled' : ''}>›</button>
+          </div>
+          ${matches.length ? matches.map(matchRowHtml).join('') : '<div class="fb-empty">Bu tur üçün matç tapılmadı.</div>'}
+        `;
+      } catch (err) {
+        content.innerHTML = `<div class="fb-error">${errorMessageFor(err)}<br><button class="fb-retry-btn" onclick="loadMatchdayContent()">Yenidən cəhd et</button></div>`;
+      }
+    }
+    window.changeMatchday = function(delta) {
+      currentMatchday = Math.max(1, currentMatchday + delta);
+      loadMatchdayContent();
+    };
+
+    // === Tab: Axtarış ===
+    async function renderSearchTab() {
+      const content = document.getElementById('fbContent');
+      content.innerHTML = `
+        <div class="fb-panel-title"><h2>🔍 Komanda axtarışı</h2></div>
+        <div class="fb-search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" id="teamSearchInput" placeholder="Komanda adı yazın (məs: Barcelona, Liverpool)..." oninput="handleTeamSearch()">
+        </div>
+        <div id="teamSearchResults"></div>
+      `;
+      document.getElementById('teamSearchResults').innerHTML = '<div class="fb-search-progress">Komanda siyahısı yüklənir...</div>';
+      try {
+        await ensureAllTeamsLoaded((done, total) => {
+          const el = document.getElementById('teamSearchResults');
+          if (el) el.innerHTML = `<div class="fb-search-progress">Liqalar yüklənir... (${done}/${total})</div>`;
+        });
+        document.getElementById('teamSearchResults').innerHTML = '<div class="fb-empty">Axtarmaq üçün yuxarıda komanda adı yazın.</div>';
+      } catch (err) {
+        document.getElementById('teamSearchResults').innerHTML = `<div class="fb-error">${errorMessageFor(err)}<br><button class="fb-retry-btn" onclick="renderSearchTab()">Yenidən cəhd et</button></div>`;
+      }
+    }
+    let allTeamsCache = null;
+    async function ensureAllTeamsLoaded(onProgress) {
+      if (allTeamsCache) return allTeamsCache;
+      const storeKey = 'fbAllTeamsCache';
+      try {
+        const cached = JSON.parse(localStorage.getItem(storeKey) || 'null');
+        if (cached && Date.now() - cached.ts < 12 * 60 * 60 * 1000) { allTeamsCache = cached.teams; return allTeamsCache; }
+      } catch (e) {}
+      let all = [];
+      for (let i = 0; i < COMPETITIONS.length; i++) {
+        const comp = COMPETITIONS[i];
+        try {
+          const data = await apiGet(`/competitions/${comp.code}/teams`);
+          (data.teams || []).forEach(t => all.push({ id: t.id, name: t.name, shortName: t.shortName, crest: t.crest, competition: comp.name }));
+        } catch (e) { /* bu liqanı ötürüb davam et */ }
+        if (onProgress) onProgress(i + 1, COMPETITIONS.length);
+      }
+      allTeamsCache = all;
+      try { localStorage.setItem(storeKey, JSON.stringify({ ts: Date.now(), teams: all })); } catch (e) {}
+      return all;
+    }
+    window.handleTeamSearch = function() {
+      const q = document.getElementById('teamSearchInput').value.trim().toLowerCase();
+      const resultsEl = document.getElementById('teamSearchResults');
+      if (!allTeamsCache) return;
+      if (!q) { resultsEl.innerHTML = '<div class="fb-empty">Axtarmaq üçün yuxarıda komanda adı yazın.</div>'; return; }
+      const matches = allTeamsCache.filter(t => t.name.toLowerCase().includes(q) || (t.shortName && t.shortName.toLowerCase().includes(q)));
+      if (!matches.length) { resultsEl.innerHTML = '<div class="fb-empty">Nəticə tapılmadı.</div>'; return; }
+      resultsEl.innerHTML = `<div class="fb-search-results">${matches.slice(0, 30).map(t => `
+        <div class="fb-search-item" onclick="openTeamModal(${t.id})">
+          <img src="${t.crest || ''}" alt="" onerror="this.style.visibility='hidden'">
+          <div><div class="fb-search-item-name">${t.name}</div><div class="fb-search-item-comp">${t.competition}</div></div>
+        </div>
+      `).join('')}</div>`;
+    };
+
+    // === Komanda modalı ===
+    window.openTeamModal = async function(teamId) {
+      const overlay = document.getElementById('teamModalOverlay');
+      const body = document.getElementById('teamModalBody');
+      body.innerHTML = '<div class="fb-loading"><div class="spinner" style="margin:0 auto 14px;"></div>Yüklənir...</div>';
+      overlay.classList.add('active');
+      try {
+        const [team, finished, scheduled] = await Promise.all([
+          cachedApiGet(`/teams/${teamId}`, 30 * 60000),
+          cachedApiGet(`/teams/${teamId}/matches?status=FINISHED&limit=5`, 10 * 60000),
+          cachedApiGet(`/teams/${teamId}/matches?status=SCHEDULED&limit=5`, 10 * 60000)
+        ]);
+        const squad = team.squad || [];
+        body.innerHTML = `
+          <div class="fb-team-header">
+            <img src="${team.crest || ''}" alt="" onerror="this.style.visibility='hidden'">
+            <div>
+              <h2>${team.name}</h2>
+              <p>${team.venue || ''}${team.founded ? ' · Təsis: ' + team.founded : ''}</p>
+            </div>
+          </div>
+          <div class="fb-modal-section-title">Son oyunlar</div>
+          ${(finished.matches || []).length ? finished.matches.map(matchRowHtml).join('') : '<div class="fb-note">Məlumat yoxdur.</div>'}
+          <div class="fb-modal-section-title">Gələcək oyunlar</div>
+          ${(scheduled.matches || []).length ? scheduled.matches.map(matchRowHtml).join('') : '<div class="fb-note">Planlaşdırılan oyun yoxdur.</div>'}
+          <div class="fb-modal-section-title">Heyət (${squad.length})</div>
+          <div class="fb-squad-grid">
+            ${squad.map(p => `<div class="fb-squad-item"><div class="name">${p.name}</div><div class="pos">${p.position || ''}${p.nationality ? ' · ' + p.nationality : ''}</div></div>`).join('') || '<div class="fb-note">Heyət məlumatı yoxdur.</div>'}
+          </div>
+        `;
+      } catch (err) {
+        body.innerHTML = `<div class="fb-error">${errorMessageFor(err)}</div>`;
+      }
+    };
+    window.closeTeamModal = function() {
+      document.getElementById('teamModalOverlay').classList.remove('active');
+    };
+  </script>
+
+  <!-- AUTH VƏ ORTAQ SİSTEM SCRIPTİ -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
+      authDomain: "maqalux-chat.firebaseapp.com",
+      databaseURL: "https://maqalux-chat-default-rtdb.firebaseio.com",
+      projectId: "maqalux-chat",
+      storageBucket: "maqalux-chat.firebasestorage.app",
+      messagingSenderId: "127120270719",
+      appId: "1:127120270719:web:7b036b7e27a06f71dee64a"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a";
+
+    let currentUserData = null;
+
+    function showToast(msg, type='info', dur=4000) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast toast-${type}`;
+      t.innerText = msg;
+      c.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, dur);
+    }
+
+    function togglePasswordVisibility(id, el) {
+      const inp = document.getElementById(id);
+      if (!inp) return;
+      if (inp.type === 'password') { inp.type = 'text'; el.innerText = '🙈'; }
+      else { inp.type = 'password'; el.innerText = '👁️'; }
+    }
+
+    function toggleAuthForms(mode) {
+      document.getElementById('loginFormCard').style.display = mode === 'register' ? 'none' : 'flex';
+      document.getElementById('registerFormCard').style.display = mode === 'register' ? 'flex' : 'none';
+    }
+
+    function toggleDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('dropdownMenu').classList.toggle('active');
+    }
+    function closeAvatarDropdownMenu() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      document.getElementById('dropdownLevel1').style.display = 'block';
+      document.getElementById('dropdownLevel2').style.display = 'none';
+    }
+    function showSettingsLevel() {
+      document.getElementById('dropdownLevel1').style.display = 'none';
+      document.getElementById('dropdownLevel2').style.display = 'block';
+    }
+    function backToAvatarMenu() {
+      document.getElementById('dropdownLevel2').style.display = 'none';
+      document.getElementById('dropdownLevel1').style.display = 'block';
+    }
+    function viewOwnAvatarLarge() {
+      closeAvatarDropdownMenu();
+      openImageViewer(document.getElementById('headerAvatar').src);
+    }
+    function openImageViewer(url) {
+      document.getElementById('imageViewerImg').src = url;
+      document.getElementById('imageViewerOverlay').classList.add('active');
+    }
+    function closeImageViewer() {
+      document.getElementById('imageViewerOverlay').classList.remove('active');
+      document.getElementById('imageViewerImg').src = '';
+    }
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('dropdownMenu');
+      if (menu && menu.classList.contains('active') && !e.target.closest('.header-right')) {
+        closeAvatarDropdownMenu();
+      }
+    });
+
+    function toggleMobileNav(e) {
+      e.stopPropagation();
+      document.querySelector('nav').classList.toggle('mobile-nav-open');
+    }
+    document.addEventListener('click', function(e) {
+      const navEl = document.querySelector('nav');
+      if (navEl && navEl.classList.contains('mobile-nav-open') && !e.target.closest('nav') && !e.target.closest('.hamburger-btn')) {
+        navEl.classList.remove('mobile-nav-open');
+      }
+    });
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.innerText = str == null ? '' : String(str);
+      return div.innerHTML;
+    }
+
+    let msgInboxRef = null;
+    let msgConversations = {};
+
+    function toggleMsgDropdown(e) {
+      e.stopPropagation();
+      const panel = document.getElementById('msgDropdownPanel');
+      const willOpen = !panel.classList.contains('active');
+      panel.classList.toggle('active');
+      if (willOpen && window.innerWidth <= 700) {
+        const headerEl = document.querySelector('header');
+        const rect = headerEl.getBoundingClientRect();
+        panel.style.position = 'fixed';
+        panel.style.top = (rect.bottom + 8) + 'px';
+        panel.style.left = '50%';
+        panel.style.right = 'auto';
+        panel.style.transform = 'translateX(-50%)';
+        panel.style.width = '92vw';
+        panel.style.maxWidth = '380px';
+      } else {
+        panel.style.position = ''; panel.style.top = ''; panel.style.left = ''; panel.style.right = ''; panel.style.transform = ''; panel.style.width = ''; panel.style.maxWidth = '';
+      }
+    }
+    document.addEventListener('click', function(e) {
+      const panel = document.getElementById('msgDropdownPanel');
+      if (panel && panel.classList.contains('active') && !e.target.closest('.msg-icon-wrap')) {
+        panel.classList.remove('active');
+      }
+    });
+
+    function initMessageInbox() {
+      if (!currentUserData) return;
+      if (msgInboxRef) msgInboxRef.off();
+      msgConversations = {};
+      msgInboxRef = db.ref('privateMessages').orderByChild('recipient').equalTo(currentUserData.nick);
+      msgInboxRef.on('value', (snap) => {
+        const convs = {};
+        snap.forEach((child) => {
+          const m = child.val();
+          if (!m || m.isDeleted) return;
+          const readBy = m.readBy || [];
+          const isUnread = !readBy.includes(currentUserData.nick);
+          if (!convs[m.sender]) {
+            convs[m.sender] = { avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png', text: '', timestamp: 0, unreadCount: 0 };
+          }
+          const conv = convs[m.sender];
+          if ((m.timestamp || 0) >= conv.timestamp) {
+            conv.avatar = m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+            conv.text = (m.mediaType && m.mediaType !== 'text') ? '📎 Media' : (m.text || '');
+            conv.timestamp = m.timestamp || 0;
+          }
+          if (isUnread) conv.unreadCount++;
+        });
+        msgConversations = convs;
+        if (msgInboxFirstLoad) {
+          msgPrevCounts = {};
+          Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
+          msgInboxFirstLoad = false;
+        } else {
+          notifyNewMessages(convs);
+        }
+        renderMsgDropdown();
+      });
+      msgInboxFirstLoad = true;
+    }
+
+    function stopMessageInbox() {
+      if (msgInboxRef) { msgInboxRef.off(); msgInboxRef = null; }
+      msgConversations = {};
+      renderMsgDropdown();
+    }
+
+    let msgPrevCounts = {};
+    let msgInboxFirstLoad = true;
+
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') { Notification.requestPermission(); }
+    }
+
+    function notifyNewMessages(convs) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        Object.entries(convs).forEach(([nick, c]) => {
+          const prev = msgPrevCounts[nick] || 0;
+          if (c.unreadCount > prev) {
+            try {
+              const notif = new Notification(nick, { body: c.text || 'Yeni mesaj', icon: c.avatar });
+              notif.onclick = () => { window.focus(); window.location.href = 'onlinechat#open=' + encodeURIComponent(nick); };
+            } catch (e) { console.error('Bildiriş xətası:', e); }
+          }
+        });
+      }
+      msgPrevCounts = {};
+      Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
+    }
+
+    function renderMsgDropdown() {
+      const list = document.getElementById('msgDropdownList');
+      const badge = document.getElementById('msgBadgeCount');
+      if (!list || !badge) return;
+      const entries = Object.entries(msgConversations).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+      const totalUnread = entries.reduce((sum, [, c]) => sum + (c.unreadCount || 0), 0);
+      if (totalUnread > 0) {
+        badge.textContent = totalUnread > 9 ? '9+' : totalUnread; badge.classList.remove('hidden');
+      } else { badge.classList.add('hidden'); }
+      if (!entries.length) { list.innerHTML = '<div class="msg-dropdown-empty">Mesaj yoxdur</div>'; return; }
+      list.innerHTML = entries.map(([nick, c]) => `
+        <div class="msg-conv-item ${c.unreadCount > 0 ? 'unread' : ''}" onclick="openInboxConversation('${nick.replace(/'/g, "\\'")}')">
+          <img src="${c.avatar}" class="msg-conv-avatar" alt="av">
+          <div class="msg-conv-info">
+            <div class="msg-conv-name">${escapeHtml(nick)}</div>
+            <div class="msg-conv-preview">${escapeHtml(c.text)}</div>
+          </div>
+          ${c.unreadCount > 0 ? `<span class="msg-conv-dot">${c.unreadCount > 9 ? '9+' : c.unreadCount}</span>` : ''}
+        </div>
+      `).join('');
+    }
+
+    window.openInboxConversation = function(nick) { window.location.href = 'onlinechat#open=' + encodeURIComponent(nick); };
+
+    auth.onAuthStateChanged(async (user) => {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      const overlay = document.getElementById('authOverlay');
+      if (user) {
+        try {
+          let snap = await db.ref(`users/${user.uid}`).once('value');
+          if (!snap.exists()) {
+            await new Promise(r => setTimeout(r, 1500));
+            snap = await db.ref(`users/${user.uid}`).once('value');
+          }
+          if (snap.exists()) {
+            currentUserData = snap.val();
+            currentUserData.uid = user.uid;
+            if (currentUserData.isBanned) {
+              showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
+              await auth.signOut();
+              location.reload();
+              return;
+            }
+            await db.ref(`users/${user.uid}/online`).set(true);
+            db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
+            if (currentUserData.nick && currentUserData.email) {
+              db.ref(`usernameToEmail/${currentUserData.nick}`).set(currentUserData.email);
+            }
+            document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            overlay.classList.add('hidden');
+            document.body.classList.add('logged-in');
+            initMessageInbox();
+            requestNotificationPermission();
+          } else { await auth.signOut(); }
+        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      } else {
+        currentUserData = null;
+        overlay.classList.remove('hidden');
+        document.body.classList.remove('logged-in');
+        document.getElementById('headerAvatar').src = 'https://www.w3schools.com/howto/img_avatar.png';
+        stopMessageInbox();
+      }
+    });
+
+    window.handleLogin = async function() {
+      const identifier = document.getElementById('loginEmailInput').value.trim();
+      const pass = document.getElementById('loginPasswordInput').value.trim();
+      if (!identifier || !pass) return showToast('E-poçt/istifadəçi adı və şifrəni daxil edin.', 'error');
+      let email = identifier;
+      try {
+        if (!identifier.includes('@')) {
+          const snap = await db.ref(`usernameToEmail/${identifier}`).once('value');
+          if (!snap.exists()) { return showToast('Bu adda istifadəçi tapılmadı.', 'error'); }
+          email = snap.val();
+        }
+        const methods = await auth.fetchSignInMethodsForEmail(email);
+        if (methods.length && !methods.includes('password')) {
+          return showToast('Bu hesab Google ilə qeydiyyatdan keçib. "Google ilə daxil ol" düyməsini istifadə edin.', 'error', 7000);
+        }
+        await auth.signInWithEmailAndPassword(email, pass);
+      } catch (err) {
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') { showToast('E-poçt/istifadəçi adı və ya şifrə yanlışdır.', 'error'); }
+        else { showToast('Xəta: ' + err.message, 'error'); }
+      }
+    };
+
+    window.handleRegister = async function() {
+      const nick = document.getElementById('registerNicknameInput').value.trim();
+      const email = document.getElementById('registerEmailInput').value.trim();
+      const pass = document.getElementById('registerPasswordInput').value.trim();
+      if (!nick || !email || !pass) return showToast('Bütün xanaları doldurun.', 'error');
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+        await db.ref(`users/${cred.user.uid}`).set({ nick, email, role: 'user', avatarUrl: 'https://www.w3schools.com/howto/img_avatar.png', online: true, isBanned: false });
+        await db.ref(`usernameToEmail/${nick}`).set(email);
+        showToast('Qeydiyyat uğurludur!', 'success');
+      } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+    };
+
+    window.handleGoogleLogin = async function() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        const snap = await db.ref(`users/${user.uid}`).once('value');
+        if (!snap.exists()) {
+          const nick = user.displayName || 'Google İstifadəçisi';
+          await db.ref(`users/${user.uid}`).set({ nick, email: user.email, role: 'user', avatarUrl: user.photoURL || 'https://www.w3schools.com/howto/img_avatar.png', online: true, isBanned: false });
+          await db.ref(`usernameToEmail/${nick}`).set(user.email);
+        } else {
+          await db.ref(`users/${user.uid}/online`).set(true);
+          await db.ref(`usernameToEmail/${snap.val().nick}`).set(user.email);
+        }
+        showToast('Google ilə daxil oldunuz!', 'success');
+      } catch (err) { showToast('Google Xətası: ' + err.message, 'error'); }
+    };
+
+    window.handleLogout = async function() {
+      if (auth.currentUser) {
+        await db.ref(`users/${auth.currentUser.uid}/online`).set(false);
+        await auth.signOut();
+        showToast('Çıxış etdiniz.', 'info');
+        document.getElementById('dropdownMenu').classList.remove('active');
+      }
+    };
+
+    window.openForgotPasswordModal = function() { document.getElementById('forgotEmailInput').value = ''; document.getElementById('forgotPasswordModal').classList.add('active'); };
+    window.closeForgotPasswordModal = function() { document.getElementById('forgotPasswordModal').classList.remove('active'); };
+    window.submitForgotPassword = function() {
+      const email = document.getElementById('forgotEmailInput').value.trim();
+      if (!email) return showToast('E-poçt ünvanınızı daxil edin.', 'error');
+      auth.sendPasswordResetEmail(email).then(() => { showToast('Bərpa linki e-poçtunuza göndərildi.', 'success'); closeForgotPasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+
+    window.openChangePasswordModal = function() {
+      document.getElementById('oldPassInput').value = ''; document.getElementById('newPassInput').value = '';
+      const user = auth.currentUser;
+      const hasPasswordProvider = user && user.providerData.some(p => p.providerId === 'password');
+      const oldWrapper = document.getElementById('oldPassWrapper');
+      const title = document.getElementById('changePassTitle');
+      const desc = document.getElementById('changePassDesc');
+      if (hasPasswordProvider) { oldWrapper.style.display = 'flex'; title.textContent = 'Şifrəni dəyiş'; desc.textContent = 'Köhnə və yeni şifrəni daxil edin.'; }
+      else { oldWrapper.style.display = 'none'; title.textContent = 'Şifrə təyin et'; desc.textContent = 'Hesabınız Google ilə qeydiyyatdan keçib. Yeni şifrə təyin edin.'; }
+      document.getElementById('changePasswordModal').classList.add('active'); document.getElementById('dropdownMenu').classList.remove('active');
+    };
+    window.closeChangePasswordModal = function() { document.getElementById('changePasswordModal').classList.remove('active'); };
+    window.submitChangePassword = function() {
+      const old = document.getElementById('oldPassInput').value.trim(); const newp = document.getElementById('newPassInput').value.trim();
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      if (!newp) return showToast('Yeni şifrəni daxil edin.', 'error');
+      const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
+      if (hasPasswordProvider) {
+        if (!old) return showToast('Köhnə şifrənizi daxil edin.', 'error');
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
+        user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp)).then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      } else {
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, newp);
+        user.linkWithCredential(cred).then(() => { showToast('Şifrə təyin edildi!', 'success', 6000); closeChangePasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      }
+    };
+
+    window.changeProfilePicture = function() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+      const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
+      input.onchange = async function(e) {
+        const file = e.target.files[0]; if (!file) return;
+        const fd = new FormData(); fd.append('image', file);
+        try {
+          const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.success) {
+            const url = data.data.url; document.getElementById('headerAvatar').src = url;
+            if (auth.currentUser) { await db.ref(`users/${auth.currentUser.uid}/avatarUrl`).set(url); }
+            showToast('Profil şəkli yeniləndi!', 'success');
+          } else { showToast('Şəkil yüklənə bilmədi.', 'error'); }
+        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      };
+      input.click();
+    };
+
+    window.deleteAccount = function() {
+      document.getElementById('dropdownMenu').classList.remove('active'); document.getElementById('deletePassInput').value = ''; document.getElementById('deleteAccountModal').classList.add('active');
+    };
+    window.closeDeleteAccountModal = function() { document.getElementById('deleteAccountModal').classList.remove('active'); };
+    window.submitDeleteAccount = function() {
+      const pass = document.getElementById('deletePassInput').value.trim();
+      if (!pass) return showToast('Şifrənizi daxil edin.', 'error');
+      if (!confirm('Hesabınızı həmişəlik silmək istədiyinizdən əminsiniz?')) return;
+      const user = auth.currentUser;
+      if (!user) return showToast('Daxil olmamısınız.', 'error');
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, pass);
+      user.reauthenticateWithCredential(cred).then(() => db.ref(`users/${user.uid}`).remove()).then(() => user.delete()).then(() => { showToast('Hesabınız silindi.', 'success'); location.reload(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+    };
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker qeydiyyat xətası:', err));
+      });
+    }
+
+    function applySavedTheme() {
+      const saved = localStorage.getItem('maqaluxTheme') || 'site';
+      const btn = document.getElementById('themeToggleBtn');
+      document.body.classList.remove('light-theme', 'dark-theme');
+      if (saved === 'light') {
+        document.body.classList.add('light-theme'); if (btn) btn.textContent = '🌙';
+      } else if (saved === 'dark') {
+        document.body.classList.add('dark-theme'); if (btn) btn.textContent = '🎨';
+      } else {
+        if (btn) btn.textContent = '☀️';
+      }
+    }
+    window.toggleSiteTheme = function() {
+      const current = localStorage.getItem('maqaluxTheme') || 'site';
+      const next = current === 'site' ? 'light' : (current === 'light' ? 'dark' : 'site');
+      localStorage.setItem('maqaluxTheme', next); applySavedTheme();
+    };
+    applySavedTheme();
+  </script>
+</body>
+</html>
