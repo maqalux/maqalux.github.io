@@ -47,10 +47,10 @@ const MANUAL_PLAYERS = [
     position: "Hücumçu",
     age: 38,
     nationality: "Argentina",
-    photo: "https://id.pinterest.com/pin/lionel-messi--609885974571424778/",
+    photo: "https://cdn-img.staticzz.com/img/planteis/new/81/81/9648181_lionel_messi_20240617223940.jpg",
     season: "2025/2026",
     stats: { appearances: 24, goals: 19, assists: 14 },
-    note: "8 dəfə "Qızıl Top" (Ballon d'Or) qalibi, 2022 Dünya Çempionu"
+    note: "8 dəfə 'Qızıl Top' (Ballon d'Or) qalibi, 2022 Dünya Çempionu"
   },
 
   // ---- BURADAN AŞAĞI ÖZ QEYDLƏRİNİZİ ƏLAVƏ EDİN ----
@@ -60,10 +60,10 @@ const MANUAL_PLAYERS = [
   position: "Right Winger",
   age: 26,
   nationality: "Cape Verde",
-  photo: "https://www.playmakerstats.com/player/leandro-andrade/131822",
+  photo: "https://cdn-img.staticzz.com/img/jogadores/new/02/82/1510282_leandro_andrade_20260629105951.jpg",
   Height: "1,76m",
   stats: { appearances: 263, goals: 62, assists: 69 },
-  note: "Sürətli cinah yürüşləri və məhsuldar ötürmələri ilə seçilən "Qarabağ"-ın sabiq oyunçusu."
+  note: "Sürətli cinah yürüşləri və məhsuldar ötürmələri ilə seçilən 'Qarabağ'-ın sabiq oyunçusu."
 },
 
 ];
