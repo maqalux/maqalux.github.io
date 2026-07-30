@@ -47,23 +47,23 @@ const MANUAL_PLAYERS = [
     position: "Hücumçu",
     age: 38,
     nationality: "Argentina",
-    photo: "https://upload.wikimedia.org/wikipedia/commons/8/8d/Lionel-Messi-Argentina-2022-FIFA-World-Cup_%28cropped%29.jpg",
+    photo: "https://id.pinterest.com/pin/lionel-messi--609885974571424778/",
     season: "2025/2026",
     stats: { appearances: 24, goals: 19, assists: 14 },
-    note: "Əl ilə əlavə edilib — pulsuz API cari mövsümü göstərmir"
+    note: "8 dəfə "Qızıl Top" (Ballon d'Or) qalibi, 2022 Dünya Çempionu"
   },
 
   // ---- BURADAN AŞAĞI ÖZ QEYDLƏRİNİZİ ƏLAVƏ EDİN ----
-  // {
-  //   name: "Buraya ad",
-  //   team: "Buraya komanda",
-  //   position: "Buraya mövqe",
-  //   age: 0,
-  //   nationality: "Buraya millət",
-  //   photo: "https://...",
-  //   season: "2025/2026",
-  //   stats: { appearances: 0, goals: 0, assists: 0 },
-  //   note: ""
-  // },
+ {
+  name: "Leandro Andrade",
+  team: "Polissya Zhytomyr",
+  position: "Right Winger",
+  age: 26,
+  nationality: "Cape Verde",
+  photo: "https://www.playmakerstats.com/player/leandro-andrade/131822",
+  Height: "1,76m",
+  stats: { appearances: 263, goals: 62, assists: 69 },
+  note: "Sürətli cinah yürüşləri və məhsuldar ötürmələri ilə seçilən "Qarabağ"-ın sabiq oyunçusu."
+},
 
 ];
