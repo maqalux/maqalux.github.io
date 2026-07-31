@@ -170,19 +170,35 @@
     let currentMode = 'live';
 
     // Ümumi API sorğusu funksiyası (birbaşa, proxy olmadan - football-data.org CORS-a icazə verir)
+    // Bir neçə üsulla cəhd edən köməkçi funksiya (birbaşa + 2 ehtiyat proksi)
+    async function fetchWithFallback(targetUrl) {
+      const attempts = [
+        // 1) Birbaşa (proksi olmadan)
+        { url: targetUrl, headers: { "X-Auth-Token": API_KEY, "Accept": "application/json" } },
+        // 2) Ehtiyat proksi #1
+        { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`, headers: { "X-Auth-Token": API_KEY, "Accept": "application/json" } },
+        // 3) Ehtiyat proksi #2 (bu, açarı sorğu parametri kimi tələb edir)
+        { url: `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`, headers: { "X-Auth-Token": API_KEY, "Accept": "application/json" } },
+      ];
+
+      let lastError = null;
+      for (const attempt of attempts) {
+        try {
+          const response = await fetch(attempt.url, { method: "GET", headers: attempt.headers });
+          const data = await response.json();
+          return { response, data };
+        } catch (err) {
+          lastError = err;
+          console.warn('Cəhd alınmadı, növbətiyə keçilir:', attempt.url, err.message);
+        }
+      }
+      throw lastError || new Error('Bütün cəhdlər uğursuz oldu.');
+    }
+
     async function fetchApi(endpoint, silent = false) {
       try {
         const targetUrl = `https://${API_HOST}/${endpoint}`;
-
-        const response = await fetch(targetUrl, {
-          method: "GET",
-          headers: {
-            "X-Auth-Token": API_KEY,
-            "Accept": "application/json"
-          }
-        });
-
-        const data = await response.json();
+        const { response, data } = await fetchWithFallback(targetUrl);
 
         // football-data.org xəta idarəetməsi (məs. gündəlik/dəqiqəlik limit aşıldıqda)
         if (!response.ok || data.errorCode) {
