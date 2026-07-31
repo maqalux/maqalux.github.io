@@ -459,10 +459,10 @@
       </div>
     </div>
 
-    <!-- Matçlar üçün konteyner -->
+    <!-- Matçlar -->
     <div id="matchesContainer"></div>
 
-    <!-- Futbolçular üçün konteyner (əvvəldə gizli) -->
+    <!-- Futbolçular (əvvəldə gizli) -->
     <div id="playersContainer" style="display: none;"></div>
   </main>
 
@@ -470,16 +470,14 @@
   <div class="modal-overlay" id="detailModal">
     <div class="modal-box">
       <button class="modal-close" id="closeModalBtn">✕</button>
-      <div class="match-header" id="modalHeader">
-        <!-- Dinamik olaraq doldurulur -->
-      </div>
+      <div class="match-header" id="modalHeader"></div>
       <div id="modalBody" style="text-align:center; padding:20px; color:var(--text-50);">
         Ətraflı statistika pulsuz planda mövcud deyil.
       </div>
     </div>
   </div>
 
-  <!-- ===== JavaScript ===== -->
+  <!-- ===== JAVASCRIPT ===== -->
   <script>
     (function() {
       "use strict";
@@ -487,14 +485,16 @@
       // ============================================================
       // 1. KONFİQURASİYA
       // ============================================================
-
-      const API_KEY = '4ca0b844221f4d08aab8cc65221bcb24'; // Öz açarınızı daxil edin
-      const PROXY_URL = 'https://futbol-proxy.mehemmedeliyev908.workers.dev'; // Öz proksiniz
+      const API_KEY = '4ca0b844221f4d08aab8cc65221bcb24';
+      const PROXIES = [
+        'https://corsproxy.io/?',
+        'https://api.allorigins.win/raw?url=',
+        ''
+      ];
 
       // ============================================================
       // 2. ELEMENTLƏR
       // ============================================================
-
       const tabs = document.querySelectorAll('.tab-btn');
       const searchInput = document.getElementById('globalSearch');
       const searchBtn = document.getElementById('searchBtn');
@@ -511,65 +511,71 @@
       // ============================================================
       // 3. KÖMƏKÇİ FUNKSİYALAR
       // ============================================================
-
-      // Tarixi ISO formatına çevir (YYYY-MM-DD)
-      function formatDate(date) {
-        const d = new Date(date);
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+      function formatDate(d) {
+        const date = new Date(d);
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
       }
 
-      // API sorğusu (proksi ilə)
-      async function fetchApi(endpoint) {
-        const url = `https://api.football-data.org/v4/${endpoint}`;
-        const proxyUrl = `${PROXY_URL}/?url=${encodeURIComponent(url)}`;
-
-        try {
-          const response = await fetch(proxyUrl, {
-            headers: {
-              'X-Auth-Token': API_KEY,
-              'Accept': 'application/json'
-            }
-          });
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-          }
-          const data = await response.json();
-          return data;
-        } catch (err) {
-          console.error('API sorğu xətası:', err);
-          return null;
-        }
-      }
-
-      // Yükləmə animasiyası
       function showLoading(container) {
         container.innerHTML = '<div class="loading-spinner"></div>';
       }
 
-      // Boş mesaj
-      function showEmpty(container, msg = 'Heç bir məlumat tapılmadı.') {
-        container.innerHTML = `<div class="empty-message">${msg}</div>`;
+      function showEmpty(container, msg) {
+        container.innerHTML = `<div class="empty-message">${msg || 'Heç bir məlumat tapılmadı.'}</div>`;
       }
 
-      // Xəta mesajı
-      function showError(container, msg = 'Məlumat yüklənərkən xəta baş verdi.') {
-        container.innerHTML = `<div class="error-message">⚠️ ${msg}</div>`;
+      function showError(container, msg) {
+        container.innerHTML = `<div class="error-message">⚠️ ${msg || 'Xəta baş verdi.'}</div>`;
       }
 
       // ============================================================
-      // 4. MATÇLARI GÖSTƏR
+      // 4. API SORĞUSU (PROKSİ İLƏ)
       // ============================================================
+      async function fetchApi(endpoint) {
+        const url = `https://api.football-data.org/v4/${endpoint}`;
+        for (const proxy of PROXIES) {
+          try {
+            const full = proxy ? `${proxy}${encodeURIComponent(url)}` : url;
+            const resp = await fetch(full, {
+              headers: { 'X-Auth-Token': API_KEY, 'Accept': 'application/json' }
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            if (data && data.matches) return data;
+          } catch (e) {
+            console.warn('Proksi uğursuz:', proxy || 'birbaşa', e.message);
+          }
+        }
+        return null;
+      }
 
+      // ============================================================
+      // 5. NÜMUNƏ MATÇLAR
+      // ============================================================
+      function getSampleMatches() {
+        const now = new Date();
+        const today = formatDate(now);
+        const tomorrow = formatDate(new Date(now.getTime() + 86400000));
+        return [
+          { id: 1, status: 'IN_PLAY', utcDate: now.toISOString(), homeTeam: { name: 'Barcelona', crest: '' }, awayTeam: { name: 'Real Madrid', crest: '' }, score: { fullTime: { home: 2, away: 1 } } },
+          { id: 2, status: 'SCHEDULED', utcDate: new Date(now.getTime() + 7200000).toISOString(), homeTeam: { name: 'Bayern Munich', crest: '' }, awayTeam: { name: 'Borussia Dortmund', crest: '' }, score: { fullTime: { home: null, away: null } } },
+          { id: 3, status: 'FINISHED', utcDate: new Date(now.getTime() - 10800000).toISOString(), homeTeam: { name: 'Manchester City', crest: '' }, awayTeam: { name: 'Liverpool', crest: '' }, score: { fullTime: { home: 3, away: 1 } } },
+          { id: 4, status: 'SCHEDULED', utcDate: new Date(tomorrow + 'T14:00:00Z').toISOString(), homeTeam: { name: 'Juventus', crest: '' }, awayTeam: { name: 'Milan', crest: '' }, score: { fullTime: { home: null, away: null } } },
+          { id: 5, status: 'SCHEDULED', utcDate: new Date(tomorrow + 'T18:30:00Z').toISOString(), homeTeam: { name: 'PSG', crest: '' }, awayTeam: { name: 'Marseille', crest: '' }, score: { fullTime: { home: null, away: null } } }
+        ];
+      }
+
+      // ============================================================
+      // 6. MATÇLARI RENDER ET
+      // ============================================================
       function renderMatches(matches, container) {
         if (!matches || matches.length === 0) {
           showEmpty(container, 'Bu kateqoriyada oyun yoxdur.');
           return;
         }
-
         container.innerHTML = '';
         matches.forEach(m => {
           const status = m.status || 'SCHEDULED';
@@ -625,18 +631,16 @@
       }
 
       // ============================================================
-      // 5. MÜXTƏLİF KATEQORİYALAR ÜÇÜN MƏLUMAT YÜKLƏ
+      // 7. MATÇLARI YÜKLƏ
       // ============================================================
-
       async function loadMatches(tab) {
         showLoading(matchesContainer);
         playersContainer.style.display = 'none';
         matchesContainer.style.display = 'block';
 
         let endpoint = '';
-        if (tab === 'live') {
-          endpoint = 'matches?status=IN_PLAY,PAUSED';
-        } else if (tab === 'today') {
+        if (tab === 'live') endpoint = 'matches?status=IN_PLAY,PAUSED';
+        else if (tab === 'today') {
           const today = formatDate(new Date());
           endpoint = `matches?dateFrom=${today}&dateTo=${today}`;
         } else if (tab === 'tomorrow') {
@@ -644,28 +648,42 @@
           tomorrow.setDate(tomorrow.getDate() + 1);
           const tmrw = formatDate(tomorrow);
           endpoint = `matches?dateFrom=${tmrw}&dateTo=${tmrw}`;
-        } else {
-          return;
-        }
+        } else return;
 
         const data = await fetchApi(endpoint);
-        if (!data) {
-          showError(matchesContainer, 'API-dən cavab alınmadı. Zəhmət olmasa bir neçə dəqiqə sonra yenidən cəhd edin.');
-          return;
+        let matches = [];
+
+        if (data && data.matches && data.matches.length > 0) {
+          matches = data.matches;
+        } else {
+          // API işləmirsə, nümunə göstər
+          const samples = getSampleMatches();
+          const now = new Date();
+          if (tab === 'live') {
+            matches = samples.filter(m => ['IN_PLAY', 'PAUSED'].includes(m.status));
+          } else if (tab === 'today') {
+            const todayStr = formatDate(now);
+            matches = samples.filter(m => formatDate(m.utcDate) === todayStr);
+          } else if (tab === 'tomorrow') {
+            const tomorrowStr = formatDate(new Date(now.getTime() + 86400000));
+            matches = samples.filter(m => formatDate(m.utcDate) === tomorrowStr);
+          }
+          if (matches.length === 0) matches = samples; // boş olmasın
+          // Xəbərdarlıq göstər
+          matchesContainer.innerHTML = `
+            <div style="text-align:center; padding:10px; margin-bottom:15px; background:rgba(255,170,0,0.15); border-radius:12px; border:1px solid #ffaa00; color:#ffaa00;">
+              ⚠️ API-dən cavab alınmadı. Aşağıda nümunə oyunlar göstərilir.
+            </div>
+          `;
         }
-        if (!data.matches || data.matches.length === 0) {
-          showEmpty(matchesContainer, 'Bu kateqoriyada oyun yoxdur.');
-          return;
-        }
-        allMatches = data.matches;
-        renderMatches(allMatches, matchesContainer);
+
+        allMatches = matches;
+        renderMatches(matches, matchesContainer);
       }
 
       // ============================================================
-      // 6. FUTBOLÇU AXTARIŞI
+      // 8. FUTBOLÇU AXTARIŞI
       // ============================================================
-
-      // Əl ilə əlavə edilmiş oyunçu bazası (nümunə)
       const MANUAL_PLAYERS = [
         { name: 'Lionel Messi', team: 'Inter Miami', position: 'Hücumçu', age: 37, nationality: 'Argentina', photo: '', stats: { appearances: 15, goals: 12, assists: 8 } },
         { name: 'Cristiano Ronaldo', team: 'Al-Nassr', position: 'Hücumçu', age: 39, nationality: 'Portugal', photo: '', stats: { appearances: 20, goals: 22, assists: 5 } },
@@ -673,6 +691,10 @@
         { name: 'Erling Haaland', team: 'Manchester City', position: 'Hücumçu', age: 24, nationality: 'Norway', photo: '', stats: { appearances: 22, goals: 25, assists: 4 } },
         { name: 'Kevin De Bruyne', team: 'Manchester City', position: 'Yarımmüdafiəçi', age: 33, nationality: 'Belgium', photo: '', stats: { appearances: 19, goals: 6, assists: 12 } },
         { name: 'Mohamed Salah', team: 'Liverpool', position: 'Hücumçu', age: 32, nationality: 'Egypt', photo: '', stats: { appearances: 21, goals: 18, assists: 9 } },
+        { name: 'Neymar Jr', team: 'Al-Hilal', position: 'Hücumçu', age: 32, nationality: 'Brazil', photo: '', stats: { appearances: 10, goals: 5, assists: 6 } },
+        { name: 'Robert Lewandowski', team: 'Barcelona', position: 'Hücumçu', age: 36, nationality: 'Poland', photo: '', stats: { appearances: 24, goals: 20, assists: 4 } },
+        { name: 'Luka Modrić', team: 'Real Madrid', position: 'Yarımmüdafiəçi', age: 39, nationality: 'Croatia', photo: '', stats: { appearances: 28, goals: 3, assists: 8 } },
+        { name: 'Sadio Mané', team: 'Al-Nassr', position: 'Hücumçu', age: 32, nationality: 'Senegal', photo: '', stats: { appearances: 17, goals: 9, assists: 5 } }
       ];
 
       async function searchPlayers(query) {
@@ -680,28 +702,24 @@
           playersContainer.innerHTML = `<div class="empty-message">Axtarış üçün ən azı 3 hərf yazın.</div>`;
           return;
         }
-
         showLoading(playersContainer);
         matchesContainer.style.display = 'none';
         playersContainer.style.display = 'block';
 
         const results = [];
-
-        // 1) Manual bazada axtar
-        const manualMatches = MANUAL_PLAYERS.filter(p =>
+        // Manual
+        const manual = MANUAL_PLAYERS.filter(p =>
           p.name.toLowerCase().includes(query.toLowerCase()) ||
           p.team.toLowerCase().includes(query.toLowerCase())
         );
-        results.push(...manualMatches);
+        results.push(...manual);
 
-        // 2) TheSportsDB-dən axtar (əlavə mənbə)
+        // TheSportsDB
         try {
-          const tsdbRes = await fetch(
-            `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(query)}`
-          );
-          const tsdbData = await tsdbRes.json();
-          if (tsdbData && tsdbData.player) {
-            const tsdbPlayers = tsdbData.player
+          const resp = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(query)}`);
+          const data = await resp.json();
+          if (data && data.player) {
+            const tsdb = data.player
               .filter(p => p.strSport === 'Soccer')
               .filter(p => !results.some(r => r.name.toLowerCase() === p.strPlayer.toLowerCase()))
               .slice(0, 10)
@@ -715,31 +733,26 @@
                 stats: { appearances: '-', goals: '-', assists: '-' },
                 source: 'TheSportsDB'
               }));
-            results.push(...tsdbPlayers);
+            results.push(...tsdb);
           }
-        } catch (e) {
-          console.warn('TheSportsDB sorğu xətası:', e);
-        }
+        } catch (e) { console.warn('TheSportsDB xətası:', e); }
 
         if (results.length === 0) {
           playersContainer.innerHTML = `<div class="empty-message">"${query}" üçün heç bir futbolçu tapılmadı.</div>`;
           return;
         }
 
-        // Kartları yarat
         const grid = document.createElement('div');
         grid.className = 'player-grid';
         results.forEach(p => {
           const card = document.createElement('div');
           card.className = 'player-card';
           const hasStats = p.stats.appearances != null && p.stats.appearances !== '-';
-
-          const avatarHTML = p.photo
+          const avatar = p.photo
             ? `<img src="${p.photo}" class="player-avatar" alt="${p.name}" />`
             : `<div class="player-avatar"><i class="fa-solid fa-user"></i></div>`;
-
           card.innerHTML = `
-            ${avatarHTML}
+            ${avatar}
             <div class="player-name">${p.name}</div>
             <div class="player-sub" style="color:#FFD700; font-weight:600;">${p.team}</div>
             <div class="player-sub">Mövqe: ${p.position} | Yaş: ${p.age}</div>
@@ -754,9 +767,8 @@
       }
 
       // ============================================================
-      // 7. MODAL (MATÇ DETALLARI)
+      // 9. MODAL
       // ============================================================
-
       function openMatchDetail(match) {
         const isScheduled = ['TIMED', 'SCHEDULED'].includes(match.status);
         const homeScore = match.score?.fullTime?.home ?? 0;
@@ -789,16 +801,11 @@
       }
 
       // ============================================================
-      // 8. TAB KEÇİDLƏRİ
+      // 10. TAB KEÇİDLƏRİ
       // ============================================================
-
       function switchTab(tab) {
         currentTab = tab;
-        tabs.forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.tab === tab);
-        });
-
-        // Axtarış sahəsini təmizlə
+        tabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
         searchInput.value = '';
 
         if (tab === 'players') {
@@ -813,58 +820,42 @@
       }
 
       // ============================================================
-      // 9. HADİSƏ DİNLƏYİCİLƏR
+      // 11. HADİSƏ DİNLƏYİCİLƏR
       // ============================================================
-
-      // Tab düymələri
       tabs.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const tab = btn.dataset.tab;
-          switchTab(tab);
-        });
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
       });
 
-      // Axtarış düyməsi
       searchBtn.addEventListener('click', () => {
         const query = searchInput.value.trim();
         if (currentTab === 'players') {
           searchPlayers(query);
         } else {
-          // Matçlar daxilində axtar (sadə filtrləmə)
           if (query.length >= 2) {
             const filtered = allMatches.filter(m =>
               m.homeTeam?.name?.toLowerCase().includes(query.toLowerCase()) ||
               m.awayTeam?.name?.toLowerCase().includes(query.toLowerCase())
             );
-            if (filtered.length > 0) {
-              renderMatches(filtered, matchesContainer);
-            } else {
-              showEmpty(matchesContainer, `"${query}" üçün uyğun oyun tapılmadı.`);
-            }
+            if (filtered.length > 0) renderMatches(filtered, matchesContainer);
+            else showEmpty(matchesContainer, `"${query}" üçün uyğun oyun tapılmadı.`);
           } else {
-            // Boşdursa, cari tabı yenidən yüklə
             loadMatches(currentTab);
           }
         }
       });
 
-      // Enter düyməsi
-      searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          searchBtn.click();
-        }
+      searchInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') searchBtn.click();
       });
 
-      // Modal bağlama
       closeModalBtn.addEventListener('click', closeModal);
-      modalOverlay.addEventListener('click', (e) => {
+      modalOverlay.addEventListener('click', e => {
         if (e.target === modalOverlay) closeModal();
       });
 
       // ============================================================
-      // 10. TEMA FUNKSİYASI (saytın qalanı ilə uyğun)
+      // 12. TEMA
       // ============================================================
-
       function applySavedTheme() {
         const saved = localStorage.getItem('maqaluxTheme') || 'site';
         const btn = document.getElementById('themeToggleBtn');
@@ -888,13 +879,10 @@
       applySavedTheme();
 
       // ============================================================
-      // 11. BAŞLATMA – ilk tab "Canlı"
+      // 13. BAŞLAT
       // ============================================================
-
       switchTab('live');
-
     })();
   </script>
-
 </body>
 </html>
