@@ -172,13 +172,14 @@
     // Ümumi API sorğusu funksiyası (birbaşa, proxy olmadan - football-data.org CORS-a icazə verir)
     // Bir neçə üsulla cəhd edən köməkçi funksiya (birbaşa + 2 ehtiyat proksi)
     async function fetchWithFallback(targetUrl) {
+      const OWN_PROXY = "https://futbol-proxy.mehemmedeliyev908.workers.dev";
       const attempts = [
-        // 1) Birbaşa (proksi olmadan)
+        // 1) Öz etibarlı proksimiz (Cloudflare Worker) - əsas üsul
+        { url: `${OWN_PROXY}/?url=${encodeURIComponent(targetUrl)}`, headers: { "X-Auth-Token": API_KEY, "Accept": "application/json" } },
+        // 2) Birbaşa (proksi olmadan) - ehtiyat
         { url: targetUrl, headers: { "X-Auth-Token": API_KEY, "Accept": "application/json" } },
-        // 2) Ehtiyat proksi #1
+        // 3) Ehtiyat proksi (ictimai)
         { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`, headers: { "X-Auth-Token": API_KEY, "Accept": "application/json" } },
-        // 3) Ehtiyat proksi #2 (bu, açarı sorğu parametri kimi tələb edir)
-        { url: `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`, headers: { "X-Auth-Token": API_KEY, "Accept": "application/json" } },
       ];
 
       let lastError = null;
