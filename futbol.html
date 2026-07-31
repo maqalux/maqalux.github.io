@@ -45,41 +45,25 @@
     }
 
     * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column;
-    }
-
-    /* Header */
-    header {
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-      background: var(--border-10); backdrop-filter: blur(15px); padding: 15px 30px;
-      border-bottom: 1px solid var(--border-20); position: sticky; top: 0; z-index: 1000;
-    }
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--border-10); backdrop-filter: blur(15px); padding: 15px 30px; border-bottom: 1px solid var(--border-20); position: sticky; top: 0; z-index: 1000; }
     header a.logo img { height: 50px; transition: 0.3s; }
     nav ul { list-style: none; display: flex; gap: 10px; margin: 0; padding: 0; }
     nav ul li a { text-decoration: none; color: var(--text-main); font-weight: 600; padding: 10px 18px; border-radius: 30px; font-size: 15px; }
     nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: #0a1329; }
     .theme-toggle-btn { background: var(--panel-08); border: 1px solid var(--border-10); color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; font-size: 17px; cursor: pointer; }
-
-    /* Main Section */
     main { flex: 1; max-width: 1100px; margin: 30px auto; padding: 0 20px; width: 100%; }
     .football-hero { text-align: center; margin-bottom: 30px; }
     .football-hero h1 { font-size: 2.2em; margin: 0 0 10px 0; color: #FFD700; }
-    
-    /* Search Box */
     .search-container { display: flex; max-width: 650px; margin: 0 auto 30px auto; gap: 10px; }
     .search-box { position: relative; flex: 1; }
     .search-box input { width: 100%; padding: 15px 20px 15px 45px; border-radius: 25px; border: 1px solid var(--border-20); background: var(--panel-08); color: var(--text-main); font-size: 15px; outline: none; }
     .search-box i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #ffaa00; }
     .search-btn { background: linear-gradient(90deg, #FFD700, #FF8C00); color: #0a1329; border: none; padding: 0 25px; border-radius: 25px; font-weight: 700; cursor: pointer; transition: 0.3s; }
     .search-btn:hover { opacity: 0.8; }
-
-    /* Tabs */
     .tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
     .tab-btn { background: var(--panel-08); border: 1px solid var(--border-15); color: var(--text-main); padding: 10px 20px; border-radius: 20px; font-weight: 600; cursor: pointer; }
     .tab-btn.active { background: #FFD700; color: #000; }
-
-    /* Match Cards */
     .match-card { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-radius: 16px; background: var(--panel-08); border: 1px solid var(--border-15); margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
     .match-card:hover { transform: translateY(-2px); border-color: #ffaa00; background: var(--panel-05); }
     .status-col { width: 85px; text-align: center; font-size: 12px; font-weight: 700; }
@@ -88,47 +72,28 @@
     .badge-scheduled { color: #ffaa00; background: rgba(255,170,0,0.14); padding: 4px 10px; border-radius: 12px; }
     .match-time { display: block; margin-top: 6px; font-size: 11px; font-weight: 600; color: var(--text-50); }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-    
     .teams-col { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 0 20px; }
     .team-row { display: flex; align-items: center; justify-content: space-between; font-weight: 600; }
     .team-info { display: flex; align-items: center; gap: 12px; }
     .team-flag { width: 24px; height: 24px; object-fit: contain; }
     .team-score { font-size: 18px; font-weight: 800; color: #FFD700; }
-
-    /* Player Grid */
     .player-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
     .player-card { background: var(--panel-08); border: 1px solid var(--border-15); border-radius: 16px; padding: 20px; text-align: center; }
-    .player-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #ffaa00; margin-bottom: 12px; }
+    .player-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #ffaa00; margin-bottom: 12px; margin-left: auto; margin-right: auto; }
     .player-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
     .player-sub { font-size: 13px; color: var(--text-55); margin-top: 5px; }
-
-    /* Modal for Stats */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 5000; display: none; justify-content: center; align-items: center; padding: 15px; }
     .modal-overlay.active { display: flex; }
     .modal-box { background: var(--dropdown-bg); border-radius: 20px; padding: 25px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-15); }
     .modal-close { float: right; background: none; border: none; color: var(--text-50); font-size: 22px; cursor: pointer; }
-    
     .match-header { background: var(--panel-08); border-radius: 14px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px;}
     .team-block { text-align: center; width: 35%; font-weight: 600; font-size: 14px; }
     .team-block img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 8px; }
     .score-block { text-align: center; }
     .score-block .score { font-size: 2em; font-weight: 800; color: #FFD700; }
-
-    /* Sub Tabs (Stats vs Events) */
     .sub-tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--border-15); padding-bottom: 10px; margin-bottom: 20px; }
     .sub-tab-btn { background: none; border: none; color: var(--text-55); font-weight: 600; cursor: pointer; padding: 8px 15px; border-radius: 12px; transition: 0.2s; }
     .sub-tab-btn.active { background: rgba(255,215,0,0.15); color: #FFD700; }
-
-    /* Stat Bars */
-    .stat-row { margin-bottom: 15px; }
-    .stat-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
-    .stat-bar-container { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--panel-08); }
-    .stat-bar-home { background: #FFD700; height: 100%; transition: width 0.5s; }
-    .stat-bar-away { background: #3498db; height: 100%; transition: width 0.5s; }
-    
-    .event-item { background: var(--panel-05); padding: 10px 15px; border-radius: 10px; margin-bottom: 8px; font-size: 14px; border-left: 3px solid #FFD700; }
-    .event-time { font-weight: 800; color: #FFD700; margin-right: 10px; }
-
     .loading-spinner { border: 4px solid var(--border-15); border-top: 4px solid #ffaa00; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
@@ -156,7 +121,6 @@
     <div class="football-hero">
       <h1><i class="fa-solid fa-futbol"></i> Futbol Mərkəzi</h1>
       
-      <!-- Yenilənmiş Axtarış Zolağı -->
       <div class="search-container">
         <div class="search-box">
           <i class="fas fa-search"></i>
@@ -185,24 +149,22 @@
         <!-- Komandalar bura gələcək -->
       </div>
       
-      <div class="sub-tabs" id="modalTabs" style="display:none;">
-        <button class="sub-tab-btn active" onclick="switchSubTab('stats')" id="btnTabStats">Statistika</button>
-        <button class="sub-tab-btn" onclick="switchSubTab('events')" id="btnTabEvents">Hadisələr</button>
+      <div class="sub-tabs" id="modalTabs" style="display:block;">
+        <button class="sub-tab-btn active" id="btnTabStats">Statistika (Pulsuz Planda Yoxdur)</button>
       </div>
 
       <div id="modalLoading" style="display:none;"><div class="loading-spinner"></div></div>
       <div id="tabStats"></div>
-      <div id="tabEvents" style="display:none;"></div>
       
     </div>
   </div>
 
-  <!-- Əl ilə əlavə edilmiş oyunçu bazası (ayrıca fayl, asan redaktə üçün) -->
   <script src="manual-players.js"></script>
 
   <script>
-    const API_KEY = 'f73add2328ec3a760f3e74f4d3f5700e'; 
-    const API_HOST = 'v3.football.api-sports.io';
+    // FOOTBALL-DATA.ORG AÇARI
+    const API_KEY = '4ca0b844221f4d08aab8cc65221bcb24'; 
+    const API_HOST = 'api.football-data.org/v4';
     
     let allMatches = [];
     let currentMode = 'live';
@@ -212,21 +174,15 @@
       try {
         const response = await fetch(`https://${API_HOST}/${endpoint}`, {
           method: "GET",
-          headers: { "x-apisports-key": API_KEY }
+          headers: { "X-Auth-Token": API_KEY } // football-data xüsusi başlığı
         });
         const data = await response.json();
         
-        // Limit xətası yoxlanışı
-        if (data.errors && Object.keys(data.errors).length > 0) {
-           console.error('API-dən gələn əsl xəta:', data.errors);
-           if(data.errors.rateLimit) {
-             throw new Error("API Limitiniz doldu! Zəhmət olmasa 1 dəqiqə gözləyib yenidən yoxlayın.");
-           } else {
-             const detail = Object.values(data.errors).join(' | ');
-             throw new Error("API xətası: " + detail);
-           }
+        // football-data.org xəta idarəetməsi
+        if (data.errorCode) {
+             throw new Error("API xətası: " + data.message);
         }
-        return data.response;
+        return data;
       } catch (error) {
         console.error('API sorğu xətası:', error);
         if (!silent) alert(error.message);
@@ -234,21 +190,21 @@
       }
     }
 
-    // Oyunları gətir (Siyahı)
-    async function fetchMatches(endpoint = 'fixtures?live=all') {
+    // Oyunları gətir
+    async function fetchMatches(endpoint = 'matches') {
       const container = document.getElementById('matchesContainer');
       container.innerHTML = '<div class="loading-spinner"></div>';
 
       const data = await fetchApi(endpoint);
-      if (!data || data.length === 0) {
+      if (!data || !data.matches || data.matches.length === 0) {
         container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-50)">Uyğun oyun tapılmadı.</div>';
         return;
       }
-      allMatches = data;
+      allMatches = data.matches;
       renderMatches();
     }
 
-    // Manual bazadan gələn qeyd üçün kart HTML-i
+    // Manual bazadan gələn qeyd üçün kart
     function renderManualCard(p) {
       const stats = p.stats || {};
       const hasStats = stats.appearances != null || stats.goals != null || stats.assists != null;
@@ -269,8 +225,7 @@
       `;
     }
 
-    // Futbolçu Axtarışı — 3 qatlı: Əl ilə baza (prioritet) → TheSportsDB (qlobal axtarış)
-    // → API-Football (mövcud olduqda ətraflı statistika ilə zənginləşdirmə)
+    // Futbolçu Axtarışı
     async function searchPlayers(query) {
       const container = document.getElementById('playersContainer');
       container.innerHTML = '<div class="loading-spinner"></div>';
@@ -279,7 +234,7 @@
       grid.className = 'player-grid';
       const addedNames = new Set();
 
-      // 0-cı addım: əl ilə əlavə edilmiş baza — ən yüksək prioritet
+      // 0-cı addım: əl ilə əlavə edilmiş baza
       const manualDB = (typeof MANUAL_PLAYERS !== 'undefined') ? MANUAL_PLAYERS : [];
       const manualMatches = manualDB.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
       manualMatches.forEach(p => {
@@ -287,7 +242,7 @@
         addedNames.add(p.name.toLowerCase());
       });
 
-      // 1-ci addım: TheSportsDB-də qlobal axtarış — açar tələb etmir, bütün liqaları əhatə edir
+      // 1-ci addım: TheSportsDB-də qlobal axtarış (football-data.org-un pulsuz planında oyunçu axtarışı yoxdur)
       let tsdbPlayers = [];
       try {
         const tsdbRes = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(query)}`);
@@ -295,72 +250,26 @@
         if (tsdbData && tsdbData.player) {
           tsdbPlayers = tsdbData.player
             .filter(p => p.strSport === 'Soccer')
-            .filter(p => !addedNames.has(p.strPlayer.toLowerCase())) // manual bazada olanları təkrar göstərmirik
-            .slice(0, 6); // API-Football sorğu sayını məhdudlaşdırmaq üçün ilk 6 nəticə
+            .filter(p => !addedNames.has(p.strPlayer.toLowerCase())) 
+            .slice(0, 10); 
         }
       } catch (error) {
         console.error('TheSportsDB sorğu xətası:', error);
       }
 
       if (manualMatches.length === 0 && tsdbPlayers.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:40px; color:#e74c3c">Heç bir futbolçu tapılmadı. Adı düzgün yazdığınıza əmin olun. (Məsələn: Messi, Ronaldo, Mbappe)</div>';
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:#e74c3c">Heç bir futbolçu tapılmadı. Adı düzgün yazdığınıza əmin olun.</div>';
         return;
       }
 
-      // 2-ci addım: hər tapılan oyunçu üçün API-Football-dan ətraflı statistika çəkməyə çalışırıq
-      const teamIdCache = {};
-
+      // 2-ci addım: TheSportsDB nəticələrini göstərmək
       for (const p of tsdbPlayers) {
-        let statsPlayer = null;
-        const teamName = p.strTeam;
-
-        if (teamName) {
-          try {
-            if (!(teamName in teamIdCache)) {
-              const teamData = await fetchApi(`teams?search=${encodeURIComponent(teamName)}`, true);
-              teamIdCache[teamName] = (teamData && teamData.length > 0) ? teamData[0].team.id : null;
-            }
-            const teamId = teamIdCache[teamName];
-
-            if (teamId) {
-              for (const season of [2024, 2023, 2022]) {
-                const squadData = await fetchApi(`players?team=${teamId}&season=${season}`, true);
-                if (squadData && squadData.length > 0) {
-                  const lastName = p.strPlayer.toLowerCase().split(' ').pop();
-                  const match = squadData.find(sp =>
-                    sp.player.name.toLowerCase().includes(lastName) ||
-                    p.strPlayer.toLowerCase().includes(sp.player.name.toLowerCase())
-                  );
-                  if (match) { statsPlayer = match; break; }
-                }
-              }
-            }
-          } catch (error) {
-            console.error('Zənginləşdirmə xətası:', error);
-          }
-        }
-
-        if (statsPlayer) {
-          // API-Football-dan tam statistika mövcuddur
-          const player = statsPlayer.player;
-          const stat = statsPlayer.statistics[0] || {};
-          grid.innerHTML += `
-            <div class="player-card">
-              <img src="${player.photo}" class="player-avatar" alt="">
-              <div class="player-name">${player.name}</div>
-              <div class="player-sub" style="color:#FFD700; font-weight:600;">${stat.team ? stat.team.name : '-'}</div>
-              <div class="player-sub">Mövqe: ${stat.games?.position || '-'} | Yaş: ${player.age || '-'}</div>
-              <div class="player-sub">Milliyyət: ${player.nationality || '-'}</div>
-            </div>
-          `;
-        } else {
-          // Yalnız TheSportsDB-dən əsas məlumat (ətraflı statistika tapılmadı)
           const photo = p.strThumb || p.strCutout || p.strRender || '';
           grid.innerHTML += `
             <div class="player-card">
               ${photo
                 ? `<img src="${photo}" class="player-avatar" alt="">`
-                : `<div class="player-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--panel-08);"><i class="fa-solid fa-user" style="color:#ffaa00;"></i></div>`}
+                : `<div class="player-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--panel-08); width:80px; height:80px;"><i class="fa-solid fa-user" style="color:#ffaa00; font-size: 30px;"></i></div>`}
               <div class="player-name">${p.strPlayer}</div>
               <div class="player-sub" style="color:#FFD700; font-weight:600;">${p.strTeam || '-'}</div>
               <div class="player-sub">Mövqe: ${p.strPosition || '-'}</div>
@@ -368,7 +277,6 @@
               <div class="player-sub" style="color:var(--text-50); font-size:11px; margin-top:6px;">Ətraflı statistika mövcud deyil</div>
             </div>
           `;
-        }
       }
 
       container.innerHTML = '';
@@ -382,8 +290,8 @@
 
       let filtered = allMatches.filter(item => {
         if (!filterText) return true;
-        const home = item.teams.home.name.toLowerCase();
-        const away = item.teams.away.name.toLowerCase();
+        const home = item.homeTeam.name.toLowerCase();
+        const away = item.awayTeam.name.toLowerCase();
         return home.includes(filterText.toLowerCase()) || away.includes(filterText.toLowerCase());
       });
 
@@ -393,38 +301,45 @@
       }
 
       filtered.forEach(m => {
-        const status = m.fixture.status.short;
-        const isLive = ['1H', 'HT', '2H', 'ET', 'P', 'LIVE'].includes(status);
-        const isScheduled = ['NS', 'TBD', 'PST'].includes(status);
+        const status = m.status;
+        const isLive = ['IN_PLAY', 'PAUSED'].includes(status);
+        const isScheduled = ['TIMED', 'SCHEDULED'].includes(status);
+        const isFinished = status === 'FINISHED';
 
-        // Oyunun başlama saatı (və lazım olarsa tarixi)
-        const kickoff = new Date(m.fixture.date);
+        const kickoff = new Date(m.utcDate);
         const now = new Date();
         const isToday = kickoff.toDateString() === now.toDateString();
         const timeStr = kickoff.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
         const dateStr = kickoff.toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit' });
         const timeLabel = isToday ? timeStr : `${dateStr} · ${timeStr}`;
 
+        let displayStatus = status;
+        if(isLive) displayStatus = 'Canlı';
+        else if(isScheduled) displayStatus = 'Başlayacaq';
+        else if(isFinished) displayStatus = 'Bitdi';
+
+        const homeScore = m.score?.fullTime?.home ?? m.score?.halfTime?.home ?? 0;
+        const awayScore = m.score?.fullTime?.away ?? m.score?.halfTime?.away ?? 0;
+
         const el = document.createElement('div');
         el.className = 'match-card';
-        // Oyuna basanda ID-ni göndəririk
-        el.onclick = () => openMatchDetail(m.fixture.id, m);
+        el.onclick = () => openMatchDetail(m);
         
         el.innerHTML = `
           <div class="status-col">
             <span class="${isLive ? 'badge-live' : (isScheduled ? 'badge-scheduled' : 'badge-finished')}">
-              ${isLive ? m.fixture.status.elapsed + "'" : (isScheduled ? 'Başlayacaq' : status)}
+              ${displayStatus}
             </span>
             <span class="match-time">${timeLabel}</span>
           </div>
           <div class="teams-col">
             <div class="team-row">
-              <div class="team-info"><img src="${m.teams.home.logo}" class="team-flag" alt=""><span>${m.teams.home.name}</span></div>
-              <span class="team-score">${m.goals.home ?? 0}</span>
+              <div class="team-info"><img src="${m.homeTeam.crest || ''}" class="team-flag" alt=""><span>${m.homeTeam.name}</span></div>
+              <span class="team-score">${isScheduled ? '-' : homeScore}</span>
             </div>
             <div class="team-row">
-              <div class="team-info"><img src="${m.teams.away.logo}" class="team-flag" alt=""><span>${m.teams.away.name}</span></div>
-              <span class="team-score">${m.goals.away ?? 0}</span>
+              <div class="team-info"><img src="${m.awayTeam.crest || ''}" class="team-flag" alt=""><span>${m.awayTeam.name}</span></div>
+              <span class="team-score">${isScheduled ? '-' : awayScore}</span>
             </div>
           </div>
         `;
@@ -432,112 +347,33 @@
       });
     }
 
-    // OYUNUN DETALLARI VƏ STATİSTİKASI ÜÇÜN MODAL
-    async function openMatchDetail(fixtureId, matchBasicData) {
+    // OYUNUN DETALLARI MODALI
+    function openMatchDetail(match) {
       document.getElementById('detailModal').classList.add('active');
-      document.getElementById('tabStats').innerHTML = '';
-      document.getElementById('tabEvents').innerHTML = '';
-      document.getElementById('modalTabs').style.display = 'none';
-      document.getElementById('modalLoading').style.display = 'block';
+      
+      const isScheduled = ['TIMED', 'SCHEDULED'].includes(match.status);
+      const homeScore = match.score?.fullTime?.home ?? 0;
+      const awayScore = match.score?.fullTime?.away ?? 0;
 
-      // Əvvəlcə yuxarıdakı sadə qol hesabını ekrana veririk
+      let displayStatus = match.status;
+      if (displayStatus === 'FINISHED') displayStatus = 'Oyun Bitdi';
+      else if (displayStatus === 'IN_PLAY' || displayStatus === 'PAUSED') displayStatus = 'Canlı Oyun';
+      else if (displayStatus === 'TIMED' || displayStatus === 'SCHEDULED') displayStatus = 'Başlamayıb';
+
       document.getElementById('modalHeader').innerHTML = `
-        <div class="team-block"><img src="${matchBasicData.teams.home.logo}" alt=""><div>${matchBasicData.teams.home.name}</div></div>
+        <div class="team-block"><img src="${match.homeTeam.crest || ''}" alt=""><div>${match.homeTeam.name}</div></div>
         <div class="score-block">
-          <div class="score">${matchBasicData.goals.home ?? 0} - ${matchBasicData.goals.away ?? 0}</div>
-          <div style="color:#ffaa00; font-size:12px; margin-top:5px;">${matchBasicData.fixture.status.long}</div>
+          <div class="score">${isScheduled ? '-' : homeScore} - ${isScheduled ? '-' : awayScore}</div>
+          <div style="color:#ffaa00; font-size:12px; margin-top:5px;">${displayStatus}</div>
         </div>
-        <div class="team-block"><img src="${matchBasicData.teams.away.logo}" alt=""><div>${matchBasicData.teams.away.name}</div></div>
+        <div class="team-block"><img src="${match.awayTeam.crest || ''}" alt=""><div>${match.awayTeam.name}</div></div>
       `;
 
-      // API-dən detallı məlumatı çəkirik (Statistika + Hadisələr)
-      const data = await fetchApi(`fixtures?id=${fixtureId}`);
-      document.getElementById('modalLoading').style.display = 'none';
-
-      if(data && data.length > 0) {
-        const detail = data[0];
-        document.getElementById('modalTabs').style.display = 'flex';
-        
-        // 1. STATİSTİKALARIN YARADILMASI
-        const statsContainer = document.getElementById('tabStats');
-        if (detail.statistics && detail.statistics.length === 2) {
-           const homeStats = detail.statistics[0].statistics;
-           const awayStats = detail.statistics[1].statistics;
-           
-           // Lazım olan statları seçirik
-           const statTypes = [
-             { apiName: "Ball Possession", azName: "Topa Sahibolma (%)" },
-             { apiName: "Total Shots", azName: "Ümumi Zərbə" },
-             { apiName: "Shots on Goal", azName: "Qapıya Zərbə" },
-             { apiName: "Fouls", azName: "Faullar" },
-             { apiName: "Corner Kicks", azName: "Künc Zərbələri" }
-           ];
-
-           statTypes.forEach(type => {
-             // Dəyərləri tap
-             let valH = homeStats.find(s => s.type === type.apiName)?.value || 0;
-             let valA = awayStats.find(s => s.type === type.apiName)?.value || 0;
-             
-             // Faizi hesablamaq üçün (bar animasiyası üçün)
-             if(typeof valH === 'string' && valH.includes('%')) valH = parseInt(valH);
-             if(typeof valA === 'string' && valA.includes('%')) valA = parseInt(valA);
-             
-             let numH = valH !== null ? parseInt(valH) : 0;
-             let numA = valA !== null ? parseInt(valA) : 0;
-             
-             let total = numH + numA;
-             let percentH = total === 0 ? 50 : (numH / total) * 100;
-             let percentA = total === 0 ? 50 : (numA / total) * 100;
-
-             statsContainer.innerHTML += `
-               <div class="stat-row">
-                 <div class="stat-labels"><span>${valH !== null ? valH : 0}</span> <span>${type.azName}</span> <span>${valA !== null ? valA : 0}</span></div>
-                 <div class="stat-bar-container">
-                   <div class="stat-bar-home" style="width: ${percentH}%"></div>
-                   <div class="stat-bar-away" style="width: ${percentA}%"></div>
-                 </div>
-               </div>
-             `;
-           });
-        } else {
-           statsContainer.innerHTML = '<div style="text-align:center; color:var(--text-50);">Bu oyun üçün detallı statistika mövcud deyil.</div>';
-        }
-
-        // 2. HADİSƏLƏR (Qol, vərəqə)
-        const eventsContainer = document.getElementById('tabEvents');
-        if(detail.events && detail.events.length > 0) {
-           detail.events.forEach(ev => {
-             // Hadisənin tipinə uyğun ikona
-             let icon = '⚽'; 
-             if(ev.type === 'Card' && ev.detail.includes('Yellow')) icon = '🟨';
-             if(ev.type === 'Card' && ev.detail.includes('Red')) icon = '🟥';
-             if(ev.type === 'subst') icon = '🔄';
-
-             eventsContainer.innerHTML += `
-               <div class="event-item">
-                 <span class="event-time">${ev.time.elapsed}'</span>
-                 <span>${icon} ${ev.player.name} (${ev.team.name}) - ${ev.detail}</span>
-               </div>
-             `;
-           });
-        } else {
-           eventsContainer.innerHTML = '<div style="text-align:center; color:var(--text-50);">Hadisə məlumatı tapılmadı.</div>';
-        }
-
-        switchSubTab('stats'); // Default olaraq statistika tabını aç
-      }
+      // football-data.org pulsuz planında hadisə və detallı statistika yoxdur
+      document.getElementById('tabStats').innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-50);">football-data.org pulsuz planında əlavə oyun statistikası (topa sahibolma, zərbələr və s.) təqdim edilmir.</div>';
     }
 
-    // Modal Bağlama
     function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
-
-    // Modal içi Tab dəyişdirmə (Statistika vs Hadisələr)
-    function switchSubTab(tab) {
-      document.getElementById('btnTabStats').classList.toggle('active', tab === 'stats');
-      document.getElementById('btnTabEvents').classList.toggle('active', tab === 'events');
-      document.getElementById('tabStats').style.display = tab === 'stats' ? 'block' : 'none';
-      document.getElementById('tabEvents').style.display = tab === 'events' ? 'block' : 'none';
-    }
 
     // Əsas Tab dəyişiklikləri
     function switchTab(tab) {
@@ -556,45 +392,15 @@
         document.getElementById('matchesContainer').style.display = 'block';
         document.getElementById('playersContainer').style.display = 'none';
         
-        if(tab === 'live') fetchMatches('fixtures?live=all');
+        if(tab === 'live') fetchMatches('matches?status=IN_PLAY,PAUSED');
         else if(tab === 'today') {
           const today = new Date().toISOString().split('T')[0];
-          fetchMatches(`fixtures?date=${today}`);
+          fetchMatches(`matches?dateFrom=${today}&dateTo=${today}`);
         }
       }
     }
 
-    // Komanda adı ilə əsl axtarış — hazırkı (canlı/bugünkü) siyahı ilə məhdudlaşmır,
-    // həmin komandanın son keçmiş və ən yaxın gələcək oyunlarını birbaşa API-dən çəkir.
-    async function searchTeamMatches(query) {
-      const container = document.getElementById('matchesContainer');
-      container.innerHTML = '<div class="loading-spinner"></div>';
-
-      const teamData = await fetchApi(`teams?search=${encodeURIComponent(query)}`, true);
-      if (!teamData || teamData.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-50)">Komanda tapılmadı. Adı düzgün yazdığınıza əmin olun (məsələn: Barcelona, Real Madrid).</div>';
-        return;
-      }
-
-      const teamId = teamData[0].team.id;
-      const [lastFixtures, nextFixtures] = await Promise.all([
-        fetchApi(`fixtures?team=${teamId}&last=8`, true),
-        fetchApi(`fixtures?team=${teamId}&next=8`, true)
-      ]);
-
-      const combined = [...(nextFixtures || []), ...(lastFixtures || [])]
-        .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
-
-      if (combined.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-50)">Bu komanda üçün oyun tapılmadı.</div>';
-        return;
-      }
-
-      allMatches = combined;
-      renderMatches();
-    }
-
-    // "Axtar" düyməsinə basıldıqda işləyən funksiya
+    // Axtarış düyməsinə basıldıqda
     function handleSearch() {
       const query = document.getElementById('globalSearch').value.trim();
       
@@ -606,19 +412,21 @@
         }
       } else {
         if (query.length >= 2) {
-          searchTeamMatches(query); // Komandanın əsl oyunlarını API-dən çəkir
+          renderMatches(query); // Yalnız mövcud siyahıda axtarır
         } else {
-          // Sorğu boşdursa hazırkı tab-a uyğun siyahını geri qaytarırıq
-          if (currentMode === 'live') fetchMatches('fixtures?live=all');
-          else fetchMatches(`fixtures?date=${new Date().toISOString().split('T')[0]}`);
+          if (currentMode === 'live') fetchMatches('matches?status=IN_PLAY,PAUSED');
+          else {
+            const today = new Date().toISOString().split('T')[0];
+            fetchMatches(`matches?dateFrom=${today}&dateTo=${today}`);
+          }
         }
       }
     }
 
     // Səhifə yüklənəndə canlı matçları gətir
-    fetchMatches('fixtures?live=all');
+    fetchMatches('matches?status=IN_PLAY,PAUSED');
 
-    // === TEMA SEÇİMİ (saytın qalan hissəsi ilə eyni sistem: Sayt rəngi / Açıq / Tünd) ===
+    // === TEMA SEÇİMİ ===
     function applySavedTheme() {
       const saved = localStorage.getItem('maqaluxTheme') || 'site';
       const btn = document.getElementById('themeToggleBtn');
