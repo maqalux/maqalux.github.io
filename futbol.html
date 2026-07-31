@@ -129,12 +129,12 @@
         <button class="search-btn" onclick="handleSearch()">Axtar</button>
       </div>
 
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('live')" id="tabLive">Canlı Oyunlar</button>
-        <button class="tab-btn" onclick="switchTab('today')" id="tabToday">Bu Günün Matçları</button>
+     <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('live')" id="tabLive">Canlı</button>
+        <button class="tab-btn" onclick="switchTab('today')" id="tabToday">Bu Gün</button>
+        <button class="tab-btn" onclick="switchTab('tomorrow')" id="tabTomorrow">Sabah</button>
         <button class="tab-btn" onclick="switchTab('players')" id="tabPlayers">Futbolçu Axtar</button>
       </div>
-    </div>
 
     <div id="matchesContainer"></div>
     <div id="playersContainer" style="display: none;"></div>
@@ -388,8 +388,11 @@
     // Əsas Tab dəyişiklikləri
     function switchTab(tab) {
       currentMode = tab;
+      
+      // Bütün tabların aktivliyini tənzimləyirik
       document.getElementById('tabLive').classList.toggle('active', tab === 'live');
       document.getElementById('tabToday').classList.toggle('active', tab === 'today');
+      document.getElementById('tabTomorrow').classList.toggle('active', tab === 'tomorrow');
       document.getElementById('tabPlayers').classList.toggle('active', tab === 'players');
 
       document.getElementById('globalSearch').value = '';
@@ -402,15 +405,25 @@
         document.getElementById('matchesContainer').style.display = 'block';
         document.getElementById('playersContainer').style.display = 'none';
         
-        if(tab === 'live') fetchMatches('matches?status=IN_PLAY,PAUSED');
-        else if(tab === 'today') {
+        if (tab === 'live') {
+          fetchMatches('matches?status=IN_PLAY,PAUSED');
+        } 
+        else if (tab === 'today') {
           const today = new Date().toISOString().split('T')[0];
           fetchMatches(`matches?dateFrom=${today}&dateTo=${today}`);
+        } 
+        else if (tab === 'tomorrow') {
+          // Sabahın tarixini hesablayırıq
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const tmrwStr = tomorrow.toISOString().split('T')[0];
+          
+          fetchMatches(`matches?dateFrom=${tmrwStr}&dateTo=${tmrwStr}`);
         }
       }
     }
 
-    // Axtarış düyməsinə basıldıqda
+  // Axtarış düyməsinə basıldıqda
     function handleSearch() {
       const query = document.getElementById('globalSearch').value.trim();
       
@@ -424,10 +437,19 @@
         if (query.length >= 2) {
           renderMatches(query); // Yalnız mövcud siyahıda axtarır
         } else {
-          if (currentMode === 'live') fetchMatches('matches?status=IN_PLAY,PAUSED');
-          else {
+          // Axtarış silindikdə cari taba uyğun oyunları yenidən gətir
+          if (currentMode === 'live') {
+            fetchMatches('matches?status=IN_PLAY,PAUSED');
+          } 
+          else if (currentMode === 'today') {
             const today = new Date().toISOString().split('T')[0];
             fetchMatches(`matches?dateFrom=${today}&dateTo=${today}`);
+          } 
+          else if (currentMode === 'tomorrow') {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tmrwStr = tomorrow.toISOString().split('T')[0];
+            fetchMatches(`matches?dateFrom=${tmrwStr}&dateTo=${tmrwStr}`);
           }
         }
       }
