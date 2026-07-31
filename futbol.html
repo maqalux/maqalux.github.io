@@ -169,32 +169,37 @@
     let allMatches = [];
     let currentMode = 'live';
 
-    // Ümumi API sorğusu funksiyası (Proxy ilə yenilənmiş versiya)
+    // Ümumi API sorğusu funksiyası (birbaşa, proxy olmadan - football-data.org CORS-a icazə verir)
     async function fetchApi(endpoint, silent = false) {
       try {
-        // Əsl API ünvanı
         const targetUrl = `https://${API_HOST}/${endpoint}`;
-        
-        // CORS xətasının qarşısını almaq üçün pulsuz Proxy istifadə edirik
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-        
-        const response = await fetch(proxyUrl, {
+
+        const response = await fetch(targetUrl, {
           method: "GET",
-          headers: { 
+          headers: {
             "X-Auth-Token": API_KEY,
             "Accept": "application/json"
           }
         });
-        
+
         const data = await response.json();
-        
-        // football-data.org xəta idarəetməsi
-        if (data.errorCode) {
-             throw new Error("API xətası: " + data.message);
+
+        // football-data.org xəta idarəetməsi (məs. gündəlik/dəqiqəlik limit aşıldıqda)
+        if (!response.ok || data.errorCode) {
+          const reason = data.message || `Server kodu: ${response.status}`;
+          console.error('football-data.org xətası:', response.status, data);
+          if (!silent) {
+            if (response.status === 429) {
+              alert("API sorğu limitinə çatıldı (pulsuz plan dəqiqədə 10 sorğu ilə məhdudlaşır). Bir neçə dəqiqə gözləyib yenidən cəhd edin.");
+            } else {
+              alert("Məlumat yüklənmədi: " + reason);
+            }
+          }
+          return null;
         }
         return data;
       } catch (error) {
-        console.error('API sorğu xətası (CORS və ya Şəbəkə):', error);
+        console.error('API sorğu xətası (şəbəkə):', error);
         if (!silent) alert("Məlumatı yükləmək mümkün olmadı. Zəhmət olmasa internetinizi yoxlayın və ya biraz sonra yenidən cəhd edin.");
         return null;
       }
