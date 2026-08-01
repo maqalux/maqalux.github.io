@@ -16,6 +16,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
+    * {
+  box-sizing: border-box;
+    }
     :root {
       --bg-page: linear-gradient(135deg, #1e002f, #0055a5);
       --text-main: white;
@@ -396,19 +399,20 @@
       opacity: 1;
     }
     .video-modal-content {
-      background: var(--dropdown-bg);
-      width: 100%;
-      max-width: 900px;
-      border-radius: 20px;
-      border: 1px solid var(--border-15);
-      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      transform: scale(0.95);
-      transition: transform 0.3s ease;
-    }
+  background: var(--dropdown-bg);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh; /* BURA YENİ KOD ƏLAVƏ EDİLDİ - Pəncərə ekranı aşmayacaq */
+  border-radius: 20px;
+  border: 1px solid var(--border-15);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
     .video-modal-overlay.active .video-modal-content {
       transform: scale(1);
     }
@@ -453,11 +457,12 @@
       border: none;
     }
     .video-details {
-      padding: 20px;
-      font-size: 0.95em;
-      line-height: 1.6;
-      color: var(--text-main);
-    }
+  padding: 20px;
+  font-size: 0.95em;
+  line-height: 1.6;
+  color: var(--text-main);
+  overflow-y: auto; /* BURA YENİ KOD ƏLAVƏ EDİLDİ - Uzun mətnlər üçün scroll yaranacaq */
+}
     .video-tags {
       display: flex;
       gap: 10px;
