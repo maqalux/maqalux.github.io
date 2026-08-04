@@ -871,24 +871,31 @@ Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı e
       }, 300);
     }
 
-    // Tam ekran funksiyası (planşet və digər cihazlar üçün)
+    // TƏHLÜKƏSİZ TAM EKRAN FUNKSİYASI (planşet donmasının qarşısını alır)
     function toggleFullscreenVideo() {
       const iframe = document.getElementById('videoIframe');
       if (!iframe) return;
-      if (iframe.requestFullscreen) {
-        iframe.requestFullscreen();
-      } else if (iframe.webkitRequestFullscreen) {
-        iframe.webkitRequestFullscreen();
-      } else if (iframe.msRequestFullscreen) {
-        iframe.msRequestFullscreen();
-      } else {
-        // Bəzi brauzerlər iframe-in fullscreen-ə keçməsini dəstəkləməyə bilər, onda videoContainer-ı böyütməyə çalışaq
-        const container = iframe.closest('.video-container');
-        if (container && container.requestFullscreen) {
-          container.requestFullscreen();
+      try {
+        // Əvvəlcə iframe-in özünü tam ekrana keçirməyə çalış
+        if (iframe.requestFullscreen) {
+          iframe.requestFullscreen().catch(() => {});
+        } else if (iframe.webkitRequestFullscreen) {
+          iframe.webkitRequestFullscreen();
+        } else if (iframe.msRequestFullscreen) {
+          iframe.msRequestFullscreen();
         } else {
-          showToast('Tam ekran rejimi dəstəklənmir.', 'error', 3000);
+          // iframe fullscreen dəstəklənmirsə, valideyn konteyneri böyütməyə çalış
+          const container = iframe.closest('.video-container');
+          if (container && container.requestFullscreen) {
+            container.requestFullscreen().catch(() => {});
+          } else {
+            // Heç biri alınmırsa, sakitcə çıx (donma yox)
+            console.warn('Fullscreen dəstəklənmir.');
+          }
         }
+      } catch (e) {
+        // İstənilən xətanı yut və səhifəni dondurma
+        console.warn('Fullscreen xətası:', e);
       }
     }
   </script>
