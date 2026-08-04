@@ -402,7 +402,7 @@
   background: var(--dropdown-bg);
   width: 100%;
   max-width: 900px;
-  max-height: 90vh; /* BURA YENİ KOD ƏLAVƏ EDİLDİ - Pəncərə ekranı aşmayacaq */
+  max-height: 90vh;
   border-radius: 20px;
   border: 1px solid var(--border-15);
   box-shadow: 0 25px 60px rgba(0,0,0,0.8);
@@ -461,7 +461,7 @@
   font-size: 0.95em;
   line-height: 1.6;
   color: var(--text-main);
-  overflow-y: auto; /* BURA YENİ KOD ƏLAVƏ EDİLDİ - Uzun mətnlər üçün scroll yaranacaq */
+  overflow-y: auto;
 }
     .video-tags {
       display: flex;
@@ -634,18 +634,22 @@
     <div class="video-modal-content">
       <div class="video-modal-header">
         <h3 class="video-modal-title" id="videoModalTitle">Film Adı</h3>
-        <button class="video-close-btn" onclick="closeVideoModal()">✕</button>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <button class="video-close-btn" onclick="toggleFullscreenVideo()" title="Tam ekran" style="font-size:20px;">⛶</button>
+          <button class="video-close-btn" onclick="closeVideoModal()">✕</button>
+        </div>
       </div>
       <div class="video-container">
-       <iframe 
-  id="videoIframe" 
-  src="" 
-  frameborder="0" 
-  allow="fullscreen; autoplay; picture-in-picture" 
-  allowfullscreen="true"
-  webkitallowfullscreen="true" 
-  mozallowfullscreen="true">
-</iframe>
+        <iframe 
+          id="videoIframe" 
+          src="" 
+          frameborder="0" 
+          allow="fullscreen; autoplay; picture-in-picture" 
+          allowfullscreen="true"
+          webkitallowfullscreen="true" 
+          mozallowfullscreen="true"
+          sandbox="allow-same-origin allow-scripts allow-presentation allow-fullscreen"
+        ></iframe>
       </div>
       <div class="video-details">
         <div class="video-tags" id="videoModalTags">
@@ -730,7 +734,7 @@ Vaxt keçdikcə "Yaşıl qoblin" Piterin sevdiyi qızı Meri Ceyni və funikulyo
         year: 2004,
         imdb: "7.5/10",
         poster: "https://upload.wikimedia.org/wikipedia/tr/2/26/%C3%96r%C3%BCmcek_Adam_2_film_posteri.jpg",
-        iframe: "https://vk.com/video_ext.php?oid=261439208&id=169408301", // Düzəliş: Universal VK embed linki əlavə edildi
+        iframe: "https://vk.com/video_ext.php?oid=261439208&id=169408301",
         description: `Piter Parker superqəhrəman öhdəlikləri ilə şəxsi həyatı arasındakı tarazlığı qorumaqda böyük çətinlik çəkir. Gündəlik həyatında hər şey tərs getməyə başlayır: universitetdə dərslərindən geri qalır, işini itirir və ciddi maddi sıxıntılarla üzləşir. Üstəlik, dərindən aşiq olduğu Meri Ceyn başqası ilə evlənməyə hazırlaşır, ən yaxın dostu Harri Ozborn isə atasının ölümündə günahlandırdığı Hörümçək-adama qarşı qisas hissi ilə alışıb yanır.
 
 Yaşadığı dərin stress, daxili ziddiyyətlər və xəyal qırıqlıqları Piterin super güclərini yavaş-yavaş itirməsinə səbəb olur. Bütün bu yüklərin altında əzilən Piter, nəhayət, kəskin bir qərar verir: o, Hörümçək-adam kostyumunu zibil qutusuna ataraq qəhrəmanlıqdan imtina edir və sadəcə normal bir insan kimi həyatına davam etməyi seçir.
@@ -756,7 +760,7 @@ Bu ərəfədə Piterin keçmişi ilə bağlı şok edici bir həqiqət ortaya ç
 Bütün bunlar azmış kimi, atasının intiqamını almağa and içən ən yaxın dostu Harri Ozborn atasının texnologiyalarından istifadə edərək "Yeni Qoblin" kimi Piterə hücum edir. Həmçinin, Piterin "Daily Bugle" qəzetindəki rəqibi, hiyləgər fotoqraf Eddi Brok Piterin rədd etdiyi qara simbiotla birləşərək indiyə qədərki ən təhlükəli düşmənə – "Venom"a çevrilir.
 
 Venom və Qum-adamın birləşərək Meri Ceyni qaçırması ilə vəziyyət kritik həddə çatır. Piter Parker indi həm ən güclü düşmənlərinə, həm də öz daxilindəki qaranlığa qarşı savaşmalıdır. O, təkəbbürünə qalib gəlməli, bağışlamağın gücünü dərk etməli və əsl qəhrəmanlığın kostyumda deyil, insanın qəlbində olduğunu yenidən xatırlamalıdır. Bu çətin döyüşdə Piterin gözlənilməz bir müttəfiqə ehtiyacı olacaq.`
-      },
+      },
       {
         id: 4,
         title: "Kaptan Amerika: Kahramanların savaşı / Captain America: Civil War",
@@ -772,18 +776,15 @@ Bu yeni sənəd Qisasçılar arasında dərin bir ideoloji parçalanmaya səbəb
 Vyanada müqavilənin imzalanması mərasimində baş verən dəhşətli terror aktı vəziyyəti kəskinləşdirir. Partlayışın əsas şübhəlisi kimi Stivin uşaqlıq dostu və keçmiş beyni yuyulmuş suiqəsdçi olan Baki Barns (Qış əsgəri) göstərilir. Stiv dostunun günahsız olduğuna inanır və onu qanunsuz yollarla tutulmaqdan və ya öldürülməkdən xilas etmək üçün qanunları pozmağa qərar verir. Beləliklə, Qisasçılar iki düşmən cəbhəyə bölünür: Kapitan Amerikanın müstəqillik axtaran komandası və Dəmir Adamın qanunlara tabe olan komandası.
 
 Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı epik bir savaşa girişirlər. Lakin pərdə arxasında Qisasçıları bir-birinə qırdıraraq daxildən parçalamaq istəyən intiqam dolu bir düşmən – Helmut Zemo dayanır. Zemonun qaranlıq planı baş tutduqda və Baki ilə Starkın keçmişini birləşdirən faciəvi həqiqət (Toninin valideynlərinin ölümü) ortaya çıxdıqda, Stiv və Toni arasındakı dostluq bağları tamamilə qopur və yerini emosional, ölüm-dirim mübarizəsinə buraxır.`
-    },
+      }
     ];  
     let currentCategory = 'Hamısı';
     let currentSearch = '';
 
-    // Səhifə yükləndikdə filmləri göstər
-    document.addEventListener("DOMContentLoaded", () => {
-      renderMovies();
-    });
-
+    // Həm DOMContentLoaded, həm də birbaşa renderMovies çağırılır
     function renderMovies() {
       const grid = document.getElementById("moviesGrid");
+      if (!grid) return;
       grid.innerHTML = "";
 
       const filteredMovies = moviesData.filter(movie => {
@@ -820,10 +821,18 @@ Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı e
       });
     }
 
+    // Səhifə yükləndikdə və dərhal render et
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderMovies);
+    } else {
+      renderMovies();
+    }
+    // Hər halda təhlükəsizlik üçün bir daha
+    window.addEventListener('load', renderMovies);
+
     function handleFilter(category, btnElement) {
       currentCategory = category;
       
-      // Aktiv düyməni yenilə
       const buttons = document.querySelectorAll(".filter-btn");
       buttons.forEach(btn => btn.classList.remove("active"));
       btnElement.classList.add("active");
@@ -836,7 +845,7 @@ Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı e
       renderMovies();
     }
 
-    // Modal Video Funksiyaları
+    // Video Modal
     function openVideoModal(id) {
       const movie = moviesData.find(m => m.id === id);
       if (!movie) return;
@@ -844,14 +853,6 @@ Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı e
       document.getElementById("videoModalTitle").innerText = movie.title;
       document.getElementById("videoModalDesc").innerText = movie.description;
       document.getElementById("videoIframe").src = movie.iframe;
-      if (screen.orientation && screen.orientation.lock) {
-   
-      console.log("Cihaz ekranın kodla fırladılmasına icazə vermədi.");
-    });
-  }
-  // =========================================================================
-
-  const categoriesText = Array.isArray(movie.category) ? movie.category.join(", ") : movie.category;
       
       const tagsContainer = document.getElementById("videoModalTags");
       tagsContainer.innerHTML = `
@@ -865,10 +866,30 @@ Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı e
 
     function closeVideoModal() {
       document.getElementById("videoModalOverlay").classList.remove("active");
-      // Videonu dayandırmaq üçün iframe src-sini sıfırlayırıq
       setTimeout(() => {
         document.getElementById("videoIframe").src = "";
       }, 300);
+    }
+
+    // Tam ekran funksiyası (planşet və digər cihazlar üçün)
+    function toggleFullscreenVideo() {
+      const iframe = document.getElementById('videoIframe');
+      if (!iframe) return;
+      if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+      } else if (iframe.webkitRequestFullscreen) {
+        iframe.webkitRequestFullscreen();
+      } else if (iframe.msRequestFullscreen) {
+        iframe.msRequestFullscreen();
+      } else {
+        // Bəzi brauzerlər iframe-in fullscreen-ə keçməsini dəstəkləməyə bilər, onda videoContainer-ı böyütməyə çalışaq
+        const container = iframe.closest('.video-container');
+        if (container && container.requestFullscreen) {
+          container.requestFullscreen();
+        } else {
+          showToast('Tam ekran rejimi dəstəklənmir.', 'error', 3000);
+        }
+      }
     }
   </script>
 
