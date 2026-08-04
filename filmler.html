@@ -637,7 +637,15 @@
         <button class="video-close-btn" onclick="closeVideoModal()">✕</button>
       </div>
       <div class="video-container">
-        <iframe id="videoIframe" src="" allowfullscreen="true" allow="autoplay; fullscreen"></iframe>
+       <iframe 
+  id="videoIframe" 
+  src="" 
+  frameborder="0" 
+  allow="fullscreen; autoplay; picture-in-picture" 
+  allowfullscreen="true"
+  webkitallowfullscreen="true" 
+  mozallowfullscreen="true">
+</iframe>
       </div>
       <div class="video-details">
         <div class="video-tags" id="videoModalTags">
@@ -836,6 +844,14 @@ Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı e
       document.getElementById("videoModalTitle").innerText = movie.title;
       document.getElementById("videoModalDesc").innerText = movie.description;
       document.getElementById("videoIframe").src = movie.iframe;
+      if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock("landscape").catch(() => {
+      console.log("Cihaz ekranın kodla fırladılmasına icazə vermədi.");
+    });
+  }
+  // =========================================================================
+
+  const categoriesText = Array.isArray(movie.category) ? movie.category.join(", ") : movie.category;
       
       const tagsContainer = document.getElementById("videoModalTags");
       tagsContainer.innerHTML = `
