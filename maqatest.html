@@ -8,258 +8,538 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Maqalux">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Maqalux - Ana səhifə</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Filmlər və Seriallar | Maqalux</title>
   <link rel="icon" href="/icon-192.png" type="image/png">
-  <meta name="description" content="Maqalux - Faydalı məlumatlar, xəbərlər və əyləncə">
+  <meta name="description" content="Ən son filmlər, seriallar və əyləncəli kinolar Maqalux-da!">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* === BÜTÜN ORİJİNAL STILLƏR + AUTH MODAL ÜÇÜN ƏLAVƏLƏR === */
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1e002f, #0055a5); color: white; min-height: 100vh; display: flex; flex-direction: column; }
-    a { color: #ffaa00; text-decoration: none; }
 
-    /* Header - orijinal */
-    header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); padding: 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.2); position: sticky; top: 0; z-index: 1000; height: 90px; box-sizing: border-box; }
-    header a.logo img { height: 55px; transition: 0.3s; }
-    header a.logo img:hover { transform: scale(1.05); }
-    nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; align-items: center; }
-    nav ul li a { text-decoration: none; color: white; font-weight: 600; padding: 10px 18px; border-radius: 30px; transition: 0.3s; font-size: 16px; }
-    nav ul li a:hover { background: rgba(255,215,0,0.2); }
-    nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: #0a1329; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    :root {
+      --bg-page: linear-gradient(135deg, #1e002f, #0055a5);
+      --text-main: white;
+      --text-55: rgba(255,255,255,0.55);
+      --text-50: rgba(255,255,255,0.5);
+      --text-40: rgba(255,255,255,0.4);
+      --border-20: rgba(255,255,255,0.2);
+      --border-15: rgba(255,255,255,0.15);
+      --border-12: rgba(255,255,255,0.12);
+      --border-10: rgba(255,255,255,0.1);
+      --panel-08: rgba(255,255,255,0.08);
+      --panel-06: rgba(255,255,255,0.06);
+      --panel-05: rgba(255,255,255,0.05);
+      --dropdown-bg: rgba(13,27,62,0.97);
+      --toast-bg: rgba(13,27,62,0.97);
+      --toast-text: white;
+    }
+    body.dark-theme {
+      --bg-page: linear-gradient(135deg, #0c0c10 0%, #17171c 50%, #101014 100%);
+      --dropdown-bg: rgba(24,24,28,0.97);
+      --toast-bg: rgba(24,24,28,0.97);
+      --toast-text: white;
+    }
+    body.light-theme {
+      --bg-page: linear-gradient(135deg, #eef2f9 0%, #e2ecf9 45%, #d3e4fb 100%);
+      --text-main: #16213e;
+      --text-55: rgba(22,33,62,0.62);
+      --text-50: rgba(22,33,62,0.55);
+      --text-40: rgba(22,33,62,0.45);
+      --border-20: rgba(22,33,62,0.16);
+      --border-15: rgba(22,33,62,0.14);
+      --border-12: rgba(22,33,62,0.12);
+      --border-10: rgba(22,33,62,0.1);
+      --panel-08: rgba(22,33,62,0.06);
+      --panel-06: rgba(22,33,62,0.045);
+      --panel-05: rgba(22,33,62,0.035);
+      --dropdown-bg: rgba(255,255,255,0.98);
+      --toast-bg: rgba(255,255,255,0.98);
+      --toast-text: #16213e;
+    }
+
+    .theme-toggle-btn { background: var(--panel-08); border: 1px solid var(--border-10); color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+    .theme-toggle-btn:hover { background: var(--panel-06); }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header CSS */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: var(--border-10);
+      backdrop-filter: blur(15px);
+      padding: 15px 30px;
+      border-bottom: 1px solid var(--border-20);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    header img { height: 55px; }
+    nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }
+    nav ul li a {
+      text-decoration: none; color: var(--text-main); font-weight: 600; padding: 10px 18px; border-radius: 30px; position: relative; overflow: hidden; display: inline-block; z-index: 1; transition: all 0.3s ease;
+    }
+    nav ul li a::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%; background: linear-gradient(90deg, #FFD700, #FF8C00); transition: width 0.4s ease; z-index: -1; border-radius: 30px;
+    }
+    nav ul li a:hover::before { width: 100%; }
+    nav ul li a:hover { color: black; }
+    nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: black; box-shadow: 0 0 20px rgba(255,215,0,0.6); }
 
     .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
     .hamburger-btn { display: none; background: none; border: none; margin: 0; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
     .msg-icon-wrap { position: relative; cursor: pointer; }
     .msg-icon-wrap .msg-icon { font-size: 22px; display: flex; }
-    .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: #fff; font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #030714; }
+    .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: var(--text-main); font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #030714; }
     .msg-badge.hidden { display: none; }
-    .msg-dropdown { position: absolute; top: 38px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: rgba(13,27,62,0.97); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; z-index: 6000; }
+    .msg-dropdown { position: absolute; top: 38px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; z-index: 6000; }
     .msg-dropdown.active { display: block; }
-    .msg-dropdown-header { padding: 14px 16px; font-weight: 700; color: #FFD700; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .msg-dropdown-header { padding: 14px 16px; font-weight: 700; color: #FFD700; border-bottom: 1px solid var(--border-10); }
     .msg-dropdown-list { display: flex; flex-direction: column; }
-    .msg-dropdown-empty { padding: 24px 16px; text-align: center; color: rgba(255,255,255,0.5); font-size: 14px; }
-    .msg-conv-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .msg-conv-item:hover { background: rgba(255,255,255,0.06); }
+    .msg-dropdown-empty { padding: 24px 16px; text-align: center; color: var(--text-50); font-size: 14px; }
+    .msg-conv-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--panel-05); }
+    .msg-conv-item:hover { background: var(--panel-06); }
     .msg-conv-item.unread { background: rgba(255,170,0,0.08); }
     .msg-conv-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,170,0,0.3); }
     .msg-conv-info { flex: 1; min-width: 0; }
-    .msg-conv-name { font-size: 14px; color: #fff; }
+    .msg-conv-name { font-size: 14px; color: var(--text-main); }
     .msg-conv-item.unread .msg-conv-name { font-weight: 700; }
-    .msg-conv-preview { font-size: 12.5px; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .msg-conv-preview { font-size: 12.5px; color: var(--text-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
     .msg-conv-item.unread .msg-conv-preview { color: rgba(255,255,255,0.85); }
     .msg-conv-dot { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ffaa00; color: #030714; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; cursor: pointer; transition: 0.2s; }
     .profile-avatar:hover { transform: scale(1.1); }
 
-    /* Dropdown */
-    .dropdown-menu { position: absolute; top: 70px; right: 20px; background: rgba(13,27,62,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 200px; z-index: 2000; }
+    .dropdown-menu { position: absolute; top: 70px; right: 20px; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 200px; z-index: 2000; }
     .dropdown-menu.active { display: flex; }
-    .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; color: white; transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-    .dropdown-item:hover { background: rgba(255,255,255,0.1); }
+    .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--text-main); transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    .dropdown-item:hover { background: var(--border-10); }
     .dropdown-item.danger { color: #ff6b6b; }
 
-    /* Auth modal - mərkəzdə, arxa fon blur */
-    .auth-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(8px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 5000;
-      padding: 20px;
-    }
+    /* Auth & Modals CSS */
+    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 5000; padding: 20px; }
     .auth-overlay.hidden { display: none; }
-
-    .loading-screen {
-      position: fixed;
-      inset: 0;
-      background: #030714;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
+    .loading-screen { position: fixed; inset: 0; background: #030714; display: flex; justify-content: center; align-items: center; z-index: 9999; }
     .loading-screen.hidden { display: none; }
-    .spinner {
-      width: 42px; height: 42px;
-      border: 4px solid rgba(255,255,255,0.15);
-      border-top-color: #ffaa00;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    .spinner { width: 42px; height: 42px; border: 4px solid var(--border-15); border-top-color: #ffaa00; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-
-    .auth-card {
-      background: rgba(13,27,62,0.95);
-      backdrop-filter: blur(20px);
-      padding: 40px 35px;
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 25px 55px rgba(0,0,0,0.6);
-      width: 100%;
-      max-width: 380px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      animation: fadeIn 0.4s ease;
-    }
-    @keyframes fadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
-
+    .auth-card { background: var(--dropdown-bg); backdrop-filter: blur(20px); padding: 40px 35px; border-radius: 24px; border: 1px solid var(--panel-08); box-shadow: 0 25px 55px rgba(0,0,0,0.6); width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; animation: authFadeIn 0.4s ease; }
+    @keyframes authFadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
     .auth-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; }
     .auth-card p.sub { color: rgba(255,255,255,0.6); font-size: 14px; margin: 0 0 30px 0; text-align: center; }
     .input-group { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: white; font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; }
-    .custom-input:focus { border-color: #ffa200; background: rgba(255,255,255,0.15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
-    .custom-input::placeholder { color: rgba(255,255,255,0.4); }
+    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid var(--border-15); background: var(--panel-08); color: var(--text-main); font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+    .custom-input:focus { border-color: #ffa200; background: var(--border-15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
+    .custom-input::placeholder { color: var(--text-40); }
     .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
     .password-wrapper .custom-input { padding-right: 55px; }
-    .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; color: rgba(255,255,255,0.5); user-select: none; }
-    .toggle-password:hover { color: white; }
-    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); }
+    .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; color: var(--text-50); user-select: none; }
+    .toggle-password:hover { color: var(--text-main); }
+    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); font-family: 'Poppins', sans-serif; }
     .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,152,0,0.4); }
-    .switch-text { color: rgba(255,255,255,0.5); font-size: 13.5px; margin-top: 20px; text-align: center; }
+    .switch-text { color: var(--text-50); font-size: 13.5px; margin-top: 20px; text-align: center; }
     .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; }
-    .switch-text span:hover { color: white; }
-    .forgot-pass-link { color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer; text-align: center; margin-top: 14px; text-decoration: underline; }
+    .switch-text span:hover { color: var(--text-main); }
+    .forgot-pass-link { color: var(--text-50); font-size: 13px; cursor: pointer; text-align: center; margin-top: 14px; text-decoration: underline; }
     .forgot-pass-link:hover { color: #ffb700; }
-    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; }
-    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,255,255,0.2); }
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid var(--border-20); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; font-family: 'Poppins', sans-serif; }
+    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--border-20); }
     .google-btn img { width: 19px; height: 19px; }
     .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
-    .divider-row .line { flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
-    .divider-row span { color: rgba(255,255,255,0.4); font-size: 12.5px; }
+    .divider-row .line { flex: 1; height: 1px; background: var(--border-15); }
+    .divider-row span { color: var(--text-40); font-size: 12.5px; }
 
-    /* Əsas məzmun - arxa fonda görünəcək, amma auth olmadıqda qarşılıqlı təsirsiz */
-    main {
-      flex: 1;
-      max-width: 900px;
-      margin: 60px auto;
-      padding: 0 20px;
-      width: 100%;
-      pointer-events: none; /* auth açıq olduqda heç bir klik işləməsin */
-    }
-    .content-wrapper {
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(20px);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      animation: fadeIn 1s ease;
-      text-align: center;
-    }
-    .content-wrapper h1 { font-size: 2.4em; background: linear-gradient(90deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .content-wrapper p { font-size: 1.1em; line-height: 1.8; color: #f8f8f8; }
-
-    /* Daxil olduqdan sonra main pointer-events: auto olur */
-    body.logged-in main { pointer-events: auto; }
-
-    /* Modal (şifrə dəyiş, hesab sil) - eyni üslub */
     .modal-overlay { position: fixed; inset: 0; background: rgba(3,7,20,0.75); backdrop-filter: blur(6px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
     .modal-overlay.active { display: flex; }
-    .modal-box { background: rgba(13,27,62,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 360px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; }
+    .modal-box { background: var(--dropdown-bg); border: 1px solid var(--border-10); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 360px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; }
     .modal-box h3 { color: #ffaa00; margin: 0 0 8px 0; font-size: 1.4em; }
-    .modal-box p.modal-desc { color: rgba(255,255,255,0.55); font-size: 13.5px; margin: 0 0 22px 0; text-align: center; }
-    .modal-close { align-self: flex-end; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; }
-    .modal-close:hover { color: white; }
+    .modal-box p.modal-desc { color: var(--text-55); font-size: 13.5px; margin: 0 0 22px 0; text-align: center; }
+    .modal-close { align-self: flex-end; background: none; border: none; color: var(--text-50); font-size: 22px; cursor: pointer; }
+    .modal-close:hover { color: var(--text-main); }
 
-    /* Toast */
-    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 5000; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
-    .toast { background: rgba(13,27,62,0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: white; font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
+    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 9500; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
+    .toast { background: var(--toast-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: var(--toast-text); font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
     .toast.show { opacity: 1; transform: translateX(0); }
     .toast.toast-success { border-left-color: #2ecc71; }
     .toast.toast-error { border-left-color: #e74c3c; }
 
-    footer { text-align: center; padding: 20px; color: #FFD700; font-weight: 600; border-top: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
+    /* FILM SAYTI ÜÇÜN XÜSUSİ DİZAYN (KARTLAR KİÇİK VƏ MÜASİR) */
+    main { 
+      flex: 1;
+      max-width: 1200px; 
+      width: 100%;
+      margin: 30px auto; 
+      padding: 0 16px; 
+      pointer-events: none;
+    }
+    body.logged-in main { pointer-events: auto; }
 
-    /* Mobil */
-    @media (max-width: 700px) {
-      header { height: auto; flex-direction: column; gap: 10px; padding: 15px 20px; position: relative; }
-      .header-right { order: 2; width: 100%; justify-content: center; gap: 22px; }
-      .hamburger-btn { display: flex; }
-      nav { order: 3; width: 100%; display: none; }
-      nav.mobile-nav-open { display: flex; }
-      nav ul { flex-direction: column; align-items: center; width: 100%; }
-      nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
-      .dropdown-menu { right: 10px; top: 60px; min-width: 180px; }
-      .msg-dropdown { right: -10px; width: 92vw; max-width: 340px; }
-      .content-wrapper { padding: 20px 15px; }
-      .content-wrapper h1 { font-size: 1.8em; }
-      .auth-card { padding: 30px 20px; }
-      #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
-    }
-      /* === SON PRİORİTETLİ QAYDA (bütün köhnə/təkrarlanan qaydaları əzir) === */
-    @media (max-width: 700px) {
-      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; }
-      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 22px !important; margin-left: 0 !important; margin-right: 0 !important; }
-      header > nav { order: 3 !important; width: 100% !important; }
-      header > nav:not(.mobile-nav-open) { display: none !important; }
-      header > nav.mobile-nav-open { display: flex !important; }
-    }
-    .image-viewer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.92);
-      display: none;
+    .movies-header {
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      z-index: 9000;
+      margin-bottom: 30px;
+      text-align: center;
+      animation: fadeIn 1s ease;
     }
-    .image-viewer-overlay.active { display: flex; }
-    .image-viewer-overlay img {
-      max-width: 92vw;
-      max-height: 90vh;
-      border-radius: 8px;
-      object-fit: contain;
+    .movies-header h1 {
+      font-size: 2.2em;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 12px 0;
     }
-    .image-viewer-close {
+
+    .search-bar-container {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      margin-bottom: 20px;
+    }
+    .search-bar-container input {
+      width: 100%;
+      padding: 14px 18px 14px 42px;
+      border-radius: 30px;
+      border: 1px solid var(--border-20);
+      background: var(--panel-08);
+      color: var(--text-main);
+      font-size: 15px;
+      font-family: 'Poppins', sans-serif;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      outline: none;
+    }
+    .search-bar-container input:focus {
+      border-color: #ffaa00;
+      box-shadow: 0 0 15px rgba(255, 170, 0, 0.3);
+    }
+    .search-bar-container i {
       position: absolute;
-      top: 18px;
-      right: 22px;
-      font-size: 26px;
-      color: white;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-50);
+      font-size: 17px;
+    }
+
+    .filters-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .filter-btn {
+      background: var(--panel-08);
+      border: 1px solid var(--border-20);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 20px;
       cursor: pointer;
-      opacity: 0.8;
-      width: 40px;
-      height: 40px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    .filter-btn:hover {
+      background: var(--panel-15);
+      transform: translateY(-2px);
+    }
+    .filter-btn.active {
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      color: #030714;
+      border-color: transparent;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    }
+
+    /* Film Şəbəkəsi – daha kiçik kartlar */
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 18px;
+      padding-bottom: 40px;
+    }
+    .movie-card {
+      background: var(--panel-05);
+      border: 1px solid var(--border-10);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      position: relative;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+    .movie-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+      border-color: var(--border-20);
+    }
+    .movie-poster-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      overflow: hidden;
+      background: #0a0a12;
+    }
+    .movie-poster {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+    .movie-card:hover .movie-poster {
+      transform: scale(1.04);
+    }
+    .movie-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      color: #FFD700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      letter-spacing: 0.3px;
+    }
+    .movie-info {
+      padding: 12px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .movie-meta {
+      font-size: 11px;
+      color: var(--text-50);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: 0.2px;
+    }
+    .movie-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0 0 12px 0;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+    .watch-btn {
+      background: rgba(255, 215, 0, 0.12);
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      color: #FFD700;
+      width: 100%;
+      padding: 8px 0;
+      border-radius: 10px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.25s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
+      gap: 6px;
+      backdrop-filter: blur(4px);
     }
+    .watch-btn:hover {
+      background: linear-gradient(90deg, #FFD700, #FF8C00);
+      color: #030714;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(255, 215, 0, 0.3);
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--text-50);
+      font-size: 1.1em;
+    }
+
+    /* Video Player Modal */
+    .video-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 8000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .video-modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+    .video-modal-content {
+      background: var(--dropdown-bg);
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      border-radius: 20px;
+      border: 1px solid var(--border-15);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+    .video-modal-overlay.active .video-modal-content {
+      transform: scale(1);
+    }
+    .video-modal-header {
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-10);
+      background: rgba(0,0,0,0.2);
+    }
+    .video-modal-title {
+      font-weight: 700;
+      font-size: 1.1em;
+      color: #FFD700;
+      margin: 0;
+    }
+    .video-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-55);
+      font-size: 22px;
+      cursor: pointer;
+      transition: 0.2s;
+      padding: 4px 8px;
+    }
+    .video-close-btn:hover {
+      color: var(--text-main);
+      transform: scale(1.1);
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      background: #000;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .video-details {
+      padding: 18px 20px;
+      font-size: 0.92em;
+      line-height: 1.6;
+      color: var(--text-main);
+      overflow-y: auto;
+    }
+    .video-tags {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .video-tag {
+      background: var(--panel-08);
+      border: 1px solid var(--border-15);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-50);
+    }
+
+    footer { text-align: center; padding: 18px; color: #FFD700; font-weight: 600; margin-top: auto; border-top: 1px solid var(--border-20); background: var(--panel-05); backdrop-filter: blur(10px); }
+
+    /* Mobil uyğunlaşdırma */
+    @media (max-width: 700px) {
+      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; padding: 12px 16px; position: relative; }
+      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 18px !important; margin-left: 0 !important; margin-right: 0 !important; }
+      .hamburger-btn { display: flex; }
+      header > nav { order: 3 !important; width: 100% !important; }
+      header > nav:not(.mobile-nav-open) { display: none !important; }
+      header > nav.mobile-nav-open { display: flex !important; }
+      nav ul { flex-direction: column; align-items: center; width: 100%; }
+      nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
+      .msg-dropdown { right: -10px; width: 92vw; max-width: 340px; }
+      .dropdown-menu { right: 10px; top: 60px; min-width: 180px; }
+      .auth-card { padding: 30px 20px; }
+      #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
+      
+      .movies-header h1 { font-size: 1.8em; }
+      .filters-container { gap: 8px; }
+      .filter-btn { padding: 6px 14px; font-size: 12px; }
+      .movies-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+      .movie-title { font-size: 13px; }
+      .watch-btn { font-size: 12px; padding: 7px 0; }
+      .video-modal-content { border-radius: 12px; }
+    }
+
+    .image-viewer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); display: none; align-items: center; justify-content: center; z-index: 9000; }
+    .image-viewer-overlay.active { display: flex; }
+    .image-viewer-overlay img { max-width: 92vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+    .image-viewer-close { position: absolute; top: 18px; right: 22px; font-size: 26px; color: var(--text-main); cursor: pointer; opacity: 0.8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--border-10); }
     .image-viewer-close:hover { opacity: 1; }
-</style>
+  </style>
 </head>
+
 <body>
   <div class="image-viewer-overlay" id="imageViewerOverlay" onclick="if(event.target.id==='imageViewerOverlay') closeImageViewer();">
     <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
     <img id="imageViewerImg" src="" alt="Şəkil">
   </div>
-  <div id="loadingScreen" class="loading-screen">
-    <div class="spinner"></div>
-  </div>
+  <div id="loadingScreen" class="loading-screen"><div class="spinner"></div></div>
   <div id="toastContainer"></div>
 
   <header>
-    <a href="index.html" class="logo"><img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux"></a>
+    <a href="index.html" class="logo"><img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu"></a>
     <nav>
       <ul>
-        <li><a href="index.html" class="active">Ana səhifə</a></li>
+        <li><a href="index.html">Ana səhifə</a></li>
         <li><a href="xeberler.html">Xəbərlər</a></li>
         <li><a href="proqramlar.html">Proqramlar</a></li>
         <li><a href="şahmat.html">Şahmat</a></li>
-        <li><a href="eylence.html">Əyləncə</a></li>
-        <li><a href="onlinechat">Onlayn çat</a></li>  
+        <li><a href="eylence.html" class="active">Əyləncə</a></li>
+        <li><a href="onlinechat">Onlayn çat</a></li>
         <li><a href="haqqimizda.html">Haqqımızda</a></li>
         <li><a href="elaqe.html">Əlaqə</a></li>
-      </ul>
+      </ul> 
     </nav>
     <div class="header-right">
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()" title="Tema dəyiş">☀️</button>
       <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
       <div class="dropdown-menu" id="dropdownMenu">
         <div id="dropdownLevel1">
@@ -290,14 +570,13 @@
     </div>
   </header>
 
-  <!-- Auth Modal (hər zaman səhifənin üstündə) -->
+  <!-- Auth Modal -->
   <div class="auth-overlay hidden" id="authOverlay">
-    <!-- Login Form -->
     <div id="loginFormCard" class="auth-card">
       <h2>Maqalux</h2>
       <p class="sub">Daxil olun və saytdan tam faydalanın</p>
       <div class="input-group">
-        <input type="email" id="loginEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
+        <input type="text" id="loginEmailInput" class="custom-input" placeholder="E-poçt və ya istifadəçi adı">
         <div class="password-wrapper">
           <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
           <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
@@ -311,7 +590,6 @@
         <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
       </div>
     </div>
-    <!-- Register Form -->
     <div id="registerFormCard" class="auth-card" style="display:none;">
       <h2>Yeni Qeydiyyat</h2>
       <p class="sub">Hesab yaradın və icmaya qoşulun</p>
@@ -333,16 +611,60 @@
   </div>
 
   <main>
-    <div class="content-wrapper">
-      <h1>Ana səhifə</h1>
-      <p>Maqalux saytına xoş gəlmisiniz! Burada faydalı məlumatlar, xəbərlər və əyləncəli məzmun tapa bilərsiniz.</p>
-      <p style="margin-top:20px; font-size:0.95em; color:rgba(255,255,255,0.7);">
-        Siz daxil olduğunuz üçün onlayn çatda da aktiv görünürsünüz. İstənilən vaxt <a href="onlinechat.html" style="color:#ffaa00; text-decoration:underline;">çata keçə</a> bilərsiniz.
-      </p>
+    <div class="movies-header">
+      <h1>Filmlər və Seriallar</h1>
+      
+      <div class="search-bar-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="movieSearch" placeholder="Film, serial axtarın..." oninput="handleSearch()">
+      </div>
+      
+      <div class="filters-container" id="filtersContainer">
+        <button class="filter-btn active" onclick="handleFilter('Hamısı', this)">Hamısı</button>
+        <button class="filter-btn" onclick="handleFilter('Döyüş', this)">Döyüş</button>
+        <button class="filter-btn" onclick="handleFilter('Komediya', this)">Komediya</button>
+        <button class="filter-btn" onclick="handleFilter('Dram', this)">Dram</button>
+        <button class="filter-btn" onclick="handleFilter('Fantastika', this)">Fantastika</button>
+        <button class="filter-btn" onclick="handleFilter('Seriallar', this)">Seriallar</button>
+        <button class="filter-btn" onclick="handleFilter('Seriallar', this)">Azərbaycan filmləri</button>
+      </div>
+    </div>
+
+    <div class="movies-grid" id="moviesGrid">
+      <!-- Məzmun JavaScript vasitəsilə bura yüklənəcək -->
     </div>
   </main>
 
-  <!-- Modallar -->
+  <!-- Video Player Modal -->
+  <div class="video-modal-overlay" id="videoModalOverlay" onclick="if(event.target.id==='videoModalOverlay') closeVideoModal();">
+    <div class="video-modal-content">
+      <div class="video-modal-header">
+        <h3 class="video-modal-title" id="videoModalTitle">Film Adı</h3>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <button class="video-close-btn" onclick="toggleFullscreenVideo()" title="Tam ekran" style="font-size:20px;">⛶</button>
+          <button class="video-close-btn" onclick="closeVideoModal()">✕</button>
+        </div>
+      </div>
+      <div class="video-container">
+        <iframe 
+          id="videoIframe" 
+          src="" 
+          frameborder="0" 
+          allow="fullscreen; autoplay; picture-in-picture" 
+          allowfullscreen="true"
+          webkitallowfullscreen="true" 
+          mozallowfullscreen="true"
+          sandbox="allow-same-origin allow-scripts allow-presentation allow-fullscreen"
+        ></iframe>
+      </div>
+      <div class="video-details">
+        <div class="video-tags" id="videoModalTags"></div>
+        <p id="videoModalDesc">Film haqqında məlumat burada görünəcək.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modals -->
   <div class="modal-overlay" id="forgotPasswordModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
@@ -352,14 +674,13 @@
       <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
     </div>
   </div>
-
   <div class="modal-overlay" id="changePasswordModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeChangePasswordModal()">✕</button>
-      <h3>Şifrəni dəyiş</h3>
-      <p class="modal-desc">Köhnə və yeni şifrəni daxil edin.</p>
+      <h3 id="changePassTitle">Şifrəni dəyiş</h3>
+      <p class="modal-desc" id="changePassDesc">Köhnə və yeni şifrəni daxil edin.</p>
       <div class="input-group">
-        <div class="password-wrapper">
+        <div class="password-wrapper" id="oldPassWrapper">
           <input type="password" id="oldPassInput" class="custom-input" placeholder="Köhnə şifrə">
           <span class="toggle-password" onclick="togglePasswordVisibility('oldPassInput', this)">👁️</span>
         </div>
@@ -371,7 +692,6 @@
       </div>
     </div>
   </div>
-
   <div class="modal-overlay" id="deleteAccountModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeDeleteAccountModal()">✕</button>
@@ -392,10 +712,260 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  
   <script>
-    // ============================================================
-    // ORTAQ AUTH SKRİPTİ – BÜTÜN SƏHİFƏLƏR ÜÇÜN EYNİ
-    // ============================================================
+    // FİLMLƏR
+    const moviesData = [
+      {
+        id: 1,
+        title: "Örümcek adam / Spider-Man 1",
+        category: "Fantastika",
+        year: 2002,
+        imdb: "7.4/10",
+        poster: "https://upload.wikimedia.org/wikipedia/tr/8/8e/Sm3poster09.jpg",
+        iframe: "https://ok.ru/videoembed/27781302902",
+        description: `Piter Parker cavan məktəbli botanikdir. Onun yalnız yaşlı dayısı və xalası vardır. Piteri məktəbdə hamı ələ salır. Onunla yalnız varlı məktəbli Harri Osborn dostluq edir. Piterin isə Meri Ceyn Uotson adında qız dostu var və ona aşiqdir. Onunla bərabər Harri də Meriyə aşiqdir. Piter Parkerin həyatı bir gün bir hörümçək tərəfindən dişlənilməsiylə tamamilə dəyişir. Çünki bu hörümçək sıravi bir hörümçək deyil, genetik olaraq özəlliklə inkişaf etdirilmiş, elmi məqsədlərlə istifadə edilən bir təcrübədir. Bir müddət keçdikdən sonra Piterdə dəyişiklər baş verir. Piter əlindən gözlənilmədən hörümçək toru çıxarmağa başlayır. Beləliklə, Piter "Hörümçək-adam" kimi formalaşır. Piter boş vaxtlarında "Hörümçək-adam" adlı qəhrəmanının şəklini və geyimini yaradır. Bir neçə müddət sonra Piter insanları oğrulardan xilas edən qəhrəmana çevrilir.
+
+Piterin tanıdığı Harri Ozbornun atası olan Norman Ozborn elm adamıdır. Norman müxtəlif təcrübələrlə məşğul olur. Bir gün gecə vaxtı uğursuz təcrübədən sonra onun əməkdaşı ölür. Lakin özü sağ qalaraq qəribə varlığa "Yaşıl qoblin"ə dönür. Zaman keçdikcə həmin varlıq insanları ələ keçirməyə başlayır. Bu müddətdə qəhrəman "Hörümçək-adam" insanları xilas etməklə məşğuldur. Quldurlardan biri Piterin dayısı Ben Parkeri öldürür. Piter isə bir müddətdən sonra qaydasız döyüş üzrə çempion olduqdan sonra döyüş meydanını tərk edərkən gözlənilmədən həmin quldura polislərdən qaçmağa kömək edir. Lakin sonradan Piter başa düşür ki, bu quldur onun dayısının ölümünə səbəb olub. Bu səbəbdən quldur binada olarkən Piter onu binadan yerə atır. Bu hadisədən sonra Piter başa düşür ki, onun əszifəsi cinayətkar aləmi ilə mübarizə aparmaqdır.
+
+Vaxt keçdikcə "Yaşıl qoblin" Piterin sevdiyi qızı Meri Ceyni və funikulyor ilə birgə uşaqları ələ keçirir. "Hörümçək-adam" onun yanına gələn zaman "Yaşıl qoblin"dən ələ keçirdiyi insanları buraxmağı tələb edir. Lakin "Yaşıl qoblin" onun qarşısına iki məqsəd qoyur: Ya "Hörümçək-adam" sevdiyi qızı xilas etməli, ya da uşaqları xilas etməlidir. "Hörümçək-adam" həm Merini, həm də uşaqları xilas edir. Bu zaman "Hörümçək-adam" və "Yaşıl qoblin" arasında kəskin mübarizə başlayır. "Hörümçək-adam" çətinliklə də olsa mübarizədən sağ çıxır. "Yaşıl qoblin" Normana dönən zaman Piterə bu hadisənin oğlu Harriyə söyləməməsini istəyir və bu zaman ölür. Bu hadisə bitdikdən sonra Nomran qəbirdə basdırılır və Piter Harriyə bu haqda heç nə söyləmir. Harri isə ona deyir ki, atasının intiqamını "Hörümçək-adam"dan mütləq alacaqdır. Piterin sevgilisi Meri onun iki həyatlı insan olduğunu zənn edir.`
+      },
+      {
+        id: 2, 
+        title: "Örümcek adam 2 / Spider-Man 2",
+        category: "Fantastika",
+        year: 2004,
+        imdb: "7.5/10",
+        poster: "https://upload.wikimedia.org/wikipedia/tr/2/26/%C3%96r%C3%BCmcek_Adam_2_film_posteri.jpg",
+        iframe: "https://vk.com/video_ext.php?oid=261439208&id=169408301",
+        description: `Piter Parker superqəhrəman öhdəlikləri ilə şəxsi həyatı arasındakı tarazlığı qorumaqda böyük çətinlik çəkir. Gündəlik həyatında hər şey tərs getməyə başlayır: universitetdə dərslərindən geri qalır, işini itirir və ciddi maddi sıxıntılarla üzləşir. Üstəlik, dərindən aşiq olduğu Meri Ceyn başqası ilə evlənməyə hazırlaşır, ən yaxın dostu Harri Ozborn isə atasının ölümündə günahlandırdığı Hörümçək-adama qarşı qisas hissi ilə alışıb yanır.
+
+Yaşadığı dərin stress, daxili ziddiyyətlər və xəyal qırıqlıqları Piterin super güclərini yavaş-yavaş itirməsinə səbəb olur. Bütün bu yüklərin altında əzilən Piter, nəhayət, kəskin bir qərar verir: o, Hörümçək-adam kostyumunu zibil qutusuna ataraq qəhrəmanlıqdan imtina edir və sadəcə normal bir insan kimi həyatına davam etməyi seçir.
+
+Lakin Nyu-York şəhəri çox keçmədən yeni və dəhşətli bir təhlükə ilə üzləşir. Piterin kumiri olan zəki alim Doktor Otto Oktaviusun həyata keçirdiyi riskli bir termonüvə təcrübəsi fəlakətlə nəticələnir. Partlayış zamanı həyat yoldaşını itirən və onurğasına dörd nəhəng, süni intellektə malik mexaniki qol birləşən Otto, bu qolların idarəsinə keçərək qəddar və acımasız "Doktor Osminoq"a (Doctor Octopus) çevrilir.
+
+Doktor Osminoq yarımçıq qalmış dağıdıcı təcrübəsini tamamlamaq üçün şəhərdə terror əsdirməyə başlayanda və ən pisi, Meri Ceyni girov götürəndə Piter vəziyyətin ciddiliyini dərk edir. O, böyük gücün gətirdiyi böyük məsuliyyətdən qaça bilməyəcəyini anlayır. Öz daxili qorxularına qalib gələn Piter Parker, güclərini yenidən qazanaraq həm sevdiyi qadını, həm də bütün şəhəri xilas etmək üçün Doktor Osminoqla unudulmaz bir ölüm-dirim mübarizəsinə girişir.`
+      },
+      {
+        id: 3,
+        title: "Örümcek adam 3 / Spider-Man 3",
+        category: "Fantastika",
+        year: 2007,
+        imdb: "6.3/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BODE2NzNhMDctYjUzMC00Y2M5LWI2Y2EtODJkZTFjN2Y5ODlmXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://dzen.ru/embed/vKghmm3uOxAg?from=fb",
+        description: `Piter Parker nəhayət həyatındakı tarazlığı tapmış kimi görünür. O, Meri Ceyn ilə münasibətlərini növbəti mərhələyə daşımağa hazırlaşır və Nyu-York əhalisi Hörümçək-adamı artıq bir xilaskar, qəhrəman kimi sevib qəbul edir.
+
+Lakin bu sakitlik və xoşbəxtlik uzun sürmür. Kosmosdan gələn qara, sirli bir yadplanetli maddə (simbiot) gecə ikən Piterin kostyumuna yapışaraq onu qara rəngə boyayır. Bu yeni qara kostyum Piterin gücünü, sürətini və çevikliyini inanılmaz dərəcədə artırsa da, onun xarakterini dəyişməyə başlayır. Simbiot Piterin daxilindəki qaranlıq, eqoist, aqressiv və qisasçı tərəfləri üzə çıxarır, onu sevdiyi insanlardan uzaqlaşdırır.
+
+Bu ərəfədə Piterin keçmişi ilə bağlı şok edici bir həqiqət ortaya çıxır: sevimli əmisi Ben Parkerin əsl qatili Flint Marko adlı bir məhkumdur. Həbsdən qaçan Marko qəribə bir elmi qəza nəticəsində hissəcikləri idarə edə bilən qorxunc "Qum-adam"a (Sandman) çevrilir. Qara kostyumun təsiri altında olan Piterin Qum-adama qarşı duyduğu qisas hissi onu amansızlaşdırır.
+
+Bütün bunlar azmış kimi, atasının intiqamını almağa and içən ən yaxın dostu Harri Ozborn atasının texnologiyalarından istifadə edərək "Yeni Qoblin" kimi Piterə hücum edir. Həmçinin, Piterin "Daily Bugle" qəzetindəki rəqibi, hiyləgər fotoqraf Eddi Brok Piterin rədd etdiyi qara simbiotla birləşərək indiyə qədərki ən təhlükəli düşmənə – "Venom"a çevrilir.
+
+Venom və Qum-adamın birləşərək Meri Ceyni qaçırması ilə vəziyyət kritik həddə çatır. Piter Parker indi həm ən güclü düşmənlərinə, həm də öz daxilindəki qaranlığa qarşı savaşmalıdır. O, təkəbbürünə qalib gəlməli, bağışlamağın gücünü dərk etməli və əsl qəhrəmanlığın kostyumda deyil, insanın qəlbində olduğunu yenidən xatırlamalıdır. Bu çətin döyüşdə Piterin gözlənilməz bir müttəfiqə ehtiyacı olacaq.`
+      },
+      {
+        id: 4,
+        title: "Kaptan Amerika: Kahramanların savaşı / Captain America: Civil War",
+        category: "Fantastika",
+        year: 2016,
+        imdb: "7.8/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BMjQ0MTgyNjAxMV5BMl5BanBnXkFtZTgwNjUzMDkyODE@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://vidmoly.biz/embed-9c3lat8szmo2.html",
+        description: `Qisasçılar (Avengers) komandasının bəşəriyyəti xilas edərkən istəmədən səbəb olduğu böyük dağıntılar və sivil itkilər dünya hökumətlərini hərəkətə keçirir. Birləşmiş Millətlər Təşkilatı superqəhrəmanları nəzarət altına almaq və yalnız xüsusi komitənin icazəsi ilə hərəkət etmələrini təmin etmək üçün "Sokoviya Müqaviləsi"ni irəli sürür.
+
+Bu yeni sənəd Qisasçılar arasında dərin bir ideoloji parçalanmaya səbəb olur. Keçmişdə yaratdığı silahların və etdiyi səhvlərin vicdan əzabını çəkən Toni Stark (Dəmir Adam) hökumət nəzarətini dəstəkləyir. Digər tərəfdən, siyasətçilərin gizli məqsədlərinə güvənməyən və qəhrəmanların müstəqil qərar verməli olduğuna inanan Stiv Rocers (Kapitan Amerika) bu müqaviləyə qəti şəkildə qarşı çıxır.
+
+Vyanada müqavilənin imzalanması mərasimində baş verən dəhşətli terror aktı vəziyyəti kəskinləşdirir. Partlayışın əsas şübhəlisi kimi Stivin uşaqlıq dostu və keçmiş beyni yuyulmuş suiqəsdçi olan Baki Barns (Qış əsgəri) göstərilir. Stiv dostunun günahsız olduğuna inanır və onu qanunsuz yollarla tutulmaqdan və ya öldürülməkdən xilas etmək üçün qanunları pozmağa qərar verir. Beləliklə, Qisasçılar iki düşmən cəbhəyə bölünür: Kapitan Amerikanın müstəqillik axtaran komandası və Dəmir Adamın qanunlara tabe olan komandası.
+
+Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı epik bir savaşa girişirlər. Lakin pərdə arxasında Qisasçıları bir-birinə qırdıraraq daxildən parçalamaq istəyən intiqam dolu bir düşmən – Helmut Zemo dayanır. Zemonun qaranlıq planı baş tutduqda və Baki ilə Starkın keçmişini birləşdirən faciəvi həqiqət (Toninin valideynlərinin ölümü) ortaya çıxdıqda, Stiv və Toni arasındakı dostluq bağları tamamilə qopur və yerini emosional, ölüm-dirim mübarizəsinə buraxır.`
+      },
+      {
+       id: 5,
+        title: "Örümcek Adam: Eve dönüş / Spider Man: Homecoming",
+        category: "Fantastika",
+        year: 2017,
+        imdb: "7.4/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BODY2MTAzOTQ4M15BMl5BanBnXkFtZTgwNzg5MTE0MjI@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://dzen.ru/embed/vMo3FSfv9VUs",
+        description: `Kapitan Amerika: Qəhrəmanların Savaşı" filmindəki epik döyüşdən və "Qisasçılar" (Avengers) ilə ilk təcrübəsindən sonra gənc Piter Parker qəhrəman həyatının həyəcanı içindədir. O, mentoru Toni Starkın (Dəmir Adam) nəzarəti altında Nyu-Yorkun Kuins (Queens) bölgəsindəki evinə, xalası Meyin yanına qayıdır. Piter bir tərəfdən sadə bir məktəbli kimi adi həyatına uyğunlaşmağa və dərslərinə diqqət yetirməyə çalışır, digər tərəfdən isə əsl superqəhrəman olduğunu sübut edərək Starkın komandasına rəsmi olaraq qəbul edilmək üçün fürsət axtarır.
+
+Piterin sadəcə xırda küçə cinayətlərinin qarşısını alaraq "Məhəllənizin mehriban Hörümçək-adamı" olmaqla keçirdiyi günlər Nyu-Yorkda yeni və ciddi bir təhlükənin peyda olması ilə sona çatır. Keçmişdə şəhərin yadplanetli qalıntılarından təmizlənməsi layihəsində işləyən, lakin Starkın şirkəti tərəfindən işindən məhrum edilən Adrian Tums, qisas və pul ardınca qaçaraq yadplanetli texnologiyalarından qeyri-qanuni, güclü silahlar istehsal etməyə başlayır. Özünə mexaniki qanadlar düzəldən Tums qorxunc "Kərkəs"ə (Vulture) çevrilir və silahları qara bazarda sataraq böyük bir şəbəkə qurur.
+
+Piter Kərkəsin fəaliyyətini dayandırmaq üçün Starkın "böyük işlərə qarışma" xəbərdarlıqlarına rəğmən təkbaşına hərəkətə keçir. Lakin gəncliyin və təcrübəsizliyin gətirdiyi ehtiyatsızlıq ucbatından böyük səhvlər edir və nəticədə Toni Stark onun yüksək texnologiyalı xüsusi kostyumunu əlindən alır. Stark Piterə ən vacib dərslərdən birini verir: "Əgər sən bu kostyumsuz heç nəsənsə, deməli, o sənə heç lazım deyil."
+
+İndi Piter həm təhlükədə olan dostlarını xilas etməli, həm də Kərkəsin böyük planının qarşısını almalıdır. Üstəlik, bütün bunları Starkın hazırladığı xüsusi texnologiyalar olmadan, yalnız öz ağlı, iradəsi və cəsarəti ilə etməlidir. O, əsl qəhrəmanlığın kostyumda deyil, insanın daxilində və məsuliyyət hissində olduğunu anlamağa başlayır`
+    },
+     {
+       id: 6,
+        title: "Güneşi gördüm / I Saw the Sun",
+        category: "Dram",
+        year: 2009,
+        imdb: "6.6/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BMzVlNmYzNjItODExOS00MjIwLTlhMjctYmFkMjhhY2RmYzM3XkEyXkFqcGc@._V1_QL75_UY562_CR21,0,380,562_.jpg",
+        iframe: "https://ok.ru/videoembed/1078734557627",
+        description: `Türkiyənin cənub-şərqindəki sərhəd kəndlərindən birində yaşayan və bölgədəki hərbi münaqişələrə görə yurdlarını tərk etmək məcburiyyətində qalan Altun ailəsinin dramatik və təsirli hekayəsindən bəhs edir. Hökumətin qərarı ilə kəndin boşaldılması nəticəsində illərdir bir yerdə yaşayan böyük ailə köç yolunda iki fərqli istiqamətə dağılmaq məcburiyyətində qalır.
+
+Ailənin bir qismi Ramonun (Mahsun Kırmızıgül) başçılığı ilə qaçaqmalçıların vasitəsilə qeyri-qanuni yollarla Norveçə getməyə çalışır. Bu çətin və təhlükəli miqrasiya yolu onları ölüm-dirim mübarizəsi, sərt qış şərtləri və böyük itkilərlə üz-üzə qoyur.
+
+Ailənin digər hissəsi isə Davudun (Murat Ünalmış) rəhbərliyi ilə İstanbula köçür. Heç vaxt belə böyük və səs-küylü bir şəhərdə yaşamamış bu insanlar İstanbulun sərt reallıqları, yoxsulluq, mədəniyyət şoku və cəmiyyətin qərəzli münasibəti ilə mübarizə aparmalı olurlar. Böyük şəhərin amansız çərxi bu sadə kənd adamlarını əzərək onların hər birini fərqli bir sınaqdan keçirir.
+
+Filmin ən təsirli xətlərindən biri də Davudun qardaşı Kadrinin (Cemal Toktaş) hekayəsidir. Kadri öz cinsi kimliyini (fərqli oriyentasiyasını) ənənəvi və sərt qaydaları olan ailəsindən gizlətməyə çalışır. Lakin həqiqətin üzə çıxması ailə daxilində böyük faciələrə və bağışlanmaz nəticələrə yol açır.
+
+"Günəşi Gördüm" sadəcə bir köç hekayəsi deyil; bu, müharibənin, ayrı-seçkiliyin və cəhalətin günahsız insanların həyatını necə məhv etdiyini göstərən bir güzgüdür. Film izləyiciyə qaranlığın və acıların içində belə hər kəsin bir ümid işığına – "günəşi görməyə" ehtiyacı olduğunu xatırladır`
+    },
+     {
+      id: 7,
+        title: "Beyaz Melek",
+        category: "Dram",
+        year: 2007,
+        imdb: "6.5/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BMTg1MDI1NDAzMF5BMl5BanBnXkFtZTgwODMwODc0NDE@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/2036821789388",
+        description: `Bəyaz Mələk" filmi, Şərq və Qərb mədəniyyətləri arasındakı fərqləri, ailə dəyərlərini və yaşlılara göstərilən münasibəti olduqca təsirli bir dillə tamaşaçıya çatdırır. Hekayə, beyin xərçəngindən əziyyət çəkən və müalicə üçün oğulları Əli (Mahsun Kırmızıgül) və Rəşad tərəfindən Diyarbəkirdən İstanbula gətirilən yaşlı Əhməd (Arif Erkin) babanın başına gələnlərlə başlayır.
+
+Xəstəxanada kimyaterapiya almaq istəməyən və övladlarına yük olduğunu düşünən Əhməd baba gizlicə oradan qaçır. O, təsadüfən İstanbuldakı bir qocalar evinə sığınır. Qocalar evinin sakinləri onun övladları tərəfindən atıldığını düşünərək bu səssiz və şirin dilli qocaya sahib çıxırlar. Əhməd babanın oğulları onu tapanda, atasının bu tənha, lakin sevgi dolu insanlarla necə xoşbəxt olduğunu görürlər. Atalarının qəlbini qırmamaq və bu yeni dostlarından ayırmamaq üçün onlar vəziyyəti bildirmədən qocalar evinin daimi ziyarətçilərinə çevrilirlər.
+
+Bu andan etibarən film tamaşaçını qocalar evinin divarları arasında gizlənən, hər biri fərqli bir dramla dolu həyat hekayələrinə aparır. Burada illərlə övlad yolu gözləyən, unudulmuş, lakin bir-birinə kənətçilənmiş yaşlı insanların acı-şirin günlərinin şahidi oluruq. Əhməd baba və oğulları bu insanların həyatına yeni bir nəfəs, ümid və sevinc gətirir.
+
+"Bəyaz Mələk" sadəcə bir xəstəlik hekayəsi deyil; cəmiyyətin unudulan bir təbəqəsinə – yaşlılara həsr olunmuş kədərli bir elegiyadır. Türk kinosunun ən ustad aktyorlarının bir araya gəldiyi bu film, izləyicini mərhəmət, vəfa və valideyn haqqı üzərində dərindən düşünməyə vadar edir.`
+    },   
+       {
+      id: 8,
+        title: "New York'ta Beş Minare / Act of Vengeance",
+        category: "Dram",
+        year: 2010,
+        imdb: "5.7/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BMjE5OTczMjg4Ml5BMl5BanBnXkFtZTcwNDk3MjQ5Mw@@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/510328834708",
+        description: `Nyu-Yorkda 5 Minarə" filmi Türkiyənin antiterror xidmətinin iki ən bacarıqlı və təcrübəli polis zabiti olan Fırat (Mahsun Kırmızıgül) və Acarın (Mustafa Sandal) təhlükəli bir missiya üçün ABŞ-a göndərilməsi ilə başlayır. Onların məqsədi İnterpol tərəfindən qırmızı bülletenlə axtarılan və FTB (FBI) tərəfindən Nyu-Yorkda həbs edilən "Dəccal" kod adlı təhlükəli radikal terror şəbəkəsi liderini Türkiyəyə təhvil gətirməkdir.
+
+Lakin Nyu-Yorka çatdıqda hər iki polis böyük bir şok yaşayır. FTB-nin həbs etdiyi şəxs Hacı Gümüş (Haluk Bilginer) adlı, illərdir Amerikada yaşayan, xristian bir qadınla evli olan, sülhsevər, xoşgörülü və ətrafındakı hər kəs tərəfindən sevilən hörmətli bir din xadimidir. Onun terrorçu obrazı ilə heç bir əlaqəsi yoxdur. Hava limanına gedən yolda Hacının müridləri tərəfindən edilən silahlı hücum nəticəsində Hacı Gümüş qaçsa da, sonradan günahsızlığını sübut etmək üçün öz istəyi ilə polislərə təslim olur.
+
+Film bir tərəfdən 11 Sentyabr hadisələrindən sonra Amerikada və dünyada yaranan İslamofobiyanı, Qərbin müsəlmanlara qarşı olan qərəzli münasibətini tənqid edir, digər tərəfdən isə dini öz çirkin məqsədləri üçün istifadə edən radikal qruplaşmalarla əsl İslamı bir-birindən fərqləndirir. Hacı Gümüş sülh və sevgi mesajları verərkən, ona atılan terrorçu böhtanının arxasında çox fərqli səbəblərin olduğu yavaş-yavaş üzə çıxmağa başlayır.
+
+Hekayə irəlilədikcə tamaşaçı Hacı Gümüşün Türkiyədəki keçmişinə və 30 illik qanlı bir qisas (qan davası) əhvalatına şahid olur. Hacı və Fıratın keçmişləri gözlənilməz bir şəkildə kəsişir və hekayənin sonunda illərlə gizli qalmış faciəvi həqiqətlər gün üzünə çıxaraq izləyicini sarsıdıcı bir hüzünlə baş-başa buraxır. Filmin ana mesajı nifrət və intiqamın insan həyatını necə məhv etdiyi, bağışlamağın isə ən böyük ərdəm olduğudur.`
+    }, 
+    ];  
+    let currentCategory = 'Hamısı';
+    let currentSearch = '';
+
+    function renderMovies() {
+      const grid = document.getElementById("moviesGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      const filteredMovies = moviesData.filter(movie => {
+        const matchesCategory = currentCategory === 'Hamısı' || movie.category === currentCategory;
+        const matchesSearch = movie.title.toLowerCase().includes(currentSearch.toLowerCase());
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filteredMovies.length === 0) {
+        grid.innerHTML = `<div class="no-results">Axtarışınıza uyğun nəticə tapılmadı.</div>`;
+        return;
+      }
+
+      filteredMovies.forEach(movie => {
+        const card = document.createElement("div");
+        card.className = "movie-card";
+        // Bütün kartı kliklənən et
+        card.onclick = function(e) {
+          // Əgər klik məhz "İzlə" düyməsində deyilsə, modalı aç
+          if (!e.target.closest('.watch-btn')) {
+            openVideoModal(movie.id);
+          }
+        };
+        card.innerHTML = `
+          <div class="movie-poster-wrap">
+            <span class="movie-badge"><i class="fas fa-star"></i> ${movie.imdb}</span>
+            <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" loading="lazy">
+          </div>
+          <div class="movie-info">
+            <div class="movie-meta">
+              <span>${movie.year}</span>
+              <span>${movie.category}</span>
+            </div>
+            <h3 class="movie-title">${movie.title}</h3>
+            <button class="watch-btn" onclick="event.stopPropagation(); openVideoModal(${movie.id})">
+              <i class="fas fa-play"></i> İzlə
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderMovies);
+    } else {
+      renderMovies();
+    }
+    window.addEventListener('load', renderMovies);
+
+    function handleFilter(category, btnElement) {
+      currentCategory = category;
+      document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+      btnElement.classList.add("active");
+      renderMovies();
+    }
+
+    function handleSearch() {
+      currentSearch = document.getElementById("movieSearch").value;
+      renderMovies();
+    }
+
+    function openVideoModal(id) {
+      const movie = moviesData.find(m => m.id === id);
+      if (!movie) return;
+
+      document.getElementById("videoModalTitle").innerText = movie.title;
+      document.getElementById("videoModalDesc").innerText = movie.description;
+      document.getElementById("videoIframe").src = movie.iframe;
+      
+      const tagsContainer = document.getElementById("videoModalTags");
+      tagsContainer.innerHTML = `
+        <span class="video-tag">${movie.year}</span>
+        <span class="video-tag">${movie.category}</span>
+        <span class="video-tag"><i class="fas fa-star" style="color:#FFD700"></i> ${movie.imdb}</span>
+      `;
+
+      document.getElementById("videoModalOverlay").classList.add("active");
+    }
+
+    function closeVideoModal() {
+      document.getElementById("videoModalOverlay").classList.remove("active");
+      setTimeout(() => {
+        document.getElementById("videoIframe").src = "";
+      }, 300);
+    }
+
+    function toggleFullscreenVideo() {
+      const iframe = document.getElementById('videoIframe');
+      if (!iframe) return;
+      try {
+        if (iframe.requestFullscreen) {
+          iframe.requestFullscreen().catch(() => {});
+        } else if (iframe.webkitRequestFullscreen) {
+          iframe.webkitRequestFullscreen();
+        } else if (iframe.msRequestFullscreen) {
+          iframe.msRequestFullscreen();
+        } else {
+          const container = iframe.closest('.video-container');
+          if (container && container.requestFullscreen) {
+            container.requestFullscreen().catch(() => {});
+          } else {
+            console.warn('Fullscreen dəstəklənmir.');
+          }
+        }
+      } catch (e) {
+        console.warn('Fullscreen xətası:', e);
+      }
+    }
+  </script>
+
+  <!-- AUTH VƏ ORTAQ SİSTEM SCRIPTİ -->
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
       authDomain: "maqalux-chat.firebaseapp.com",
@@ -412,7 +982,6 @@
 
     let currentUserData = null;
 
-    // === KÖMƏKÇİ FUNKSİYALAR ===
     function showToast(msg, type='info', dur=4000) {
       const c = document.getElementById('toastContainer');
       const t = document.createElement('div');
@@ -471,7 +1040,6 @@
       }
     });
 
-    // === MOBİL HAMBURGER MENYU ===
     function toggleMobileNav(e) {
       e.stopPropagation();
       document.querySelector('nav').classList.toggle('mobile-nav-open');
@@ -483,7 +1051,6 @@
       }
     });
 
-    // === MESAJ QUTUSU (bildiriş + son mesajlar) ===
     function escapeHtml(str) {
       const div = document.createElement('div');
       div.innerText = str == null ? '' : String(str);
@@ -509,13 +1076,7 @@
         panel.style.width = '92vw';
         panel.style.maxWidth = '380px';
       } else {
-        panel.style.position = '';
-        panel.style.top = '';
-        panel.style.left = '';
-        panel.style.right = '';
-        panel.style.transform = '';
-        panel.style.width = '';
-        panel.style.maxWidth = '';
+        panel.style.position = ''; panel.style.top = ''; panel.style.left = ''; panel.style.right = ''; panel.style.transform = ''; panel.style.width = ''; panel.style.maxWidth = '';
       }
     }
     document.addEventListener('click', function(e) {
@@ -538,12 +1099,7 @@
           const readBy = m.readBy || [];
           const isUnread = !readBy.includes(currentUserData.nick);
           if (!convs[m.sender]) {
-            convs[m.sender] = {
-              avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png',
-              text: '',
-              timestamp: 0,
-              unreadCount: 0
-            };
+            convs[m.sender] = { avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png', text: '', timestamp: 0, unreadCount: 0 };
           }
           const conv = convs[m.sender];
           if ((m.timestamp || 0) >= conv.timestamp) {
@@ -572,14 +1128,11 @@
       renderMsgDropdown();
     }
 
-    // === PUSH BİLDİRİŞLƏRİ (Firebase Cloud Messaging) ===
     let msgPrevCounts = {};
     let msgInboxFirstLoad = true;
 
     function requestNotificationPermission() {
-      if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
+      if ('Notification' in window && Notification.permission === 'default') { Notification.requestPermission(); }
     }
 
     function notifyNewMessages(convs) {
@@ -588,17 +1141,9 @@
           const prev = msgPrevCounts[nick] || 0;
           if (c.unreadCount > prev) {
             try {
-              const notif = new Notification(nick, {
-                body: c.text || 'Yeni mesaj',
-                icon: c.avatar
-              });
-              notif.onclick = () => {
-                window.focus();
-                window.location.href = 'onlinechat#open=' + encodeURIComponent(nick);
-              };
-            } catch (e) {
-              console.error('Bildiriş xətası:', e);
-            }
+              const notif = new Notification(nick, { body: c.text || 'Yeni mesaj', icon: c.avatar });
+              notif.onclick = () => { window.focus(); window.location.href = 'onlinechat#open=' + encodeURIComponent(nick); };
+            } catch (e) { console.error('Bildiriş xətası:', e); }
           }
         });
       }
@@ -613,15 +1158,9 @@
       const entries = Object.entries(msgConversations).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
       const totalUnread = entries.reduce((sum, [, c]) => sum + (c.unreadCount || 0), 0);
       if (totalUnread > 0) {
-        badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
-        badge.classList.remove('hidden');
-      } else {
-        badge.classList.add('hidden');
-      }
-      if (!entries.length) {
-        list.innerHTML = '<div class="msg-dropdown-empty">Mesaj yoxdur</div>';
-        return;
-      }
+        badge.textContent = totalUnread > 9 ? '9+' : totalUnread; badge.classList.remove('hidden');
+      } else { badge.classList.add('hidden'); }
+      if (!entries.length) { list.innerHTML = '<div class="msg-dropdown-empty">Mesaj yoxdur</div>'; return; }
       list.innerHTML = entries.map(([nick, c]) => `
         <div class="msg-conv-item ${c.unreadCount > 0 ? 'unread' : ''}" onclick="openInboxConversation('${nick.replace(/'/g, "\\'")}')">
           <img src="${c.avatar}" class="msg-conv-avatar" alt="av">
@@ -634,17 +1173,18 @@
       `).join('');
     }
 
-    window.openInboxConversation = function(nick) {
-      window.location.href = 'onlinechat#open=' + encodeURIComponent(nick);
-    };
+    window.openInboxConversation = function(nick) { window.location.href = 'onlinechat#open=' + encodeURIComponent(nick); };
 
-    // === AUTH STATE ===
     auth.onAuthStateChanged(async (user) => {
       document.getElementById('loadingScreen').classList.add('hidden');
       const overlay = document.getElementById('authOverlay');
       if (user) {
         try {
-          const snap = await db.ref(`users/${user.uid}`).once('value');
+          let snap = await db.ref(`users/${user.uid}`).once('value');
+          if (!snap.exists()) {
+            await new Promise(r => setTimeout(r, 1500));
+            snap = await db.ref(`users/${user.uid}`).once('value');
+          }
           if (snap.exists()) {
             currentUserData = snap.val();
             currentUserData.uid = user.uid;
@@ -656,42 +1196,45 @@
             }
             await db.ref(`users/${user.uid}/online`).set(true);
             db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
-
-            // Profil şəkli
-            document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
-            // Auth pəncərəsini gizlət
-            overlay.classList.add('hidden');
-            // Səhifəni interaktiv et
-            document.body.classList.add('logged-in');
-            if (!sessionStorage.getItem('welcomeShown')) {
-              showToast(`Xoş gəldiniz, ${currentUserData.nick}!`, 'success');
-              sessionStorage.setItem('welcomeShown', '1');
+            if (currentUserData.nick && currentUserData.email) {
+              db.ref(`usernameToEmail/${currentUserData.nick}`).set(currentUserData.email);
             }
+            document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            overlay.classList.add('hidden');
+            document.body.classList.add('logged-in');
             initMessageInbox();
             requestNotificationPermission();
-          } else {
-            await auth.signOut();
-          }
-        } catch (err) {
-          showToast('Xəta: ' + err.message, 'error');
-        }
+          } else { await auth.signOut(); }
+        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
       } else {
         currentUserData = null;
         overlay.classList.remove('hidden');
         document.body.classList.remove('logged-in');
         document.getElementById('headerAvatar').src = 'https://www.w3schools.com/howto/img_avatar.png';
         stopMessageInbox();
-        sessionStorage.removeItem('welcomeShown');
       }
     });
 
-    // === LOGIN / REGISTER / GOOGLE / LOGOUT ===
     window.handleLogin = async function() {
-      const email = document.getElementById('loginEmailInput').value.trim();
+      const identifier = document.getElementById('loginEmailInput').value.trim();
       const pass = document.getElementById('loginPasswordInput').value.trim();
-      if (!email || !pass) return showToast('Email və şifrəni daxil edin.', 'error');
-      try { await auth.signInWithEmailAndPassword(email, pass); }
-      catch (err) { showToast('Xəta: ' + err.message, 'error'); }
+      if (!identifier || !pass) return showToast('E-poçt/istifadəçi adı və şifrəni daxil edin.', 'error');
+      let email = identifier;
+      try {
+        if (!identifier.includes('@')) {
+          const snap = await db.ref(`usernameToEmail/${identifier}`).once('value');
+          if (!snap.exists()) { return showToast('Bu adda istifadəçi tapılmadı.', 'error'); }
+          email = snap.val();
+        }
+        const methods = await auth.fetchSignInMethodsForEmail(email);
+        if (methods.length && !methods.includes('password')) {
+          return showToast('Bu hesab Google ilə qeydiyyatdan keçib. "Google ilə daxil ol" düyməsini istifadə edin.', 'error', 7000);
+        }
+        await auth.signInWithEmailAndPassword(email, pass);
+      } catch (err) {
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') { showToast('E-poçt/istifadəçi adı və ya şifrə yanlışdır.', 'error'); }
+        else { showToast('Xəta: ' + err.message, 'error'); }
+      }
     };
 
     window.handleRegister = async function() {
@@ -701,11 +1244,8 @@
       if (!nick || !email || !pass) return showToast('Bütün xanaları doldurun.', 'error');
       try {
         const cred = await auth.createUserWithEmailAndPassword(email, pass);
-        await db.ref(`users/${cred.user.uid}`).set({
-          nick, email, role: 'user',
-          avatarUrl: 'https://www.w3schools.com/howto/img_avatar.png',
-          online: true, isBanned: false
-        });
+        await db.ref(`users/${cred.user.uid}`).set({ nick, email, role: 'user', avatarUrl: 'https://www.w3schools.com/howto/img_avatar.png', online: true, isBanned: false });
+        await db.ref(`usernameToEmail/${nick}`).set(email);
         showToast('Qeydiyyat uğurludur!', 'success');
       } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
     };
@@ -717,15 +1257,12 @@
         const user = result.user;
         const snap = await db.ref(`users/${user.uid}`).once('value');
         if (!snap.exists()) {
-          await db.ref(`users/${user.uid}`).set({
-            nick: user.displayName || 'Google İstifadəçisi',
-            email: user.email,
-            role: 'user',
-            avatarUrl: user.photoURL || 'https://www.w3schools.com/howto/img_avatar.png',
-            online: true, isBanned: false
-          });
+          const nick = user.displayName || 'Google İstifadəçisi';
+          await db.ref(`users/${user.uid}`).set({ nick, email: user.email, role: 'user', avatarUrl: user.photoURL || 'https://www.w3schools.com/howto/img_avatar.png', online: true, isBanned: false });
+          await db.ref(`usernameToEmail/${nick}`).set(user.email);
         } else {
           await db.ref(`users/${user.uid}/online`).set(true);
+          await db.ref(`usernameToEmail/${snap.val().nick}`).set(user.email);
         }
         showToast('Google ilə daxil oldunuz!', 'success');
       } catch (err) { showToast('Google Xətası: ' + err.message, 'error'); }
@@ -740,65 +1277,54 @@
       }
     };
 
-    // === ŞİFRƏNİ UNUTDUM ===
-    window.openForgotPasswordModal = function() {
-      document.getElementById('forgotEmailInput').value = '';
-      document.getElementById('forgotPasswordModal').classList.add('active');
-    };
-    window.closeForgotPasswordModal = function() {
-      document.getElementById('forgotPasswordModal').classList.remove('active');
-    };
+    window.openForgotPasswordModal = function() { document.getElementById('forgotEmailInput').value = ''; document.getElementById('forgotPasswordModal').classList.add('active'); };
+    window.closeForgotPasswordModal = function() { document.getElementById('forgotPasswordModal').classList.remove('active'); };
     window.submitForgotPassword = function() {
       const email = document.getElementById('forgotEmailInput').value.trim();
       if (!email) return showToast('E-poçt ünvanınızı daxil edin.', 'error');
-      auth.sendPasswordResetEmail(email).then(() => {
-        showToast('Bərpa linki e-poçtunuza göndərildi.', 'success');
-        closeForgotPasswordModal();
-      }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      auth.sendPasswordResetEmail(email).then(() => { showToast('Bərpa linki e-poçtunuza göndərildi.', 'success'); closeForgotPasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
     };
 
-    // === ŞİFRƏ DƏYİŞ ===
     window.openChangePasswordModal = function() {
-      document.getElementById('oldPassInput').value = '';
-      document.getElementById('newPassInput').value = '';
-      document.getElementById('changePasswordModal').classList.add('active');
-      document.getElementById('dropdownMenu').classList.remove('active');
+      document.getElementById('oldPassInput').value = ''; document.getElementById('newPassInput').value = '';
+      const user = auth.currentUser;
+      const hasPasswordProvider = user && user.providerData.some(p => p.providerId === 'password');
+      const oldWrapper = document.getElementById('oldPassWrapper');
+      const title = document.getElementById('changePassTitle');
+      const desc = document.getElementById('changePassDesc');
+      if (hasPasswordProvider) { oldWrapper.style.display = 'flex'; title.textContent = 'Şifrəni dəyiş'; desc.textContent = 'Köhnə və yeni şifrəni daxil edin.'; }
+      else { oldWrapper.style.display = 'none'; title.textContent = 'Şifrə təyin et'; desc.textContent = 'Hesabınız Google ilə qeydiyyatdan keçib. Yeni şifrə təyin edin.'; }
+      document.getElementById('changePasswordModal').classList.add('active'); document.getElementById('dropdownMenu').classList.remove('active');
     };
-    window.closeChangePasswordModal = function() {
-      document.getElementById('changePasswordModal').classList.remove('active');
-    };
+    window.closeChangePasswordModal = function() { document.getElementById('changePasswordModal').classList.remove('active'); };
     window.submitChangePassword = function() {
-      const old = document.getElementById('oldPassInput').value.trim();
-      const newp = document.getElementById('newPassInput').value.trim();
-      if (!old || !newp) return showToast('Hər iki xananı doldurun.', 'error');
+      const old = document.getElementById('oldPassInput').value.trim(); const newp = document.getElementById('newPassInput').value.trim();
       const user = auth.currentUser;
       if (!user) return showToast('Daxil olmamısınız.', 'error');
-      const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
-      user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp))
-        .then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); })
-        .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      if (!newp) return showToast('Yeni şifrəni daxil edin.', 'error');
+      const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
+      if (hasPasswordProvider) {
+        if (!old) return showToast('Köhnə şifrənizi daxil edin.', 'error');
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
+        user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp)).then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      } else {
+        const cred = firebase.auth.EmailAuthProvider.credential(user.email, newp);
+        user.linkWithCredential(cred).then(() => { showToast('Şifrə təyin edildi!', 'success', 6000); closeChangePasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      }
     };
 
-    // === PROFİL ŞƏKLİ ===
     window.changeProfilePicture = function() {
       document.getElementById('dropdownMenu').classList.remove('active');
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
+      const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
       input.onchange = async function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const fd = new FormData();
-        fd.append('image', file);
+        const file = e.target.files[0]; if (!file) return;
+        const fd = new FormData(); fd.append('image', file);
         try {
           const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
           const data = await res.json();
           if (data.success) {
-            const url = data.data.url;
-            document.getElementById('headerAvatar').src = url;
-            if (auth.currentUser) {
-              await db.ref(`users/${auth.currentUser.uid}/avatarUrl`).set(url);
-            }
+            const url = data.data.url; document.getElementById('headerAvatar').src = url;
+            if (auth.currentUser) { await db.ref(`users/${auth.currentUser.uid}/avatarUrl`).set(url); }
             showToast('Profil şəkli yeniləndi!', 'success');
           } else { showToast('Şəkil yüklənə bilmədi.', 'error'); }
         } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
@@ -806,15 +1332,10 @@
       input.click();
     };
 
-    // === HESABI SİL ===
     window.deleteAccount = function() {
-      document.getElementById('dropdownMenu').classList.remove('active');
-      document.getElementById('deletePassInput').value = '';
-      document.getElementById('deleteAccountModal').classList.add('active');
+      document.getElementById('dropdownMenu').classList.remove('active'); document.getElementById('deletePassInput').value = ''; document.getElementById('deleteAccountModal').classList.add('active');
     };
-    window.closeDeleteAccountModal = function() {
-      document.getElementById('deleteAccountModal').classList.remove('active');
-    };
+    window.closeDeleteAccountModal = function() { document.getElementById('deleteAccountModal').classList.remove('active'); };
     window.submitDeleteAccount = function() {
       const pass = document.getElementById('deletePassInput').value.trim();
       if (!pass) return showToast('Şifrənizi daxil edin.', 'error');
@@ -822,21 +1343,27 @@
       const user = auth.currentUser;
       if (!user) return showToast('Daxil olmamısınız.', 'error');
       const cred = firebase.auth.EmailAuthProvider.credential(user.email, pass);
-      user.reauthenticateWithCredential(cred).then(() => db.ref(`users/${user.uid}`).remove())
-        .then(() => user.delete())
-        .then(() => { showToast('Hesabınız silindi.', 'success'); location.reload(); })
-        .catch(err => { showToast('Xəta: ' + err.message, 'error'); });
+      user.reauthenticateWithCredential(cred).then(() => db.ref(`users/${user.uid}`).remove()).then(() => user.delete()).then(() => { showToast('Hesabınız silindi.', 'success'); location.reload(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
     };
 
-    // Statcounter (əvvəlki kodda varsa)
-    (function(){ var sc_project=13301406; var sc_invisible=1; var sc_security="b5648408"; var s=document.createElement('script'); s.type='text/javascript'; s.src='https://www.statcounter.com/counter/counter.js'; s.async=true; document.body.appendChild(s); })();
-  </script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker qeydiyyat xətası:', err));
-      });
+    function applySavedTheme() {
+      const saved = localStorage.getItem('maqaluxTheme') || 'site';
+      const btn = document.getElementById('themeToggleBtn');
+      document.body.classList.remove('light-theme', 'dark-theme');
+      if (saved === 'light') {
+        document.body.classList.add('light-theme'); if (btn) btn.textContent = '🌙';
+      } else if (saved === 'dark') {
+        document.body.classList.add('dark-theme'); if (btn) btn.textContent = '🎨';
+      } else {
+        if (btn) btn.textContent = '☀️';
+      }
     }
+    window.toggleSiteTheme = function() {
+      const current = localStorage.getItem('maqaluxTheme') || 'site';
+      const next = current === 'site' ? 'light' : (current === 'light' ? 'dark' : 'site');
+      localStorage.setItem('maqaluxTheme', next); applySavedTheme();
+    };
+    applySavedTheme();
   </script>
 </body>
 </html>
