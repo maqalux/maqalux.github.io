@@ -625,8 +625,8 @@
         <button class="filter-btn" onclick="handleFilter('Komediya', this)">Komediya</button>
         <button class="filter-btn" onclick="handleFilter('Dram', this)">Dram</button>
         <button class="filter-btn" onclick="handleFilter('Fantastika', this)">Fantastika</button>
-        <button class="filter-btn" onclick="handleFilter('Seriallar', this)">Seriallar</button>
-        <button class="filter-btn" onclick="handleFilter('Seriallar', this)">Detektiv</button>
+        <button class="filter-btn" onclick="handleFilter('Elmi-Fantastika', this)">Elmi-Fantastika</button>
+        <button class="filter-btn" onclick="handleFilter('Detektiv', this)">Detektiv</button>
       </div>
     </div>
 
@@ -717,7 +717,55 @@
     // FİLMLƏR
     const moviesData = [
       {
-        id: 1,
+       id: 1,
+        title: "Malefiz / Malefisent",
+        category: "Fantastik",
+        year: 2014,
+        imdb: "6.9/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BMjAwMzAzMzExOF5BMl5BanBnXkFtZTgwOTcwMDA5MTE@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/39041501711",
+        description: `O"Malefiz" filmi klassik "Yatmış Gözəl" nağılını hər kəsin bildiyi şəkildə deyil, hekayənin məşhur "mənfi" qəhrəmanının gözündən anladır. Gənc, gözəl və təmiz qəlbli qanadlı bir pəri olan Malefiz, qəribə və sehrli məxluqların yaşadığı Moors adlı sülh dolu bir meşə səltənətində yaşayır. O, bir gün meşəyə azıb gələn Stefan adlı bir insan övladı ilə tanış olur. Bu tanışlıq illər keçdikcə dərin bir sevgi və etimada çevrilir.
+
+Lakin qonşuluqdakı insan krallığının hökmdarı Moors meşəsini ələ keçirmək istədikdə vəziyyət dəyişir. İnsanoğlunun bitib-tükənməyən ehtirası və taxt-tac arzusu nəhayət Stefana da təsir edir. O, yeni kral ola bilmək üçün ən yaxın dostu və sevgilisi olan Malefizə acımasızcasına xəyanət edərək onun qanadlarını kəsib aparır. Həm fiziki, həm də mənəvi cəhətdən darmadağın olan, qəlbi daşa dönən Malefiz, saf pəridən qaranlıqlar kraliçasına çevrilir. O, qorumağa çalışdığı sehrli meşəni aşılmaz bir tikanlı divarla əhatə edir və insanların dünyasına müharibə elan edir.
+
+Qisasını ən ağır şəkildə almaq istəyən Malefiz, artıq kral olmuş Stefanın yeni doğulan qızı şahzadə Avroranı dəhşətli bir lənətə düçar edir: Avrora 16 yaşına çatanda barmağına cəhrə iynəsi batacaq və o, heç vaxt oyanmamaq üzrə əbədi bir ölüm yuxusuna gedəcək. Lakin illər keçdikcə və Avrora kənddəki bir daxmada üç pərinin himayəsində böyüdükcə, Malefiz qızı uzaqdan izləməyə başlayır. Avroranın saflığı, yaşamaq sevinci və meşəyə duyduğu sevgi Malefizin daxilindəki qəzəb divarlarını sarsıtmağa başlayır.
+
+Malefiz saf nifrətlə verdiyi bu dəhşətli lənəti geri ala biləcəkmi? İki fərqli dünyanı – insanların krallığı ilə sehrli meşəni birləşdirəcək sülh açarı kimin əlindədir? İntiqam və mərhəmət arasındakı bu epik mübarizə, izləyiciyə bəzən ən qaranlıq qəlblərdə belə bir işıq ola biləcəyini göstərəcək.`
+    },    
+    {
+       id: 2,
+        title: "Malefiz: Kötülüğün gücü / Malefisent: Mistress of Evil",
+        category: "Fantastik",
+        year: 2019,
+        imdb: "6.6/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BNTY4YjYwYzMtYTg1NC00ZmJiLTk0OTYtMWMzM2Y4Yzc5MDc2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://dzen.ru/embed/vOpJWxz212HU?from_block=partner&from=zen&mute=0&autoplay=0&tv=0",
+        description: `Malefiz: Şərin Gücü" filmi qüdrətli pəri Malefiz və onun himayəsində böyüyən, artıq sehrli Moors meşəsinin kraliçası olan şahzadə Avrora arasındakı bağların daha da gücləndiyi sülh dolu bir dövrdə başlayır. Hər şey qonşu Ulstead krallığının vəliəhdi, şahzadə Filipin Avroraya evlilik təklifi etməsi ilə dəyişir. Avrora bu təklifi sevinclə qəbul edir. Bu evlilik iki düşmən dünyanı – insanların krallığı ilə sehrli meşəni birdəfəlik birləşdirəcək böyük bir sülh addımı kimi görünür.
+
+Lakin insanlara hələ də tam güvənməyən Malefiz bu izdivaca şübhə ilə yanaşır. Ailələrin tanışlığı üçün Filipin qəsrində təşkil edilən şam yeməyində gözlənilməz bir gərginlik yaşanır. Filipin anası, hiyləgər, zəki və eyni zamanda qəddar Kraliça İnqrit, gizli planlarını həyata keçirmək üçün Malefizi təxribata çəkir. Qurulan ustaca tələ nəticəsində qəsrdə baş verən faciənin günahı Malefizin boynuna atılır. Yenidən xalqın gözündə qorxunc bir "qəddar" kimi qələmə verilən Malefiz, saraydan qaçmaq məcburiyyətində qalır. Bu hadisə Avrora və Malefiz arasındakı sevgi və sadiqlik bağlarını qopararaq onları fərqli cəbhələrə ayırır.
+
+Yaralanmış və xəyanətə uğramış halda qaçan Malefiz heç gözləmədiyi, sarsıdıcı bir həqiqəti kəşf edir: o, bu dünyada tək deyil. İnsanların zülmündən qaçaraq gizlənən və onunla eyni soydan olan Qaranlıq Pərilər tayfası (Dark Feys) yaşamaqdadır. Digər tərəfdən isə Kraliça İnqritin əsl məqsədinin sülh yaratmaq deyil, bütün sehrli məxluqları yer üzündən silmək üçün böyük bir müharibə başlatmaq olduğu aydınlaşır.
+
+İki dünya arasında qaçılmaz və dağıdıcı bir savaşın astanasında Avrora və Malefiz hansı tərəfi seçəcəklər? İnsanların silahları, yoxsa pərilərin sehri qalib gələcək? Malefiz həm öz soyunu, həm də qoruduğu meşəni xilas etmək üçün daxilindəki qəzəbə, yoxsa mərhəmətə sığınacaq? Sirlər, intriqalar və epik döyüşlərlə dolu bu fentezi hekayəsi izləyicini son saniyəyə qədər həyəcanda saxlayır`
+    },     
+    {
+       id: 3,
+        title: "Alita: Savaş meleği / Alita: Battle Angel",
+        category: "Elmi-Fantastika",
+        year: 2019,
+        imdb: "7.3/10",
+        poster: "https://m.media-amazon.com/images/M/MV5BYmZhZGQzM2MtMWEyZC00YTU1LTk4YTQtMTg3ZjEzM2U1NTkxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/2521310104152",
+        description: `Alita: Döyüş Mələyi" filmi uzaq gələcəkdə – Yerin böyük bir fəlakətdən əsrlər sonra bərpa olunmağa çalışdığı 26-cı əsrdə cərəyan edir. Hekayə səmada süzülən, zənginlərin yaşadığı əlçatmaz Zalem şəhərinin düz altındakı kasıb və təhlükəli "Dəmir Şəhər"in (Iron City) zibilliyində başlayır. Mərhəmətli kiber-həkim Doktor Dayson İdo bir gün bu zibillikdə xarabalıqlar arasından yaddaşı silinmiş, lakin beyni hələ də sağ olan bir kiborq qızın qalıqlarını tapır. O, qıza yeni bir kibernetik bədən düzəldir və ona "Alita" adını verir.
+
+Gözlərini açanda kim olduğunu, haradan gəldiyini və əvvəlki həyatını qətiyyən xatırlamayan Alita, tamamilə yeni bir dünyaya oyanır. O, bu xaotik, lakin rəngarəng Dəmir Şəhərə uyğunlaşmağa çalışarkən ona yol göstərən və Zalemə getmək xəyalları quran Hüqo (Hugo) adlı gənclə tanış olur. Doktor İdo isə Alitanı onun sirli keçmişinin qaranlıq təhlükələrindən qorumaq üçün hər vəchlə cəhd göstərir.
+
+Lakin çox keçmədən şəhərin yeraltı dünyasını idarə edən korrupsiyalaşmış qüvvələr və qatil kiborqlar Alitanın izinə düşürlər. Özünü və sevdiklərini qorumaq məcburiyyətində qalan qız, gözlənilməz bir anda qeyri-adi döyüş qabiliyyətlərinə sahib olduğunu kəşf edir. Alita sadəcə məsum bir kiborq deyil, əsrlər əvvəl unudulmuş və ən təhlükəli döyüş sənətlərini bilən bir savaşçıdır.
+
+Keçmişinə dair ipucları topladıqca Alita əsl kimliyini tapmaq üçün təhlükəli bir yola qədəm qoyur. O, qarşısına çıxan amansız düşmənlərlə, həmçinin şəhərin ən qəddar idman növü olan "Motorbol" (Motorball) arenasında qladiatorlarla mübarizə aparmalıdır. Bəs kiçik bədəninə nəhəng bir güc sığdıran bu döyüş mələyi ədalətsiz sistemə qarşı təkbaşına duruş gətirə biləcəkmi? Zalemin göy üzündəki hegemonluğunu sarsıtmaq üçün onun cəsarəti kifayət edəcəkmi? Ekşn və vizual effektlərlə zəngin olan bu hekayədə Alitanın özünü kəşf etmə macərası oxucunu ekrana kilidləyəcək.`
+    },       
+      {
+        id: 4,
         title: "Örümcek adam / Spider-Man 1",
         category: "Fantastika",
         year: 2002,
@@ -731,7 +779,7 @@ Piterin tanıdığı Harri Ozbornun atası olan Norman Ozborn elm adamıdır. No
 Vaxt keçdikcə "Yaşıl qoblin" Piterin sevdiyi qızı Meri Ceyni və funikulyor ilə birgə uşaqları ələ keçirir. "Hörümçək-adam" onun yanına gələn zaman "Yaşıl qoblin"dən ələ keçirdiyi insanları buraxmağı tələb edir. Lakin "Yaşıl qoblin" onun qarşısına iki məqsəd qoyur: Ya "Hörümçək-adam" sevdiyi qızı xilas etməli, ya da uşaqları xilas etməlidir. "Hörümçək-adam" həm Merini, həm də uşaqları xilas edir. Bu zaman "Hörümçək-adam" və "Yaşıl qoblin" arasında kəskin mübarizə başlayır. "Hörümçək-adam" çətinliklə də olsa mübarizədən sağ çıxır. "Yaşıl qoblin" Normana dönən zaman Piterə bu hadisənin oğlu Harriyə söyləməməsini istəyir və bu zaman ölür. Bu hadisə bitdikdən sonra Nomran qəbirdə basdırılır və Piter Harriyə bu haqda heç nə söyləmir. Harri isə ona deyir ki, atasının intiqamını "Hörümçək-adam"dan mütləq alacaqdır. Piterin sevgilisi Meri onun iki həyatlı insan olduğunu zənn edir.`
       },
       {
-        id: 2, 
+        id: 5, 
         title: "Örümcek adam 2 / Spider-Man 2",
         category: "Fantastika",
         year: 2004,
@@ -747,7 +795,7 @@ Lakin Nyu-York şəhəri çox keçmədən yeni və dəhşətli bir təhlükə il
 Doktor Osminoq yarımçıq qalmış dağıdıcı təcrübəsini tamamlamaq üçün şəhərdə terror əsdirməyə başlayanda və ən pisi, Meri Ceyni girov götürəndə Piter vəziyyətin ciddiliyini dərk edir. O, böyük gücün gətirdiyi böyük məsuliyyətdən qaça bilməyəcəyini anlayır. Öz daxili qorxularına qalib gələn Piter Parker, güclərini yenidən qazanaraq həm sevdiyi qadını, həm də bütün şəhəri xilas etmək üçün Doktor Osminoqla unudulmaz bir ölüm-dirim mübarizəsinə girişir.`
       },
       {
-        id: 3,
+        id: 6,
         title: "Örümcek adam 3 / Spider-Man 3",
         category: "Fantastika",
         year: 2007,
@@ -765,7 +813,7 @@ Bütün bunlar azmış kimi, atasının intiqamını almağa and içən ən yax�
 Venom və Qum-adamın birləşərək Meri Ceyni qaçırması ilə vəziyyət kritik həddə çatır. Piter Parker indi həm ən güclü düşmənlərinə, həm də öz daxilindəki qaranlığa qarşı savaşmalıdır. O, təkəbbürünə qalib gəlməli, bağışlamağın gücünü dərk etməli və əsl qəhrəmanlığın kostyumda deyil, insanın qəlbində olduğunu yenidən xatırlamalıdır. Bu çətin döyüşdə Piterin gözlənilməz bir müttəfiqə ehtiyacı olacaq.`
       },
       {
-        id: 4,
+        id: 7,
         title: "Kaptan Amerika: Kahramanların savaşı / Captain America: Civil War",
         category: "Fantastika",
         year: 2016,
@@ -781,7 +829,7 @@ Vyanada müqavilənin imzalanması mərasimində baş verən dəhşətli terror 
 Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı epik bir savaşa girişirlər. Lakin pərdə arxasında Qisasçıları bir-birinə qırdıraraq daxildən parçalamaq istəyən intiqam dolu bir düşmən – Helmut Zemo dayanır. Zemonun qaranlıq planı baş tutduqda və Baki ilə Starkın keçmişini birləşdirən faciəvi həqiqət (Toninin valideynlərinin ölümü) ortaya çıxdıqda, Stiv və Toni arasındakı dostluq bağları tamamilə qopur və yerini emosional, ölüm-dirim mübarizəsinə buraxır.`
       },
       {
-       id: 5,
+       id: 8,
         title: "Örümcek Adam: Eve dönüş / Spider Man: Homecoming",
         category: "Fantastika",
         year: 2017,
@@ -797,7 +845,7 @@ Piter Kərkəsin fəaliyyətini dayandırmaq üçün Starkın "böyük işlərə
 İndi Piter həm təhlükədə olan dostlarını xilas etməli, həm də Kərkəsin böyük planının qarşısını almalıdır. Üstəlik, bütün bunları Starkın hazırladığı xüsusi texnologiyalar olmadan, yalnız öz ağlı, iradəsi və cəsarəti ilə etməlidir. O, əsl qəhrəmanlığın kostyumda deyil, insanın daxilində və məsuliyyət hissində olduğunu anlamağa başlayır`
     },
      {
-       id: 6,
+       id: 9,
         title: "Güneşi gördüm / I Saw the Sun",
         category: "Dram",
         year: 2009,
@@ -815,7 +863,7 @@ Filmin ən təsirli xətlərindən biri də Davudun qardaşı Kadrinin (Cemal To
 "Günəşi Gördüm" sadəcə bir köç hekayəsi deyil; bu, müharibənin, ayrı-seçkiliyin və cəhalətin günahsız insanların həyatını necə məhv etdiyini göstərən bir güzgüdür. Film izləyiciyə qaranlığın və acıların içində belə hər kəsin bir ümid işığına – "günəşi görməyə" ehtiyacı olduğunu xatırladır`
     },
      {
-      id: 7,
+      id: 10,
         title: "Beyaz Melek",
         category: "Dram",
         year: 2007,
@@ -831,7 +879,7 @@ Bu andan etibarən film tamaşaçını qocalar evinin divarları arasında gizl�
 "Bəyaz Mələk" sadəcə bir xəstəlik hekayəsi deyil; cəmiyyətin unudulan bir təbəqəsinə – yaşlılara həsr olunmuş kədərli bir elegiyadır. Türk kinosunun ən ustad aktyorlarının bir araya gəldiyi bu film, izləyicini mərhəmət, vəfa və valideyn haqqı üzərində dərindən düşünməyə vadar edir.`
     },   
        {
-      id: 8,
+      id: 11,
         title: "New York'ta Beş Minare / Act of Vengeance",
         category: "Dram",
         year: 2010,
@@ -847,7 +895,7 @@ Film bir tərəfdən 11 Sentyabr hadisələrindən sonra Amerikada və dünyada 
 Hekayə irəlilədikcə tamaşaçı Hacı Gümüşün Türkiyədəki keçmişinə və 30 illik qanlı bir qisas (qan davası) əhvalatına şahid olur. Hacı və Fıratın keçmişləri gözlənilməz bir şəkildə kəsişir və hekayənin sonunda illərlə gizli qalmış faciəvi həqiqətlər gün üzünə çıxaraq izləyicini sarsıdıcı bir hüzünlə baş-başa buraxır. Filmin ana mesajı nifrət və intiqamın insan həyatını necə məhv etdiyi, bağışlamağın isə ən böyük ərdəm olduğudur.`
     }, 
       {
-      id: 9,
+      id: 12,
         title: "Mucize / The Miracle",
         category: "Dram",
         year: 2015,
@@ -863,7 +911,7 @@ Hekayənin ən həlledici və duyğusal dönüş nöqtəsi isə kənddən uzaqla
 Bütün bu sərt qərəzlərin, çətin həyat şərtlərinin və psixoloji təzyiqlərin kölgəsində Əziz və Mızgini böyük bir sınaq gözləyir. Cəmiyyətin amansız baxışlarına rəğmən bu cütlük öz dünyalarını qura biləcəkmi? Səbir, fədakarlıq və ən əsası sevgi, insanların həyatında həqiqətən bir "möcüzə" yarada bilərmi? Bu sualların cavabı filmin duyğu yüklü səhnələrində gizlidir.`
     },   
     {
-       id: 10,
+       id: 13,
         title: "Mucize 2: Aşk / The Miracle 2: Love",
         category: "Dram",
         year: 2019,
@@ -879,7 +927,7 @@ Qəsəbənin bəzi sakinləri onlara qucaq açsa da, cəmiyyətin amansız və q
 Bəs Əziz öz bədəninin məhdudiyyətlərini aşa biləcəkmi? Bu sadə və təmiz qəlbli cütlük yeni dünyalarının çətinliklərinə və insanların qəddar baxışlarına qarşı necə mübarizə aparacaq? Hər kəsin qeyri-mümkün hesab etdiyi bir sevgi hekayəsi gerçək bir möcüzəyə çevrilə bilərmi? Eşqin və əzmin gücünü sınağa çəkən bu sualların cavabı filmin təsirli kadrlarında öz əksini tapır.`
     },   
     {
-       id: 11,
+       id: 14,
         title: "Av Mevsimi / Hunting Season",
         category: "Detektiv",
         year: 2010,
