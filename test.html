@@ -1243,57 +1243,6 @@ let currentCategory = '';
             if(btn) btn.style.background = 'var(--panel-08)';
         };
     }
-
-    function openVideoModal(id, updateHash = true) {
-      const movie = moviesData.find(m => m.id === id);
-      if (!movie) return;
-
-      activeMovieId = id;
-
-      if (updateHash) {
-        window.location.hash = 'movie=' + id;
-      }
-
-      const titleEl = document.getElementById("videoModalTitle");
-      const descEl = document.getElementById("videoModalDesc");
-      const iframeEl = document.getElementById("videoIframe");
-      const tagsContainer = document.getElementById("videoModalTags");
-      const overlayEl = document.getElementById("videoModalOverlay");
-
-      if (titleEl) titleEl.innerText = movie.title;
-      if (descEl) descEl.innerText = movie.description;
-      if (iframeEl) iframeEl.src = movie.iframe;
-      
-      if (tagsContainer) {
-        tagsContainer.innerHTML = `
-          <span style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;">${movie.year}</span>
-          <span style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;">${movie.category}</span>
-          <span style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;"><i class="fas fa-star" style="color:#FFD700"></i> ${movie.imdb}</span>
-        `;
-      }
-
-      if (overlayEl) {
-        overlayEl.style.display = 'flex';
-        overlayEl.classList.add("active");
-      }
-    }
-
-    function closeVideoModal() {
-      const overlayEl = document.getElementById("videoModalOverlay");
-      const iframeEl = document.getElementById("videoIframe");
-      
-      if (overlayEl) {
-        overlayEl.style.display = 'none';
-        overlayEl.classList.remove("active");
-      }
-      if (iframeEl) iframeEl.src = "";
-      
-      activeMovieId = null;
-      if (window.location.hash.includes('movie=')) {
-        history.pushState("", document.title, window.location.pathname + window.location.search);
-      }
-    }
-
     function shareCurrentMovieToWhatsApp() {
       if (!activeMovieId) return;
       const movie = moviesData.find(m => m.id === activeMovieId);
