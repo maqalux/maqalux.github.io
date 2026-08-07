@@ -1257,28 +1257,32 @@ let currentCategory = '';
       window.open(whatsappUrl, '_blank');
     }
     function openVideoModal(id) {
-      const movie = moviesData.find(m => m.id === id);
-      if (!movie) return;
-      document.getElementById("videoModalTitle").innerText = movie.title;
-      document.getElementById("videoModalDesc").innerText = movie.description;
-      document.getElementById("videoIframe").src = movie.iframe;
-      
-      const tagsContainer = document.getElementById("videoModalTags");
-      tagsContainer.innerHTML = `
-        <span class="video-tag">${movie.year}</span>
-        <span class="video-tag">${movie.category}</span>
-        <span class="video-tag"><i class="fas fa-star" style="color:#FFD700"></i> ${movie.imdb}</span>
-      `;
+  const movie = moviesData.find(m => m.id === id);
+  if (!movie) return;
+  document.getElementById("videoModalTitle").innerText = movie.title;
+  document.getElementById("videoModalDesc").innerText = movie.description;
+  document.getElementById("videoIframe").src = movie.iframe;
+  
+  const tagsContainer = document.getElementById("videoModalTags");
+  tagsContainer.innerHTML = `
+    <span class="video-tag">${movie.year}</span>
+    <span class="video-tag">${movie.category}</span>
+    <span class="video-tag"><i class="fas fa-star" style="color:#FFD700"></i> ${movie.imdb}</span>
+  `;
 
-      document.getElementById("videoModalOverlay").classList.add("active");
-    }
+  const overlay = document.getElementById("videoModalOverlay");
+  overlay.style.display = 'flex';     // ← BUNU ƏLAVƏ EDİN
+  overlay.classList.add("active");
+}
 
-    function closeVideoModal() {
-      document.getElementById("videoModalOverlay").classList.remove("active");
-      setTimeout(() => {
-        document.getElementById("videoIframe").src = "";
-      }, 300);
-    }
+function closeVideoModal() {
+  const overlay = document.getElementById("videoModalOverlay");
+  overlay.style.display = 'none';     // ← BUNU ƏLAVƏ EDİN
+  overlay.classList.remove("active");
+  setTimeout(() => {
+    document.getElementById("videoIframe").src = "";
+  }, 300);
+}
 
     function toggleFullscreenVideo() {
       const iframe = document.getElementById('videoIframe');
