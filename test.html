@@ -614,7 +614,7 @@
    <div class="movies-header">
       <h1>Filmlər və Seriallar</h1>
       
-      <!-- Axtarış və Mikrofon yan-yana (Səliqəli dizayn) -->
+      <!-- Axtarış və Mikrofon -->
       <div style="display: flex; gap: 10px; max-width: 600px; margin: 0 auto 15px auto; width: 100%;">
         <div class="search-bar-container" style="position: relative; flex: 1;">
           <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-50);"></i>
@@ -623,13 +623,12 @@
           <div id="autocompleteList" style="position: absolute; top: 100%; left: 0; right: 0; background: var(--dropdown-bg); border-radius: 14px; max-height: 250px; overflow-y: auto; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.5); backdrop-filter: blur(20px); border: 1px solid var(--border-12); margin-top: 5px; text-align: left; z-index: 100;"></div>
         </div>
         
-        <!-- Mikrofon düyməsi artıq səliqəli şəkildə kənardadır və heç vaxt solğun/qaçmış olmayacaq -->
         <button id="voiceSearchBtn" onclick="startVoiceSearch()" style="background: var(--panel-08); border: 1px solid var(--border-20); color: #ffffff; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.3s;" title="Səslə axtarış">
           <i class="fas fa-microphone"></i>
         </button>
       </div>
       
-      <!-- Filtrlər -->
+      <!-- İşlək Filtrlər -->
       <div class="advanced-filters" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; width: 100%;">
         <select id="filterCategory" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
           <option value="" style="background: #030714;">Janr (Hamısı)</option>
@@ -640,6 +639,7 @@
           <option value="Elmi-Fantastika" style="background: #030714;">Elmi-Fantastika</option>
           <option value="Detektiv" style="background: #030714;">Detektiv</option>
         </select>
+
         <select id="filterYear" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
           <option value="" style="background: #030714;">İl (Hamısı)</option>
           <option value="2019" style="background: #030714;">2019</option>
@@ -648,12 +648,14 @@
           <option value="2016" style="background: #030714;">2016</option>
           <option value="2015" style="background: #030714;">2015</option>
         </select>
+
         <select id="filterLanguage" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
           <option value="" style="background: #030714;">Dil (Hamısı)</option>
-          <option value="AZ" style="background: #030714;">Azərbaycanca</option>
-          <option value="TR" style="background: #030714;">Türkcə</option>
-          <option value="EN" style="background: #030714;">İngiliscə</option>
+          <option value="Azərbaycanca" style="background: #030714;">Azərbaycanca</option>
+          <option value="Türkcə" style="background: #030714;">Türkcə</option>
+          <option value="İngiliscə" style="background: #030714;">İngiliscə</option>
         </select>
+
         <select id="sortMovies" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
           <option value="" style="background: #030714;">Sıralama (Standart)</option>
           <option value="imdb_desc" style="background: #030714;">IMDB (Yüksəkdən aşağı)</option>
@@ -1051,10 +1053,9 @@ Elmi-fantastika janrını parlaq yumorla harmanlayan bu epos hekayə, Arifin kos
 let currentCategory = '';
     let currentSearch = '';
     let currentYear = '';
-    let currentCountry = '';
     let currentLanguage = '';
     let currentSort = '';
-    let activeMovieId = null; // Hazırda baxılan filmi yadda saxlamaq üçün
+    let activeMovieId = null;
 
     function renderMovies() {
       const grid = document.getElementById("moviesGrid");
@@ -1062,7 +1063,6 @@ let currentCategory = '';
       grid.innerHTML = "";
 
       let filteredMovies = moviesData.filter(movie => {
-        // Filtrlərin tətbiqi
         const matchesCategory = currentCategory === '' || movie.category === currentCategory;
         
         const searchLower = currentSearch.toLowerCase();
@@ -1073,13 +1073,11 @@ let currentCategory = '';
             movie.description.toLowerCase().includes(searchLower);
 
         const matchesYear = currentYear === '' || movie.year.toString() === currentYear;
-        const matchesCountry = currentCountry === '' || (movie.country && movie.country === currentCountry);
         const matchesLanguage = currentLanguage === '' || (movie.language && movie.language === currentLanguage);
 
-        return matchesCategory && matchesSearch && matchesYear && matchesCountry && matchesLanguage;
+        return matchesCategory && matchesSearch && matchesYear && matchesLanguage;
       });
 
-      // Sıralama
       if (currentSort === 'imdb_desc') {
          filteredMovies.sort((a, b) => parseFloat(b.imdb) - parseFloat(a.imdb));
       } else if (currentSort === 'imdb_asc') {
@@ -1087,7 +1085,7 @@ let currentCategory = '';
       }
 
       if (filteredMovies.length === 0) {
-        grid.innerHTML = `<div class="no-results">Axtarışınıza uyğun nəticə tapılmadı.</div>`;
+        grid.innerHTML = `<div class="no-results" style="grid-column: 1/-1; text-align: center; color: var(--text-50); padding: 40px;">Axtarışınıza uyğun nəticə tapılmadı.</div>`;
         return;
       }
 
@@ -1122,7 +1120,7 @@ let currentCategory = '';
 
             <h3 class="movie-title">${movie.title}</h3>
             
-            <button class="watch-btn" onclick="event.stopPropagation(); openVideoModal(${movie.id})" style="width: 100%; margin-top: 10px;">
+            <button class="watch-btn" onclick="event.stopPropagation(); openVideoModal(${movie.id})" style="width: 100%; margin-top: 10px; padding: 10px; background: var(--accent); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
               <i class="fas fa-play"></i> İzlə
             </button>
           </div>
@@ -1131,34 +1129,32 @@ let currentCategory = '';
       });
     }
 
-    // Səhifə açıldıqda linkdə film ID-si (məsələn: #movie=2) olub-olmadığını yoxlayır
     function checkURLForMovie() {
       const hash = window.location.hash;
       if (hash.includes('movie=')) {
         const movieId = parseInt(hash.split('movie=')[1]);
         if (movieId) {
-          // Filmlər yüklənən kimi həmin modalı açır
           setTimeout(() => {
-            openVideoModal(movieId, false); // false yazırıq ki, URL-i təzədən dəyişib sonsuz döngəyə girməsin
+            openVideoModal(movieId, false);
           }, 300);
         }
       }
     }
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { renderMovies(); checkURLForMovie(); });
-    } else {
+    document.addEventListener('DOMContentLoaded', () => {
       renderMovies();
       checkURLForMovie();
-    }
-    window.addEventListener('load', () => { renderMovies(); checkURLForMovie(); });
+    });
 
-    // Filtrlərin işləmə mexanizmi
+    window.addEventListener('load', () => {
+      renderMovies();
+      checkURLForMovie();
+    });
+
     function applyAdvancedFilters() {
         const catElement = document.getElementById('filterCategory');
         currentCategory = catElement ? catElement.value : '';
         currentYear = document.getElementById('filterYear').value;
-        currentCountry = document.getElementById('filterCountry').value;
         currentLanguage = document.getElementById('filterLanguage').value;
         currentSort = document.getElementById('sortMovies').value;
         renderMovies();
@@ -1228,7 +1224,7 @@ let currentCategory = '';
         recognition.lang = 'az-AZ'; 
         
         const btn = document.getElementById('voiceSearchBtn');
-        if(btn) btn.style.background = '#ffaa00'; // Aktiv olanda rəngi dəyişir
+        if(btn) btn.style.background = '#ffaa00'; 
         
         recognition.start();
 
@@ -1248,15 +1244,14 @@ let currentCategory = '';
         };
     }
 
-    // Modal açılarkən URL-ə həmin filmin ID-sini yazır (#movie=id)
     function openVideoModal(id, updateHash = true) {
       const movie = moviesData.find(m => m.id === id);
       if (!movie) return;
 
-      activeMovieId = id; // Cari filmi yadda saxlayırıq
+      activeMovieId = id;
 
       if (updateHash) {
-        window.location.hash = 'movie=' + id; // Linki dəyişir ki, paylaşanda birbaşa bu açılsın
+        window.location.hash = 'movie=' + id;
       }
 
       const titleEl = document.getElementById("videoModalTitle");
@@ -1271,9 +1266,9 @@ let currentCategory = '';
       
       if (tagsContainer) {
         tagsContainer.innerHTML = `
-          <span class="video-tag" style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;">${movie.year}</span>
-          <span class="video-tag" style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;">${movie.category}</span>
-          <span class="video-tag" style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;"><i class="fas fa-star" style="color:#FFD700"></i> ${movie.imdb}</span>
+          <span style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;">${movie.year}</span>
+          <span style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;">${movie.category}</span>
+          <span style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:6px; font-size:12px; color:#fff;"><i class="fas fa-star" style="color:#FFD700"></i> ${movie.imdb}</span>
         `;
       }
 
@@ -1294,19 +1289,16 @@ let currentCategory = '';
       if (iframeEl) iframeEl.src = "";
       
       activeMovieId = null;
-      // Modal bağlandıqda URL-dən film ID-sini təmizləyir
       if (window.location.hash.includes('movie=')) {
         history.pushState("", document.title, window.location.pathname + window.location.search);
       }
     }
 
-    // Modalın içindəki düymə vasitəsilə birbaşa həmin filmin linkini WhatsApp-a göndərir
     function shareCurrentMovieToWhatsApp() {
       if (!activeMovieId) return;
       const movie = moviesData.find(m => m.id === activeMovieId);
       if (!movie) return;
 
-      // Xüsusi film linkini yaradır (məsələn: sayt.az/#movie=3)
       const baseUrl = window.location.href.split('#')[0];
       const movieLink = baseUrl + '#movie=' + movie.id;
       
