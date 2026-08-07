@@ -1048,10 +1048,6 @@ G.O.R.A. planetində böyük bir fəlakət baş verərkən Arif təsadüfən pla
 Elmi-fantastika janrını parlaq yumorla harmanlayan bu epos hekayə, Arifin kosmosun dərinliklərində göstərdiyi ağlasığmaz fəndlər və replikaları ilə izləyicilərə unudulmaz bir komediya ziyafəti təqdim edir.`
     },  
     ];  
-
-    function openVideoModal(id) {
-      const movie = moviesData.find(m => m.id === id);
-      if (!movie) return;
 let currentCategory = ''; // Artıq dropdown olduğu üçün boş başlayır
     let currentSearch = '';
     let currentYear = '';
@@ -1255,6 +1251,9 @@ let currentCategory = ''; // Artıq dropdown olduğu üçün boş başlayır
         // Yeni tabda WhatsApp-ı açır
         window.open(whatsappUrl, '_blank');
     }
+    function openVideoModal(id) {
+      const movie = moviesData.find(m => m.id === id);
+      if (!movie) return;
       document.getElementById("videoModalTitle").innerText = movie.title;
       document.getElementById("videoModalDesc").innerText = movie.description;
       document.getElementById("videoIframe").src = movie.iframe;
