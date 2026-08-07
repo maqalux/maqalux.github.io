@@ -611,20 +611,32 @@
   </div>
 
   <main>
-    <div class="movies-header">
+   <div class="movies-header">
       <h1>Filmlər və Seriallar</h1>
       
-      <!-- Yenilənmiş Axtarış Qutusu (Səs axtarışı və Autocomplete ilə) -->
-      <div class="search-bar-container" style="position: relative; z-index: 10;">
-        <i class="fas fa-search"></i>
-        <input type="text" id="movieSearch" placeholder="Ad, aktyor, rejissor axtarın..." oninput="handleSearch(); showAutocomplete()" autocomplete="off">
-        <button id="voiceSearchBtn" onclick="startVoiceSearch()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-50); cursor: pointer; font-size: 18px;" title="Səslə axtarış"><i class="fas fa-microphone"></i></button>
+      <!-- Yenilənmiş Axtarış Qutusu (Mikrofon yeri və rəngi düzəldildi) -->
+      <div class="search-bar-container" style="position: relative; z-index: 10; display: flex; align-items: center;">
+        <i class="fas fa-search" style="position: absolute; left: 15px; z-index: 11; color: var(--text-50);"></i>
+        <!-- style daxilinə padding-right: 45px əlavə etdik ki, yazı mikrofona dəyməsin -->
+        <input type="text" id="movieSearch" placeholder="Ad, aktyor, rejissor axtarın..." oninput="handleSearch(); showAutocomplete()" autocomplete="off" style="width: 100%; padding: 12px 45px 12px 40px; border-radius: 25px; border: 1px solid var(--border-20); background: var(--panel-08); color: var(--text-main); font-family: 'Poppins', sans-serif;">
+        <!-- Mikrofon düyməsi: Rəngi ağ (#ffffff), ölçüsü böyüdü və yeri tam sağa bərkidildi -->
+        <button id="voiceSearchBtn" onclick="startVoiceSearch()" style="position: absolute; right: 15px; background: none; border: none; color: #ffffff; cursor: pointer; font-size: 20px; z-index: 11; transition: 0.3s;" title="Səslə axtarış"><i class="fas fa-microphone"></i></button>
         
         <div id="autocompleteList" style="position: absolute; top: 100%; left: 0; right: 0; background: var(--dropdown-bg); border-radius: 14px; max-height: 250px; overflow-y: auto; display: none; box-shadow: 0 15px 35px rgba(0,0,0,0.5); backdrop-filter: blur(20px); border: 1px solid var(--border-12); margin-top: 5px; text-align: left;"></div>
       </div>
       
-      <!-- Yeni Ətraflı Filtrlər (İl, Ölkə, Dil, Sıralama) -->
-      <div class="advanced-filters" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; width: 100%;">
+      <!-- Yeni Ətraflı Filtrlər (Janr filtri də buraya əlavə edildi) -->
+      <div class="advanced-filters" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; width: 100%; margin-top: 15px;">
+        <!-- Köhnə düymələrin əvəzinə Janr Dropdown-u -->
+        <select id="filterCategory" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
+          <option value="" style="background: #030714;">Janr (Hamısı)</option>
+          <option value="Döyüş" style="background: #030714;">Döyüş</option>
+          <option value="Komediya" style="background: #030714;">Komediya</option>
+          <option value="Dram" style="background: #030714;">Dram</option>
+          <option value="Fantastika" style="background: #030714;">Fantastika</option>
+          <option value="Elmi-Fantastika" style="background: #030714;">Elmi-Fantastika</option>
+          <option value="Detektiv" style="background: #030714;">Detektiv</option>
+        </select>
         <select id="filterYear" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
           <option value="" style="background: #030714;">İl (Hamısı)</option>
           <option value="2019" style="background: #030714;">2019</option>
@@ -632,19 +644,8 @@
           <option value="2017" style="background: #030714;">2017</option>
           <option value="2016" style="background: #030714;">2016</option>
           <option value="2015" style="background: #030714;">2015</option>
-          <option value="2014" style="background: #030714;">2014</option>
-          <option value="2010" style="background: #030714;">2010</option>
-          <option value="2009" style="background: #030714;">2009</option>
-          <option value="2007" style="background: #030714;">2007</option>
-          <option value="2004" style="background: #030714;">2004</option>
-          <option value="2002" style="background: #030714;">2002</option>
         </select>
-        <select id="filterCountry" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
-          <option value="" style="background: #030714;">Ölkə (Hamısı)</option>
-          <option value="TR" style="background: #030714;">Türkiyə</option>
-          <option value="US" style="background: #030714;">ABŞ</option>
-        </select>
-        <select id="filterLanguage" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
+             <select id="filterLanguage" onchange="applyAdvancedFilters()" style="padding: 10px 15px; border-radius: 20px; background: var(--panel-08); color: var(--text-main); border: 1px solid var(--border-20); outline: none; font-family: 'Poppins', sans-serif; cursor: pointer;">
           <option value="" style="background: #030714;">Dil (Hamısı)</option>
           <option value="AZ" style="background: #030714;">Azərbaycanca</option>
           <option value="TR" style="background: #030714;">Türkcə</option>
@@ -654,22 +655,9 @@
           <option value="" style="background: #030714;">Sıralama (Standart)</option>
           <option value="imdb_desc" style="background: #030714;">IMDB (Yüksəkdən aşağı)</option>
           <option value="imdb_asc" style="background: #030714;">IMDB (Aşağıdan yuxarı)</option>
-          <option value="rt_desc" style="background: #030714;">Rotten Tomatoes</option>
         </select>
       </div>
-
-      <!-- Mövcud Janr Filtrləri -->
-      <div class="filters-container" id="filtersContainer">
-        <button class="filter-btn active" onclick="handleFilter('Hamısı', this)">Hamısı</button>
-        <button class="filter-btn" onclick="handleFilter('Döyüş', this)">Döyüş</button>
-        <button class="filter-btn" onclick="handleFilter('Komediya', this)">Komediya</button>
-        <button class="filter-btn" onclick="handleFilter('Dram', this)">Dram</button>
-        <button class="filter-btn" onclick="handleFilter('Fantastika', this)">Fantastika</button>
-        <button class="filter-btn" onclick="handleFilter('Elmi-Fantastika', this)">Elmi-Fantastika</button>
-        <button class="filter-btn" onclick="handleFilter('Detektiv', this)">Detektiv</button>
-      </div>
     </div>
-
     <div class="movies-grid" id="moviesGrid">
       <!-- Məzmun JavaScript vasitəsilə bura yüklənəcək -->
     </div>
@@ -1060,186 +1048,213 @@ G.O.R.A. planetində böyük bir fəlakət baş verərkən Arif təsadüfən pla
 Elmi-fantastika janrını parlaq yumorla harmanlayan bu epos hekayə, Arifin kosmosun dərinliklərində göstərdiyi ağlasığmaz fəndlər və replikaları ilə izləyicilərə unudulmaz bir komediya ziyafəti təqdim edir.`
     },  
     ];  
-let currentCategory = 'Hamısı';
-let currentSearch = '';
-let currentYear = '';
-let currentCountry = '';
-let currentLanguage = '';
-let currentSort = '';
 
-function renderMovies() {
-  const grid = document.getElementById("moviesGrid");
-  if (!grid) return;
-  grid.innerHTML = "";
-
-  let filteredMovies = moviesData.filter(movie => {
-    const matchesCategory = currentCategory === 'Hamısı' || movie.category === currentCategory;
-    
-    const searchLower = currentSearch.toLowerCase();
-    const matchesSearch = 
-        movie.title.toLowerCase().includes(searchLower) || 
-        (movie.actor && movie.actor.toLowerCase().includes(searchLower)) ||
-        (movie.director && movie.director.toLowerCase().includes(searchLower)) ||
-        movie.description.toLowerCase().includes(searchLower);
-
-    const matchesYear = currentYear === '' || movie.year.toString() === currentYear;
-    const matchesCountry = currentCountry === '' || (movie.country && movie.country === currentCountry);
-    const matchesLanguage = currentLanguage === '' || (movie.language && movie.language === currentLanguage);
-
-    return matchesCategory && matchesSearch && matchesYear && matchesCountry && matchesLanguage;
-  });
-
-  if (currentSort === 'imdb_desc') {
-     filteredMovies.sort((a, b) => parseFloat(b.imdb) - parseFloat(a.imdb));
-  } else if (currentSort === 'imdb_asc') {
-     filteredMovies.sort((a, b) => parseFloat(a.imdb) - parseFloat(b.imdb));
-  } else if (currentSort === 'rt_desc') {
-     filteredMovies.sort((a, b) => (parseFloat(b.rt) || 0) - (parseFloat(a.rt) || 0));
-  }
-
-  if (filteredMovies.length === 0) {
-    grid.innerHTML = `<div class="no-results">Axtarışınıza uyğun nəticə tapılmadı.</div>`;
-    return;
-  }
-
-  filteredMovies.forEach(movie => {
-    const card = document.createElement("div");
-    card.className = "movie-card";
-    card.onclick = function(e) {
-      if (!e.target.closest('.watch-btn')) {
-        openVideoModal(movie.id);
-      }
-    };
-    card.innerHTML = `
-      <div class="movie-poster-wrap">
-        <span class="movie-badge"><i class="fas fa-star"></i> ${movie.imdb}</span>
-        <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" loading="lazy">
-      </div>
-      <div class="movie-info">
-        <div class="movie-meta">
-          <span>${movie.year}</span>
-          <span>${movie.category}</span>
-        </div>
-        <h3 class="movie-title">${movie.title}</h3>
-        <button class="watch-btn" onclick="event.stopPropagation(); openVideoModal(${movie.id})">
-          <i class="fas fa-play"></i> İzlə
-        </button>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', renderMovies);
-} else {
-  renderMovies();
-}
-window.addEventListener('load', renderMovies);
-
-function applyAdvancedFilters() {
-    currentYear = document.getElementById('filterYear').value;
-    currentCountry = document.getElementById('filterCountry').value;
-    currentLanguage = document.getElementById('filterLanguage').value;
-    currentSort = document.getElementById('sortMovies').value;
-    renderMovies();
-}
-
-function handleFilter(category, btnElement) {
-  currentCategory = category;
-  document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
-  btnElement.classList.add("active");
-  renderMovies();
-}
-
-function handleSearch() {
-  currentSearch = document.getElementById("movieSearch").value;
-  renderMovies();
-}
-
-function showAutocomplete() {
-    const input = document.getElementById("movieSearch").value.toLowerCase();
-    const list = document.getElementById("autocompleteList");
-    list.innerHTML = '';
-    
-    if (!input) {
-        list.style.display = 'none';
-        return;
-    }
-
-    const matches = moviesData.filter(movie => 
-        movie.title.toLowerCase().includes(input) ||
-        (movie.actor && movie.actor.toLowerCase().includes(input)) ||
-        (movie.director && movie.director.toLowerCase().includes(input))
-    ).slice(0, 5);
-
-    if (matches.length > 0) {
-        list.style.display = 'block';
-        matches.forEach(movie => {
-            const item = document.createElement('div');
-            item.style.padding = '12px 18px';
-            item.style.cursor = 'pointer';
-            item.style.borderBottom = '1px solid var(--border-10)';
-            item.style.color = 'var(--text-main)';
-            item.style.fontSize = '14px';
-            item.innerText = movie.title;
-            item.onmouseover = () => item.style.background = 'var(--panel-08)';
-            item.onmouseout = () => item.style.background = 'transparent';
-            item.onclick = () => {
-                document.getElementById("movieSearch").value = movie.title;
-                list.style.display = 'none';
-                handleSearch();
-            };
-            list.appendChild(item);
-        });
-    } else {
-        list.style.display = 'none';
-    }
-}
-
-document.addEventListener('click', function(e) {
-    if (e.target.id !== 'movieSearch') {
-        const list = document.getElementById("autocompleteList");
-        if(list) list.style.display = 'none';
-    }
-});
-
-function startVoiceSearch() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        alert("Səs axtarışı hazırki brauzeriniz tərəfindən dəstəklənmir.");
-        return;
-    }
-    
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'az-AZ'; 
-    
-    const btn = document.getElementById('voiceSearchBtn');
-    btn.style.color = '#ffaa00'; 
-    
-    recognition.start();
-
-    recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById("movieSearch").value = transcript;
-        handleSearch();
-        btn.style.color = 'var(--text-50)'; 
-    };
-
-    recognition.onerror = function(event) {
-        console.warn("Səs eşidilmədi və ya xəta baş verdi.");
-        btn.style.color = 'var(--text-50)';
-    };
-
-    recognition.onend = function() {
-        btn.style.color = 'var(--text-50)';
-    };
-}
-// YENİ SUPER ROBOTUN KODU BURADA BİTİR  
     function openVideoModal(id) {
       const movie = moviesData.find(m => m.id === id);
       if (!movie) return;
+let currentCategory = ''; // Artıq dropdown olduğu üçün boş başlayır
+    let currentSearch = '';
+    let currentYear = '';
+    let currentCountry = '';
+    let currentLanguage = '';
+    let currentSort = '';
 
+    function renderMovies() {
+      const grid = document.getElementById("moviesGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      let filteredMovies = moviesData.filter(movie => {
+        const matchesCategory = currentCategory === '' || movie.category === currentCategory;
+        
+        const searchLower = currentSearch.toLowerCase();
+        const matchesSearch = 
+            movie.title.toLowerCase().includes(searchLower) || 
+            (movie.actor && movie.actor.toLowerCase().includes(searchLower)) ||
+            (movie.director && movie.director.toLowerCase().includes(searchLower)) ||
+            movie.description.toLowerCase().includes(searchLower);
+
+        const matchesYear = currentYear === '' || movie.year.toString() === currentYear;
+        const matchesCountry = currentCountry === '' || (movie.country && movie.country === currentCountry);
+        const matchesLanguage = currentLanguage === '' || (movie.language && movie.language === currentLanguage);
+
+        return matchesCategory && matchesSearch && matchesYear && matchesCountry && matchesLanguage;
+      });
+
+      if (currentSort === 'imdb_desc') {
+         filteredMovies.sort((a, b) => parseFloat(b.imdb) - parseFloat(a.imdb));
+      } else if (currentSort === 'imdb_asc') {
+         filteredMovies.sort((a, b) => parseFloat(a.imdb) - parseFloat(b.imdb));
+      }
+
+      if (filteredMovies.length === 0) {
+        grid.innerHTML = `<div class="no-results">Axtarışınıza uyğun nəticə tapılmadı.</div>`;
+        return;
+      }
+
+      filteredMovies.forEach(movie => {
+        const card = document.createElement("div");
+        card.className = "movie-card";
+        
+        // Klikləmənin həm "İzlə", həm də "WhatsApp" düyməsində xəta verməməsi üçün:
+        card.onclick = function(e) {
+          if (!e.target.closest('.watch-btn') && !e.target.closest('.share-btn')) {
+            openVideoModal(movie.id);
+          }
+        };
+
+        // Əgər bazada rejissor və ya dil yoxdursa, "Məlum deyil" yazsın
+        const directorName = movie.director ? movie.director : 'Məlum deyil';
+        const languageName = movie.language ? movie.language : 'Məlum deyil';
+
+        card.innerHTML = `
+          <div class="movie-poster-wrap">
+            <span class="movie-badge"><i class="fas fa-star"></i> ${movie.imdb}</span>
+            <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" loading="lazy">
+          </div>
+          <div class="movie-info">
+            <div class="movie-meta">
+              <span>${movie.year}</span>
+              <span>${movie.category}</span>
+            </div>
+            
+            <!-- YENİ: Rejissor və Dil məlumatları -->
+            <div style="font-size: 13px; color: #a0a0a0; margin: 8px 0; display: flex; flex-direction: column; gap: 4px;">
+              <span><i class="fas fa-video" style="color: #ffaa00; width: 15px;"></i> Rejissor: ${directorName}</span>
+              <span><i class="fas fa-language" style="color: #ffaa00; width: 15px;"></i> Dil: ${languageName}</span>
+            </div>
+
+            <h3 class="movie-title">${movie.title}</h3>
+            
+            <!-- YENİ: İzlə və WhatsApp düymələri yan-yana -->
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="watch-btn" onclick="event.stopPropagation(); openVideoModal(${movie.id})" style="flex: 1;">
+                  <i class="fas fa-play"></i> İzlə
+                </button>
+                <button class="share-btn" onclick="event.stopPropagation(); shareToWhatsApp('${movie.title.replace(/'/g, "\\'")}')" style="background: #25D366; color: white; border: none; border-radius: 8px; width: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.2s;" title="WhatsApp-da göndər">
+                  <i class="fab fa-whatsapp"></i>
+                </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderMovies);
+    } else {
+      renderMovies();
+    }
+    window.addEventListener('load', renderMovies);
+
+    // Yeni Dropdown funksiyası (Janr daxil olmaqla)
+    function applyAdvancedFilters() {
+        const catElement = document.getElementById('filterCategory');
+        currentCategory = catElement ? catElement.value : '';
+        currentYear = document.getElementById('filterYear').value;
+        currentCountry = document.getElementById('filterCountry').value;
+        currentLanguage = document.getElementById('filterLanguage').value;
+        currentSort = document.getElementById('sortMovies').value;
+        renderMovies();
+    }
+
+    function handleSearch() {
+      currentSearch = document.getElementById("movieSearch").value;
+      renderMovies();
+    }
+
+    function showAutocomplete() {
+        const input = document.getElementById("movieSearch").value.toLowerCase();
+        const list = document.getElementById("autocompleteList");
+        list.innerHTML = '';
+        
+        if (!input) {
+            list.style.display = 'none';
+            return;
+        }
+
+        const matches = moviesData.filter(movie => 
+            movie.title.toLowerCase().includes(input) ||
+            (movie.actor && movie.actor.toLowerCase().includes(input)) ||
+            (movie.director && movie.director.toLowerCase().includes(input))
+        ).slice(0, 5);
+
+        if (matches.length > 0) {
+            list.style.display = 'block';
+            matches.forEach(movie => {
+                const item = document.createElement('div');
+                item.style.padding = '12px 18px';
+                item.style.cursor = 'pointer';
+                item.style.borderBottom = '1px solid var(--border-10)';
+                item.style.color = 'var(--text-main)';
+                item.style.fontSize = '14px';
+                item.innerText = movie.title;
+                item.onmouseover = () => item.style.background = 'var(--panel-08)';
+                item.onmouseout = () => item.style.background = 'transparent';
+                item.onclick = () => {
+                    document.getElementById("movieSearch").value = movie.title;
+                    list.style.display = 'none';
+                    handleSearch();
+                };
+                list.appendChild(item);
+            });
+        } else {
+            list.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.target.id !== 'movieSearch') {
+            const list = document.getElementById("autocompleteList");
+            if(list) list.style.display = 'none';
+        }
+    });
+
+    function startVoiceSearch() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Səs axtarışı hazırki brauzeriniz tərəfindən dəstəklənmir.");
+            return;
+        }
+        
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'az-AZ'; 
+        
+        const btn = document.getElementById('voiceSearchBtn');
+        btn.style.color = '#ffaa00'; // Aktiv olanda narıncı olur
+        
+        recognition.start();
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById("movieSearch").value = transcript;
+            handleSearch();
+            btn.style.color = '#ffffff'; // İşini bitirəndə yenidən ağ olur
+        };
+
+        recognition.onerror = function(event) {
+            console.warn("Səs eşidilmədi və ya xəta baş verdi.");
+            btn.style.color = '#ffffff';
+        };
+
+        recognition.onend = function() {
+            btn.style.color = '#ffffff';
+        };
+    }
+
+    // YENİ: WhatsApp Paylaşım Funksiyası
+    function shareToWhatsApp(title) {
+        // Saytın əsas linkini götürür (əgər hələ internetə yükləməmisənsə lokal baxacaq)
+        const currentUrl = window.location.href.split('#')[0]; 
+        const text = 'Salam! Mən hazırda bu filmə baxıram: "' + title + '". Sən də bu linkdən daxil olub izləyə bilərsən: ' + currentUrl;
+        
+        // Mesajı WhatsApp-ın anlaya biləcəyi formata salır
+        const whatsappUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
+        
+        // Yeni tabda WhatsApp-ı açır
+        window.open(whatsappUrl, '_blank');
+    }
       document.getElementById("videoModalTitle").innerText = movie.title;
       document.getElementById("videoModalDesc").innerText = movie.description;
       document.getElementById("videoIframe").src = movie.iframe;
