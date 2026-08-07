@@ -207,12 +207,12 @@
     .search-bar-container {
       position: relative;
       width: 100%;
-      max-width: 460px;
+      max-width: 580px;
       margin-bottom: 20px;
     }
     .search-bar-container input {
       width: 100%;
-      padding: 14px 18px 14px 42px;
+      padding: 14px 110px 14px 42px;
       border-radius: 30px;
       border: 1px solid var(--border-20);
       background: var(--panel-08);
@@ -227,13 +227,124 @@
       border-color: #ffaa00;
       box-shadow: 0 0 15px rgba(255, 170, 0, 0.3);
     }
-    .search-bar-container i {
+    .search-bar-container i.search-icon {
       position: absolute;
       left: 16px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-50);
       font-size: 17px;
+    }
+    .search-actions {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 8px;
+    }
+    .voice-btn, .advanced-search-btn {
+      background: none;
+      border: none;
+      color: #FFD700;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      transition: background 0.2s, color 0.2s;
+    }
+    .voice-btn:hover, .advanced-search-btn:hover {
+      background: var(--border-15);
+    }
+    .voice-btn.listening {
+      color: #e74c3c;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* Autocomplete Düzəlişi */
+    .autocomplete-box {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-12);
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      margin-top: 6px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 3000;
+      display: none;
+      text-align: left;
+    }
+    .autocomplete-box.active { display: block; }
+    .autocomplete-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--panel-05);
+      transition: background 0.2s;
+    }
+    .autocomplete-item:hover {
+      background: var(--panel-08);
+    }
+    .autocomplete-item .item-type {
+      font-size: 11px;
+      color: #FFD700;
+      background: rgba(255,215,0,0.1);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* Ətraflı Axtarış və Yeni Filtrlər Panel CSS */
+    .advanced-search-panel {
+      width: 100%;
+      max-width: 800px;
+      background: var(--panel-06);
+      border: 1px solid var(--border-15);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 25px;
+      backdrop-filter: blur(10px);
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .advanced-search-panel.active { display: flex; }
+    .filter-group-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .filter-select, .filter-input {
+      background: var(--dropdown-bg);
+      border: 1px solid var(--border-20);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      width: 100%;
+    }
+    .filter-select option {
+      background: #0d1b3e;
+      color: white;
+    }
+    body.light-theme .filter-select option {
+      background: #ffffff;
+      color: #16213e;
     }
 
     .filters-container {
@@ -324,6 +435,11 @@
       gap: 4px;
       letter-spacing: 0.3px;
     }
+    .movie-badge.rt-badge {
+      top: 36px;
+      color: #ff5252;
+      border-color: rgba(255, 82, 82, 0.25);
+    }
     .movie-info {
       padding: 12px 14px 14px;
       display: flex;
@@ -337,6 +453,13 @@
       display: flex;
       justify-content: space-between;
       letter-spacing: 0.2px;
+    }
+    .movie-submeta {
+      font-size: 10px;
+      color: var(--text-40);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
     }
     .movie-title {
       font-size: 14px;
@@ -500,6 +623,9 @@
       #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
       
       .movies-header h1 { font-size: 1.8em; }
+      .search-bar-container { max-width: 100%; }
+      .search-bar-container input { padding-right: 90px; }
+      .filter-group-row { grid-template-columns: 1fr 1fr; }
       .filters-container { gap: 8px; }
       .filter-btn { padding: 6px 14px; font-size: 12px; }
       .movies-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
@@ -614,9 +740,62 @@
     <div class="movies-header">
       <h1>Filmlər və Seriallar</h1>
       
+      <!-- Axtarış paneli + Səsli axtarış + Ətraflı axtarış düyməsi -->
       <div class="search-bar-container">
-        <i class="fas fa-search"></i>
-        <input type="text" id="movieSearch" placeholder="Film, serial axtarın..." oninput="handleSearch()">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="movieSearch" placeholder="Film, aktyor, rejissor axtarın..." oninput="handleSearchInput(event)" autocomplete="off">
+        <div class="search-actions">
+          <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="Səsli Axtarış">
+            <i class="fas fa-microphone"></i>
+          </button>
+          <button class="advanced-search-btn" onclick="toggleAdvancedSearch()" title="Ətraflı Axtarış">
+            <i class="fas fa-sliders-h"></i>
+          </button>
+        </div>
+        <div class="autocomplete-box" id="autocompleteBox"></div>
+      </div>
+
+      <!-- Ətraflı Axtarış və Əlavə Filtrlər Paneli -->
+      <div class="advanced-search-panel" id="advancedSearchPanel">
+        <div class="filter-group-row">
+          <input type="text" id="actorInput" class="filter-input" placeholder="Aktyor adı..." oninput="handleFilterChange()">
+          <input type="text" id="directorInput" class="filter-input" placeholder="Rejissor adı..." oninput="handleFilterChange()">
+          <select id="yearSelect" class="filter-select" onchange="handleFilterChange()">
+            <option value="">Bütün İllər</option>
+            <option value="2019">2019</option>
+            <option value="2018">2018</option>
+            <option value="2017">2017</option>
+            <option value="2016">2016</option>
+            <option value="2015">2015</option>
+            <option value="2014">2014</option>
+            <option value="2010">2010</option>
+            <option value="2009">2009</option>
+            <option value="2007">2007</option>
+            <option value="2004">2004</option>
+            <option value="2002">2002</option>
+          </select>
+        </div>
+        <div class="filter-group-row">
+          <select id="countrySelect" class="filter-select" onchange="handleFilterChange()">
+            <option value="">Bütün Ölkələr</option>
+            <option value="ABŞ">ABŞ</option>
+            <option value="Türkiyə">Türkiyə</option>
+          </select>
+          <select id="languageSelect" class="filter-select" onchange="handleFilterChange()">
+            <option value="">Bütün Dillər</option>
+            <option value="İngilis dili">İngilis dili</option>
+            <option value="Türk dili">Türk dili</option>
+          </select>
+          <select id="sortSelect" class="filter-select" onchange="handleFilterChange()">
+            <option value="default">Sıralama: Standart</option>
+            <option value="imdb-desc">IMDB Reytinqi (Yüksəkdən aşağıya)</option>
+            <option value="imdb-asc">IMDB Reytinqi (Aşağıdan yüksəyə)</option>
+            <option value="rt-desc">Rotten Tomatoes (Yüksəkdən aşağıya)</option>
+            <option value="rt-asc">Rotten Tomatoes (Aşağıdan yüksəyə)</option>
+            <option value="year-desc">İlə görə (Yeni)</option>
+            <option value="year-asc">İlə görə (Köhnə)</option>
+          </select>
+        </div>
       </div>
       
       <div class="filters-container" id="filtersContainer">
@@ -625,8 +804,8 @@
         <button class="filter-btn" onclick="handleFilter('Komediya', this)">Komediya</button>
         <button class="filter-btn" onclick="handleFilter('Dram', this)">Dram</button>
         <button class="filter-btn" onclick="handleFilter('Fantastika', this)">Fantastika</button>
-        <button class="filter-btn" onclick="handleFilter('Seriallar', this)">Seriallar</button>
-        <button class="filter-btn" onclick="handleFilter('Seriallar', this)">Azərbaycan filmləri</button>
+        <button class="filter-btn" onclick="handleFilter('Elmi-Fantastika', this)">Elmi-Fantastika</button>
+        <button class="filter-btn" onclick="handleFilter('Detektiv', this)">Detektiv</button>
       </div>
     </div>
 
@@ -714,14 +893,82 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
   
   <script>
-    // FİLMLƏR
+    // FİLMLƏR (YENİ XÜSUSİYYƏTLƏR ƏLAVƏ OLUNDU: actors, director, country, language, rottenTomatoes)
     const moviesData = [
-      {
+    {
         id: 1,
+        title: "Malefiz / Malefisent",
+        category: "Fantastika",
+        year: 2014,
+        imdb: "6.9/10",
+        rottenTomatoes: "54%",
+        country: "ABŞ",
+        language: "İngilis dili",
+        director: "Robert Stromberg",
+        actors: ["Angelina Jolie", "Elle Fanning", "Sharlto Copley"],
+        poster: "https://m.media-amazon.com/images/M/MV5BMjAwMzAzMzExOF5BMl5BanBnXkFtZTgwOTcwMDA5MTE@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/39041501711",
+        description: `O"Malefiz" filmi klassik "Yatmış Gözəl" nağılını hər kəsin bildiyi şəkildə deyil, hekayənin məşhur "mənfi" qəhrəmanının gözündən anladır. Gənc, gözəl və təmiz qəlbli qanadlı bir pəri olan Malefiz, qəribə və sehrli məxluqların yaşadığı Moors adlı sülh dolu bir meşə səltənətində yaşayır. O, bir gün meşəyə azıb gələn Stefan adlı bir insan övladı ilə tanış olur. Bu tanışlıq illər keçdikcə dərin bir sevgi və etimada çevrilir.
+
+Lakin qonşuluqdakı insan krallığının hökmdarı Moors meşəsini ələ keçirmək istədikdə vəziyyət dəyişir. İnsanoğlunun bitib-tükənməyən ehtirası və taxt-tac arzusu nəhayət Stefana da təsir edir. O, yeni kral ola bilmək üçün ən yaxın dostu və sevgilisi olan Malefizə acımasızcasına xəyanət edərək onun qanadlarını kəsib aparır. Həm fiziki, həm də mənəvi cəhətdən darmadağın olan, qəlbi daşa dönən Malefiz, saf pəridən qaranlıqlar kraliçasına çevrilir. O, qorumağa çalışdığı sehrli meşəni aşılmaz bir tikanlı divarla əhatə edir və insanların dünyasına müharibə elan edir.
+
+Qisasını ən ağır şəkildə almaq istəyən Malefiz, artıq kral olmuş Stefanın yeni doğulan qızı şahzadə Avroranı dəhşətli bir lənətə düçar edir: Avrora 16 yaşına çatanda barmağına cəhrə iynəsi batacaq və o, heç vaxt oyanmamaq üzrə əbədi bir ölüm yuxusuna gedəcək. Lakin illər keçdikcə və Avrora kənddəki bir daxmada üç pərinin himayəsində böyüdükcə, Malefiz qızı uzaqdan izləməyə başlayır. Avroranın saflığı, yaşamaq sevinci və meşəyə duyduğu sevgi Malefizin daxilindəki qəzəb divarlarını sarsıtmağa başlayır.
+
+Malefiz saf nifrətlə verdiyi bu dəhşətli lənəti geri ala biləcəkmi? İki fərqli dünyanı – insanların krallığı ilə sehrli meşəni birləşdirəcək sülh açarı kimin əlindədir? İntiqam və mərhəmət arasındakı bu epik mübarizə, izləyiciyə bəzən ən qaranlıq qəlblərdə belə bir işıq ola biləcəyini göstərəcək.`
+    },    
+    {
+        id: 2,
+        title: "Malefiz: Kötülüğün gücü / Malefisent: Mistress of Evil",
+        category: "Fantastika",
+        year: 2019,
+        imdb: "6.6/10",
+        rottenTomatoes: "39%",
+        country: "ABŞ",
+        language: "İngilis dili",
+        director: "Joachim Rønning",
+        actors: ["Angelina Jolie", "Elle Fanning", "Michelle Pfeiffer"],
+        poster: "https://m.media-amazon.com/images/M/MV5BNTY4YjYwYzMtYTg1NC00ZmJiLTk0OTYtMWMzM2Y4Yzc5MDc2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://dzen.ru/embed/vOpJWxz212HU?from_block=partner&from=zen&mute=0&autoplay=0&tv=0",
+        description: `Malefiz: Şərin Gücü" filmi qüdrətli pəri Malefiz və onun himayəsində böyüyən, artıq sehrli Moors meşəsinin kraliçası olan şahzadə Avrora arasındakı bağların daha da gücləndiyi sülh dolu bir dövrdə başlayır. Hər şey qonşu Ulstead krallığının vəliəhdi, şahzadə Filipin Avroraya evlilik təklifi etməsi ilə dəyişir. Avrora bu təklifi sevinclə qəbul edir. Bu evlilik iki düşmən dünyanı – insanların krallığı ilə sehrli meşəni birdəfəlik birləşdirəcək böyük bir sülh addımı kimi görünür.
+
+Lakin insanlara hələ də tam güvənməyən Malefiz bu izdivaca şübhə ilə yanaşır. Ailələrin tanışlığı üçün Filipin qəsrində təşkil edilən şam yeməyində gözlənilməz bir gərginlik yaşanır. Filipin anası, hiyləgər, zəki və eyni zamanda qəddar Kraliça İnqrit, gizli planlarını həyata keçirmək üçün Malefizi təxribata çəkir. Qurulan ustaca tələ nəticəsində qəsrdə baş verən faciənin günahı Malefizin boynuna atılır. Yenidən xalqın gözündə qorxunc bir "qəddar" kimi qələmə verilən Malefiz, saraydan qaçmaq məcburiyyətində qalır. Bu hadisə Avrora və Malefiz arasındakı sevgi və sadiqlik bağlarını qopararaq onları fərqli cəbhələrə ayırır.
+
+Yaralanmış və xəyanətə uğramış halda qaçan Malefiz heç gözləmədiyi, sarsıdıcı bir həqiqəti kəşf edir: o, bu dünyada tək deyil. İnsanların zülmündən qaçaraq gizlənən və onunla eyni soydan olan Qaranlıq Pərilər tayfası (Dark Feys) yaşamaqdadır. Digər tərəfdən isə Kraliça İnqritin əsl məqsədinin sülh yaratmaq deyil, bütün sehrli məxluqları yer üzündən silmək üçün böyük bir müharibə başlatmaq olduğu aydınlaşır.
+
+İki dünya arasında qaçılmaz və dağıdıcı bir savaşın astanasında Avrora və Malefiz hansı tərəfi seçəcəklər? İnsanların silahları, yoxsa pərilərin sehri qalib gələcək? Malefiz həm öz soyunu, həm də qoruduğu meşəni xilas etmək üçün daxilindəki qəzəbə, yoxsa mərhəmətə sığınacaq? Sirlər, intriqalar və epik döyüşlərlə dolu bu fentezi hekayəsi izləyicini son saniyəyə qədər həyəcanda saxlayır`
+    },     
+    {
+        id: 3,
+        title: "Alita: Savaş meleği / Alita: Battle Angel",
+        category: "Elmi-Fantastika",
+        year: 2019,
+        imdb: "7.3/10",
+        rottenTomatoes: "61%",
+        country: "ABŞ",
+        language: "İngilis dili",
+        director: "Robert Rodriguez",
+        actors: ["Rosa Salazar", "Christoph Waltz", "Jennifer Connelly"],
+        poster: "https://m.media-amazon.com/images/M/MV5BYmZhZGQzM2MtMWEyZC00YTU1LTk4YTQtMTg3ZjEzM2U1NTkxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/2521310104152",
+        description: `Alita: Döyüş Mələyi" filmi uzaq gələcəkdə – Yerin böyük bir fəlakətdən əsrlər sonra bərpa olunmağa çalışdığı 26-cı əsrdə cərəyan edir. Hekayə səmada süzülən, zənginlərin yaşadığı əlçatmaz Zalem şəhərinin düz altındakı kasıb və təhlükəli "Dəmir Şəhər"in (Iron City) zibilliyində başlayır. Mərhəmətli kiber-həkim Doktor Dayson İdo bir gün bu zibillikdə xarabalıqlar arasından yaddaşı silinmiş, lakin beyni hələ də sağ olan bir kiborq qızın qalıqlarını tapır. O, qıza yeni bir kibernetik bədən düzəldir və ona "Alita" adını verir.
+
+Gözlərini açanda kim olduğunu, haradan gəldiyini və əvvəlki həyatını qətiyyən xatırlamayan Alita, tamamilə yeni bir dünyaya oyanır. O, bu xaotik, lakin rəngarəng Dəmir Şəhərə uyğunlaşmağa çalışarkən ona yol göstərən və Zalemə getmək xəyalları quran Hüqo (Hugo) adlı gənclə tanış olur. Doktor İdo isə Alitanı onun sirli keçmişinin qaranlıq təhlükələrindən qorumaq üçün hər vəchlə cəhd göstərir.
+
+Lakin çox keçmədən şəhərin yeraltı dünyasını idarə edən korrupsiyalaşmış qüvvələr və qatil kiborqlar Alitanın izinə düşürlər. Özünü və sevdiklərini qorumaq məcburiyyətində qalan qız, gözlənilməz bir anda qeyri-adi döyüş qabiliyyətlərinə sahib olduğunu kəşf edir. Alita sadəcə məsum bir kiborq deyil, əsrlər əvvəl unudulmuş və ən təhlükəli döyüş sənətlərini bilən bir savaşçıdır.
+
+Keçmişinə dair ipucları topladıqca Alita əsl kimliyini tapmaq üçün təhlükəli bir yola qədəm qoyur. O, qarşısına çıxan amansız düşmənlərlə, həmçinin şəhərin ən qəddar idman növü olan "Motorbol" (Motorball) arenasında qladiatorlarla mübarizə aparmalıdır. Bəs kiçik bədəninə nəhəng bir güc sığdıran bu döyüş mələyi ədalətsiz sistemə qarşı təkbaşına duruş gətirə biləcəkmi? Zalemin göy üzündəki hegemonluğunu sarsıtmaq üçün onun cəsarəti kifayət edəcəkmi? Ekşn və vizual effektlərlə zəngin olan bu hekayədə Alitanın özünü kəşf etmə macərası oxucunu ekrana kilidləyəcək.`
+    },       
+      {
+        id: 4,
         title: "Örümcek adam / Spider-Man 1",
         category: "Fantastika",
         year: 2002,
         imdb: "7.4/10",
+        rottenTomatoes: "90%",
+        country: "ABŞ",
+        language: "İngilis dili",
+        director: "Sam Raimi",
+        actors: ["Tobey Maguire", "Kirsten Dunst", "Willem Dafoe"],
         poster: "https://upload.wikimedia.org/wikipedia/tr/8/8e/Sm3poster09.jpg",
         iframe: "https://ok.ru/videoembed/27781302902",
         description: `Piter Parker cavan məktəbli botanikdir. Onun yalnız yaşlı dayısı və xalası vardır. Piteri məktəbdə hamı ələ salır. Onunla yalnız varlı məktəbli Harri Osborn dostluq edir. Piterin isə Meri Ceyn Uotson adında qız dostu var və ona aşiqdir. Onunla bərabər Harri də Meriyə aşiqdir. Piter Parkerin həyatı bir gün bir hörümçək tərəfindən dişlənilməsiylə tamamilə dəyişir. Çünki bu hörümçək sıravi bir hörümçək deyil, genetik olaraq özəlliklə inkişaf etdirilmiş, elmi məqsədlərlə istifadə edilən bir təcrübədir. Bir müddət keçdikdən sonra Piterdə dəyişiklər baş verir. Piter əlindən gözlənilmədən hörümçək toru çıxarmağa başlayır. Beləliklə, Piter "Hörümçək-adam" kimi formalaşır. Piter boş vaxtlarında "Hörümçək-adam" adlı qəhrəmanının şəklini və geyimini yaradır. Bir neçə müddət sonra Piter insanları oğrulardan xilas edən qəhrəmana çevrilir.
@@ -731,11 +978,16 @@ Piterin tanıdığı Harri Ozbornun atası olan Norman Ozborn elm adamıdır. No
 Vaxt keçdikcə "Yaşıl qoblin" Piterin sevdiyi qızı Meri Ceyni və funikulyor ilə birgə uşaqları ələ keçirir. "Hörümçək-adam" onun yanına gələn zaman "Yaşıl qoblin"dən ələ keçirdiyi insanları buraxmağı tələb edir. Lakin "Yaşıl qoblin" onun qarşısına iki məqsəd qoyur: Ya "Hörümçək-adam" sevdiyi qızı xilas etməli, ya da uşaqları xilas etməlidir. "Hörümçək-adam" həm Merini, həm də uşaqları xilas edir. Bu zaman "Hörümçək-adam" və "Yaşıl qoblin" arasında kəskin mübarizə başlayır. "Hörümçək-adam" çətinliklə də olsa mübarizədən sağ çıxır. "Yaşıl qoblin" Normana dönən zaman Piterə bu hadisənin oğlu Harriyə söyləməməsini istəyir və bu zaman ölür. Bu hadisə bitdikdən sonra Nomran qəbirdə basdırılır və Piter Harriyə bu haqda heç nə söyləmir. Harri isə ona deyir ki, atasının intiqamını "Hörümçək-adam"dan mütləq alacaqdır. Piterin sevgilisi Meri onun iki həyatlı insan olduğunu zənn edir.`
       },
       {
-        id: 2, 
+        id: 5, 
         title: "Örümcek adam 2 / Spider-Man 2",
         category: "Fantastika",
         year: 2004,
         imdb: "7.5/10",
+        rottenTomatoes: "93%",
+        country: "ABŞ",
+        language: "İngilis dili",
+        director: "Sam Raimi",
+        actors: ["Tobey Maguire", "Kirsten Dunst", "Alfred Molina"],
         poster: "https://upload.wikimedia.org/wikipedia/tr/2/26/%C3%96r%C3%BCmcek_Adam_2_film_posteri.jpg",
         iframe: "https://vk.com/video_ext.php?oid=261439208&id=169408301",
         description: `Piter Parker superqəhrəman öhdəlikləri ilə şəxsi həyatı arasındakı tarazlığı qorumaqda böyük çətinlik çəkir. Gündəlik həyatında hər şey tərs getməyə başlayır: universitetdə dərslərindən geri qalır, işini itirir və ciddi maddi sıxıntılarla üzləşir. Üstəlik, dərindən aşiq olduğu Meri Ceyn başqası ilə evlənməyə hazırlaşır, ən yaxın dostu Harri Ozborn isə atasının ölümündə günahlandırdığı Hörümçək-adama qarşı qisas hissi ilə alışıb yanır.
@@ -747,11 +999,16 @@ Lakin Nyu-York şəhəri çox keçmədən yeni və dəhşətli bir təhlükə il
 Doktor Osminoq yarımçıq qalmış dağıdıcı təcrübəsini tamamlamaq üçün şəhərdə terror əsdirməyə başlayanda və ən pisi, Meri Ceyni girov götürəndə Piter vəziyyətin ciddiliyini dərk edir. O, böyük gücün gətirdiyi böyük məsuliyyətdən qaça bilməyəcəyini anlayır. Öz daxili qorxularına qalib gələn Piter Parker, güclərini yenidən qazanaraq həm sevdiyi qadını, həm də bütün şəhəri xilas etmək üçün Doktor Osminoqla unudulmaz bir ölüm-dirim mübarizəsinə girişir.`
       },
       {
-        id: 3,
+        id: 6,
         title: "Örümcek adam 3 / Spider-Man 3",
         category: "Fantastika",
         year: 2007,
         imdb: "6.3/10",
+        rottenTomatoes: "63%",
+        country: "ABŞ",
+        language: "İngilis dili",
+        director: "Sam Raimi",
+        actors: ["Tobey Maguire", "Kirsten Dunst", "James Franco"],
         poster: "https://m.media-amazon.com/images/M/MV5BODE2NzNhMDctYjUzMC00Y2M5LWI2Y2EtODJkZTFjN2Y5ODlmXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
         iframe: "https://dzen.ru/embed/vKghmm3uOxAg?from=fb",
         description: `Piter Parker nəhayət həyatındakı tarazlığı tapmış kimi görünür. O, Meri Ceyn ilə münasibətlərini növbəti mərhələyə daşımağa hazırlaşır və Nyu-York əhalisi Hörümçək-adamı artıq bir xilaskar, qəhrəman kimi sevib qəbul edir.
@@ -762,14 +1019,19 @@ Bu ərəfədə Piterin keçmişi ilə bağlı şok edici bir həqiqət ortaya ç
 
 Bütün bunlar azmış kimi, atasının intiqamını almağa and içən ən yaxın dostu Harri Ozborn atasının texnologiyalarından istifadə edərək "Yeni Qoblin" kimi Piterə hücum edir. Həmçinin, Piterin "Daily Bugle" qəzetindəki rəqibi, hiyləgər fotoqraf Eddi Brok Piterin rədd etdiyi qara simbiotla birləşərək indiyə qədərki ən təhlükəli düşmənə – "Venom"a çevrilir.
 
-Venom və Qum-adamın birləşərək Meri Ceyni qaçırması ilə vəziyyət kritik həddə çatır. Piter Parker indi həm ən güclü düşmənlərinə, həm də öz daxilindəki qaranlığa qarşı savaşmalıdır. O, təkəbbürünə qalib gəlməli, bağışlamağın gücünü dərk etməli və əsl qəhrəmanlığın kostyumda deyil, insanın qəlbində olduğunu yenidən xatırlamalıdır. Bu çətin döyüşdə Piterin gözlənilməz bir müttəfiqə ehtiyacı olacaq.`
+Venom və Qum-adamın birləşərək Meri Ceyni qaçırması ilə vəziyyət kritik həddə çatır. Piter Parker indiki həm ən güclü düşmənlərinə, həm də öz daxilindəki qaranlığa qarşı savaşmalıdır. O, təkəbbürünə qalib gəlməli, bağışlamağın gücünü dərk etməli və əsl qəhrəmanlığın kostyumda deyil, insanın qəlbində olduğunu yenidən xatırlamalıdır. Bu çətin döyüşdə Piterin gözlənilməz bir müttəfiqə ehtiyacı olacaq.`
       },
       {
-        id: 4,
+        id: 7,
         title: "Kaptan Amerika: Kahramanların savaşı / Captain America: Civil War",
         category: "Fantastika",
         year: 2016,
         imdb: "7.8/10",
+        rottenTomatoes: "90%",
+        country: "ABŞ",
+        language: "İngilis dili",
+        director: "Anthony Russo, Joe Russo",
+        actors: ["Chris Evans", "Robert Downey Jr.", "Scarlett Johansson"],
         poster: "https://m.media-amazon.com/images/M/MV5BMjQ0MTgyNjAxMV5BMl5BanBnXkFtZTgwNjUzMDkyODE@._V1_FMjpg_UX1000_.jpg",
         iframe: "https://vidmoly.biz/embed-9c3lat8szmo2.html",
         description: `Qisasçılar (Avengers) komandasının bəşəriyyəti xilas edərkən istəmədən səbəb olduğu böyük dağıntılar və sivil itkilər dünya hökumətlərini hərəkətə keçirir. Birləşmiş Millətlər Təşkilatı superqəhrəmanları nəzarət altına almaq və yalnız xüsusi komitənin icazəsi ilə hərəkət etmələrini təmin etmək üçün "Sokoviya Müqaviləsi"ni irəli sürür.
@@ -781,11 +1043,16 @@ Vyanada müqavilənin imzalanması mərasimində baş verən dəhşətli terror 
 Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı epik bir savaşa girişirlər. Lakin pərdə arxasında Qisasçıları bir-birinə qırdıraraq daxildən parçalamaq istəyən intiqam dolu bir düşmən – Helmut Zemo dayanır. Zemonun qaranlıq planı baş tutduqda və Baki ilə Starkın keçmişini birləşdirən faciəvi həqiqət (Toninin valideynlərinin ölümü) ortaya çıxdıqda, Stiv və Toni arasındakı dostluq bağları tamamilə qopur və yerini emosional, ölüm-dirim mübarizəsinə buraxır.`
       },
       {
-       id: 5,
+        id: 8,
         title: "Örümcek Adam: Eve dönüş / Spider Man: Homecoming",
         category: "Fantastika",
         year: 2017,
         imdb: "7.4/10",
+        rottenTomatoes: "92%",
+        country: "ABŞ",
+        language: "İngilis dili",
+        director: "Jon Watts",
+        actors: ["Tom Holland", "Michael Keaton", "Robert Downey Jr."],
         poster: "https://m.media-amazon.com/images/M/MV5BODY2MTAzOTQ4M15BMl5BanBnXkFtZTgwNzg5MTE0MjI@._V1_FMjpg_UX1000_.jpg",
         iframe: "https://dzen.ru/embed/vMo3FSfv9VUs",
         description: `Kapitan Amerika: Qəhrəmanların Savaşı" filmindəki epik döyüşdən və "Qisasçılar" (Avengers) ilə ilk təcrübəsindən sonra gənc Piter Parker qəhrəman həyatının həyəcanı içindədir. O, mentoru Toni Starkın (Dəmir Adam) nəzarəti altında Nyu-Yorkun Kuins (Queens) bölgəsindəki evinə, xalası Meyin yanına qayıdır. Piter bir tərəfdən sadə bir məktəbli kimi adi həyatına uyğunlaşmağa və dərslərinə diqqət yetirməyə çalışır, digər tərəfdən isə əsl superqəhrəman olduğunu sübut edərək Starkın komandasına rəsmi olaraq qəbul edilmək üçün fürsət axtarır.
@@ -797,11 +1064,16 @@ Piter Kərkəsin fəaliyyətini dayandırmaq üçün Starkın "böyük işlərə
 İndi Piter həm təhlükədə olan dostlarını xilas etməli, həm də Kərkəsin böyük planının qarşısını almalıdır. Üstəlik, bütün bunları Starkın hazırladığı xüsusi texnologiyalar olmadan, yalnız öz ağlı, iradəsi və cəsarəti ilə etməlidir. O, əsl qəhrəmanlığın kostyumda deyil, insanın daxilində və məsuliyyət hissində olduğunu anlamağa başlayır`
     },
      {
-       id: 6,
+        id: 9,
         title: "Güneşi gördüm / I Saw the Sun",
         category: "Dram",
         year: 2009,
         imdb: "6.6/10",
+        rottenTomatoes: "58%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Mahsun Kırmızıgül",
+        actors: ["Mahsun Kırmızıgül", "Murat Ünalmış", "Cemal Toktaş"],
         poster: "https://m.media-amazon.com/images/M/MV5BMzVlNmYzNjItODExOS00MjIwLTlhMjctYmFkMjhhY2RmYzM3XkEyXkFqcGc@._V1_QL75_UY562_CR21,0,380,562_.jpg",
         iframe: "https://ok.ru/videoembed/1078734557627",
         description: `Türkiyənin cənub-şərqindəki sərhəd kəndlərindən birində yaşayan və bölgədəki hərbi münaqişələrə görə yurdlarını tərk etmək məcburiyyətində qalan Altun ailəsinin dramatik və təsirli hekayəsindən bəhs edir. Hökumətin qərarı ilə kəndin boşaldılması nəticəsində illərdir bir yerdə yaşayan böyük ailə köç yolunda iki fərqli istiqamətə dağılmaq məcburiyyətində qalır.
@@ -815,27 +1087,37 @@ Filmin ən təsirli xətlərindən biri də Davudun qardaşı Kadrinin (Cemal To
 "Günəşi Gördüm" sadəcə bir köç hekayəsi deyil; bu, müharibənin, ayrı-seçkiliyin və cəhalətin günahsız insanların həyatını necə məhv etdiyini göstərən bir güzgüdür. Film izləyiciyə qaranlığın və acıların içində belə hər kəsin bir ümid işığına – "günəşi görməyə" ehtiyacı olduğunu xatırladır`
     },
      {
-      id: 7,
+        id: 10,
         title: "Beyaz Melek",
         category: "Dram",
         year: 2007,
         imdb: "6.5/10",
+        rottenTomatoes: "60%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Mahsun Kırmızıgül",
+        actors: ["Arif Erkin", "Mahsun Kırmızıgül", "Yıldız Kenter"],
         poster: "https://m.media-amazon.com/images/M/MV5BMTg1MDI1NDAzMF5BMl5BanBnXkFtZTgwODMwODc0NDE@._V1_FMjpg_UX1000_.jpg",
         iframe: "https://ok.ru/videoembed/2036821789388",
-        description: `Bəyaz Mələk" filmi, Şərq və Qərb mədəniyyətləri arasındakı fərqləri, ailə dəyərlərini və yaşlılara göstərilən münasibəti olduqca təsirli bir dillə tamaşaçıya çatdırır. Hekayə, beyin xərçəngindən əziyyət çəkən və müalicə üçün oğulları Əli (Mahsun Kırmızıgül) və Rəşad tərəfindən Diyarbəkirdən İstanbula gətirilən yaşlı Əhməd (Arif Erkin) babanın başına gələnlərlə başlayır.
+        description: `Bəyaz Mələk" filmi, Şərq və Qərb mədəniyyətləri arasındakı fərqləri, ailə dəyərlərini və yaşlılara gösterilən münasibəti olduqca təsirli bir dillə tamaşaçıya çatdırır. Hekayə, beyin xərçəngindən əziyyət çəkən və müalicə üçün oğulları Əli (Mahsun Kırmızıgül) və Rəşad tərəfindən Diyarbəkirdən İstanbula gətirilən yaşlı Əhməd (Arif Erkin) babanın başına gələnlərlə başlayır.
 
-Xəstəxanada kimyaterapiya almaq istəməyən və övladlarına yük olduğunu düşünən Əhməd baba gizlicə oradan qaçır. O, təsadüfən İstanbuldakı bir qocalar evinə sığınır. Qocalar evinin sakinləri onun övladları tərəfindən atıldığını düşünərək bu səssiz və şirin dilli qocaya sahib çıxırlar. Əhməd babanın oğulları onu tapanda, atasının bu tənha, lakin sevgi dolu insanlarla necə xoşbəxt olduğunu görürlər. Atalarının qəlbini qırmamaq və bu yeni dostlarından ayırmamaq üçün onlar vəziyyəti bildirmədən qocalar evinin daimi ziyarətçilərinə çevrilirlər.
+Xəstəxanada kimyaterapiya almaq istəməyən və övladlarına yük olduğunu düşünən Əhməd baba gizlicə oradan qaçır. O, təsadüfən İstanbuldakı bir qocalar evinə sığınır. Qocalar evinə sakinləri onun övladları tərəfindən atıldığını düşünərək bu səssiz və şirin dilli qocaya sahib çıxırlar. Əhməd babanın oğulları onu tapanda, atasının bu tənha, lakin sevgi dolu insanlarla necə xoşbəxt olduğunu görürlər. Atalarının qəlbini qırmamaq və bu yeni dostlarından ayırmamaq üçün onlar vəziyyəti bildirmədən qocalar evinin daimi ziyarətçilərinə çevrilirlər.
 
 Bu andan etibarən film tamaşaçını qocalar evinin divarları arasında gizlənən, hər biri fərqli bir dramla dolu həyat hekayələrinə aparır. Burada illərlə övlad yolu gözləyən, unudulmuş, lakin bir-birinə kənətçilənmiş yaşlı insanların acı-şirin günlərinin şahidi oluruq. Əhməd baba və oğulları bu insanların həyatına yeni bir nəfəs, ümid və sevinc gətirir.
 
 "Bəyaz Mələk" sadəcə bir xəstəlik hekayəsi deyil; cəmiyyətin unudulan bir təbəqəsinə – yaşlılara həsr olunmuş kədərli bir elegiyadır. Türk kinosunun ən ustad aktyorlarının bir araya gəldiyi bu film, izləyicini mərhəmət, vəfa və valideyn haqqı üzərində dərindən düşünməyə vadar edir.`
     },   
        {
-      id: 8,
+        id: 11,
         title: "New York'ta Beş Minare / Act of Vengeance",
         category: "Dram",
         year: 2010,
         imdb: "5.7/10",
+        rottenTomatoes: "45%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Mahsun Kırmızıgül",
+        actors: ["Haluk Bilginer", "Mahsun Kırmızıgül", "Mustafa Sandal", "Danny Glover"],
         poster: "https://m.media-amazon.com/images/M/MV5BMjE5OTczMjg4Ml5BMl5BanBnXkFtZTcwNDk3MjQ5Mw@@._V1_FMjpg_UX1000_.jpg",
         iframe: "https://ok.ru/videoembed/510328834708",
         description: `Nyu-Yorkda 5 Minarə" filmi Türkiyənin antiterror xidmətinin iki ən bacarıqlı və təcrübəli polis zabiti olan Fırat (Mahsun Kırmızıgül) və Acarın (Mustafa Sandal) təhlükəli bir missiya üçün ABŞ-a göndərilməsi ilə başlayır. Onların məqsədi İnterpol tərəfindən qırmızı bülletenlə axtarılan və FTB (FBI) tərəfindən Nyu-Yorkda həbs edilən "Dəccal" kod adlı təhlükəli radikal terror şəbəkəsi liderini Türkiyəyə təhvil gətirməkdir.
@@ -846,32 +1128,233 @@ Film bir tərəfdən 11 Sentyabr hadisələrindən sonra Amerikada və dünyada 
 
 Hekayə irəlilədikcə tamaşaçı Hacı Gümüşün Türkiyədəki keçmişinə və 30 illik qanlı bir qisas (qan davası) əhvalatına şahid olur. Hacı və Fıratın keçmişləri gözlənilməz bir şəkildə kəsişir və hekayənin sonunda illərlə gizli qalmış faciəvi həqiqətlər gün üzünə çıxaraq izləyicini sarsıdıcı bir hüzünlə baş-başa buraxır. Filmin ana mesajı nifrət və intiqamın insan həyatını necə məhv etdiyi, bağışlamağın isə ən böyük ərdəm olduğudur.`
     }, 
+      {
+        id: 12,
+        title: "Mucize / The Miracle",
+        category: "Dram",
+        year: 2015,
+        imdb: "7.6/10",
+        rottenTomatoes: "72%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Mahsun Kırmızıgül",
+        actors: ["Mert Turak", "Talat Bulut", "Seda Tosun"],
+        poster: "https://m.media-amazon.com/images/M/MV5BNTk3NzU5NjY3Nl5BMl5BanBnXkFtZTgwMzcwNDQyNDE@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/10765758960055",
+        description: `Möcüzə" filmi 1960-cı illərdə, Türkiyənin Egey bölgəsindən Şərqi Anadolunun ucqar, yolu belə olmayan bir dağ kəndinə təyinat alan fədakar müəllim Mahirin (Talat Bulut) təsirli hekayəsi ilə başlayır. Kəndə gəlib çatanda Mahir müəllim böyük bir sürprizlə qarşılaşır: kənddə nəinki məktəb, heç təhsil anlayışı belə yoxdur. Lakin o, çətinliklərdən qorxaraq geri dönmür. Kənd əhalisinin və dövlətin dəstəyi ilə çiyin-çiyinə verərək uşaqlar üçün öz əlləri ilə bir məktəb inşa etməyə qərar verir.
+
+Kənddə Mahir müəllimin diqqətini çəkən xüsusi bir gənc var: kəndin muxtarının oğlu, fiziki və nitq qüsurlu olan Əziz (Mert Turak). Hərəkətlərini idarə etməkdə çətinlik çəkən Əziz cəmiyyətdən təcrid olunmuş vəziyyətdə yaşayır və tez-tez ətrafdakılar tərəfindən lağa qoyulur. Lakin onun çətin anlaşılan dünyasının dərinliyində çox təmiz, həssas və sevgi dolu bir qəlb yatır. Mahir müəllim Əzizi bu tənha dünyasından xilas etmək, ona dəyərli olduğunu hiss etdirmək üçün onu da digər uşaqlarla birlikdə məktəbə qəbul edir.
+
+Hekayənin ən həlledici və duyğusal dönüş nöqtəsi isə kənddən uzaqlarda yaşayan dünyagözəli Mızginin (Seda Tosun) qəfil verilən qərarla Əzizlə evləndirilməsi olur. Kənd əhalisi bu evliliyin qətiyyən alına bilməyəcəyini, Əzizin bir qadına və ailəyə baxa bilməyəcəyini düşünərək onları davamlı mühakimə edir.
+
+Bütün bu sərt qərəzlərin, çətin həyat şərtlərinin və psixoloji təzyiqlərin kölgəsində Əziz və Mızgini böyük bir sınaq gözləyir. Cəmiyyətin amansız baxışlarına rəğmən bu cütlük öz dünyalarını qura biləcəkmi? Səbir, fədakarlıq və ən əsası sevgi, insanların həyatında həqiqətən bir "möcüzə" yarada bilərmi? Bu sualların cavabı filmin duyğu yüklü səhnələrində gizlidir.`
+    },   
+    {
+        id: 13,
+        title: "Mucize 2: Aşk / The Miracle 2: Love",
+        category: "Dram",
+        year: 2019,
+        imdb: "7.3/10",
+        rottenTomatoes: "68%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Mahsun Kırmızıgül",
+        actors: ["Mert Turak", "Biran Damla Yılmaz", "Fikret Kuşkan"],
+        poster: "https://m.media-amazon.com/images/M/MV5BOGI2ZTMwZTQtNmZiMC00ZTFmLWFkZmEtNmU4N2VjZGRiZDExXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/8986225478330",
+        description: `Möcüzə 2: Eşq" filmi ilk filmdəki hadisələrin birbaşa davamı olaraq, Əziz (Mert Turak) və Mızginin (Biran Damla Yılmaz) kənddəki sərt qərəzlərə və dözülməz lağlara görə yurdlarını tərk edərək yeni bir həyata başlamaq qərarı ilə başlayır. Mahir müəllimin köməkliyi ilə cütlük Şərqin ucqar dağ kəndindən Qərbin (Egey bölgəsinin) mənzərəli və fərqli mədəniyyətə malik bir sahil qəsəbəsinə köçürlər.
+
+Yeni qəsəbəyə köçmək onlar üçün həm böyük bir ümid, həm də çətin bir sınaqdır. Qəhrəmanlarımız indiyə qədər heç görmədikləri yeni bir dünya, fərqli adətlər və tanımadıqları insanlarla qarşılaşırlar. Əziz bir tərəfdən cəmiyyət içində özünə yer tapmağa və həyat yoldaşına baxa biləcək gücdə bir kişi olduğunu sübut etməyə çalışır, digər tərəfdən isə Mızgin bu yeni və qəribə dünyada ayaqda qalmaq üçün böyük səy göstərir.
+
+Qəsəbənin bəzi sakinləri onlara qucaq açsa da, cəmiyyətin amansız və qərəzli tərəfi burada da onların qarşısına çıxır. Əzizin fiziki qüsurları yenidən diqqət mərkəzinə düşür. Lakin Əzizin daxilində çox güclü bir motivasiya mənbəyi var: Mızginə olan dərin, saf və tükənməz eşqi. O, sadəcə sevdiyi qadının gözündəki kədəri silmək və onun xəyallarındakı həyat yoldaşı ola bilmək üçün sağalmağı hər şeydən çox istəyir.
+
+Bəs Əziz öz bədəninin məhdudiyyətlərini aşa biləcəkmi? Bu sadə və təmiz qəlbli cütlük yeni dünyalarının çətinliklərinə və insanların qəddar baxışlarına qarşı necə mübarizə aparacaq? Hər kəsin qeyri-mümkün hesab etdiyi bir sevgi hekayəsi gerçək bir möcüzəyə çevrilə bilərmi? Eşqin və əzmin gücünü sınağa çəkən bu sualların cavabı filmin təsirli kadrlarında öz əksini tapır.`
+    },   
+    {
+        id: 14,
+        title: "Av Mevsimi / Hunting Season",
+        category: "Detektiv",
+        year: 2010,
+        imdb: "7.4/10",
+        rottenTomatoes: "75%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Yavuz Turgul",
+        actors: ["Şener Şen", "Cem Yılmaz", "Çetin Tekindor", "Okan Yalabık"],
+        poster: "https://m.media-amazon.com/images/M/MV5BMTYzMjkzODk4Nl5BMl5BanBnXkFtZTcwOTYzODQxNA@@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/428855200261",
+        description: `Ov Mövsümü" filmi İstanbul polisinin Cinayət Axtarış Şöbəsinin bir-birindən fərqli xarakterlərə malik üç detektivinin çətin və təhlükəli hekayəsindən bəhs edir. Təcrübəsi və intuisiyasına görə "Ovçu" ləqəbini almış Fərman (Şener Şen), fədakar və hər an partlamağa hazır çılğın hərəkətlərinə görə "Dəli" olaraq tanınan İdris (Cem Yılmaz) və komandaya yeni qoşulmuş gənc "Çömez" Həsən (Okan Yalabık) olduqca mürəkkəb bir cinayət işini həll etmək üçün bir araya gəlirlər.
+
+Hər şey meşəlik ərazidə gənc bir qıza aid kəsilmiş bir qolun tapılması ilə başlayır. Bu dəhşətli cinayətin izi ilə gedən üçlük özlərini gözlənilməz və qaranlıq bir şəbəkənin içində tapırlar. İstintaq dərinləşdikcə bütün ipucları onları ölkənin ən zəngin, qüdrətli və toxunulmaz qəbul edilən iş adamlarından birinə – qorxunc xarakterə malik Battal Çolakzadəyə (Çetin Tekindor) aparıb çıxarır.
+
+Cinayəti açmaq üçün aparılan bu amansız mübarizə sadəcə peşəkar bir vəzifə olmaqdan çıxır və hər üç detektivin şəxsi həyatını alt-üst edən psixoloji bir sınağa çevrilir. Fərmanın ailəsindəki problemlər, İdrisin keçmiş həyat yoldaşı Asiyəyə olan dağıdıcı və hədsiz bağlılığı, eləcə də Həsənin təcrübəsizlikdən qaynaqlanan çətinlikləri bu gərgin axtarış processesini daha da çıxılmaz vəziyyətə salır.
+
+Qanunların və ədalətin sərhədləri harada bitir? Güclü və pullu insanların hegemonluq etdiyi bir dünyada həqiqəti ortaya çıxarmaq qəhrəmanlarımızdan hansı fədakarlıqları tələb edəcək? Sirlər, yalanlar və təhlükələrlə dolu bu "ov mövsümündə" əslində kim ov, kim isə ovçudur? Şiddət və intriqa dolu bu sualların cavabı filmin kəskin döngələrində və qaranlıq kadrlarında gizlidir.`
+    },  
+    {
+        id: 15,
+        title: "Nadide Hayat",
+        category: "Komediya",
+        year: 2015,
+        imdb: "6.3/10",
+        rottenTomatoes: "50%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Çağan Irmak",
+        actors: ["Demet Akbağ", "Yetkin Dikinciler", "Sevil Akı"],
+        poster: "https://m.media-amazon.com/images/M/MV5BNzk0OTcyMTM5MV5BMl5BanBnXkFtZTgwNzU4NTkyNzE@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/16142741735937",
+        description: `"Nadide Hayat" filmi gənc yaşlarında böyük xəyallarından, xüsusən də dəniz biologiyasına olan həvəsindən və təhsilindən imtina edərək evlənən, bütün həyatını ailəsinə həsr etmiş Nadide (Demet Akbağ) adlı qadının ilhamverici hekayəsindən bəhs edir. Həyat yoldaşının gözlənilməz ölümündən sonra Nadide 50 yaşından sonra təkbaşına qalır. Övladları və gəlini onun artıq sakit, klassik bir qocalar həyatı yaşamasını, evdə oturub toxuma toxumasını və nəvə gözləməsini təklif edirlər.
+
+Lakin Nadide bu monoton və sıxıcı həyatla barışmaq istəmir. O, daxilindəki yaşamaq sevinclərini və yarımçıq qalmış arzularını reallaşdırmaq üçün bir çıxış yolu axtarır. Təsadüfən televizorda universitetdən yarımçıq ayrılanlar üçün əfv qanunu çıxdığını öyrənən Nadide böyük bir cəsarət göstərərək illər əvvəl yarımçıq qoyduğu Dəniz Biologiyası fakültəsinə geri dönür.
+
+Yenidən tələbə olan Nadide özündən yaşca çox kiçik gənclərlə eyni partanı paylaşmağa başlayır. Hətta dənizdə aparılacaq xüsusi bir elmi tədqiqat ekspedisiyasına qoşulur. Təcrübə gəmisində onu sert, qapalı xarakterə malik Kapitan Yusif (Yetkin Dikinciler) və enerjili bir qrup gənc tələbə qarşılayır. Başlanğıcda həm kapitan, həm də gənclər bu yaşda bir qadının açıq dənizdə, çətin şərtlər altında nə işi olduğunu sorğulayırlar.
+
+Mavi dənizin ortasında, gözlənilməz hava şəraiti, fırtınalar və komik hadisələrlə dolu bu səyahətdə Nadide özünü yenidən kəşf etmək üçün mübarizə aparır. Bəs Nadide xəyallarının arxasınca gedərək ətrafındakı insanların həyatını və baxış bucağını necə dəyişəcək? İkinci baharını yaşamağa çalışan bir qadının bu əyləncəli və duyğulu dəniz macərası izləyiciyə hər yaşda yeni bir başlanğıcın mümkün olduğunu xatırladır.`
+    },
+    {
+        id: 16,
+        title: "Hadi Insallah",
+        category: "Komediya",
+        year: 2014,
+        imdb: "5.4/10",
+        rottenTomatoes: "42%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Ali Taner Baltacı",
+        actors: ["Büşra Pekin", "Murat Boz", "Şinasi Yurtsever"],
+        poster: "https://m.media-amazon.com/images/M/MV5BNDQ5MzUxNDQ2Ml5BMl5BanBnXkFtZTgwNDU3NjI1MzE@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/2040159537868",
+        description: `Hadi İnşallah" filmi məşhur fenomen Puccanın eyniadlı avtobioqrafik kitabına əsaslanır. Hekayə, 4 illik sevgilisi tərəfindən gözlənilməz şəkildə tərk edilən gənc qadın Puccanın (Büşra Pekin) dərin depressiyaya düşməsi ilə başlayır. Həyatı darmadağın olan Pucca özünü toplamaq üçün Ankaradan doğma şəhəri İzmirə, ailəsinin yanına qayıdır. Ailəsi və yaxınları onu bu məyusluqdan çıxarmaq üçün min bir yola əl atırlar.
+Həyatına yeni bir səhifə açmaq və özünə inamını bərpa etmək istəyən Pucca, bir yerli televiziya kanalında işə düzəlir. İşə başladığı ilk günlərdə o, həyatının axarını tamamilə dəyişdirəcək biri ilə – "Pekmez" ləqəbli son dərəcə yaraşıqlı, xarizmatik və diqqətçəkən fotoqraf (Murat Boz) ilə tanış olur.
+Pekmezi görən an ona aşiq olan Pucca, onun ürəyini fəth etmək üçün planlar qurmağa başlayır. Lakin Puccanın hədsiz həyəcanı, sakarlığı və rashid addımları onu hər dəfə bir-birindən gülməli, çaşdırıcı və komik vəziyyətlərin ortasına atır. Üstəlik, iş yerindəki rəqibləri və keçmiş münasibətindən qalan daxili qorxuları da bu çətin yolda onun qarşısına maneələr çıxarır.
+Bəs Pucca bu dəfə axtardığı əsl sevgini tapıb xoşbəxt ola biləcəkmi? Yoxsa hisslərinin arxasınca qaçarkən yeni bir xəyal qırıqlığı yaşayacaq? Bol qəhqəhəli, əyləncəli və dinamik ritmi ilə seçilən bu romantik-komediya hekayəsi tamaşaçılara həm bol təbəssüm, həm də səmimi anlar vəd edir.`
+    },   
+    {
+        id: 17,
+        title: "Iftarlik Gazoz",
+        category: "Dram",
+        year: 2016,
+        imdb: "7.3/10",
+        rottenTomatoes: "78%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Yüksel Aksu",
+        actors: ["Cem Yılmaz", "Berat Efe Parlar", "Ümmü Putgül"],
+        poster: "https://m.media-amazon.com/images/M/MV5BZWRjN2RjMDctZjFmYS00MmZkLWI5YzctZWExMDU1NDEwYzM1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/12460357388908",
+        description: `İftarlıq Qazoz" filmi 1970-ci illərin Egey qəsəbəsində, Egey insanının səmimiyyəti, istiqanlığı və nostalgia atmosferi fonunda cərəyan edir. Hekayənin mərkəzində ibtidai məktəbi əla qiymətlərlə bitirən, zəki, xəyalpərəst və çalışqan bir kənd uşağı olan Adəm (Berat Efe Parlar) dayanır. Yay tətilini boş keçirmək istəməyən Adəm, qəsəbənin rəngarəng və zarafatcıl qazoz satıcısı Cibar Kamalın (Cem Yılmaz) yanında usta yanında şagird (şagirdlik) kimi işləməyə başlayır.
+
+Sarımsaq və sarı qazoz qoxulu bu isti yay günlərində Adəm həm ustasından həyatın sirlərini, insanlarla ünsiyyəti öyrənir, həm də ilk dəfə məhəllənin qızlarından birinə qarşı platonik hisslər bəsləməyə başlayır. Lakin yayın ortasında müqəddəs Ramazan ayının gəlməsi ilə Adəmin həyatında böyük bir sınaq başlayır. Bütün böyüklərin oruc tutduğunu görən Adəm, kiçik yaşına və havanın dözülməz istisinə baxmayaraq, özünü sübut etmək üçün gizlicə oruc tutmağa qərar verir.
+
+Kəndin din xadimi "böyüklərin icazəsi olmadan tutulan orucun dözülməz olacağını" xəbərdar etsə də, Adəm bu qərarından dönmür. Günün altında, çiyinlərində ağır qazoz yeşikləri ilə sərin və buz kimi qazozları insanlara satarkən, daxilindəki susuzluq və aclıqla mübarizə aparmaq onun üçün əsl iradə sınağına çevrilir.
+
+Film bir tərəfdən kiçik bir uşağın böyümək və böyüklərə uyğunlaşmaq mübarizəsini göstərərkən, digər tərəfdən 1970-ci illər Türkiyəsinin ictimai-siyasi dəyişikliklərini, unudulmuş insani dəyərlərini və saf uşaqlıq dünyasını gözlər önüne sərir. İsti bir Egey yayında Adəmin bu kiçik, lakin böyük iradə mübarizəsi izləyiciyə həm təbəssüm, həm də dərin bir duyğusallıq bəxş edir.`
+    }, 
+    {
+        id: 18,
+        title: "Arif V 216",
+        category: "Komediya",
+        year: 2018,
+        imdb: "6.9/10",
+        rottenTomatoes: "65%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Kıvanç Baruönü",
+        actors: ["Cem Yılmaz", "Ozan Güven", "Seda Bakan", "Zafer Algöz"],
+        poster: "https://m.media-amazon.com/images/M/MV5BNGFkMmRkMzktNTkwYy00ZTA2LWJmYmItNzZlNWQxOWMwZmE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/9738969614964",
+        description: `Arif V 216" filmi məşhur "G.O.R.A." hekayəsinin davamı olaraq, kosmosa olan macərasını geridə qoyub Dünyada xalçaçılıq və antikvar alveri ilə məşğul olan Arifin (Cem Yılmaz) adi həyatı ilə başlayır. Lakin onun bu sakit həyatı kosmosdakı dostu, robot 216-nın (Ozan Güven) qəfil Dünyaya gəlməsi ilə alt-üst olur.
+
+216-nın böyük bir arzusu var: o, sadəcə metal parçası olan bir robot kimi deyil, hissləri olan, aşiq ola bilən həqiqi bir insan kimi yaşamaq istəyir. Arif dostunu insan həyatına alışdırmağa çalışsa da, 216-nın saf davranışı və robot xüsusiyyətləri gündəlik həyatda bir-birindən komik və xaos dolu vəziyyətlər yaradır.
+
+Hadisələrin gedişatı nəticəsində cütlük özlərini 1960-cı illərin sonlarında – Türkiyə kinosunun qızıl dövrü sayılan "Yeşilçam" atmosferinin tam mərkəzində tapır. 1969-cu ilin İstanbulunda 216 xəyalındakı insani hissləri yaşamağa, mahnılar oxumağa və görmə qüsurlu gənc bir qadına (Seda Bakan) aşiq olmağa başlayır. Lakin bu nostaljik və rəngarəng dünyada böyük bir təhlükə boy göstərir: gələcəkdən gələn bu üstün texnologiyalı robotu öz çirkin biznes planları üçün istifadə etmək istəyən tamahkar bir iş adamı 216-nın arxasınca düşür.
+
+Arif bir tərəfindən 1960-cı illərin qəribə şərtlərinə uyğunlaşmağa çalışarkən, digər tərəfdən dostu 216-nı təhlükədən qorumaq və zamanın axarını korlamadan gələcəyi xilas etmək məcburiyyətində qalır. Nostalji, musiqi və kəskin yumorla zəngin olan bu hekayə izləyicini unudulmaz bir Yeşilçam səyahətinə çıxarır.`
+    },
+    { 
+        id: 19,
+        title: "G.O.R.A.",
+        category: "Komediya",
+        year: 2004,
+        imdb: "8.0/10",
+        rottenTomatoes: "83%",
+        country: "Türkiyə",
+        language: "Türk dili",
+        director: "Ömer Faruk Sorak",
+        actors: ["Cem Yılmaz", "Rasim Öztekin", "Özge Özberk", "Ozan Güven"],
+        poster: "https://m.media-amazon.com/images/M/MV5BMjE0MTY2MDI3NV5BMl5BanBnXkFtZTcwNTc1MzEzMQ@@._V1_FMjpg_UX1000_.jpg",
+        iframe: "https://ok.ru/videoembed/89184471662",
+        description: `G.O.R.A." filmi Türkiyənin turistik şəhəri Antalyada xalçaçılıq, saxta UFO fotoşəkilləri və suvenir satışı ilə məşğul olan, hiyləgər, hazırcavab və bir o qədər də fırıldaqçı Arif Işıkın (Cem Yılmaz) gülməli hekayəsindən bəhs edir. İnsanları kosmik varlıqların olduğuna inandırıb pul qazanmağa çalışan Arifin həyatı, gözlənilməz bir anda həqiqi yadplanetlilər tərəfindən qaçırılması ilə tamamilə dəyişir.
+
+Arif özünü Kainatın uzaq bir guşəsində yerləşən, azadlıqların məhdudlaşdırıldığı və qəribə qaydaların hökm sürdüyü G.O.R.A. planetində bir məhbus kimi tapır. Planetin qəddar və iddialı komandiri Logar (Cem Yılmaz) insanları və digər varlıqları kölə kimi işlədir. Lakin Arif gözlənilməz kəskin zəkası, Türk insanına xas pratik həll yolları və hazırcavablığı ilə tezliklə zindandakı digər yadplanetli məhbusların diqqətini çəkir.
+
+G.O.R.A. planetində böyük bir fəlakət baş verərkən Arif təsadüfən planetin kraliçası Ceku (Özge Özberk) və robot 216 (Ozan Güven) ilə tanış olur. Əvvəlcə yalnız Dünyaya, doğma Antalyasına qayıtmaq üçün planlar quran Arif, Komandir Logarın planlaşdırdığı böyük xəyanəti öyrənir. İndi o, həm öz azadlığını qazanmaq, həm Cekunun sevgisini fəth etmək, həm də bütün planeti Logarın çirkin əməllərindən xilas etmək üçün təhlükəli və bir o qədər əyləncəli bir mübarizəyə başlamalıdır.
+
+Elmi-fantastika janrını parlaq yumorla harmanlayan bu epos hekayə, Arifin kosmosun dərinliklərində göstərdiyi ağlasığmaz fəndlər və replikaları ilə izləyicilərə unudulmaz bir komediya ziyafəti təqdim edir.`
+    }
     ];  
+
     let currentCategory = 'Hamısı';
     let currentSearch = '';
 
+    // Render Funksiyası - Yenilənmiş Geniş Filtrləmə və Sıralama İlə
     function renderMovies() {
       const grid = document.getElementById("moviesGrid");
       if (!grid) return;
       grid.innerHTML = "";
 
-      const filteredMovies = moviesData.filter(movie => {
+      const actorSearch = document.getElementById("actorInput") ? document.getElementById("actorInput").value.toLowerCase() : "";
+      const directorSearch = document.getElementById("directorInput") ? document.getElementById("directorInput").value.toLowerCase() : "";
+      const selectedYear = document.getElementById("yearSelect") ? document.getElementById("yearSelect").value : "";
+      const selectedCountry = document.getElementById("countrySelect") ? document.getElementById("countrySelect").value : "";
+      const selectedLanguage = document.getElementById("languageSelect") ? document.getElementById("languageSelect").value : "";
+      const sortType = document.getElementById("sortSelect") ? document.getElementById("sortSelect").value : "default";
+
+      let filteredMovies = moviesData.filter(movie => {
+        // Əsas Janr və Ümumi Axtarış
         const matchesCategory = currentCategory === 'Hamısı' || movie.category === currentCategory;
-        const matchesSearch = movie.title.toLowerCase().includes(currentSearch.toLowerCase());
-        return matchesCategory && matchesSearch;
+        
+        const mainSearchText = currentSearch.toLowerCase();
+        const matchesMainSearch = !mainSearchText || 
+          movie.title.toLowerCase().includes(mainSearchText) ||
+          (movie.director && movie.director.toLowerCase().includes(mainSearchText)) ||
+          (movie.actors && movie.actors.some(a => a.toLowerCase().includes(mainSearchText)));
+
+        // Ətraflı Axtarış Filtrləri
+        const matchesActor = !actorSearch || (movie.actors && movie.actors.some(a => a.toLowerCase().includes(actorSearch)));
+        const matchesDirector = !directorSearch || (movie.director && movie.director.toLowerCase().includes(directorSearch));
+        const matchesYear = !selectedYear || movie.year.toString() === selectedYear;
+        const matchesCountry = !selectedCountry || movie.country === selectedCountry;
+        const matchesLanguage = !selectedLanguage || movie.language === selectedLanguage;
+
+        return matchesCategory && matchesMainSearch && matchesActor && matchesDirector && matchesYear && matchesCountry && matchesLanguage;
       });
 
+      // Sıralama məntiqi (IMDB, Rotten Tomatoes, İllər)
+      if (sortType === 'imdb-desc') {
+        filteredMovies.sort((a, b) => parseFloat(b.imdb) - parseFloat(a.imdb));
+      } else if (sortType === 'imdb-asc') {
+        filteredMovies.sort((a, b) => parseFloat(a.imdb) - parseFloat(b.imdb));
+      } else if (sortType === 'rt-desc') {
+        filteredMovies.sort((a, b) => parseInt(b.rottenTomatoes) - parseInt(a.rottenTomatoes));
+      } else if (sortType === 'rt-asc') {
+        filteredMovies.sort((a, b) => parseInt(a.rottenTomatoes) - parseInt(b.rottenTomatoes));
+      } else if (sortType === 'year-desc') {
+        filteredMovies.sort((a, b) => b.year - a.year);
+      } else if (sortType === 'year-asc') {
+        filteredMovies.sort((a, b) => a.year - b.year);
+      }
+
       if (filteredMovies.length === 0) {
-        grid.innerHTML = `<div class="no-results">Axtarışınıza uyğun nəticə tapılmadı.</div>`;
+        grid.innerHTML = `<div class="no-results">Axtarışınıza və ya filtrlərinizə uyğun nəticə tapılmadı.</div>`;
         return;
       }
 
       filteredMovies.forEach(movie => {
         const card = document.createElement("div");
         card.className = "movie-card";
-        // Bütün kartı kliklənən et
         card.onclick = function(e) {
-          // Əgər klik məhz "İzlə" düyməsində deyilsə, modalı aç
           if (!e.target.closest('.watch-btn')) {
             openVideoModal(movie.id);
           }
@@ -879,12 +1362,17 @@ Hekayə irəlilədikcə tamaşaçı Hacı Gümüşün Türkiyədəki keçmişin�
         card.innerHTML = `
           <div class="movie-poster-wrap">
             <span class="movie-badge"><i class="fas fa-star"></i> ${movie.imdb}</span>
+            ${movie.rottenTomatoes ? `<span class="movie-badge rt-badge"><i class="fas fa-apple-alt"></i> ${movie.rottenTomatoes}</span>` : ''}
             <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" loading="lazy">
           </div>
           <div class="movie-info">
             <div class="movie-meta">
               <span>${movie.year}</span>
               <span>${movie.category}</span>
+            </div>
+            <div class="movie-submeta">
+              <span>${movie.country || ''}</span>
+              <span>${movie.language || ''}</span>
             </div>
             <h3 class="movie-title">${movie.title}</h3>
             <button class="watch-btn" onclick="event.stopPropagation(); openVideoModal(${movie.id})">
@@ -910,9 +1398,120 @@ Hekayə irəlilədikcə tamaşaçı Hacı Gümüşün Türkiyədəki keçmişin�
       renderMovies();
     }
 
-    function handleSearch() {
-      currentSearch = document.getElementById("movieSearch").value;
+    function handleFilterChange() {
       renderMovies();
+    }
+
+    // Ətraflı Axtarış Paneli Aç/Bağla
+    function toggleAdvancedSearch() {
+      const panel = document.getElementById("advancedSearchPanel");
+      panel.classList.toggle("active");
+    }
+
+    // Autocomplete və Giriş Nəzarəti
+    function handleSearchInput(e) {
+      currentSearch = e.target.value;
+      renderMovies();
+      renderAutocomplete(currentSearch);
+    }
+
+    function renderAutocomplete(query) {
+      const box = document.getElementById("autocompleteBox");
+      if (!query.trim()) {
+        box.classList.remove("active");
+        box.innerHTML = "";
+        return;
+      }
+
+      const val = query.toLowerCase();
+      let matches = [];
+
+      moviesData.forEach(m => {
+        if (m.title.toLowerCase().includes(val)) {
+          matches.push({ title: m.title, type: "Film" });
+        }
+        if (m.director && m.director.toLowerCase().includes(val)) {
+          matches.push({ title: `${m.director} (Rejissor)`, type: "Rejissor", queryText: m.director });
+        }
+        if (m.actors) {
+          m.actors.forEach(actor => {
+            if (actor.toLowerCase().includes(val) && !matches.some(x => x.title.includes(actor))) {
+              matches.push({ title: `${actor} (Aktyor)`, type: "Aktyor", queryText: actor });
+            }
+          });
+        }
+      });
+
+      if (matches.length === 0) {
+        box.classList.remove("active");
+        box.innerHTML = "";
+        return;
+      }
+
+      box.innerHTML = "";
+      matches.slice(0, 6).forEach(item => {
+        const div = document.createElement("div");
+        div.className = "autocomplete-item";
+        div.innerHTML = `<span>${item.title}</span><span class="item-type">${item.type}</span>`;
+        div.onclick = function() {
+          const textToSearch = item.queryText || item.title.split(' (')[0];
+          document.getElementById("movieSearch").value = textToSearch;
+          currentSearch = textToSearch;
+          box.classList.remove("active");
+          renderMovies();
+        };
+        box.appendChild(div);
+      });
+      box.classList.add("active");
+    }
+
+    // Autocomplete xaricində kliklədikdə pəncərəni bağla
+    document.addEventListener("click", function(e) {
+      if (!e.target.closest(".search-bar-container")) {
+        const box = document.getElementById("autocompleteBox");
+        if (box) box.classList.remove("active");
+      }
+    });
+
+    // Səsli Axtarış (Voice Search)
+    function startVoiceSearch() {
+      const btn = document.getElementById("voiceSearchBtn");
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        showToast("Səslə axtarış bu brauzerdə dəstəklənmir.", "error");
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'az-AZ';
+      if (!recognition.lang) recognition.lang = 'tr-TR';
+
+      recognition.onstart = function() {
+        btn.classList.add("listening");
+        showToast("Dinlənilir... Danışın", "info", 2500);
+      };
+
+      recognition.onspeechend = function() {
+        btn.classList.remove("listening");
+        recognition.stop();
+      };
+
+      recognition.onresult = function(event) {
+        btn.classList.remove("listening");
+        const transcript = event.results[0][0].transcript;
+        document.getElementById("movieSearch").value = transcript;
+        currentSearch = transcript;
+        showToast(`Axtarılır: "${transcript}"`, "success");
+        renderMovies();
+      };
+
+      recognition.onerror = function(event) {
+        btn.classList.remove("listening");
+        showToast("Səs tanınmadı, yenidən cəhd edin.", "error");
+      };
+
+      recognition.start();
     }
 
     function openVideoModal(id) {
@@ -928,6 +1527,8 @@ Hekayə irəlilədikcə tamaşaçı Hacı Gümüşün Türkiyədəki keçmişin�
         <span class="video-tag">${movie.year}</span>
         <span class="video-tag">${movie.category}</span>
         <span class="video-tag"><i class="fas fa-star" style="color:#FFD700"></i> ${movie.imdb}</span>
+        ${movie.rottenTomatoes ? `<span class="video-tag"><i class="fas fa-apple-alt" style="color:#ff5252"></i> ${movie.rottenTomatoes}</span>` : ''}
+        ${movie.director ? `<span class="video-tag">Rejissor: ${movie.director}</span>` : ''}
       `;
 
       document.getElementById("videoModalOverlay").classList.add("active");
@@ -1076,294 +1677,9 @@ Hekayə irəlilədikcə tamaşaçı Hacı Gümüşün Türkiyədəki keçmişin�
         panel.style.width = '92vw';
         panel.style.maxWidth = '380px';
       } else {
-        panel.style.position = ''; panel.style.top = ''; panel.style.left = ''; panel.style.right = ''; panel.style.transform = ''; panel.style.width = ''; panel.style.maxWidth = '';
+        panel.style.position = ''; panel.style.top = ''; panel.style.left = ''; panel.style.right = ''; panel.style.transform = '';
       }
     }
-    document.addEventListener('click', function(e) {
-      const panel = document.getElementById('msgDropdownPanel');
-      if (panel && panel.classList.contains('active') && !e.target.closest('.msg-icon-wrap')) {
-        panel.classList.remove('active');
-      }
-    });
-
-    function initMessageInbox() {
-      if (!currentUserData) return;
-      if (msgInboxRef) msgInboxRef.off();
-      msgConversations = {};
-      msgInboxRef = db.ref('privateMessages').orderByChild('recipient').equalTo(currentUserData.nick);
-      msgInboxRef.on('value', (snap) => {
-        const convs = {};
-        snap.forEach((child) => {
-          const m = child.val();
-          if (!m || m.isDeleted) return;
-          const readBy = m.readBy || [];
-          const isUnread = !readBy.includes(currentUserData.nick);
-          if (!convs[m.sender]) {
-            convs[m.sender] = { avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png', text: '', timestamp: 0, unreadCount: 0 };
-          }
-          const conv = convs[m.sender];
-          if ((m.timestamp || 0) >= conv.timestamp) {
-            conv.avatar = m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
-            conv.text = (m.mediaType && m.mediaType !== 'text') ? '📎 Media' : (m.text || '');
-            conv.timestamp = m.timestamp || 0;
-          }
-          if (isUnread) conv.unreadCount++;
-        });
-        msgConversations = convs;
-        if (msgInboxFirstLoad) {
-          msgPrevCounts = {};
-          Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
-          msgInboxFirstLoad = false;
-        } else {
-          notifyNewMessages(convs);
-        }
-        renderMsgDropdown();
-      });
-      msgInboxFirstLoad = true;
-    }
-
-    function stopMessageInbox() {
-      if (msgInboxRef) { msgInboxRef.off(); msgInboxRef = null; }
-      msgConversations = {};
-      renderMsgDropdown();
-    }
-
-    let msgPrevCounts = {};
-    let msgInboxFirstLoad = true;
-
-    function requestNotificationPermission() {
-      if ('Notification' in window && Notification.permission === 'default') { Notification.requestPermission(); }
-    }
-
-    function notifyNewMessages(convs) {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        Object.entries(convs).forEach(([nick, c]) => {
-          const prev = msgPrevCounts[nick] || 0;
-          if (c.unreadCount > prev) {
-            try {
-              const notif = new Notification(nick, { body: c.text || 'Yeni mesaj', icon: c.avatar });
-              notif.onclick = () => { window.focus(); window.location.href = 'onlinechat#open=' + encodeURIComponent(nick); };
-            } catch (e) { console.error('Bildiriş xətası:', e); }
-          }
-        });
-      }
-      msgPrevCounts = {};
-      Object.entries(convs).forEach(([nick, c]) => { msgPrevCounts[nick] = c.unreadCount; });
-    }
-
-    function renderMsgDropdown() {
-      const list = document.getElementById('msgDropdownList');
-      const badge = document.getElementById('msgBadgeCount');
-      if (!list || !badge) return;
-      const entries = Object.entries(msgConversations).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
-      const totalUnread = entries.reduce((sum, [, c]) => sum + (c.unreadCount || 0), 0);
-      if (totalUnread > 0) {
-        badge.textContent = totalUnread > 9 ? '9+' : totalUnread; badge.classList.remove('hidden');
-      } else { badge.classList.add('hidden'); }
-      if (!entries.length) { list.innerHTML = '<div class="msg-dropdown-empty">Mesaj yoxdur</div>'; return; }
-      list.innerHTML = entries.map(([nick, c]) => `
-        <div class="msg-conv-item ${c.unreadCount > 0 ? 'unread' : ''}" onclick="openInboxConversation('${nick.replace(/'/g, "\\'")}')">
-          <img src="${c.avatar}" class="msg-conv-avatar" alt="av">
-          <div class="msg-conv-info">
-            <div class="msg-conv-name">${escapeHtml(nick)}</div>
-            <div class="msg-conv-preview">${escapeHtml(c.text)}</div>
-          </div>
-          ${c.unreadCount > 0 ? `<span class="msg-conv-dot">${c.unreadCount > 9 ? '9+' : c.unreadCount}</span>` : ''}
-        </div>
-      `).join('');
-    }
-
-    window.openInboxConversation = function(nick) { window.location.href = 'onlinechat#open=' + encodeURIComponent(nick); };
-
-    auth.onAuthStateChanged(async (user) => {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      const overlay = document.getElementById('authOverlay');
-      if (user) {
-        try {
-          let snap = await db.ref(`users/${user.uid}`).once('value');
-          if (!snap.exists()) {
-            await new Promise(r => setTimeout(r, 1500));
-            snap = await db.ref(`users/${user.uid}`).once('value');
-          }
-          if (snap.exists()) {
-            currentUserData = snap.val();
-            currentUserData.uid = user.uid;
-            if (currentUserData.isBanned) {
-              showToast('Hesabınız qara siyahıya alınıb.', 'error', 5000);
-              await auth.signOut();
-              location.reload();
-              return;
-            }
-            await db.ref(`users/${user.uid}/online`).set(true);
-            db.ref(`users/${user.uid}/online`).onDisconnect().set(false);
-            if (currentUserData.nick && currentUserData.email) {
-              db.ref(`usernameToEmail/${currentUserData.nick}`).set(currentUserData.email);
-            }
-            document.getElementById('headerAvatar').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
-            overlay.classList.add('hidden');
-            document.body.classList.add('logged-in');
-            initMessageInbox();
-            requestNotificationPermission();
-          } else { await auth.signOut(); }
-        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
-      } else {
-        currentUserData = null;
-        overlay.classList.remove('hidden');
-        document.body.classList.remove('logged-in');
-        document.getElementById('headerAvatar').src = 'https://www.w3schools.com/howto/img_avatar.png';
-        stopMessageInbox();
-      }
-    });
-
-    window.handleLogin = async function() {
-      const identifier = document.getElementById('loginEmailInput').value.trim();
-      const pass = document.getElementById('loginPasswordInput').value.trim();
-      if (!identifier || !pass) return showToast('E-poçt/istifadəçi adı və şifrəni daxil edin.', 'error');
-      let email = identifier;
-      try {
-        if (!identifier.includes('@')) {
-          const snap = await db.ref(`usernameToEmail/${identifier}`).once('value');
-          if (!snap.exists()) { return showToast('Bu adda istifadəçi tapılmadı.', 'error'); }
-          email = snap.val();
-        }
-        const methods = await auth.fetchSignInMethodsForEmail(email);
-        if (methods.length && !methods.includes('password')) {
-          return showToast('Bu hesab Google ilə qeydiyyatdan keçib. "Google ilə daxil ol" düyməsini istifadə edin.', 'error', 7000);
-        }
-        await auth.signInWithEmailAndPassword(email, pass);
-      } catch (err) {
-        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') { showToast('E-poçt/istifadəçi adı və ya şifrə yanlışdır.', 'error'); }
-        else { showToast('Xəta: ' + err.message, 'error'); }
-      }
-    };
-
-    window.handleRegister = async function() {
-      const nick = document.getElementById('registerNicknameInput').value.trim();
-      const email = document.getElementById('registerEmailInput').value.trim();
-      const pass = document.getElementById('registerPasswordInput').value.trim();
-      if (!nick || !email || !pass) return showToast('Bütün xanaları doldurun.', 'error');
-      try {
-        const cred = await auth.createUserWithEmailAndPassword(email, pass);
-        await db.ref(`users/${cred.user.uid}`).set({ nick, email, role: 'user', avatarUrl: 'https://www.w3schools.com/howto/img_avatar.png', online: true, isBanned: false });
-        await db.ref(`usernameToEmail/${nick}`).set(email);
-        showToast('Qeydiyyat uğurludur!', 'success');
-      } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
-    };
-
-    window.handleGoogleLogin = async function() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      try {
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
-        const snap = await db.ref(`users/${user.uid}`).once('value');
-        if (!snap.exists()) {
-          const nick = user.displayName || 'Google İstifadəçisi';
-          await db.ref(`users/${user.uid}`).set({ nick, email: user.email, role: 'user', avatarUrl: user.photoURL || 'https://www.w3schools.com/howto/img_avatar.png', online: true, isBanned: false });
-          await db.ref(`usernameToEmail/${nick}`).set(user.email);
-        } else {
-          await db.ref(`users/${user.uid}/online`).set(true);
-          await db.ref(`usernameToEmail/${snap.val().nick}`).set(user.email);
-        }
-        showToast('Google ilə daxil oldunuz!', 'success');
-      } catch (err) { showToast('Google Xətası: ' + err.message, 'error'); }
-    };
-
-    window.handleLogout = async function() {
-      if (auth.currentUser) {
-        await db.ref(`users/${auth.currentUser.uid}/online`).set(false);
-        await auth.signOut();
-        showToast('Çıxış etdiniz.', 'info');
-        document.getElementById('dropdownMenu').classList.remove('active');
-      }
-    };
-
-    window.openForgotPasswordModal = function() { document.getElementById('forgotEmailInput').value = ''; document.getElementById('forgotPasswordModal').classList.add('active'); };
-    window.closeForgotPasswordModal = function() { document.getElementById('forgotPasswordModal').classList.remove('active'); };
-    window.submitForgotPassword = function() {
-      const email = document.getElementById('forgotEmailInput').value.trim();
-      if (!email) return showToast('E-poçt ünvanınızı daxil edin.', 'error');
-      auth.sendPasswordResetEmail(email).then(() => { showToast('Bərpa linki e-poçtunuza göndərildi.', 'success'); closeForgotPasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
-    };
-
-    window.openChangePasswordModal = function() {
-      document.getElementById('oldPassInput').value = ''; document.getElementById('newPassInput').value = '';
-      const user = auth.currentUser;
-      const hasPasswordProvider = user && user.providerData.some(p => p.providerId === 'password');
-      const oldWrapper = document.getElementById('oldPassWrapper');
-      const title = document.getElementById('changePassTitle');
-      const desc = document.getElementById('changePassDesc');
-      if (hasPasswordProvider) { oldWrapper.style.display = 'flex'; title.textContent = 'Şifrəni dəyiş'; desc.textContent = 'Köhnə və yeni şifrəni daxil edin.'; }
-      else { oldWrapper.style.display = 'none'; title.textContent = 'Şifrə təyin et'; desc.textContent = 'Hesabınız Google ilə qeydiyyatdan keçib. Yeni şifrə təyin edin.'; }
-      document.getElementById('changePasswordModal').classList.add('active'); document.getElementById('dropdownMenu').classList.remove('active');
-    };
-    window.closeChangePasswordModal = function() { document.getElementById('changePasswordModal').classList.remove('active'); };
-    window.submitChangePassword = function() {
-      const old = document.getElementById('oldPassInput').value.trim(); const newp = document.getElementById('newPassInput').value.trim();
-      const user = auth.currentUser;
-      if (!user) return showToast('Daxil olmamısınız.', 'error');
-      if (!newp) return showToast('Yeni şifrəni daxil edin.', 'error');
-      const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
-      if (hasPasswordProvider) {
-        if (!old) return showToast('Köhnə şifrənizi daxil edin.', 'error');
-        const cred = firebase.auth.EmailAuthProvider.credential(user.email, old);
-        user.reauthenticateWithCredential(cred).then(() => user.updatePassword(newp)).then(() => { showToast('Şifrə uğurla yeniləndi!', 'success'); closeChangePasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
-      } else {
-        const cred = firebase.auth.EmailAuthProvider.credential(user.email, newp);
-        user.linkWithCredential(cred).then(() => { showToast('Şifrə təyin edildi!', 'success', 6000); closeChangePasswordModal(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
-      }
-    };
-
-    window.changeProfilePicture = function() {
-      document.getElementById('dropdownMenu').classList.remove('active');
-      const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
-      input.onchange = async function(e) {
-        const file = e.target.files[0]; if (!file) return;
-        const fd = new FormData(); fd.append('image', file);
-        try {
-          const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
-          const data = await res.json();
-          if (data.success) {
-            const url = data.data.url; document.getElementById('headerAvatar').src = url;
-            if (auth.currentUser) { await db.ref(`users/${auth.currentUser.uid}/avatarUrl`).set(url); }
-            showToast('Profil şəkli yeniləndi!', 'success');
-          } else { showToast('Şəkil yüklənə bilmədi.', 'error'); }
-        } catch (err) { showToast('Xəta: ' + err.message, 'error'); }
-      };
-      input.click();
-    };
-
-    window.deleteAccount = function() {
-      document.getElementById('dropdownMenu').classList.remove('active'); document.getElementById('deletePassInput').value = ''; document.getElementById('deleteAccountModal').classList.add('active');
-    };
-    window.closeDeleteAccountModal = function() { document.getElementById('deleteAccountModal').classList.remove('active'); };
-    window.submitDeleteAccount = function() {
-      const pass = document.getElementById('deletePassInput').value.trim();
-      if (!pass) return showToast('Şifrənizi daxil edin.', 'error');
-      if (!confirm('Hesabınızı həmişəlik silmək istədiyinizdən əminsiniz?')) return;
-      const user = auth.currentUser;
-      if (!user) return showToast('Daxil olmamısınız.', 'error');
-      const cred = firebase.auth.EmailAuthProvider.credential(user.email, pass);
-      user.reauthenticateWithCredential(cred).then(() => db.ref(`users/${user.uid}`).remove()).then(() => user.delete()).then(() => { showToast('Hesabınız silindi.', 'success'); location.reload(); }).catch(err => { showToast('Xəta: ' + err.message, 'error'); });
-    };
-
-    function applySavedTheme() {
-      const saved = localStorage.getItem('maqaluxTheme') || 'site';
-      const btn = document.getElementById('themeToggleBtn');
-      document.body.classList.remove('light-theme', 'dark-theme');
-      if (saved === 'light') {
-        document.body.classList.add('light-theme'); if (btn) btn.textContent = '🌙';
-      } else if (saved === 'dark') {
-        document.body.classList.add('dark-theme'); if (btn) btn.textContent = '🎨';
-      } else {
-        if (btn) btn.textContent = '☀️';
-      }
-    }
-    window.toggleSiteTheme = function() {
-      const current = localStorage.getItem('maqaluxTheme') || 'site';
-      const next = current === 'site' ? 'light' : (current === 'light' ? 'dark' : 'site');
-      localStorage.setItem('maqaluxTheme', next); applySavedTheme();
-    };
-    applySavedTheme();
   </script>
 </body>
 </html>
