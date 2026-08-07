@@ -1,1685 +1,565 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#ffaa00">
-  <link rel="apple-touch-icon" href="/icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Maqalux">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Filmlər və Seriallar | Maqalux</title>
-  <link rel="icon" href="/icon-192.png" type="image/png">
-  <meta name="description" content="Ən son filmlər, seriallar və əyləncəli kinolar Maqalux-da!">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    :root {
-      --bg-page: linear-gradient(135deg, #1e002f, #0055a5);
-      --text-main: white;
-      --text-55: rgba(255,255,255,0.55);
-      --text-50: rgba(255,255,255,0.5);
-      --text-40: rgba(255,255,255,0.4);
-      --border-20: rgba(255,255,255,0.2);
-      --border-15: rgba(255,255,255,0.15);
-      --border-12: rgba(255,255,255,0.12);
-      --border-10: rgba(255,255,255,0.1);
-      --panel-08: rgba(255,255,255,0.08);
-      --panel-06: rgba(255,255,255,0.06);
-      --panel-05: rgba(255,255,255,0.05);
-      --dropdown-bg: rgba(13,27,62,0.97);
-      --toast-bg: rgba(13,27,62,0.97);
-      --toast-text: white;
-    }
-    body.dark-theme {
-      --bg-page: linear-gradient(135deg, #0c0c10 0%, #17171c 50%, #101014 100%);
-      --dropdown-bg: rgba(24,24,28,0.97);
-      --toast-bg: rgba(24,24,28,0.97);
-      --toast-text: white;
-    }
-    body.light-theme {
-      --bg-page: linear-gradient(135deg, #eef2f9 0%, #e2ecf9 45%, #d3e4fb 100%);
-      --text-main: #16213e;
-      --text-55: rgba(22,33,62,0.62);
-      --text-50: rgba(22,33,62,0.55);
-      --text-40: rgba(22,33,62,0.45);
-      --border-20: rgba(22,33,62,0.16);
-      --border-15: rgba(22,33,62,0.14);
-      --border-12: rgba(22,33,62,0.12);
-      --border-10: rgba(22,33,62,0.1);
-      --panel-08: rgba(22,33,62,0.06);
-      --panel-06: rgba(22,33,62,0.045);
-      --panel-05: rgba(22,33,62,0.035);
-      --dropdown-bg: rgba(255,255,255,0.98);
-      --toast-bg: rgba(255,255,255,0.98);
-      --toast-text: #16213e;
-    }
-
-    .theme-toggle-btn { background: var(--panel-08); border: 1px solid var(--border-10); color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
-    .theme-toggle-btn:hover { background: var(--panel-06); }
-
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg-page);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Header CSS */
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      background: var(--border-10);
-      backdrop-filter: blur(15px);
-      padding: 15px 30px;
-      border-bottom: 1px solid var(--border-20);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    header img { height: 55px; }
-    nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }
-    nav ul li a {
-      text-decoration: none; color: var(--text-main); font-weight: 600; padding: 10px 18px; border-radius: 30px; position: relative; overflow: hidden; display: inline-block; z-index: 1; transition: all 0.3s ease;
-    }
-    nav ul li a::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%; background: linear-gradient(90deg, #FFD700, #FF8C00); transition: width 0.4s ease; z-index: -1; border-radius: 30px;
-    }
-    nav ul li a:hover::before { width: 100%; }
-    nav ul li a:hover { color: black; }
-    nav ul li a.active { background: linear-gradient(90deg, #FFD700, #FF8C00); color: black; box-shadow: 0 0 20px rgba(255,215,0,0.6); }
-
-    .header-right { display: flex; align-items: center; gap: 15px; margin-left: auto; }
-    .hamburger-btn { display: none; background: none; border: none; margin: 0; color: #FFD700; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; padding: 4px 6px; }
-    .msg-icon-wrap { position: relative; cursor: pointer; }
-    .msg-icon-wrap .msg-icon { font-size: 22px; display: flex; }
-    .msg-badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: var(--text-main); font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #030714; }
-    .msg-badge.hidden { display: none; }
-    .msg-dropdown { position: absolute; top: 38px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: none; z-index: 6000; }
-    .msg-dropdown.active { display: block; }
-    .msg-dropdown-header { padding: 14px 16px; font-weight: 700; color: #FFD700; border-bottom: 1px solid var(--border-10); }
-    .msg-dropdown-list { display: flex; flex-direction: column; }
-    .msg-dropdown-empty { padding: 24px 16px; text-align: center; color: var(--text-50); font-size: 14px; }
-    .msg-conv-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--panel-05); }
-    .msg-conv-item:hover { background: var(--panel-06); }
-    .msg-conv-item.unread { background: rgba(255,170,0,0.08); }
-    .msg-conv-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,170,0,0.3); }
-    .msg-conv-info { flex: 1; min-width: 0; }
-    .msg-conv-name { font-size: 14px; color: var(--text-main); }
-    .msg-conv-item.unread .msg-conv-name { font-weight: 700; }
-    .msg-conv-preview { font-size: 12.5px; color: var(--text-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-    .msg-conv-item.unread .msg-conv-preview { color: rgba(255,255,255,0.85); }
-    .msg-conv-dot { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ffaa00; color: #030714; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .profile-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; cursor: pointer; transition: 0.2s; }
-    .profile-avatar:hover { transform: scale(1.1); }
-
-    .dropdown-menu { position: absolute; top: 70px; right: 20px; background: var(--dropdown-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.55); padding: 8px; display: none; flex-direction: column; min-width: 200px; z-index: 2000; }
-    .dropdown-menu.active { display: flex; }
-    .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px; color: var(--text-main); transition: 0.15s; background: none; border: none; text-align: left; width: 100%; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-    .dropdown-item:hover { background: var(--border-10); }
-    .dropdown-item.danger { color: #ff6b6b; }
-
-    /* Auth & Modals CSS */
-    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 5000; padding: 20px; }
-    .auth-overlay.hidden { display: none; }
-    .loading-screen { position: fixed; inset: 0; background: #030714; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-    .loading-screen.hidden { display: none; }
-    .spinner { width: 42px; height: 42px; border: 4px solid var(--border-15); border-top-color: #ffaa00; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .auth-card { background: var(--dropdown-bg); backdrop-filter: blur(20px); padding: 40px 35px; border-radius: 24px; border: 1px solid var(--panel-08); box-shadow: 0 25px 55px rgba(0,0,0,0.6); width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; animation: authFadeIn 0.4s ease; }
-    @keyframes authFadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
-    .auth-card h2 { font-size: 1.9em; color: #ffaa00; margin: 0 0 12px 0; }
-    .auth-card p.sub { color: rgba(255,255,255,0.6); font-size: 14px; margin: 0 0 30px 0; text-align: center; }
-    .input-group { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-    .custom-input { padding: 15px 25px; border-radius: 30px; border: 1px solid var(--border-15); background: var(--panel-08); color: var(--text-main); font-size: 15px; outline: none; width: 100%; box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif; }
-    .custom-input:focus { border-color: #ffa200; background: var(--border-15); box-shadow: 0 0 12px rgba(255,162,0,0.3); }
-    .custom-input::placeholder { color: var(--text-40); }
-    .password-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-    .password-wrapper .custom-input { padding-right: 55px; }
-    .toggle-password { position: absolute; right: 22px; cursor: pointer; font-size: 18px; color: var(--text-50); user-select: none; }
-    .toggle-password:hover { color: var(--text-main); }
-    .login-btn { background: linear-gradient(90deg, #ffc107, #ff9800); color: #06163a; border: none; padding: 16px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; box-shadow: 0 4px 15px rgba(255,152,0,0.2); font-family: 'Poppins', sans-serif; }
-    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,152,0,0.4); }
-    .switch-text { color: var(--text-50); font-size: 13.5px; margin-top: 20px; text-align: center; }
-    .switch-text span { color: #ffb700; cursor: pointer; font-weight: 600; text-decoration: underline; }
-    .switch-text span:hover { color: var(--text-main); }
-    .forgot-pass-link { color: var(--text-50); font-size: 13px; cursor: pointer; text-align: center; margin-top: 14px; text-decoration: underline; }
-    .forgot-pass-link:hover { color: #ffb700; }
-    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; background: rgba(255,255,255,0.95); color: #1f1f1f; border: 1px solid var(--border-20); padding: 14px; border-radius: 30px; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.3s; margin-top: 14px; font-family: 'Poppins', sans-serif; }
-    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--border-20); }
-    .google-btn img { width: 19px; height: 19px; }
-    .divider-row { display: flex; align-items: center; gap: 12px; width: 100%; margin: 18px 0 0 0; }
-    .divider-row .line { flex: 1; height: 1px; background: var(--border-15); }
-    .divider-row span { color: var(--text-40); font-size: 12.5px; }
-
-    .modal-overlay { position: fixed; inset: 0; background: rgba(3,7,20,0.75); backdrop-filter: blur(6px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
-    .modal-overlay.active { display: flex; }
-    .modal-box { background: var(--dropdown-bg); border: 1px solid var(--border-10); border-radius: 22px; padding: 35px 30px; width: 100%; max-width: 360px; box-shadow: 0 25px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; }
-    .modal-box h3 { color: #ffaa00; margin: 0 0 8px 0; font-size: 1.4em; }
-    .modal-box p.modal-desc { color: var(--text-55); font-size: 13.5px; margin: 0 0 22px 0; text-align: center; }
-    .modal-close { align-self: flex-end; background: none; border: none; color: var(--text-50); font-size: 22px; cursor: pointer; }
-    .modal-close:hover { color: var(--text-main); }
-
-    #toastContainer { position: fixed; top: 100px; right: 25px; z-index: 9500; display: flex; flex-direction: column; gap: 12px; max-width: 340px; }
-    .toast { background: var(--toast-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-12); border-left: 4px solid #ffaa00; border-radius: 14px; padding: 14px 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: var(--toast-text); font-size: 14px; line-height: 1.4; opacity: 0; transform: translateX(40px); transition: all 0.35s ease; }
-    .toast.show { opacity: 1; transform: translateX(0); }
-    .toast.toast-success { border-left-color: #2ecc71; }
-    .toast.toast-error { border-left-color: #e74c3c; }
-
-    /* FILM SAYTI ÜÇÜN XÜSUSİ DİZAYN (KARTLAR KİÇİK VƏ MÜASİR) */
-    main { 
-      flex: 1;
-      max-width: 1200px; 
-      width: 100%;
-      margin: 30px auto; 
-      padding: 0 16px; 
-      pointer-events: none;
-    }
-    body.logged-in main { pointer-events: auto; }
-
-    .movies-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 30px;
-      text-align: center;
-      animation: fadeIn 1s ease;
-    }
-    .movies-header h1 {
-      font-size: 2.2em;
-      background: linear-gradient(90deg, #FFD700, #FFA500);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin: 0 0 12px 0;
-    }
-
-    .search-bar-container {
-      position: relative;
-      width: 100%;
-      max-width: 580px;
-      margin-bottom: 20px;
-    }
-    .search-bar-container input {
-      width: 100%;
-      padding: 14px 110px 14px 42px;
-      border-radius: 30px;
-      border: 1px solid var(--border-20);
-      background: var(--panel-08);
-      color: var(--text-main);
-      font-size: 15px;
-      font-family: 'Poppins', sans-serif;
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-      outline: none;
-    }
-    .search-bar-container input:focus {
-      border-color: #ffaa00;
-      box-shadow: 0 0 15px rgba(255, 170, 0, 0.3);
-    }
-    .search-bar-container i.search-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-50);
-      font-size: 17px;
-    }
-    .search-actions {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      gap: 8px;
-    }
-    .voice-btn, .advanced-search-btn {
-      background: none;
-      border: none;
-      color: #FFD700;
-      font-size: 16px;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 50%;
-      transition: background 0.2s, color 0.2s;
-    }
-    .voice-btn:hover, .advanced-search-btn:hover {
-      background: var(--border-15);
-    }
-    .voice-btn.listening {
-      color: #e74c3c;
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
-    }
-
-    /* Autocomplete Düzəlişi */
-    .autocomplete-box {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--dropdown-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border-12);
-      border-radius: 16px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-      margin-top: 6px;
-      max-height: 250px;
-      overflow-y: auto;
-      z-index: 3000;
-      display: none;
-      text-align: left;
-    }
-    .autocomplete-box.active { display: block; }
-    .autocomplete-item {
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text-main);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--panel-05);
-      transition: background 0.2s;
-    }
-    .autocomplete-item:hover {
-      background: var(--panel-08);
-    }
-    .autocomplete-item .item-type {
-      font-size: 11px;
-      color: #FFD700;
-      background: rgba(255,215,0,0.1);
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
-
-    /* Ətraflı Axtarış və Yeni Filtrlər Panel CSS */
-    .advanced-search-panel {
-      width: 100%;
-      max-width: 800px;
-      background: var(--panel-06);
-      border: 1px solid var(--border-15);
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 25px;
-      backdrop-filter: blur(10px);
-      display: none;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .advanced-search-panel.active { display: flex; }
-    .filter-group-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-    }
-    .filter-select, .filter-input {
-      background: var(--dropdown-bg);
-      border: 1px solid var(--border-20);
-      color: var(--text-main);
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-family: 'Poppins', sans-serif;
-      outline: none;
-      width: 100%;
-    }
-    .filter-select option {
-      background: #0d1b3e;
-      color: white;
-    }
-    body.light-theme .filter-select option {
-      background: #ffffff;
-      color: #16213e;
-    }
-
-    .filters-container {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 30px;
-    }
-    .filter-btn {
-      background: var(--panel-08);
-      border: 1px solid var(--border-20);
-      color: var(--text-main);
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-    .filter-btn:hover {
-      background: var(--panel-15);
-      transform: translateY(-2px);
-    }
-    .filter-btn.active {
-      background: linear-gradient(90deg, #FFD700, #FF8C00);
-      color: #030714;
-      border-color: transparent;
-      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-    }
-
-    /* Film Şəbəkəsi – daha kiçik kartlar */
-    .movies-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 18px;
-      padding-bottom: 40px;
-    }
-    .movie-card {
-      background: var(--panel-05);
-      border: 1px solid var(--border-10);
-      border-radius: 14px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: all 0.25s ease;
-      position: relative;
-      backdrop-filter: blur(10px);
-      cursor: pointer;
-    }
-    .movie-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-      border-color: var(--border-20);
-    }
-    .movie-poster-wrap {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 2 / 3;
-      overflow: hidden;
-      background: #0a0a12;
-    }
-    .movie-poster {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.35s ease;
-    }
-    .movie-card:hover .movie-poster {
-      transform: scale(1.04);
-    }
-    .movie-badge {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-      color: #FFD700;
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      border: 1px solid rgba(255, 215, 0, 0.25);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      letter-spacing: 0.3px;
-    }
-    .movie-badge.rt-badge {
-      top: 36px;
-      color: #ff5252;
-      border-color: rgba(255, 82, 82, 0.25);
-    }
-    .movie-info {
-      padding: 12px 14px 14px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-    .movie-meta {
-      font-size: 11px;
-      color: var(--text-50);
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      letter-spacing: 0.2px;
-    }
-    .movie-submeta {
-      font-size: 10px;
-      color: var(--text-40);
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .movie-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin: 0 0 12px 0;
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      flex: 1;
-    }
-    .watch-btn {
-      background: rgba(255, 215, 0, 0.12);
-      border: 1px solid rgba(255, 215, 0, 0.25);
-      color: #FFD700;
-      width: 100%;
-      padding: 8px 0;
-      border-radius: 10px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      backdrop-filter: blur(4px);
-    }
-    .watch-btn:hover {
-      background: linear-gradient(90deg, #FFD700, #FF8C00);
-      color: #030714;
-      border-color: transparent;
-      box-shadow: 0 4px 14px rgba(255, 215, 0, 0.3);
-    }
-
-    .no-results {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 50px 20px;
-      color: var(--text-50);
-      font-size: 1.1em;
-    }
-
-    /* Video Player Modal */
-    .video-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(10px);
-      z-index: 8000;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .video-modal-overlay.active {
-      display: flex;
-      opacity: 1;
-    }
-    .video-modal-content {
-      background: var(--dropdown-bg);
-      width: 100%;
-      max-width: 900px;
-      max-height: 90vh;
-      border-radius: 20px;
-      border: 1px solid var(--border-15);
-      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      transform: scale(0.95);
-      transition: transform 0.3s ease;
-    }
-    .video-modal-overlay.active .video-modal-content {
-      transform: scale(1);
-    }
-    .video-modal-header {
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-10);
-      background: rgba(0,0,0,0.2);
-    }
-    .video-modal-title {
-      font-weight: 700;
-      font-size: 1.1em;
-      color: #FFD700;
-      margin: 0;
-    }
-    .video-close-btn {
-      background: none;
-      border: none;
-      color: var(--text-55);
-      font-size: 22px;
-      cursor: pointer;
-      transition: 0.2s;
-      padding: 4px 8px;
-    }
-    .video-close-btn:hover {
-      color: var(--text-main);
-      transform: scale(1.1);
-    }
-    .video-container {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%;
-      background: #000;
-    }
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    .video-details {
-      padding: 18px 20px;
-      font-size: 0.92em;
-      line-height: 1.6;
-      color: var(--text-main);
-      overflow-y: auto;
-    }
-    .video-tags {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-    .video-tag {
-      background: var(--panel-08);
-      border: 1px solid var(--border-15);
-      padding: 4px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      color: var(--text-50);
-    }
-
-    footer { text-align: center; padding: 18px; color: #FFD700; font-weight: 600; margin-top: auto; border-top: 1px solid var(--border-20); background: var(--panel-05); backdrop-filter: blur(10px); }
-
-    /* Mobil uyğunlaşdırma */
-    @media (max-width: 700px) {
-      header { display: flex !important; flex-direction: column !important; align-items: center !important; height: auto !important; padding: 12px 16px; position: relative; }
-      header > .header-right { order: 2 !important; width: 100% !important; display: flex !important; justify-content: center !important; align-items: center !important; gap: 18px !important; margin-left: 0 !important; margin-right: 0 !important; }
-      .hamburger-btn { display: flex; }
-      header > nav { order: 3 !important; width: 100% !important; }
-      header > nav:not(.mobile-nav-open) { display: none !important; }
-      header > nav.mobile-nav-open { display: flex !important; }
-      nav ul { flex-direction: column; align-items: center; width: 100%; }
-      nav ul li a { width: 100%; text-align: center; padding: 10px 0; }
-      .msg-dropdown { right: -10px; width: 92vw; max-width: 340px; }
-      .dropdown-menu { right: 10px; top: 60px; min-width: 180px; }
-      .auth-card { padding: 30px 20px; }
-      #toastContainer { top: 10px; right: 10px; left: 10px; max-width: none; }
-      
-      .movies-header h1 { font-size: 1.8em; }
-      .search-bar-container { max-width: 100%; }
-      .search-bar-container input { padding-right: 90px; }
-      .filter-group-row { grid-template-columns: 1fr 1fr; }
-      .filters-container { gap: 8px; }
-      .filter-btn { padding: 6px 14px; font-size: 12px; }
-      .movies-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
-      .movie-title { font-size: 13px; }
-      .watch-btn { font-size: 12px; padding: 7px 0; }
-      .video-modal-content { border-radius: 12px; }
-    }
-
-    .image-viewer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); display: none; align-items: center; justify-content: center; z-index: 9000; }
-    .image-viewer-overlay.active { display: flex; }
-    .image-viewer-overlay img { max-width: 92vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
-    .image-viewer-close { position: absolute; top: 18px; right: 22px; font-size: 26px; color: var(--text-main); cursor: pointer; opacity: 0.8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--border-10); }
-    .image-viewer-close:hover { opacity: 1; }
-  </style>
-</head>
-
-<body>
-  <div class="image-viewer-overlay" id="imageViewerOverlay" onclick="if(event.target.id==='imageViewerOverlay') closeImageViewer();">
-    <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
-    <img id="imageViewerImg" src="" alt="Şəkil">
-  </div>
-  <div id="loadingScreen" class="loading-screen"><div class="spinner"></div></div>
-  <div id="toastContainer"></div>
-
-  <header>
-    <a href="index.html" class="logo"><img src="https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png" alt="Maqalux loqosu"></a>
-    <nav>
-      <ul>
-        <li><a href="index.html">Ana səhifə</a></li>
-        <li><a href="xeberler.html">Xəbərlər</a></li>
-        <li><a href="proqramlar.html">Proqramlar</a></li>
-        <li><a href="şahmat.html">Şahmat</a></li>
-        <li><a href="eylence.html" class="active">Əyləncə</a></li>
-        <li><a href="onlinechat">Onlayn çat</a></li>
-        <li><a href="haqqimizda.html">Haqqımızda</a></li>
-        <li><a href="elaqe.html">Əlaqə</a></li>
-      </ul> 
-    </nav>
-    <div class="header-right">
-      <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()" title="Tema dəyiş">☀️</button>
-      <img id="headerAvatar" class="profile-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="Profil" onclick="toggleDropdown(event)">
-      <div class="dropdown-menu" id="dropdownMenu">
-        <div id="dropdownLevel1">
-          <button class="dropdown-item" onclick="viewOwnAvatarLarge()">🖼️ Profilə bax</button>
-          <button class="dropdown-item" onclick="showSettingsLevel()">⚙️ Ayarlara daxil ol</button>
-        </div>
-        <div id="dropdownLevel2" style="display:none;">
-          <button class="dropdown-item" onclick="backToAvatarMenu()">← Geri</button>
-          <button class="dropdown-item" onclick="changeProfilePicture()">📸 Profil şəklini dəyiş</button>
-          <button class="dropdown-item" onclick="openChangePasswordModal()">🔑 Şifrəni dəyiş</button>
-          <button class="dropdown-item danger" onclick="deleteAccount()">🗑️ Hesabı sil</button>
-          <button class="dropdown-item" onclick="handleLogout()" style="color:#ff6b6b;">🚪 Çıxış</button>
-        </div>
-      </div>
-      <div class="msg-icon-wrap" id="msgIconWrap" onclick="toggleMsgDropdown(event)">
-        <i class="far fa-paper-plane msg-icon"></i>
-        <span class="msg-badge hidden" id="msgBadgeCount">0</span>
-        <div class="msg-dropdown" id="msgDropdownPanel">
-          <div class="msg-dropdown-header">Mesajlar</div>
-          <div class="msg-dropdown-list" id="msgDropdownList">
-            <div class="msg-dropdown-empty">Mesaj yoxdur</div>
-          </div>
-        </div>
-      </div>
-      <button type="button" class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileNav(event)" aria-label="Menyu">
-        <i class="fas fa-bars"></i>
-      </button>
-    </div>
-  </header>
-
-  <!-- Auth Modal -->
-  <div class="auth-overlay hidden" id="authOverlay">
-    <div id="loginFormCard" class="auth-card">
-      <h2>Maqalux</h2>
-      <p class="sub">Daxil olun və saytdan tam faydalanın</p>
-      <div class="input-group">
-        <input type="text" id="loginEmailInput" class="custom-input" placeholder="E-poçt və ya istifadəçi adı">
-        <div class="password-wrapper">
-          <input type="password" id="loginPasswordInput" class="custom-input" placeholder="Şifrəniz">
-          <span class="toggle-password" onclick="togglePasswordVisibility('loginPasswordInput', this)">👁️</span>
-        </div>
-        <button class="login-btn" onclick="handleLogin()">Daxil ol</button>
-        <p class="forgot-pass-link" onclick="openForgotPasswordModal()">Şifrəni unutdunuzmu?</p>
-        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
-        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
-        </button>
-        <p class="switch-text">Hesabınız yoxdur? <span onclick="toggleAuthForms('register')">Qeydiyyatdan keçin</span></p>
-      </div>
-    </div>
-    <div id="registerFormCard" class="auth-card" style="display:none;">
-      <h2>Yeni Qeydiyyat</h2>
-      <p class="sub">Hesab yaradın və icmaya qoşulun</p>
-      <div class="input-group">
-        <input type="text" id="registerNicknameInput" class="custom-input" placeholder="İstifadəçi adı">
-        <input type="email" id="registerEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
-        <div class="password-wrapper">
-          <input type="password" id="registerPasswordInput" class="custom-input" placeholder="Şifrəniz">
-          <span class="toggle-password" onclick="togglePasswordVisibility('registerPasswordInput', this)">👁️</span>
-        </div>
-        <button class="login-btn" onclick="handleRegister()">Qeydiyyatı Tamamla</button>
-        <div class="divider-row"><div class="line"></div><span>VƏ YA</span><div class="line"></div></div>
-        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Google ilə daxil ol
-        </button>
-        <p class="switch-text">Artıq hesabınız var? <span onclick="toggleAuthForms('login')">Daxil olun</span></p>
-      </div>
-    </div>
-  </div>
-
-  <main>
-    <div class="movies-header">
-      <h1>Filmlər və Seriallar</h1>
-      
-      <!-- Axtarış paneli + Səsli axtarış + Ətraflı axtarış düyməsi -->
-      <div class="search-bar-container">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" id="movieSearch" placeholder="Film, aktyor, rejissor axtarın..." oninput="handleSearchInput(event)" autocomplete="off">
-        <div class="search-actions">
-          <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="Səsli Axtarış">
-            <i class="fas fa-microphone"></i>
-          </button>
-          <button class="advanced-search-btn" onclick="toggleAdvancedSearch()" title="Ətraflı Axtarış">
-            <i class="fas fa-sliders-h"></i>
-          </button>
-        </div>
-        <div class="autocomplete-box" id="autocompleteBox"></div>
-      </div>
-
-      <!-- Ətraflı Axtarış və Əlavə Filtrlər Paneli -->
-      <div class="advanced-search-panel" id="advancedSearchPanel">
-        <div class="filter-group-row">
-          <input type="text" id="actorInput" class="filter-input" placeholder="Aktyor adı..." oninput="handleFilterChange()">
-          <input type="text" id="directorInput" class="filter-input" placeholder="Rejissor adı..." oninput="handleFilterChange()">
-          <select id="yearSelect" class="filter-select" onchange="handleFilterChange()">
-            <option value="">Bütün İllər</option>
-            <option value="2019">2019</option>
-            <option value="2018">2018</option>
-            <option value="2017">2017</option>
-            <option value="2016">2016</option>
-            <option value="2015">2015</option>
-            <option value="2014">2014</option>
-            <option value="2010">2010</option>
-            <option value="2009">2009</option>
-            <option value="2007">2007</option>
-            <option value="2004">2004</option>
-            <option value="2002">2002</option>
-          </select>
-        </div>
-        <div class="filter-group-row">
-          <select id="countrySelect" class="filter-select" onchange="handleFilterChange()">
-            <option value="">Bütün Ölkələr</option>
-            <option value="ABŞ">ABŞ</option>
-            <option value="Türkiyə">Türkiyə</option>
-          </select>
-          <select id="languageSelect" class="filter-select" onchange="handleFilterChange()">
-            <option value="">Bütün Dillər</option>
-            <option value="İngilis dili">İngilis dili</option>
-            <option value="Türk dili">Türk dili</option>
-          </select>
-          <select id="sortSelect" class="filter-select" onchange="handleFilterChange()">
-            <option value="default">Sıralama: Standart</option>
-            <option value="imdb-desc">IMDB Reytinqi (Yüksəkdən aşağıya)</option>
-            <option value="imdb-asc">IMDB Reytinqi (Aşağıdan yüksəyə)</option>
-            <option value="rt-desc">Rotten Tomatoes (Yüksəkdən aşağıya)</option>
-            <option value="rt-asc">Rotten Tomatoes (Aşağıdan yüksəyə)</option>
-            <option value="year-desc">İlə görə (Yeni)</option>
-            <option value="year-asc">İlə görə (Köhnə)</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="filters-container" id="filtersContainer">
-        <button class="filter-btn active" onclick="handleFilter('Hamısı', this)">Hamısı</button>
-        <button class="filter-btn" onclick="handleFilter('Döyüş', this)">Döyüş</button>
-        <button class="filter-btn" onclick="handleFilter('Komediya', this)">Komediya</button>
-        <button class="filter-btn" onclick="handleFilter('Dram', this)">Dram</button>
-        <button class="filter-btn" onclick="handleFilter('Fantastika', this)">Fantastika</button>
-        <button class="filter-btn" onclick="handleFilter('Elmi-Fantastika', this)">Elmi-Fantastika</button>
-        <button class="filter-btn" onclick="handleFilter('Detektiv', this)">Detektiv</button>
-      </div>
-    </div>
-
-    <div class="movies-grid" id="moviesGrid">
-      <!-- Məzmun JavaScript vasitəsilə bura yüklənəcək -->
-    </div>
-  </main>
-
-  <!-- Video Player Modal -->
-  <div class="video-modal-overlay" id="videoModalOverlay" onclick="if(event.target.id==='videoModalOverlay') closeVideoModal();">
-    <div class="video-modal-content">
-      <div class="video-modal-header">
-        <h3 class="video-modal-title" id="videoModalTitle">Film Adı</h3>
-        <div style="display:flex; gap:12px; align-items:center;">
-          <button class="video-close-btn" onclick="toggleFullscreenVideo()" title="Tam ekran" style="font-size:20px;">⛶</button>
-          <button class="video-close-btn" onclick="closeVideoModal()">✕</button>
-        </div>
-      </div>
-      <div class="video-container">
-        <iframe 
-          id="videoIframe" 
-          src="" 
-          frameborder="0" 
-          allow="fullscreen; autoplay; picture-in-picture" 
-          allowfullscreen="true"
-          webkitallowfullscreen="true" 
-          mozallowfullscreen="true"
-          sandbox="allow-same-origin allow-scripts allow-presentation allow-fullscreen"
-        ></iframe>
-      </div>
-      <div class="video-details">
-        <div class="video-tags" id="videoModalTags"></div>
-        <p id="videoModalDesc">Film haqqında məlumat burada görünəcək.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Settings Modals -->
-  <div class="modal-overlay" id="forgotPasswordModal">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeForgotPasswordModal()">✕</button>
-      <h3>Şifrəni unutmusunuz?</h3>
-      <p class="modal-desc">E-poçt ünvanınızı daxil edin, bərpa linki göndəriləcək.</p>
-      <input type="email" id="forgotEmailInput" class="custom-input" placeholder="E-poçt ünvanınız">
-      <button class="login-btn" onclick="submitForgotPassword()">Bərpa linki göndər</button>
-    </div>
-  </div>
-  <div class="modal-overlay" id="changePasswordModal">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeChangePasswordModal()">✕</button>
-      <h3 id="changePassTitle">Şifrəni dəyiş</h3>
-      <p class="modal-desc" id="changePassDesc">Köhnə və yeni şifrəni daxil edin.</p>
-      <div class="input-group">
-        <div class="password-wrapper" id="oldPassWrapper">
-          <input type="password" id="oldPassInput" class="custom-input" placeholder="Köhnə şifrə">
-          <span class="toggle-password" onclick="togglePasswordVisibility('oldPassInput', this)">👁️</span>
-        </div>
-        <div class="password-wrapper">
-          <input type="password" id="newPassInput" class="custom-input" placeholder="Yeni şifrə">
-          <span class="toggle-password" onclick="togglePasswordVisibility('newPassInput', this)">👁️</span>
-        </div>
-        <button class="login-btn" onclick="submitChangePassword()">Şifrəni yenilə</button>
-      </div>
-    </div>
-  </div>
-  <div class="modal-overlay" id="deleteAccountModal">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeDeleteAccountModal()">✕</button>
-      <h3>Hesabı sil</h3>
-      <p class="modal-desc">Bu əməliyyat geri qaytarıla bilməz. Davam etmək üçün şifrənizi daxil edin.</p>
-      <div class="input-group">
-        <div class="password-wrapper">
-          <input type="password" id="deletePassInput" class="custom-input" placeholder="Şifrəniz">
-          <span class="toggle-password" onclick="togglePasswordVisibility('deletePassInput', this)">👁️</span>
-        </div>
-        <button class="login-btn" style="background:linear-gradient(90deg,#e74c3c,#c0392b); color:white;" onclick="submitDeleteAccount()">Hesabımı həmişəlik sil</button>
-      </div>
-    </div>
-  </div>
-
-  <footer>&copy; 2025 Maqalux - Bütün hüquqlar qorunur.</footer>
-
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-  
-  <script>
-    // FİLMLƏR (YENİ XÜSUSİYYƏTLƏR ƏLAVƏ OLUNDU: actors, director, country, language, rottenTomatoes)
-    const moviesData = [
-    {
-        id: 1,
-        title: "Malefiz / Malefisent",
-        category: "Fantastika",
-        year: 2014,
-        imdb: "6.9/10",
-        rottenTomatoes: "54%",
-        country: "ABŞ",
-        language: "İngilis dili",
-        director: "Robert Stromberg",
-        actors: ["Angelina Jolie", "Elle Fanning", "Sharlto Copley"],
-        poster: "https://m.media-amazon.com/images/M/MV5BMjAwMzAzMzExOF5BMl5BanBnXkFtZTgwOTcwMDA5MTE@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/39041501711",
-        description: `O"Malefiz" filmi klassik "Yatmış Gözəl" nağılını hər kəsin bildiyi şəkildə deyil, hekayənin məşhur "mənfi" qəhrəmanının gözündən anladır. Gənc, gözəl və təmiz qəlbli qanadlı bir pəri olan Malefiz, qəribə və sehrli məxluqların yaşadığı Moors adlı sülh dolu bir meşə səltənətində yaşayır. O, bir gün meşəyə azıb gələn Stefan adlı bir insan övladı ilə tanış olur. Bu tanışlıq illər keçdikcə dərin bir sevgi və etimada çevrilir.
-
-Lakin qonşuluqdakı insan krallığının hökmdarı Moors meşəsini ələ keçirmək istədikdə vəziyyət dəyişir. İnsanoğlunun bitib-tükənməyən ehtirası və taxt-tac arzusu nəhayət Stefana da təsir edir. O, yeni kral ola bilmək üçün ən yaxın dostu və sevgilisi olan Malefizə acımasızcasına xəyanət edərək onun qanadlarını kəsib aparır. Həm fiziki, həm də mənəvi cəhətdən darmadağın olan, qəlbi daşa dönən Malefiz, saf pəridən qaranlıqlar kraliçasına çevrilir. O, qorumağa çalışdığı sehrli meşəni aşılmaz bir tikanlı divarla əhatə edir və insanların dünyasına müharibə elan edir.
-
-Qisasını ən ağır şəkildə almaq istəyən Malefiz, artıq kral olmuş Stefanın yeni doğulan qızı şahzadə Avroranı dəhşətli bir lənətə düçar edir: Avrora 16 yaşına çatanda barmağına cəhrə iynəsi batacaq və o, heç vaxt oyanmamaq üzrə əbədi bir ölüm yuxusuna gedəcək. Lakin illər keçdikcə və Avrora kənddəki bir daxmada üç pərinin himayəsində böyüdükcə, Malefiz qızı uzaqdan izləməyə başlayır. Avroranın saflığı, yaşamaq sevinci və meşəyə duyduğu sevgi Malefizin daxilindəki qəzəb divarlarını sarsıtmağa başlayır.
-
-Malefiz saf nifrətlə verdiyi bu dəhşətli lənəti geri ala biləcəkmi? İki fərqli dünyanı – insanların krallığı ilə sehrli meşəni birləşdirəcək sülh açarı kimin əlindədir? İntiqam və mərhəmət arasındakı bu epik mübarizə, izləyiciyə bəzən ən qaranlıq qəlblərdə belə bir işıq ola biləcəyini göstərəcək.`
-    },    
-    {
-        id: 2,
-        title: "Malefiz: Kötülüğün gücü / Malefisent: Mistress of Evil",
-        category: "Fantastika",
-        year: 2019,
-        imdb: "6.6/10",
-        rottenTomatoes: "39%",
-        country: "ABŞ",
-        language: "İngilis dili",
-        director: "Joachim Rønning",
-        actors: ["Angelina Jolie", "Elle Fanning", "Michelle Pfeiffer"],
-        poster: "https://m.media-amazon.com/images/M/MV5BNTY4YjYwYzMtYTg1NC00ZmJiLTk0OTYtMWMzM2Y4Yzc5MDc2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://dzen.ru/embed/vOpJWxz212HU?from_block=partner&from=zen&mute=0&autoplay=0&tv=0",
-        description: `Malefiz: Şərin Gücü" filmi qüdrətli pəri Malefiz və onun himayəsində böyüyən, artıq sehrli Moors meşəsinin kraliçası olan şahzadə Avrora arasındakı bağların daha da gücləndiyi sülh dolu bir dövrdə başlayır. Hər şey qonşu Ulstead krallığının vəliəhdi, şahzadə Filipin Avroraya evlilik təklifi etməsi ilə dəyişir. Avrora bu təklifi sevinclə qəbul edir. Bu evlilik iki düşmən dünyanı – insanların krallığı ilə sehrli meşəni birdəfəlik birləşdirəcək böyük bir sülh addımı kimi görünür.
-
-Lakin insanlara hələ də tam güvənməyən Malefiz bu izdivaca şübhə ilə yanaşır. Ailələrin tanışlığı üçün Filipin qəsrində təşkil edilən şam yeməyində gözlənilməz bir gərginlik yaşanır. Filipin anası, hiyləgər, zəki və eyni zamanda qəddar Kraliça İnqrit, gizli planlarını həyata keçirmək üçün Malefizi təxribata çəkir. Qurulan ustaca tələ nəticəsində qəsrdə baş verən faciənin günahı Malefizin boynuna atılır. Yenidən xalqın gözündə qorxunc bir "qəddar" kimi qələmə verilən Malefiz, saraydan qaçmaq məcburiyyətində qalır. Bu hadisə Avrora və Malefiz arasındakı sevgi və sadiqlik bağlarını qopararaq onları fərqli cəbhələrə ayırır.
-
-Yaralanmış və xəyanətə uğramış halda qaçan Malefiz heç gözləmədiyi, sarsıdıcı bir həqiqəti kəşf edir: o, bu dünyada tək deyil. İnsanların zülmündən qaçaraq gizlənən və onunla eyni soydan olan Qaranlıq Pərilər tayfası (Dark Feys) yaşamaqdadır. Digər tərəfdən isə Kraliça İnqritin əsl məqsədinin sülh yaratmaq deyil, bütün sehrli məxluqları yer üzündən silmək üçün böyük bir müharibə başlatmaq olduğu aydınlaşır.
-
-İki dünya arasında qaçılmaz və dağıdıcı bir savaşın astanasında Avrora və Malefiz hansı tərəfi seçəcəklər? İnsanların silahları, yoxsa pərilərin sehri qalib gələcək? Malefiz həm öz soyunu, həm də qoruduğu meşəni xilas etmək üçün daxilindəki qəzəbə, yoxsa mərhəmətə sığınacaq? Sirlər, intriqalar və epik döyüşlərlə dolu bu fentezi hekayəsi izləyicini son saniyəyə qədər həyəcanda saxlayır`
-    },     
-    {
-        id: 3,
-        title: "Alita: Savaş meleği / Alita: Battle Angel",
-        category: "Elmi-Fantastika",
-        year: 2019,
-        imdb: "7.3/10",
-        rottenTomatoes: "61%",
-        country: "ABŞ",
-        language: "İngilis dili",
-        director: "Robert Rodriguez",
-        actors: ["Rosa Salazar", "Christoph Waltz", "Jennifer Connelly"],
-        poster: "https://m.media-amazon.com/images/M/MV5BYmZhZGQzM2MtMWEyZC00YTU1LTk4YTQtMTg3ZjEzM2U1NTkxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/2521310104152",
-        description: `Alita: Döyüş Mələyi" filmi uzaq gələcəkdə – Yerin böyük bir fəlakətdən əsrlər sonra bərpa olunmağa çalışdığı 26-cı əsrdə cərəyan edir. Hekayə səmada süzülən, zənginlərin yaşadığı əlçatmaz Zalem şəhərinin düz altındakı kasıb və təhlükəli "Dəmir Şəhər"in (Iron City) zibilliyində başlayır. Mərhəmətli kiber-həkim Doktor Dayson İdo bir gün bu zibillikdə xarabalıqlar arasından yaddaşı silinmiş, lakin beyni hələ də sağ olan bir kiborq qızın qalıqlarını tapır. O, qıza yeni bir kibernetik bədən düzəldir və ona "Alita" adını verir.
-
-Gözlərini açanda kim olduğunu, haradan gəldiyini və əvvəlki həyatını qətiyyən xatırlamayan Alita, tamamilə yeni bir dünyaya oyanır. O, bu xaotik, lakin rəngarəng Dəmir Şəhərə uyğunlaşmağa çalışarkən ona yol göstərən və Zalemə getmək xəyalları quran Hüqo (Hugo) adlı gənclə tanış olur. Doktor İdo isə Alitanı onun sirli keçmişinin qaranlıq təhlükələrindən qorumaq üçün hər vəchlə cəhd göstərir.
-
-Lakin çox keçmədən şəhərin yeraltı dünyasını idarə edən korrupsiyalaşmış qüvvələr və qatil kiborqlar Alitanın izinə düşürlər. Özünü və sevdiklərini qorumaq məcburiyyətində qalan qız, gözlənilməz bir anda qeyri-adi döyüş qabiliyyətlərinə sahib olduğunu kəşf edir. Alita sadəcə məsum bir kiborq deyil, əsrlər əvvəl unudulmuş və ən təhlükəli döyüş sənətlərini bilən bir savaşçıdır.
-
-Keçmişinə dair ipucları topladıqca Alita əsl kimliyini tapmaq üçün təhlükəli bir yola qədəm qoyur. O, qarşısına çıxan amansız düşmənlərlə, həmçinin şəhərin ən qəddar idman növü olan "Motorbol" (Motorball) arenasında qladiatorlarla mübarizə aparmalıdır. Bəs kiçik bədəninə nəhəng bir güc sığdıran bu döyüş mələyi ədalətsiz sistemə qarşı təkbaşına duruş gətirə biləcəkmi? Zalemin göy üzündəki hegemonluğunu sarsıtmaq üçün onun cəsarəti kifayət edəcəkmi? Ekşn və vizual effektlərlə zəngin olan bu hekayədə Alitanın özünü kəşf etmə macərası oxucunu ekrana kilidləyəcək.`
-    },       
-      {
-        id: 4,
-        title: "Örümcek adam / Spider-Man 1",
-        category: "Fantastika",
-        year: 2002,
-        imdb: "7.4/10",
-        rottenTomatoes: "90%",
-        country: "ABŞ",
-        language: "İngilis dili",
-        director: "Sam Raimi",
-        actors: ["Tobey Maguire", "Kirsten Dunst", "Willem Dafoe"],
-        poster: "https://upload.wikimedia.org/wikipedia/tr/8/8e/Sm3poster09.jpg",
-        iframe: "https://ok.ru/videoembed/27781302902",
-        description: `Piter Parker cavan məktəbli botanikdir. Onun yalnız yaşlı dayısı və xalası vardır. Piteri məktəbdə hamı ələ salır. Onunla yalnız varlı məktəbli Harri Osborn dostluq edir. Piterin isə Meri Ceyn Uotson adında qız dostu var və ona aşiqdir. Onunla bərabər Harri də Meriyə aşiqdir. Piter Parkerin həyatı bir gün bir hörümçək tərəfindən dişlənilməsiylə tamamilə dəyişir. Çünki bu hörümçək sıravi bir hörümçək deyil, genetik olaraq özəlliklə inkişaf etdirilmiş, elmi məqsədlərlə istifadə edilən bir təcrübədir. Bir müddət keçdikdən sonra Piterdə dəyişiklər baş verir. Piter əlindən gözlənilmədən hörümçək toru çıxarmağa başlayır. Beləliklə, Piter "Hörümçək-adam" kimi formalaşır. Piter boş vaxtlarında "Hörümçək-adam" adlı qəhrəmanının şəklini və geyimini yaradır. Bir neçə müddət sonra Piter insanları oğrulardan xilas edən qəhrəmana çevrilir.
-
-Piterin tanıdığı Harri Ozbornun atası olan Norman Ozborn elm adamıdır. Norman müxtəlif təcrübələrlə məşğul olur. Bir gün gecə vaxtı uğursuz təcrübədən sonra onun əməkdaşı ölür. Lakin özü sağ qalaraq qəribə varlığa "Yaşıl qoblin"ə dönür. Zaman keçdikcə həmin varlıq insanları ələ keçirməyə başlayır. Bu müddətdə qəhrəman "Hörümçək-adam" insanları xilas etməklə məşğuldur. Quldurlardan biri Piterin dayısı Ben Parkeri öldürür. Piter isə bir müddətdən sonra qaydasız döyüş üzrə çempion olduqdan sonra döyüş meydanını tərk edərkən gözlənilmədən həmin quldura polislərdən qaçmağa kömək edir. Lakin sonradan Piter başa düşür ki, bu quldur onun dayısının ölümünə səbəb olub. Bu səbəbdən quldur binada olarkən Piter onu binadan yerə atır. Bu hadisədən sonra Piter başa düşür ki, onun əszifəsi cinayətkar aləmi ilə mübarizə aparmaqdır.
-
-Vaxt keçdikcə "Yaşıl qoblin" Piterin sevdiyi qızı Meri Ceyni və funikulyor ilə birgə uşaqları ələ keçirir. "Hörümçək-adam" onun yanına gələn zaman "Yaşıl qoblin"dən ələ keçirdiyi insanları buraxmağı tələb edir. Lakin "Yaşıl qoblin" onun qarşısına iki məqsəd qoyur: Ya "Hörümçək-adam" sevdiyi qızı xilas etməli, ya da uşaqları xilas etməlidir. "Hörümçək-adam" həm Merini, həm də uşaqları xilas edir. Bu zaman "Hörümçək-adam" və "Yaşıl qoblin" arasında kəskin mübarizə başlayır. "Hörümçək-adam" çətinliklə də olsa mübarizədən sağ çıxır. "Yaşıl qoblin" Normana dönən zaman Piterə bu hadisənin oğlu Harriyə söyləməməsini istəyir və bu zaman ölür. Bu hadisə bitdikdən sonra Nomran qəbirdə basdırılır və Piter Harriyə bu haqda heç nə söyləmir. Harri isə ona deyir ki, atasının intiqamını "Hörümçək-adam"dan mütləq alacaqdır. Piterin sevgilisi Meri onun iki həyatlı insan olduğunu zənn edir.`
-      },
-      {
-        id: 5, 
-        title: "Örümcek adam 2 / Spider-Man 2",
-        category: "Fantastika",
-        year: 2004,
-        imdb: "7.5/10",
-        rottenTomatoes: "93%",
-        country: "ABŞ",
-        language: "İngilis dili",
-        director: "Sam Raimi",
-        actors: ["Tobey Maguire", "Kirsten Dunst", "Alfred Molina"],
-        poster: "https://upload.wikimedia.org/wikipedia/tr/2/26/%C3%96r%C3%BCmcek_Adam_2_film_posteri.jpg",
-        iframe: "https://vk.com/video_ext.php?oid=261439208&id=169408301",
-        description: `Piter Parker superqəhrəman öhdəlikləri ilə şəxsi həyatı arasındakı tarazlığı qorumaqda böyük çətinlik çəkir. Gündəlik həyatında hər şey tərs getməyə başlayır: universitetdə dərslərindən geri qalır, işini itirir və ciddi maddi sıxıntılarla üzləşir. Üstəlik, dərindən aşiq olduğu Meri Ceyn başqası ilə evlənməyə hazırlaşır, ən yaxın dostu Harri Ozborn isə atasının ölümündə günahlandırdığı Hörümçək-adama qarşı qisas hissi ilə alışıb yanır.
-
-Yaşadığı dərin stress, daxili ziddiyyətlər və xəyal qırıqlıqları Piterin super güclərini yavaş-yavaş itirməsinə səbəb olur. Bütün bu yüklərin altında əzilən Piter, nəhayət, kəskin bir qərar verir: o, Hörümçək-adam kostyumunu zibil qutusuna ataraq qəhrəmanlıqdan imtina edir və sadəcə normal bir insan kimi həyatına davam etməyi seçir.
-
-Lakin Nyu-York şəhəri çox keçmədən yeni və dəhşətli bir təhlükə ilə üzləşir. Piterin kumiri olan zəki alim Doktor Otto Oktaviusun həyata keçirdiyi riskli bir termonüvə təcrübəsi fəlakətlə nəticələnir. Partlayış zamanı həyat yoldaşını itirən və onurğasına dörd nəhəng, süni intellektə malik mexaniki qol birləşən Otto, bu qolların idarəsinə keçərək qəddar və acımasız "Doktor Osminoq"a (Doctor Octopus) çevrilir.
-
-Doktor Osminoq yarımçıq qalmış dağıdıcı təcrübəsini tamamlamaq üçün şəhərdə terror əsdirməyə başlayanda və ən pisi, Meri Ceyni girov götürəndə Piter vəziyyətin ciddiliyini dərk edir. O, böyük gücün gətirdiyi böyük məsuliyyətdən qaça bilməyəcəyini anlayır. Öz daxili qorxularına qalib gələn Piter Parker, güclərini yenidən qazanaraq həm sevdiyi qadını, həm də bütün şəhəri xilas etmək üçün Doktor Osminoqla unudulmaz bir ölüm-dirim mübarizəsinə girişir.`
-      },
-      {
-        id: 6,
-        title: "Örümcek adam 3 / Spider-Man 3",
-        category: "Fantastika",
-        year: 2007,
-        imdb: "6.3/10",
-        rottenTomatoes: "63%",
-        country: "ABŞ",
-        language: "İngilis dili",
-        director: "Sam Raimi",
-        actors: ["Tobey Maguire", "Kirsten Dunst", "James Franco"],
-        poster: "https://m.media-amazon.com/images/M/MV5BODE2NzNhMDctYjUzMC00Y2M5LWI2Y2EtODJkZTFjN2Y5ODlmXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://dzen.ru/embed/vKghmm3uOxAg?from=fb",
-        description: `Piter Parker nəhayət həyatındakı tarazlığı tapmış kimi görünür. O, Meri Ceyn ilə münasibətlərini növbəti mərhələyə daşımağa hazırlaşır və Nyu-York əhalisi Hörümçək-adamı artıq bir xilaskar, qəhrəman kimi sevib qəbul edir.
-
-Lakin bu sakitlik və xoşbəxtlik uzun sürmür. Kosmosdan gələn qara, sirli bir yadplanetli maddə (simbiot) gecə ikən Piterin kostyumuna yapışaraq onu qara rəngə boyayır. Bu yeni qara kostyum Piterin gücünü, sürətini və çevikliyini inanılmaz dərəcədə artırsa da, onun xarakterini dəyişməyə başlayır. Simbiot Piterin daxilindəki qaranlıq, eqoist, aqressiv və qisasçı tərəfləri üzə çıxarır, onu sevdiyi insanlardan uzaqlaşdırır.
-
-Bu ərəfədə Piterin keçmişi ilə bağlı şok edici bir həqiqət ortaya çıxır: sevimli əmisi Ben Parkerin əsl qatili Flint Marko adlı bir məhkumdur. Həbsdən qaçan Marko qəribə bir elmi qəza nəticəsində hissəcikləri idarə edə bilən qorxunc "Qum-adam"a (Sandman) çevrilir. Qara kostyumun təsiri altında olan Piterin Qum-adama qarşı duyduğu qisas hissi onu amansızlaşdırır.
-
-Bütün bunlar azmış kimi, atasının intiqamını almağa and içən ən yaxın dostu Harri Ozborn atasının texnologiyalarından istifadə edərək "Yeni Qoblin" kimi Piterə hücum edir. Həmçinin, Piterin "Daily Bugle" qəzetindəki rəqibi, hiyləgər fotoqraf Eddi Brok Piterin rədd etdiyi qara simbiotla birləşərək indiyə qədərki ən təhlükəli düşmənə – "Venom"a çevrilir.
-
-Venom və Qum-adamın birləşərək Meri Ceyni qaçırması ilə vəziyyət kritik həddə çatır. Piter Parker indiki həm ən güclü düşmənlərinə, həm də öz daxilindəki qaranlığa qarşı savaşmalıdır. O, təkəbbürünə qalib gəlməli, bağışlamağın gücünü dərk etməli və əsl qəhrəmanlığın kostyumda deyil, insanın qəlbində olduğunu yenidən xatırlamalıdır. Bu çətin döyüşdə Piterin gözlənilməz bir müttəfiqə ehtiyacı olacaq.`
-      },
-      {
-        id: 7,
-        title: "Kaptan Amerika: Kahramanların savaşı / Captain America: Civil War",
-        category: "Fantastika",
-        year: 2016,
-        imdb: "7.8/10",
-        rottenTomatoes: "90%",
-        country: "ABŞ",
-        language: "İngilis dili",
-        director: "Anthony Russo, Joe Russo",
-        actors: ["Chris Evans", "Robert Downey Jr.", "Scarlett Johansson"],
-        poster: "https://m.media-amazon.com/images/M/MV5BMjQ0MTgyNjAxMV5BMl5BanBnXkFtZTgwNjUzMDkyODE@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://vidmoly.biz/embed-9c3lat8szmo2.html",
-        description: `Qisasçılar (Avengers) komandasının bəşəriyyəti xilas edərkən istəmədən səbəb olduğu böyük dağıntılar və sivil itkilər dünya hökumətlərini hərəkətə keçirir. Birləşmiş Millətlər Təşkilatı superqəhrəmanları nəzarət altına almaq və yalnız xüsusi komitənin icazəsi ilə hərəkət etmələrini təmin etmək üçün "Sokoviya Müqaviləsi"ni irəli sürür.
-
-Bu yeni sənəd Qisasçılar arasında dərin bir ideoloji parçalanmaya səbəb olur. Keçmişdə yaratdığı silahların və etdiyi səhvlərin vicdan əzabını çəkən Toni Stark (Dəmir Adam) hökumət nəzarətini dəstəkləyir. Digər tərəfdən, siyasətçilərin gizli məqsədlərinə güvənməyən və qəhrəmanların müstəqil qərar verməli olduğuna inanan Stiv Rocers (Kapitan Amerika) bu müqaviləyə qəti şəkildə qarşı çıxır.
-
-Vyanada müqavilənin imzalanması mərasimində baş verən dəhşətli terror aktı vəziyyəti kəskinləşdirir. Partlayışın əsas şübhəlisi kimi Stivin uşaqlıq dostu və keçmiş beyni yuyulmuş suiqəsdçi olan Baki Barns (Qış əsgəri) göstərilir. Stiv dostunun günahsız olduğuna inanır və onu qanunsuz yollarla tutulmaqdan və ya öldürülməkdən xilas etmək üçün qanunları pozmağa qərar verir. Beləliklə, Qisasçılar iki düşmən cəbhəyə bölünür: Kapitan Amerikanın müstəqillik axtaran komandası və Dəmir Adamın qanunlara tabe olan komandası.
-
-Dünyanın ən güclü qəhrəmanları hava limanında bir-birlərinə qarşı epik bir savaşa girişirlər. Lakin pərdə arxasında Qisasçıları bir-birinə qırdıraraq daxildən parçalamaq istəyən intiqam dolu bir düşmən – Helmut Zemo dayanır. Zemonun qaranlıq planı baş tutduqda və Baki ilə Starkın keçmişini birləşdirən faciəvi həqiqət (Toninin valideynlərinin ölümü) ortaya çıxdıqda, Stiv və Toni arasındakı dostluq bağları tamamilə qopur və yerini emosional, ölüm-dirim mübarizəsinə buraxır.`
-      },
-      {
-        id: 8,
-        title: "Örümcek Adam: Eve dönüş / Spider Man: Homecoming",
-        category: "Fantastika",
-        year: 2017,
-        imdb: "7.4/10",
-        rottenTomatoes: "92%",
-        country: "ABŞ",
-        language: "İngilis dili",
-        director: "Jon Watts",
-        actors: ["Tom Holland", "Michael Keaton", "Robert Downey Jr."],
-        poster: "https://m.media-amazon.com/images/M/MV5BODY2MTAzOTQ4M15BMl5BanBnXkFtZTgwNzg5MTE0MjI@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://dzen.ru/embed/vMo3FSfv9VUs",
-        description: `Kapitan Amerika: Qəhrəmanların Savaşı" filmindəki epik döyüşdən və "Qisasçılar" (Avengers) ilə ilk təcrübəsindən sonra gənc Piter Parker qəhrəman həyatının həyəcanı içindədir. O, mentoru Toni Starkın (Dəmir Adam) nəzarəti altında Nyu-Yorkun Kuins (Queens) bölgəsindəki evinə, xalası Meyin yanına qayıdır. Piter bir tərəfdən sadə bir məktəbli kimi adi həyatına uyğunlaşmağa və dərslərinə diqqət yetirməyə çalışır, digər tərəfdən isə əsl superqəhrəman olduğunu sübut edərək Starkın komandasına rəsmi olaraq qəbul edilmək üçün fürsət axtarır.
-
-Piterin sadəcə xırda küçə cinayətlərinin qarşısını alaraq "Məhəllənizin mehriban Hörümçək-adamı" olmaqla keçirdiyi günlər Nyu-Yorkda yeni və ciddi bir təhlükənin peyda olması ilə sona çatır. Keçmişdə şəhərin yadplanetli qalıntılarından təmizlənməsi layihəsində işləyən, lakin Starkın şirkəti tərəfindən işindən məhrum edilən Adrian Tums, qisas və pul ardınca qaçaraq yadplanetli texnologiyalarından qeyri-qanuni, güclü silahlar istehsal etməyə başlayır. Özünə mexaniki qanadlar düzəldən Tums qorxunc "Kərkəs"ə (Vulture) çevrilir və silahları qara bazarda sataraq böyük bir şəbəkə qurur.
-
-Piter Kərkəsin fəaliyyətini dayandırmaq üçün Starkın "böyük işlərə qarışma" xəbərdarlıqlarına rəğmən təkbaşına hərəkətə keçir. Lakin gəncliyin və təcrübəsizliyin gətirdiyi ehtiyatsızlıq ucbatından böyük səhvlər edir və nəticədə Toni Stark onun yüksək texnologiyalı xüsusi kostyumunu əlindən alır. Stark Piterə ən vacib dərslərdən birini verir: "Əgər sən bu kostyumsuz heç nəsənsə, deməli, o sənə heç lazım deyil."
-
-İndi Piter həm təhlükədə olan dostlarını xilas etməli, həm də Kərkəsin böyük planının qarşısını almalıdır. Üstəlik, bütün bunları Starkın hazırladığı xüsusi texnologiyalar olmadan, yalnız öz ağlı, iradəsi və cəsarəti ilə etməlidir. O, əsl qəhrəmanlığın kostyumda deyil, insanın daxilində və məsuliyyət hissində olduğunu anlamağa başlayır`
-    },
-     {
-        id: 9,
-        title: "Güneşi gördüm / I Saw the Sun",
-        category: "Dram",
-        year: 2009,
-        imdb: "6.6/10",
-        rottenTomatoes: "58%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Mahsun Kırmızıgül",
-        actors: ["Mahsun Kırmızıgül", "Murat Ünalmış", "Cemal Toktaş"],
-        poster: "https://m.media-amazon.com/images/M/MV5BMzVlNmYzNjItODExOS00MjIwLTlhMjctYmFkMjhhY2RmYzM3XkEyXkFqcGc@._V1_QL75_UY562_CR21,0,380,562_.jpg",
-        iframe: "https://ok.ru/videoembed/1078734557627",
-        description: `Türkiyənin cənub-şərqindəki sərhəd kəndlərindən birində yaşayan və bölgədəki hərbi münaqişələrə görə yurdlarını tərk etmək məcburiyyətində qalan Altun ailəsinin dramatik və təsirli hekayəsindən bəhs edir. Hökumətin qərarı ilə kəndin boşaldılması nəticəsində illərdir bir yerdə yaşayan böyük ailə köç yolunda iki fərqli istiqamətə dağılmaq məcburiyyətində qalır.
-
-Ailənin bir qismi Ramonun (Mahsun Kırmızıgül) başçılığı ilə qaçaqmalçıların vasitəsilə qeyri-qanuni yollarla Norveçə getməyə çalışır. Bu çətin və təhlükəli miqrasiya yolu onları ölüm-dirim mübarizəsi, sərt qış şərtləri və böyük itkilərlə üz-üzə qoyur.
-
-Ailənin digər hissəsi isə Davudun (Murat Ünalmış) rəhbərliyi ilə İstanbula köçür. Heç vaxt belə böyük və səs-küylü bir şəhərdə yaşamamış bu insanlar İstanbulun sərt reallıqları, yoxsulluq, mədəniyyət şoku və cəmiyyətin qərəzli münasibəti ilə mübarizə aparmalı olurlar. Böyük şəhərin amansız çərxi bu sadə kənd adamlarını əzərək onların hər birini fərqli bir sınaqdan keçirir.
-
-Filmin ən təsirli xətlərindən biri də Davudun qardaşı Kadrinin (Cemal Toktaş) hekayəsidir. Kadri öz cinsi kimliyini (fərqli oriyentasiyasını) ənənəvi və sərt qaydaları olan ailəsindən gizlətməyə çalışır. Lakin həqiqətin üzə çıxması ailə daxilində böyük faciələrə və bağışlanmaz nəticələrə yol açır.
-
-"Günəşi Gördüm" sadəcə bir köç hekayəsi deyil; bu, müharibənin, ayrı-seçkiliyin və cəhalətin günahsız insanların həyatını necə məhv etdiyini göstərən bir güzgüdür. Film izləyiciyə qaranlığın və acıların içində belə hər kəsin bir ümid işığına – "günəşi görməyə" ehtiyacı olduğunu xatırladır`
-    },
-     {
-        id: 10,
-        title: "Beyaz Melek",
-        category: "Dram",
-        year: 2007,
-        imdb: "6.5/10",
-        rottenTomatoes: "60%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Mahsun Kırmızıgül",
-        actors: ["Arif Erkin", "Mahsun Kırmızıgül", "Yıldız Kenter"],
-        poster: "https://m.media-amazon.com/images/M/MV5BMTg1MDI1NDAzMF5BMl5BanBnXkFtZTgwODMwODc0NDE@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/2036821789388",
-        description: `Bəyaz Mələk" filmi, Şərq və Qərb mədəniyyətləri arasındakı fərqləri, ailə dəyərlərini və yaşlılara gösterilən münasibəti olduqca təsirli bir dillə tamaşaçıya çatdırır. Hekayə, beyin xərçəngindən əziyyət çəkən və müalicə üçün oğulları Əli (Mahsun Kırmızıgül) və Rəşad tərəfindən Diyarbəkirdən İstanbula gətirilən yaşlı Əhməd (Arif Erkin) babanın başına gələnlərlə başlayır.
-
-Xəstəxanada kimyaterapiya almaq istəməyən və övladlarına yük olduğunu düşünən Əhməd baba gizlicə oradan qaçır. O, təsadüfən İstanbuldakı bir qocalar evinə sığınır. Qocalar evinə sakinləri onun övladları tərəfindən atıldığını düşünərək bu səssiz və şirin dilli qocaya sahib çıxırlar. Əhməd babanın oğulları onu tapanda, atasının bu tənha, lakin sevgi dolu insanlarla necə xoşbəxt olduğunu görürlər. Atalarının qəlbini qırmamaq və bu yeni dostlarından ayırmamaq üçün onlar vəziyyəti bildirmədən qocalar evinin daimi ziyarətçilərinə çevrilirlər.
-
-Bu andan etibarən film tamaşaçını qocalar evinin divarları arasında gizlənən, hər biri fərqli bir dramla dolu həyat hekayələrinə aparır. Burada illərlə övlad yolu gözləyən, unudulmuş, lakin bir-birinə kənətçilənmiş yaşlı insanların acı-şirin günlərinin şahidi oluruq. Əhməd baba və oğulları bu insanların həyatına yeni bir nəfəs, ümid və sevinc gətirir.
-
-"Bəyaz Mələk" sadəcə bir xəstəlik hekayəsi deyil; cəmiyyətin unudulan bir təbəqəsinə – yaşlılara həsr olunmuş kədərli bir elegiyadır. Türk kinosunun ən ustad aktyorlarının bir araya gəldiyi bu film, izləyicini mərhəmət, vəfa və valideyn haqqı üzərində dərindən düşünməyə vadar edir.`
-    },   
-       {
-        id: 11,
-        title: "New York'ta Beş Minare / Act of Vengeance",
-        category: "Dram",
-        year: 2010,
-        imdb: "5.7/10",
-        rottenTomatoes: "45%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Mahsun Kırmızıgül",
-        actors: ["Haluk Bilginer", "Mahsun Kırmızıgül", "Mustafa Sandal", "Danny Glover"],
-        poster: "https://m.media-amazon.com/images/M/MV5BMjE5OTczMjg4Ml5BMl5BanBnXkFtZTcwNDk3MjQ5Mw@@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/510328834708",
-        description: `Nyu-Yorkda 5 Minarə" filmi Türkiyənin antiterror xidmətinin iki ən bacarıqlı və təcrübəli polis zabiti olan Fırat (Mahsun Kırmızıgül) və Acarın (Mustafa Sandal) təhlükəli bir missiya üçün ABŞ-a göndərilməsi ilə başlayır. Onların məqsədi İnterpol tərəfindən qırmızı bülletenlə axtarılan və FTB (FBI) tərəfindən Nyu-Yorkda həbs edilən "Dəccal" kod adlı təhlükəli radikal terror şəbəkəsi liderini Türkiyəyə təhvil gətirməkdir.
-
-Lakin Nyu-Yorka çatdıqda hər iki polis böyük bir şok yaşayır. FTB-nin həbs etdiyi şəxs Hacı Gümüş (Haluk Bilginer) adlı, illərdir Amerikada yaşayan, xristian bir qadınla evli olan, sülhsevər, xoşgörülü və ətrafındakı hər kəs tərəfindən sevilən hörmətli bir din xadimidir. Onun terrorçu obrazı ilə heç bir əlaqəsi yoxdur. Hava limanına gedən yolda Hacının müridləri tərəfindən edilən silahlı hücum nəticəsində Hacı Gümüş qaçsa da, sonradan günahsızlığını sübut etmək üçün öz istəyi ilə polislərə təslim olur.
-
-Film bir tərəfdən 11 Sentyabr hadisələrindən sonra Amerikada və dünyada yaranan İslamofobiyanı, Qərbin müsəlmanlara qarşı olan qərəzli münasibətini tənqid edir, digər tərəfdən isə dini öz çirkin məqsədləri üçün istifadə edən radikal qruplaşmalarla əsl İslamı bir-birindən fərqləndirir. Hacı Gümüş sülh və sevgi mesajları verərkən, ona atılan terrorçu böhtanının arxasında çox fərqli səbəblərin olduğu yavaş-yavaş üzə çıxmağa başlayır.
-
-Hekayə irəlilədikcə tamaşaçı Hacı Gümüşün Türkiyədəki keçmişinə və 30 illik qanlı bir qisas (qan davası) əhvalatına şahid olur. Hacı və Fıratın keçmişləri gözlənilməz bir şəkildə kəsişir və hekayənin sonunda illərlə gizli qalmış faciəvi həqiqətlər gün üzünə çıxaraq izləyicini sarsıdıcı bir hüzünlə baş-başa buraxır. Filmin ana mesajı nifrət və intiqamın insan həyatını necə məhv etdiyi, bağışlamağın isə ən böyük ərdəm olduğudur.`
-    }, 
-      {
-        id: 12,
-        title: "Mucize / The Miracle",
-        category: "Dram",
-        year: 2015,
-        imdb: "7.6/10",
-        rottenTomatoes: "72%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Mahsun Kırmızıgül",
-        actors: ["Mert Turak", "Talat Bulut", "Seda Tosun"],
-        poster: "https://m.media-amazon.com/images/M/MV5BNTk3NzU5NjY3Nl5BMl5BanBnXkFtZTgwMzcwNDQyNDE@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/10765758960055",
-        description: `Möcüzə" filmi 1960-cı illərdə, Türkiyənin Egey bölgəsindən Şərqi Anadolunun ucqar, yolu belə olmayan bir dağ kəndinə təyinat alan fədakar müəllim Mahirin (Talat Bulut) təsirli hekayəsi ilə başlayır. Kəndə gəlib çatanda Mahir müəllim böyük bir sürprizlə qarşılaşır: kənddə nəinki məktəb, heç təhsil anlayışı belə yoxdur. Lakin o, çətinliklərdən qorxaraq geri dönmür. Kənd əhalisinin və dövlətin dəstəyi ilə çiyin-çiyinə verərək uşaqlar üçün öz əlləri ilə bir məktəb inşa etməyə qərar verir.
-
-Kənddə Mahir müəllimin diqqətini çəkən xüsusi bir gənc var: kəndin muxtarının oğlu, fiziki və nitq qüsurlu olan Əziz (Mert Turak). Hərəkətlərini idarə etməkdə çətinlik çəkən Əziz cəmiyyətdən təcrid olunmuş vəziyyətdə yaşayır və tez-tez ətrafdakılar tərəfindən lağa qoyulur. Lakin onun çətin anlaşılan dünyasının dərinliyində çox təmiz, həssas və sevgi dolu bir qəlb yatır. Mahir müəllim Əzizi bu tənha dünyasından xilas etmək, ona dəyərli olduğunu hiss etdirmək üçün onu da digər uşaqlarla birlikdə məktəbə qəbul edir.
-
-Hekayənin ən həlledici və duyğusal dönüş nöqtəsi isə kənddən uzaqlarda yaşayan dünyagözəli Mızginin (Seda Tosun) qəfil verilən qərarla Əzizlə evləndirilməsi olur. Kənd əhalisi bu evliliyin qətiyyən alına bilməyəcəyini, Əzizin bir qadına və ailəyə baxa bilməyəcəyini düşünərək onları davamlı mühakimə edir.
-
-Bütün bu sərt qərəzlərin, çətin həyat şərtlərinin və psixoloji təzyiqlərin kölgəsində Əziz və Mızgini böyük bir sınaq gözləyir. Cəmiyyətin amansız baxışlarına rəğmən bu cütlük öz dünyalarını qura biləcəkmi? Səbir, fədakarlıq və ən əsası sevgi, insanların həyatında həqiqətən bir "möcüzə" yarada bilərmi? Bu sualların cavabı filmin duyğu yüklü səhnələrində gizlidir.`
-    },   
-    {
-        id: 13,
-        title: "Mucize 2: Aşk / The Miracle 2: Love",
-        category: "Dram",
-        year: 2019,
-        imdb: "7.3/10",
-        rottenTomatoes: "68%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Mahsun Kırmızıgül",
-        actors: ["Mert Turak", "Biran Damla Yılmaz", "Fikret Kuşkan"],
-        poster: "https://m.media-amazon.com/images/M/MV5BOGI2ZTMwZTQtNmZiMC00ZTFmLWFkZmEtNmU4N2VjZGRiZDExXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/8986225478330",
-        description: `Möcüzə 2: Eşq" filmi ilk filmdəki hadisələrin birbaşa davamı olaraq, Əziz (Mert Turak) və Mızginin (Biran Damla Yılmaz) kənddəki sərt qərəzlərə və dözülməz lağlara görə yurdlarını tərk edərək yeni bir həyata başlamaq qərarı ilə başlayır. Mahir müəllimin köməkliyi ilə cütlük Şərqin ucqar dağ kəndindən Qərbin (Egey bölgəsinin) mənzərəli və fərqli mədəniyyətə malik bir sahil qəsəbəsinə köçürlər.
-
-Yeni qəsəbəyə köçmək onlar üçün həm böyük bir ümid, həm də çətin bir sınaqdır. Qəhrəmanlarımız indiyə qədər heç görmədikləri yeni bir dünya, fərqli adətlər və tanımadıqları insanlarla qarşılaşırlar. Əziz bir tərəfdən cəmiyyət içində özünə yer tapmağa və həyat yoldaşına baxa biləcək gücdə bir kişi olduğunu sübut etməyə çalışır, digər tərəfdən isə Mızgin bu yeni və qəribə dünyada ayaqda qalmaq üçün böyük səy göstərir.
-
-Qəsəbənin bəzi sakinləri onlara qucaq açsa da, cəmiyyətin amansız və qərəzli tərəfi burada da onların qarşısına çıxır. Əzizin fiziki qüsurları yenidən diqqət mərkəzinə düşür. Lakin Əzizin daxilində çox güclü bir motivasiya mənbəyi var: Mızginə olan dərin, saf və tükənməz eşqi. O, sadəcə sevdiyi qadının gözündəki kədəri silmək və onun xəyallarındakı həyat yoldaşı ola bilmək üçün sağalmağı hər şeydən çox istəyir.
-
-Bəs Əziz öz bədəninin məhdudiyyətlərini aşa biləcəkmi? Bu sadə və təmiz qəlbli cütlük yeni dünyalarının çətinliklərinə və insanların qəddar baxışlarına qarşı necə mübarizə aparacaq? Hər kəsin qeyri-mümkün hesab etdiyi bir sevgi hekayəsi gerçək bir möcüzəyə çevrilə bilərmi? Eşqin və əzmin gücünü sınağa çəkən bu sualların cavabı filmin təsirli kadrlarında öz əksini tapır.`
-    },   
-    {
-        id: 14,
-        title: "Av Mevsimi / Hunting Season",
-        category: "Detektiv",
-        year: 2010,
-        imdb: "7.4/10",
-        rottenTomatoes: "75%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Yavuz Turgul",
-        actors: ["Şener Şen", "Cem Yılmaz", "Çetin Tekindor", "Okan Yalabık"],
-        poster: "https://m.media-amazon.com/images/M/MV5BMTYzMjkzODk4Nl5BMl5BanBnXkFtZTcwOTYzODQxNA@@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/428855200261",
-        description: `Ov Mövsümü" filmi İstanbul polisinin Cinayət Axtarış Şöbəsinin bir-birindən fərqli xarakterlərə malik üç detektivinin çətin və təhlükəli hekayəsindən bəhs edir. Təcrübəsi və intuisiyasına görə "Ovçu" ləqəbini almış Fərman (Şener Şen), fədakar və hər an partlamağa hazır çılğın hərəkətlərinə görə "Dəli" olaraq tanınan İdris (Cem Yılmaz) və komandaya yeni qoşulmuş gənc "Çömez" Həsən (Okan Yalabık) olduqca mürəkkəb bir cinayət işini həll etmək üçün bir araya gəlirlər.
-
-Hər şey meşəlik ərazidə gənc bir qıza aid kəsilmiş bir qolun tapılması ilə başlayır. Bu dəhşətli cinayətin izi ilə gedən üçlük özlərini gözlənilməz və qaranlıq bir şəbəkənin içində tapırlar. İstintaq dərinləşdikcə bütün ipucları onları ölkənin ən zəngin, qüdrətli və toxunulmaz qəbul edilən iş adamlarından birinə – qorxunc xarakterə malik Battal Çolakzadəyə (Çetin Tekindor) aparıb çıxarır.
-
-Cinayəti açmaq üçün aparılan bu amansız mübarizə sadəcə peşəkar bir vəzifə olmaqdan çıxır və hər üç detektivin şəxsi həyatını alt-üst edən psixoloji bir sınağa çevrilir. Fərmanın ailəsindəki problemlər, İdrisin keçmiş həyat yoldaşı Asiyəyə olan dağıdıcı və hədsiz bağlılığı, eləcə də Həsənin təcrübəsizlikdən qaynaqlanan çətinlikləri bu gərgin axtarış processesini daha da çıxılmaz vəziyyətə salır.
-
-Qanunların və ədalətin sərhədləri harada bitir? Güclü və pullu insanların hegemonluq etdiyi bir dünyada həqiqəti ortaya çıxarmaq qəhrəmanlarımızdan hansı fədakarlıqları tələb edəcək? Sirlər, yalanlar və təhlükələrlə dolu bu "ov mövsümündə" əslində kim ov, kim isə ovçudur? Şiddət və intriqa dolu bu sualların cavabı filmin kəskin döngələrində və qaranlıq kadrlarında gizlidir.`
-    },  
-    {
-        id: 15,
-        title: "Nadide Hayat",
-        category: "Komediya",
-        year: 2015,
-        imdb: "6.3/10",
-        rottenTomatoes: "50%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Çağan Irmak",
-        actors: ["Demet Akbağ", "Yetkin Dikinciler", "Sevil Akı"],
-        poster: "https://m.media-amazon.com/images/M/MV5BNzk0OTcyMTM5MV5BMl5BanBnXkFtZTgwNzU4NTkyNzE@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/16142741735937",
-        description: `"Nadide Hayat" filmi gənc yaşlarında böyük xəyallarından, xüsusən də dəniz biologiyasına olan həvəsindən və təhsilindən imtina edərək evlənən, bütün həyatını ailəsinə həsr etmiş Nadide (Demet Akbağ) adlı qadının ilhamverici hekayəsindən bəhs edir. Həyat yoldaşının gözlənilməz ölümündən sonra Nadide 50 yaşından sonra təkbaşına qalır. Övladları və gəlini onun artıq sakit, klassik bir qocalar həyatı yaşamasını, evdə oturub toxuma toxumasını və nəvə gözləməsini təklif edirlər.
-
-Lakin Nadide bu monoton və sıxıcı həyatla barışmaq istəmir. O, daxilindəki yaşamaq sevinclərini və yarımçıq qalmış arzularını reallaşdırmaq üçün bir çıxış yolu axtarır. Təsadüfən televizorda universitetdən yarımçıq ayrılanlar üçün əfv qanunu çıxdığını öyrənən Nadide böyük bir cəsarət göstərərək illər əvvəl yarımçıq qoyduğu Dəniz Biologiyası fakültəsinə geri dönür.
-
-Yenidən tələbə olan Nadide özündən yaşca çox kiçik gənclərlə eyni partanı paylaşmağa başlayır. Hətta dənizdə aparılacaq xüsusi bir elmi tədqiqat ekspedisiyasına qoşulur. Təcrübə gəmisində onu sert, qapalı xarakterə malik Kapitan Yusif (Yetkin Dikinciler) və enerjili bir qrup gənc tələbə qarşılayır. Başlanğıcda həm kapitan, həm də gənclər bu yaşda bir qadının açıq dənizdə, çətin şərtlər altında nə işi olduğunu sorğulayırlar.
-
-Mavi dənizin ortasında, gözlənilməz hava şəraiti, fırtınalar və komik hadisələrlə dolu bu səyahətdə Nadide özünü yenidən kəşf etmək üçün mübarizə aparır. Bəs Nadide xəyallarının arxasınca gedərək ətrafındakı insanların həyatını və baxış bucağını necə dəyişəcək? İkinci baharını yaşamağa çalışan bir qadının bu əyləncəli və duyğulu dəniz macərası izləyiciyə hər yaşda yeni bir başlanğıcın mümkün olduğunu xatırladır.`
-    },
-    {
-        id: 16,
-        title: "Hadi Insallah",
-        category: "Komediya",
-        year: 2014,
-        imdb: "5.4/10",
-        rottenTomatoes: "42%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Ali Taner Baltacı",
-        actors: ["Büşra Pekin", "Murat Boz", "Şinasi Yurtsever"],
-        poster: "https://m.media-amazon.com/images/M/MV5BNDQ5MzUxNDQ2Ml5BMl5BanBnXkFtZTgwNDU3NjI1MzE@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/2040159537868",
-        description: `Hadi İnşallah" filmi məşhur fenomen Puccanın eyniadlı avtobioqrafik kitabına əsaslanır. Hekayə, 4 illik sevgilisi tərəfindən gözlənilməz şəkildə tərk edilən gənc qadın Puccanın (Büşra Pekin) dərin depressiyaya düşməsi ilə başlayır. Həyatı darmadağın olan Pucca özünü toplamaq üçün Ankaradan doğma şəhəri İzmirə, ailəsinin yanına qayıdır. Ailəsi və yaxınları onu bu məyusluqdan çıxarmaq üçün min bir yola əl atırlar.
-Həyatına yeni bir səhifə açmaq və özünə inamını bərpa etmək istəyən Pucca, bir yerli televiziya kanalında işə düzəlir. İşə başladığı ilk günlərdə o, həyatının axarını tamamilə dəyişdirəcək biri ilə – "Pekmez" ləqəbli son dərəcə yaraşıqlı, xarizmatik və diqqətçəkən fotoqraf (Murat Boz) ilə tanış olur.
-Pekmezi görən an ona aşiq olan Pucca, onun ürəyini fəth etmək üçün planlar qurmağa başlayır. Lakin Puccanın hədsiz həyəcanı, sakarlığı və rashid addımları onu hər dəfə bir-birindən gülməli, çaşdırıcı və komik vəziyyətlərin ortasına atır. Üstəlik, iş yerindəki rəqibləri və keçmiş münasibətindən qalan daxili qorxuları da bu çətin yolda onun qarşısına maneələr çıxarır.
-Bəs Pucca bu dəfə axtardığı əsl sevgini tapıb xoşbəxt ola biləcəkmi? Yoxsa hisslərinin arxasınca qaçarkən yeni bir xəyal qırıqlığı yaşayacaq? Bol qəhqəhəli, əyləncəli və dinamik ritmi ilə seçilən bu romantik-komediya hekayəsi tamaşaçılara həm bol təbəssüm, həm də səmimi anlar vəd edir.`
-    },   
-    {
-        id: 17,
-        title: "Iftarlik Gazoz",
-        category: "Dram",
-        year: 2016,
-        imdb: "7.3/10",
-        rottenTomatoes: "78%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Yüksel Aksu",
-        actors: ["Cem Yılmaz", "Berat Efe Parlar", "Ümmü Putgül"],
-        poster: "https://m.media-amazon.com/images/M/MV5BZWRjN2RjMDctZjFmYS00MmZkLWI5YzctZWExMDU1NDEwYzM1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/12460357388908",
-        description: `İftarlıq Qazoz" filmi 1970-ci illərin Egey qəsəbəsində, Egey insanının səmimiyyəti, istiqanlığı və nostalgia atmosferi fonunda cərəyan edir. Hekayənin mərkəzində ibtidai məktəbi əla qiymətlərlə bitirən, zəki, xəyalpərəst və çalışqan bir kənd uşağı olan Adəm (Berat Efe Parlar) dayanır. Yay tətilini boş keçirmək istəməyən Adəm, qəsəbənin rəngarəng və zarafatcıl qazoz satıcısı Cibar Kamalın (Cem Yılmaz) yanında usta yanında şagird (şagirdlik) kimi işləməyə başlayır.
-
-Sarımsaq və sarı qazoz qoxulu bu isti yay günlərində Adəm həm ustasından həyatın sirlərini, insanlarla ünsiyyəti öyrənir, həm də ilk dəfə məhəllənin qızlarından birinə qarşı platonik hisslər bəsləməyə başlayır. Lakin yayın ortasında müqəddəs Ramazan ayının gəlməsi ilə Adəmin həyatında böyük bir sınaq başlayır. Bütün böyüklərin oruc tutduğunu görən Adəm, kiçik yaşına və havanın dözülməz istisinə baxmayaraq, özünü sübut etmək üçün gizlicə oruc tutmağa qərar verir.
-
-Kəndin din xadimi "böyüklərin icazəsi olmadan tutulan orucun dözülməz olacağını" xəbərdar etsə də, Adəm bu qərarından dönmür. Günün altında, çiyinlərində ağır qazoz yeşikləri ilə sərin və buz kimi qazozları insanlara satarkən, daxilindəki susuzluq və aclıqla mübarizə aparmaq onun üçün əsl iradə sınağına çevrilir.
-
-Film bir tərəfdən kiçik bir uşağın böyümək və böyüklərə uyğunlaşmaq mübarizəsini göstərərkən, digər tərəfdən 1970-ci illər Türkiyəsinin ictimai-siyasi dəyişikliklərini, unudulmuş insani dəyərlərini və saf uşaqlıq dünyasını gözlər önüne sərir. İsti bir Egey yayında Adəmin bu kiçik, lakin böyük iradə mübarizəsi izləyiciyə həm təbəssüm, həm də dərin bir duyğusallıq bəxş edir.`
-    }, 
-    {
-        id: 18,
-        title: "Arif V 216",
-        category: "Komediya",
-        year: 2018,
-        imdb: "6.9/10",
-        rottenTomatoes: "65%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Kıvanç Baruönü",
-        actors: ["Cem Yılmaz", "Ozan Güven", "Seda Bakan", "Zafer Algöz"],
-        poster: "https://m.media-amazon.com/images/M/MV5BNGFkMmRkMzktNTkwYy00ZTA2LWJmYmItNzZlNWQxOWMwZmE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/9738969614964",
-        description: `Arif V 216" filmi məşhur "G.O.R.A." hekayəsinin davamı olaraq, kosmosa olan macərasını geridə qoyub Dünyada xalçaçılıq və antikvar alveri ilə məşğul olan Arifin (Cem Yılmaz) adi həyatı ilə başlayır. Lakin onun bu sakit həyatı kosmosdakı dostu, robot 216-nın (Ozan Güven) qəfil Dünyaya gəlməsi ilə alt-üst olur.
-
-216-nın böyük bir arzusu var: o, sadəcə metal parçası olan bir robot kimi deyil, hissləri olan, aşiq ola bilən həqiqi bir insan kimi yaşamaq istəyir. Arif dostunu insan həyatına alışdırmağa çalışsa da, 216-nın saf davranışı və robot xüsusiyyətləri gündəlik həyatda bir-birindən komik və xaos dolu vəziyyətlər yaradır.
-
-Hadisələrin gedişatı nəticəsində cütlük özlərini 1960-cı illərin sonlarında – Türkiyə kinosunun qızıl dövrü sayılan "Yeşilçam" atmosferinin tam mərkəzində tapır. 1969-cu ilin İstanbulunda 216 xəyalındakı insani hissləri yaşamağa, mahnılar oxumağa və görmə qüsurlu gənc bir qadına (Seda Bakan) aşiq olmağa başlayır. Lakin bu nostaljik və rəngarəng dünyada böyük bir təhlükə boy göstərir: gələcəkdən gələn bu üstün texnologiyalı robotu öz çirkin biznes planları üçün istifadə etmək istəyən tamahkar bir iş adamı 216-nın arxasınca düşür.
-
-Arif bir tərəfindən 1960-cı illərin qəribə şərtlərinə uyğunlaşmağa çalışarkən, digər tərəfdən dostu 216-nı təhlükədən qorumaq və zamanın axarını korlamadan gələcəyi xilas etmək məcburiyyətində qalır. Nostalji, musiqi və kəskin yumorla zəngin olan bu hekayə izləyicini unudulmaz bir Yeşilçam səyahətinə çıxarır.`
-    },
-    { 
-        id: 19,
-        title: "G.O.R.A.",
-        category: "Komediya",
-        year: 2004,
-        imdb: "8.0/10",
-        rottenTomatoes: "83%",
-        country: "Türkiyə",
-        language: "Türk dili",
-        director: "Ömer Faruk Sorak",
-        actors: ["Cem Yılmaz", "Rasim Öztekin", "Özge Özberk", "Ozan Güven"],
-        poster: "https://m.media-amazon.com/images/M/MV5BMjE0MTY2MDI3NV5BMl5BanBnXkFtZTcwNTc1MzEzMQ@@._V1_FMjpg_UX1000_.jpg",
-        iframe: "https://ok.ru/videoembed/89184471662",
-        description: `G.O.R.A." filmi Türkiyənin turistik şəhəri Antalyada xalçaçılıq, saxta UFO fotoşəkilləri və suvenir satışı ilə məşğul olan, hiyləgər, hazırcavab və bir o qədər də fırıldaqçı Arif Işıkın (Cem Yılmaz) gülməli hekayəsindən bəhs edir. İnsanları kosmik varlıqların olduğuna inandırıb pul qazanmağa çalışan Arifin həyatı, gözlənilməz bir anda həqiqi yadplanetlilər tərəfindən qaçırılması ilə tamamilə dəyişir.
-
-Arif özünü Kainatın uzaq bir guşəsində yerləşən, azadlıqların məhdudlaşdırıldığı və qəribə qaydaların hökm sürdüyü G.O.R.A. planetində bir məhbus kimi tapır. Planetin qəddar və iddialı komandiri Logar (Cem Yılmaz) insanları və digər varlıqları kölə kimi işlədir. Lakin Arif gözlənilməz kəskin zəkası, Türk insanına xas pratik həll yolları və hazırcavablığı ilə tezliklə zindandakı digər yadplanetli məhbusların diqqətini çəkir.
-
-G.O.R.A. planetində böyük bir fəlakət baş verərkən Arif təsadüfən planetin kraliçası Ceku (Özge Özberk) və robot 216 (Ozan Güven) ilə tanış olur. Əvvəlcə yalnız Dünyaya, doğma Antalyasına qayıtmaq üçün planlar quran Arif, Komandir Logarın planlaşdırdığı böyük xəyanəti öyrənir. İndi o, həm öz azadlığını qazanmaq, həm Cekunun sevgisini fəth etmək, həm də bütün planeti Logarın çirkin əməllərindən xilas etmək üçün təhlükəli və bir o qədər əyləncəli bir mübarizəyə başlamalıdır.
-
-Elmi-fantastika janrını parlaq yumorla harmanlayan bu epos hekayə, Arifin kosmosun dərinliklərində göstərdiyi ağlasığmaz fəndlər və replikaları ilə izləyicilərə unudulmaz bir komediya ziyafəti təqdim edir.`
-    }
-    ];  
-
-    let currentCategory = 'Hamısı';
-    let currentSearch = '';
-
-    // Render Funksiyası - Yenilənmiş Geniş Filtrləmə və Sıralama İlə
-    function renderMovies() {
-      const grid = document.getElementById("moviesGrid");
-      if (!grid) return;
-      grid.innerHTML = "";
-
-      const actorSearch = document.getElementById("actorInput") ? document.getElementById("actorInput").value.toLowerCase() : "";
-      const directorSearch = document.getElementById("directorInput") ? document.getElementById("directorInput").value.toLowerCase() : "";
-      const selectedYear = document.getElementById("yearSelect") ? document.getElementById("yearSelect").value : "";
-      const selectedCountry = document.getElementById("countrySelect") ? document.getElementById("countrySelect").value : "";
-      const selectedLanguage = document.getElementById("languageSelect") ? document.getElementById("languageSelect").value : "";
-      const sortType = document.getElementById("sortSelect") ? document.getElementById("sortSelect").value : "default";
-
-      let filteredMovies = moviesData.filter(movie => {
-        // Əsas Janr və Ümumi Axtarış
-        const matchesCategory = currentCategory === 'Hamısı' || movie.category === currentCategory;
-        
-        const mainSearchText = currentSearch.toLowerCase();
-        const matchesMainSearch = !mainSearchText || 
-          movie.title.toLowerCase().includes(mainSearchText) ||
-          (movie.director && movie.director.toLowerCase().includes(mainSearchText)) ||
-          (movie.actors && movie.actors.some(a => a.toLowerCase().includes(mainSearchText)));
-
-        // Ətraflı Axtarış Filtrləri
-        const matchesActor = !actorSearch || (movie.actors && movie.actors.some(a => a.toLowerCase().includes(actorSearch)));
-        const matchesDirector = !directorSearch || (movie.director && movie.director.toLowerCase().includes(directorSearch));
-        const matchesYear = !selectedYear || movie.year.toString() === selectedYear;
-        const matchesCountry = !selectedCountry || movie.country === selectedCountry;
-        const matchesLanguage = !selectedLanguage || movie.language === selectedLanguage;
-
-        return matchesCategory && matchesMainSearch && matchesActor && matchesDirector && matchesYear && matchesCountry && matchesLanguage;
-      });
-
-      // Sıralama məntiqi (IMDB, Rotten Tomatoes, İllər)
-      if (sortType === 'imdb-desc') {
-        filteredMovies.sort((a, b) => parseFloat(b.imdb) - parseFloat(a.imdb));
-      } else if (sortType === 'imdb-asc') {
-        filteredMovies.sort((a, b) => parseFloat(a.imdb) - parseFloat(b.imdb));
-      } else if (sortType === 'rt-desc') {
-        filteredMovies.sort((a, b) => parseInt(b.rottenTomatoes) - parseInt(a.rottenTomatoes));
-      } else if (sortType === 'rt-asc') {
-        filteredMovies.sort((a, b) => parseInt(a.rottenTomatoes) - parseInt(b.rottenTomatoes));
-      } else if (sortType === 'year-desc') {
-        filteredMovies.sort((a, b) => b.year - a.year);
-      } else if (sortType === 'year-asc') {
-        filteredMovies.sort((a, b) => a.year - b.year);
-      }
-
-      if (filteredMovies.length === 0) {
-        grid.innerHTML = `<div class="no-results">Axtarışınıza və ya filtrlərinizə uyğun nəticə tapılmadı.</div>`;
-        return;
-      }
-
-      filteredMovies.forEach(movie => {
-        const card = document.createElement("div");
-        card.className = "movie-card";
-        card.onclick = function(e) {
-          if (!e.target.closest('.watch-btn')) {
-            openVideoModal(movie.id);
-          }
-        };
-        card.innerHTML = `
-          <div class="movie-poster-wrap">
-            <span class="movie-badge"><i class="fas fa-star"></i> ${movie.imdb}</span>
-            ${movie.rottenTomatoes ? `<span class="movie-badge rt-badge"><i class="fas fa-apple-alt"></i> ${movie.rottenTomatoes}</span>` : ''}
-            <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" loading="lazy">
-          </div>
-          <div class="movie-info">
-            <div class="movie-meta">
-              <span>${movie.year}</span>
-              <span>${movie.category}</span>
-            </div>
-            <div class="movie-submeta">
-              <span>${movie.country || ''}</span>
-              <span>${movie.language || ''}</span>
-            </div>
-            <h3 class="movie-title">${movie.title}</h3>
-            <button class="watch-btn" onclick="event.stopPropagation(); openVideoModal(${movie.id})">
-              <i class="fas fa-play"></i> İzlə
-            </button>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', renderMovies);
-    } else {
-      renderMovies();
-    }
-    window.addEventListener('load', renderMovies);
-
-    function handleFilter(category, btnElement) {
-      currentCategory = category;
-      document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
-      btnElement.classList.add("active");
-      renderMovies();
-    }
-
-    function handleFilterChange() {
-      renderMovies();
-    }
-
-    // Ətraflı Axtarış Paneli Aç/Bağla
-    function toggleAdvancedSearch() {
-      const panel = document.getElementById("advancedSearchPanel");
-      panel.classList.toggle("active");
-    }
-
-    // Autocomplete və Giriş Nəzarəti
-    function handleSearchInput(e) {
-      currentSearch = e.target.value;
-      renderMovies();
-      renderAutocomplete(currentSearch);
-    }
-
-    function renderAutocomplete(query) {
-      const box = document.getElementById("autocompleteBox");
-      if (!query.trim()) {
-        box.classList.remove("active");
-        box.innerHTML = "";
-        return;
-      }
-
-      const val = query.toLowerCase();
-      let matches = [];
-
-      moviesData.forEach(m => {
-        if (m.title.toLowerCase().includes(val)) {
-          matches.push({ title: m.title, type: "Film" });
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maqalux - Film və Serial Platforması</title>
+    <!-- FontAwesome İkonları -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS DƏYİŞƏNLƏRİ (Mövzu / Theme) */
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-color: #e11d48;
+            --accent-hover: #be123c;
+            --border-color: #334155;
+            --modal-bg: rgba(15, 23, 42, 0.95);
         }
-        if (m.director && m.director.toLowerCase().includes(val)) {
-          matches.push({ title: `${m.director} (Rejissor)`, type: "Rejissor", queryText: m.director });
+
+        [data-theme="light"] {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --accent-color: #e11d48;
+            --accent-hover: #be123c;
+            --border-color: #e2e8f0;
+            --modal-bg: rgba(255, 255, 255, 0.95);
         }
-        if (m.actors) {
-          m.actors.forEach(actor => {
-            if (actor.toLowerCase().includes(val) && !matches.some(x => x.title.includes(actor))) {
-              matches.push({ title: `${actor} (Aktyor)`, type: "Aktyor", queryText: actor });
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* YÜKLƏNMƏ EKRANI (PRELOADER) */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--border-color);
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* HEADER & NAVIGATION */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            width: 300px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            width: 100%;
+            margin-left: 8px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* MAIN CONTENT & FILTER */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        /* MOVIE GRID */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 1rem;
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .imdb-rating {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        /* MODAL (PLAYER & AUTH) */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 1.2rem;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            background: #000;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .modal-details {
+            padding: 1.5rem;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .search-box {
+                display: none;
             }
-          });
+            .nav-container {
+                padding: 0 0.5rem;
+            }
         }
-      });
+    </style>
+</head>
+<body>
 
-      if (matches.length === 0) {
-        box.classList.remove("active");
-        box.innerHTML = "";
-        return;
-      }
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="spinner"></div>
+        <h2>Maqalux Yüklənir...</h2>
+    </div>
 
-      box.innerHTML = "";
-      matches.slice(0, 6).forEach(item => {
-        const div = document.createElement("div");
-        div.className = "autocomplete-item";
-        div.innerHTML = `<span>${item.title}</span><span class="item-type">${item.type}</span>`;
-        div.onclick = function() {
-          const textToSearch = item.queryText || item.title.split(' (')[0];
-          document.getElementById("movieSearch").value = textToSearch;
-          currentSearch = textToSearch;
-          box.classList.remove("active");
-          renderMovies();
-        };
-        box.appendChild(div);
-      });
-      box.classList.add("active");
-    }
+    <!-- HEADER -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-play"></i> Maqalux
+            </a>
+            
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+                <input type="text" id="searchInput" placeholder="Film, aktyor və ya kateqoriya axtar...">
+            </div>
 
-    // Autocomplete xaricində kliklədikdə pəncərəni bağla
-    document.addEventListener("click", function(e) {
-      if (!e.target.closest(".search-bar-container")) {
-        const box = document.getElementById("autocompleteBox");
-        if (box) box.classList.remove("active");
-      }
-    });
+            <div class="nav-actions">
+                <button class="btn-icon" id="themeToggle" title="Mövzunu Dəyiş">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="btn" id="loginBtn">Giriş Şəxsi Kabinet</button>
+            </div>
+        </div>
+    </header>
 
-    // Səsli Axtarış (Voice Search)
-    function startVoiceSearch() {
-      const btn = document.getElementById("voiceSearchBtn");
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    <!-- MAIN CONTENT -->
+    <main>
+        <div class="filter-section" id="filterSection">
+            <button class="filter-btn active" data-category="all">Hamısı</button>
+            <button class="filter-btn" data-category="Aksiya">Aksiya</button>
+            <button class="filter-btn" data-category="Dram">Dram</button>
+            <button class="filter-btn" data-category="Elmi-Kütləvi">Elmi-Kütləvi</button>
+            <button class="filter-btn" data-category="Komediya">Komediya</button>
+        </div>
 
-      if (!SpeechRecognition) {
-        showToast("Səslə axtarış bu brauzerdə dəstəklənmir.", "error");
-        return;
-      }
+        <div class="movie-grid" id="movieGrid">
+            <!-- Filmlər JS vasitəsilə bura render olunacaq -->
+        </div>
+    </main>
 
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'az-AZ';
-      if (!recognition.lang) recognition.lang = 'tr-TR';
+    <!-- VIDEO PLAYER MODAL -->
+    <div class="modal" id="playerModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closePlayer">&times;</button>
+            <div class="video-container">
+                <iframe id="videoIframe" src="" allowfullscreen></iframe>
+            </div>
+            <div class="modal-details">
+                <h2 id="modalTitle">Film Adı</h2>
+                <p id="modalMeta" style="color: var(--text-muted); margin: 0.5rem 0;"></p>
+                <p id="modalDesc">Film haqqında ətraflı məlumat...</p>
+            </div>
+        </div>
+    </div>
 
-      recognition.onstart = function() {
-        btn.classList.add("listening");
-        showToast("Dinlənilir... Danışın", "info", 2500);
-      };
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 Maqalux Platforması. Bütün hüquqlar qorunur.</p>
+    </footer>
 
-      recognition.onspeechend = function() {
-        btn.classList.remove("listening");
-        recognition.stop();
-      };
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // FILM BAZASI (moviesData)
+        const moviesData = [
+            {
+                id: 1,
+                title: "Alita: Battle Angel",
+                category: "Elmi-Kütləvi",
+                year: 2019,
+                imdb: 7.3,
+                poster: "https://m.media-amazon.com/images/M/MVBMTc2Mzc2OTM5NV5BMl5BanBnXkFtZTgwMTIxNTQ2NzM@._V1_.jpg",
+                videoUrl: "https://www.youtube.com/embed/w7pYhpJa900",
+                description: "Tərk edilmiş kiber-qız yeni bir bədəndə ayılır və keçmişini xatırlamağa çalışır."
+            },
+            {
+                id: 2,
+                title: "Güneşi Gördüm",
+                category: "Dram",
+                year: 2009,
+                imdb: 6.5,
+                poster: "https://m.media-amazon.com/images/M/MVBMTY4ODg4OTI4NV5BMl5BanBnXkFtZTcwMjI5Njg3Mg@@._V1_.jpg",
+                videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", 
+                description: "Məcburi köçkünlük və ailə faciələrini əks etdirən təsirli bir dram filmi."
+            },
+            {
+                id: 3,
+                title: "Spider-Man: No Way Home",
+                category: "Aksiya",
+                year: 2021,
+                imdb: 8.2,
+                poster: "https://m.media-amazon.com/images/M/MVBMTWE5M2Y3MDEtYzA3Ni00M2VkLWEwODctODE4NDE4M2MwN2JmXkEyXkFqcGc@._V1_.jpg",
+                videoUrl: "https://www.youtube.com/embed/R392x1G3yOk",
+                description: "Pitər Parkering şəxsiyyəti ifşa olunur və o, Doktor Strencə müraciət edir."
+            },
+            {
+                id: 4,
+                title: "G.O.R.A.",
+                category: "Komediya",
+                year: 2004,
+                imdb: 8.0,
+                poster: "https://m.media-amazon.com/images/M/MVBMTI0NTg2NTc5NV5BMl5BanBnXkFtZTcwMTA1NTUyMQ@@._V1_.jpg",
+                videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                description: "Arif adlı xalçaçının yadplanetlilər tərəfindən qaçırılması və kosmosdakı macəraları."
+            }
+        ];
 
-      recognition.onresult = function(event) {
-        btn.classList.remove("listening");
-        const transcript = event.results[0][0].transcript;
-        document.getElementById("movieSearch").value = transcript;
-        currentSearch = transcript;
-        showToast(`Axtarılır: "${transcript}"`, "success");
-        renderMovies();
-      };
+        // SƏHİFƏ YÜKLƏNDİKDƏ İŞƏ DÜŞƏN ƏSAS MƏNTİQ
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. PRELOADER FUNKSİYASI (Səhifənin donub qalmasını tam həll edən hissə)
+            const preloader = document.getElementById('preloader');
+            
+            function hidePreloader() {
+                if (preloader && preloader.style.display !== 'none') {
+                    preloader.style.opacity = '0';
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                    }, 500);
+                }
+            }
 
-      recognition.onerror = function(event) {
-        btn.classList.remove("listening");
-        showToast("Səs tanınmadı, yenidən cəhd edin.", "error");
-      };
+            // Səhifə tam yükləndikdə loader-i bağla
+            window.addEventListener('load', hidePreloader);
+            
+            // Məcburi Taymer (Fallback): Səhifə gec yüklənsə belə max 1.5 saniyə sonra bağlayır
+            setTimeout(hidePreloader, 1500);
 
-      recognition.start();
-    }
 
-    function openVideoModal(id) {
-      const movie = moviesData.find(m => m.id === id);
-      if (!movie) return;
+            // 2. FILMLƏRIN DOM-A RENDER OLUNMASI
+            const movieGrid = document.getElementById('movieGrid');
 
-      document.getElementById("videoModalTitle").innerText = movie.title;
-      document.getElementById("videoModalDesc").innerText = movie.description;
-      document.getElementById("videoIframe").src = movie.iframe;
-      
-      const tagsContainer = document.getElementById("videoModalTags");
-      tagsContainer.innerHTML = `
-        <span class="video-tag">${movie.year}</span>
-        <span class="video-tag">${movie.category}</span>
-        <span class="video-tag"><i class="fas fa-star" style="color:#FFD700"></i> ${movie.imdb}</span>
-        ${movie.rottenTomatoes ? `<span class="video-tag"><i class="fas fa-apple-alt" style="color:#ff5252"></i> ${movie.rottenTomatoes}</span>` : ''}
-        ${movie.director ? `<span class="video-tag">Rejissor: ${movie.director}</span>` : ''}
-      `;
+            function displayMovies(movies) {
+                movieGrid.innerHTML = '';
+                if (movies.length === 0) {
+                    movieGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Hеç bir film tapılmadı.</p>`;
+                    return;
+                }
 
-      document.getElementById("videoModalOverlay").classList.add("active");
-    }
+                movies.forEach(movie => {
+                    const card = document.createElement('div');
+                    card.className = 'movie-card';
+                    card.innerHTML = `
+                        <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x450?text=Şəkil+Yoxdur'">
+                        <div class="movie-info">
+                            <h3 class="movie-title">${movie.title}</h3>
+                            <div class="movie-meta">
+                                <span>${movie.year} • ${movie.category}</span>
+                                <span class="imdb-rating"><i class="fa-solid fa-star"></i> ${movie.imdb}</span>
+                            </div>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => openPlayerModal(movie));
+                    movieGrid.appendChild(card);
+                });
+            }
 
-    function closeVideoModal() {
-      document.getElementById("videoModalOverlay").classList.remove("active");
-      setTimeout(() => {
-        document.getElementById("videoIframe").src = "";
-      }, 300);
-    }
+            // İlkin olaraq bütün filmləri göstər
+            displayMovies(moviesData);
 
-    function toggleFullscreenVideo() {
-      const iframe = document.getElementById('videoIframe');
-      if (!iframe) return;
-      try {
-        if (iframe.requestFullscreen) {
-          iframe.requestFullscreen().catch(() => {});
-        } else if (iframe.webkitRequestFullscreen) {
-          iframe.webkitRequestFullscreen();
-        } else if (iframe.msRequestFullscreen) {
-          iframe.msRequestFullscreen();
-        } else {
-          const container = iframe.closest('.video-container');
-          if (container && container.requestFullscreen) {
-            container.requestFullscreen().catch(() => {});
-          } else {
-            console.warn('Fullscreen dəstəklənmir.');
-          }
-        }
-      } catch (e) {
-        console.warn('Fullscreen xətası:', e);
-      }
-    }
-  </script>
 
-  <!-- AUTH VƏ ORTAQ SİSTEM SCRIPTİ -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCHH-f2VT4CVMlnnQZDf6e5w3nj2B7Ay78",
-      authDomain: "maqalux-chat.firebaseapp.com",
-      databaseURL: "https://maqalux-chat-default-rtdb.firebaseio.com",
-      projectId: "maqalux-chat",
-      storageBucket: "maqalux-chat.firebasestorage.app",
-      messagingSenderId: "127120270719",
-      appId: "1:127120270719:web:7b036b7e27a06f71dee64a"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-    const IMGBB_API_KEY = "f1900369f20ec530cb390fc20be7cf8a";
+            // 3. AXTARIŞ (SEARCH) MƏNTİQİ
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = moviesData.filter(movie => 
+                    movie.title.toLowerCase().includes(term) || 
+                    movie.category.toLowerCase().includes(term)
+                );
+                displayMovies(filtered);
+            });
 
-    let currentUserData = null;
 
-    function showToast(msg, type='info', dur=4000) {
-      const c = document.getElementById('toastContainer');
-      const t = document.createElement('div');
-      t.className = `toast toast-${type}`;
-      t.innerText = msg;
-      c.appendChild(t);
-      requestAnimationFrame(() => t.classList.add('show'));
-      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, dur);
-    }
+            // 4. KATEQORİYA FİLTRİ
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
 
-    function togglePasswordVisibility(id, el) {
-      const inp = document.getElementById(id);
-      if (!inp) return;
-      if (inp.type === 'password') { inp.type = 'text'; el.innerText = '🙈'; }
-      else { inp.type = 'password'; el.innerText = '👁️'; }
-    }
+                    const category = btn.getAttribute('data-category');
+                    if (category === 'all') {
+                        displayMovies(moviesData);
+                    } else {
+                        const filtered = moviesData.filter(m => m.category === category);
+                        displayMovies(filtered);
+                    }
+                });
+            });
 
-    function toggleAuthForms(mode) {
-      document.getElementById('loginFormCard').style.display = mode === 'register' ? 'none' : 'flex';
-      document.getElementById('registerFormCard').style.display = mode === 'register' ? 'flex' : 'none';
-    }
 
-    function toggleDropdown(e) {
-      e.stopPropagation();
-      document.getElementById('dropdownMenu').classList.toggle('active');
-    }
-    function closeAvatarDropdownMenu() {
-      document.getElementById('dropdownMenu').classList.remove('active');
-      document.getElementById('dropdownLevel1').style.display = 'block';
-      document.getElementById('dropdownLevel2').style.display = 'none';
-    }
-    function showSettingsLevel() {
-      document.getElementById('dropdownLevel1').style.display = 'none';
-      document.getElementById('dropdownLevel2').style.display = 'block';
-    }
-    function backToAvatarMenu() {
-      document.getElementById('dropdownLevel2').style.display = 'none';
-      document.getElementById('dropdownLevel1').style.display = 'block';
-    }
-    function viewOwnAvatarLarge() {
-      closeAvatarDropdownMenu();
-      openImageViewer(document.getElementById('headerAvatar').src);
-    }
-    function openImageViewer(url) {
-      document.getElementById('imageViewerImg').src = url;
-      document.getElementById('imageViewerOverlay').classList.add('active');
-    }
-    function closeImageViewer() {
-      document.getElementById('imageViewerOverlay').classList.remove('active');
-      document.getElementById('imageViewerImg').src = '';
-    }
-    document.addEventListener('click', function(e) {
-      const menu = document.getElementById('dropdownMenu');
-      if (menu && menu.classList.contains('active') && !e.target.closest('.header-right')) {
-        closeAvatarDropdownMenu();
-      }
-    });
+            // 5. MOOD / THEME TOGGLE (Qaranlıq / İşıqlı rejim)
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                if (currentTheme === 'light') {
+                    document.body.removeAttribute('data-theme');
+                    themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+                } else {
+                    document.body.setAttribute('data-theme', 'light');
+                    themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+                }
+            });
 
-    function toggleMobileNav(e) {
-      e.stopPropagation();
-      document.querySelector('nav').classList.toggle('mobile-nav-open');
-    }
-    document.addEventListener('click', function(e) {
-      const navEl = document.querySelector('nav');
-      if (navEl && navEl.classList.contains('mobile-nav-open') && !e.target.closest('nav') && !e.target.closest('.hamburger-btn')) {
-        navEl.classList.remove('mobile-nav-open');
-      }
-    });
 
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.innerText = str == null ? '' : String(str);
-      return div.innerHTML;
-    }
+            // 6. VIDEO PLAYER MODAL MƏNTİQİ
+            const playerModal = document.getElementById('playerModal');
+            const closePlayer = document.getElementById('closePlayer');
+            const videoIframe = document.getElementById('videoIframe');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMeta = document.getElementById('modalMeta');
+            const modalDesc = document.getElementById('modalDesc');
 
-    let msgInboxRef = null;
-    let msgConversations = {};
+            function openPlayerModal(movie) {
+                videoIframe.src = movie.videoUrl + "?autoplay=1";
+                modalTitle.textContent = movie.title;
+                modalMeta.textContent = `${movie.year} | ${movie.category} | IMDb: ${movie.imdb}`;
+                modalDesc.textContent = movie.description;
+                playerModal.style.display = 'flex';
+            }
 
-    function toggleMsgDropdown(e) {
-      e.stopPropagation();
-      const panel = document.getElementById('msgDropdownPanel');
-      const willOpen = !panel.classList.contains('active');
-      panel.classList.toggle('active');
-      if (willOpen && window.innerWidth <= 700) {
-        const headerEl = document.querySelector('header');
-        const rect = headerEl.getBoundingClientRect();
-        panel.style.position = 'fixed';
-        panel.style.top = (rect.bottom + 8) + 'px';
-        panel.style.left = '50%';
-        panel.style.right = 'auto';
-        panel.style.transform = 'translateX(-50%)';
-        panel.style.width = '92vw';
-        panel.style.maxWidth = '380px';
-      } else {
-        panel.style.position = ''; panel.style.top = ''; panel.style.left = ''; panel.style.right = ''; panel.style.transform = '';
-      }
-    }
-  </script>
+            function closePlayerModal() {
+                playerModal.style.display = 'none';
+                videoIframe.src = ''; // Videonu saxlayır
+            }
+
+            closePlayer.addEventListener('click', closePlayerModal);
+            
+            // Modal kənarına tıklandıqda bağlamaq
+            window.addEventListener('click', (e) => {
+                if (e.target === playerModal) {
+                    closePlayerModal();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
