@@ -3505,8 +3505,9 @@ connectedRef.on('value', (snap) => {
         }
 
         function markAllConversationRead(targetNick) {
-            const msgs = privateMessagesByNick[targetNick] || [];
-            msgs.forEach(msg => {
+            // Yerli yaddaşdakı (yüklənmiş) mesajları dərhal işarələ
+            const cached = privateMessagesByNick[targetNick] || [];
+            cached.forEach(msg => {
                 if (msg.sender === currentUserData.nick || !msg.id) return;
                 const readBy = msg.readBy || [];
                 if (readBy.includes(currentUserData.nick)) return;
@@ -3514,6 +3515,22 @@ connectedRef.on('value', (snap) => {
                     list = list || [];
                     if (!list.includes(currentUserData.nick)) list.push(currentUserData.nick);
                     return list;
+                });
+            });
+
+            // Bundan əlavə, Firebase-dən BÜTÜN söhbəti (yerli yaddaşda olmayanlar daxil,
+            // məs. çox köhnə, heç vaxt yüklənməmiş mesajlar) birbaşa sorğula və onları da işarələ.
+            db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value').then(snap => {
+                snap.forEach(child => {
+                    const m = child.val();
+                    if (m.recipient !== currentUserData.nick) return;
+                    const readBy = m.readBy || [];
+                    if (readBy.includes(currentUserData.nick)) return;
+                    db.ref(`privateMessages/${child.key}/readBy`).transaction((list) => {
+                        list = list || [];
+                        if (!list.includes(currentUserData.nick)) list.push(currentUserData.nick);
+                        return list;
+                    });
                 });
             });
         }
