@@ -1,0 +1,99 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        "isBanned": {
+          ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'moderator')"
+        },
+        "fcmTokens": {
+          "$token": {
+            ".write": "auth != null && auth.uid == $uid"
+          }
+        }
+      }
+    },
+    "usernameToEmail": {
+      ".read": true,
+      "$nick": {
+        ".write": "auth != null"
+      }
+    },
+    "messages": {
+      ".read": "auth != null",
+      "$msgId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('sender').val() == root.child('users').child(auth.uid).child('nick').val()) || (data.exists() && data.child('sender').val() == root.child('users').child(auth.uid).child('nick').val()) || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'moderator')",
+        "reactions": {
+          "$nick": {
+            ".write": "auth != null && $nick == root.child('users').child(auth.uid).child('nick').val()"
+          }
+        },
+        "deliveredTo": {
+          ".write": "auth != null"
+        },
+        "readBy": {
+          ".write": "auth != null"
+        }
+      }
+    },
+    "privateMessages": {
+      ".read": "auth != null",
+      ".indexOn": ["timestamp", "sender", "recipient"],
+      "$msgId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('sender').val() == root.child('users').child(auth.uid).child('nick').val()) || (data.exists() && data.child('sender').val() == root.child('users').child(auth.uid).child('nick').val()) || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        "reactions": {
+          "$nick": {
+            ".write": "auth != null && $nick == root.child('users').child(auth.uid).child('nick').val()"
+          }
+        },
+        "deliveredTo": {
+          ".write": "auth != null"
+        },
+        "readBy": {
+          ".write": "auth != null"
+        }
+      }
+    },
+    "typing": {
+      ".read": "auth != null",
+      "$nick": {
+        ".write": "auth != null && $nick == root.child('users').child(auth.uid).child('nick').val()"
+      }
+    },
+    "friendships": {
+      ".read": "auth != null",
+      ".indexOn": ["status", "sender", "recipient"],
+      "$uid": {
+        "$friendUid": {
+          ".write": "auth != null && ($uid == auth.uid || $friendUid == auth.uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+          "status": {
+            ".validate": "newData.val() == 'pending' || newData.val() == 'accepted' || newData.val() == 'rejected' || newData.val() == 'blocked'"
+          },
+          "timestamp": {
+            ".validate": "newData.isNumber()"
+          }
+        }
+      }
+    },
+    "friendRequests": {
+      ".read": "auth != null",
+      ".indexOn": ["recipient", "sender", "timestamp"],
+      "$requestId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('sender').val() == auth.uid) || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        "sender": {
+          ".validate": "newData.isString()"
+        },
+        "recipient": {
+          ".validate": "newData.isString()"
+        },
+        "status": {
+          ".validate": "newData.val() == 'pending' || newData.val() == 'accepted' || newData.val() == 'rejected'"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    }
+  }
+}
