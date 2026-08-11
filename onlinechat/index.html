@@ -187,6 +187,18 @@
         .msg-conv-preview { font-size: 12px; color: var(--text-55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
         .msg-conv-item.unread .msg-conv-preview { color: var(--text-main); opacity: 0.85; }
         .msg-conv-dot { min-width: 17px; height: 17px; padding: 0 5px; border-radius: 9px; background: #ffaa00; color: #030714; font-size: 10.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .friend-req-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border-10); }
+        .friend-req-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,170,0,0.3); }
+        .friend-req-info { flex: 1; min-width: 0; font-size: 13px; color: var(--text-main); }
+        .friend-req-actions { display: flex; gap: 6px; margin-top: 6px; }
+        .friend-req-btn { border: none; border-radius: 14px; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .friend-req-btn.accept { background: linear-gradient(90deg, #2ecc71, #27ae60); color: white; }
+        .friend-req-btn.reject { background: var(--panel-08); color: var(--text-main); }
+        .friend-modal-box { background: var(--dropdown-bg); border: 1px solid var(--border-12); border-radius: 20px; padding: 26px; width: 100%; max-width: 340px; text-align: center; }
+        .friend-modal-avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00; margin-bottom: 14px; }
+        .friend-modal-text { color: var(--text-main); font-size: 15px; margin-bottom: 20px; }
+        .friend-modal-actions { display: flex; gap: 10px; }
+        .friend-modal-actions button { flex: 1; border: none; border-radius: 24px; padding: 12px; font-weight: 700; cursor: pointer; font-size: 14px; }
 
         nav ul {
             list-style: none;
@@ -491,6 +503,111 @@
         }
 
         /* Yan panel */
+        .main-view-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--panel-08);
+            flex-shrink: 0;
+        }
+        .main-view-tab {
+            flex: 1;
+            background: var(--panel-06);
+            border: 1px solid var(--border-10);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .main-view-tab.active {
+            background: linear-gradient(90deg, #ffc107, #ff9800);
+            color: #06163a;
+            border-color: transparent;
+        }
+        .friends-list-view {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .friend-list-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-50);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .friend-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--panel-05);
+            transition: background 0.2s;
+        }
+        .friend-row:hover {
+            background: var(--panel-06);
+        }
+        .friend-row-avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+        .friend-row-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+        .friend-row-online-dot {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #555;
+            border: 2px solid var(--dropdown-bg);
+        }
+        .friend-row-online-dot.is-online {
+            background: #2ecc71;
+        }
+        .friend-row-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .friend-row-name {
+            font-weight: 700;
+            font-size: 14.5px;
+            color: var(--text-main);
+        }
+        .friend-row-preview {
+            font-size: 12.5px;
+            color: var(--text-55);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+        .friend-row-preview.unread {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        .friend-row-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        .friend-row-time {
+            font-size: 11px;
+            color: var(--text-50);
+        }
         .sidebar-users {
             width: 220px;
             background: rgba(var(--surface-rgb), 0.3);
@@ -2084,6 +2201,16 @@
             </ul>
         </nav>
         <div class="header-right">
+            <div class="msg-icon-wrap" id="friendReqIconWrap" onclick="toggleFriendReqDropdown(event)">
+                <i class="fas fa-user-group msg-icon"></i>
+                <span class="msg-badge hidden" id="friendReqBadgeCount">0</span>
+                <div class="msg-dropdown" id="friendReqDropdownPanel">
+                    <div class="msg-dropdown-header">Dostluq sorğuları</div>
+                    <div class="msg-dropdown-list" id="friendReqDropdownList">
+                        <div class="msg-dropdown-empty">Sorğu yoxdur</div>
+                    </div>
+                </div>
+            </div>
             <div class="msg-icon-wrap" id="msgIconWrap" onclick="toggleMsgDropdown(event)">
                 <i class="far fa-paper-plane msg-icon"></i>
                 <span class="msg-badge hidden" id="msgBadgeCount">0</span>
@@ -2139,7 +2266,16 @@
                     <button class="logout-btn" onclick="handleLogout()">Çıxış</button>
                 </div>
 
-                <div class="chat-body">
+                <div class="main-view-tabs">
+                    <button class="main-view-tab active" id="tabBtnFriends" onclick="switchMainView('friends')">👥 Dostlar</button>
+                    <button class="main-view-tab" id="tabBtnGeneral" onclick="switchMainView('general')">💬 Ümumi çat</button>
+                </div>
+
+                <div class="friends-list-view" id="friendsListView">
+                    <div id="friendsListContainer"></div>
+                </div>
+
+                <div class="chat-body" id="generalChatBody" style="display:none;">
                     <div class="messages-area" id="chatMessagesArea"></div>
                     <div class="sidebar-users">
                         <h4>Aktiv istifadəçilər</h4>
@@ -2167,7 +2303,7 @@
                 </div>
 
                 <!-- Input Bar -->
-                <div class="input-bar" style="position: relative;">
+                <div class="input-bar" id="generalInputBar" style="position: relative; display:none;">
                     <div id="mentionSuggestions" class="mention-suggestions" style="display:none;"></div>
                     <div class="input-pill">
                         <div class="pill-icon-btn" title="Stiker və GIF" onclick="toggleStickerPanel('main')">😊</div>
@@ -2215,6 +2351,18 @@
             <div class="forward-preview" id="forwardPreview"></div>
             <input type="text" id="forwardSearchInput" class="custom-input" placeholder="İstifadəçi axtar..." oninput="renderForwardTargetList(this.value)">
             <div class="forward-target-list" id="forwardTargetList"></div>
+        </div>
+    </div>
+
+    <!-- Dostluq sorğusu Modal (avtomatik göstərilir) -->
+    <div class="modal-overlay" id="friendRequestModal">
+        <div class="friend-modal-box">
+            <img id="friendReqModalAvatar" class="friend-modal-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+            <div class="friend-modal-text"><b id="friendReqModalName"></b> səninlə dost olmaq istəyir</div>
+            <div class="friend-modal-actions">
+                <button style="background: var(--panel-08); color: var(--text-main);" onclick="rejectFriendRequestModal()">Rədd et</button>
+                <button style="background: linear-gradient(90deg, #2ecc71, #27ae60); color: white;" onclick="acceptFriendRequestModal()">Qəbul et</button>
+            </div>
         </div>
     </div>
 
@@ -2460,6 +2608,232 @@
                 panel.classList.remove('active');
             }
         });
+
+        // === DOSTLUQ SİSTEMİ ===
+        let myFriends = {};
+        let incomingFriendRequests = {};
+        let friendReqListenersAttached = false;
+        let friendReqFirstLoad = true;
+        let friendModalQueue = [];
+
+        function isFriend(nick) {
+            return !!myFriends[nick];
+        }
+
+        window.sendFriendRequest = async function(targetNick, avatarUrl) {
+            if (!currentUserData) return;
+            if (isFriend(targetNick)) {
+                showToast('Artıq dostsunuz.', 'info');
+                return;
+            }
+            try {
+                const existing = await db.ref(`friendRequests/${targetNick}/${currentUserData.nick}`).once('value');
+                if (existing.exists()) {
+                    showToast('Sorğu artıq göndərilib, cavab gözlənilir.', 'info');
+                    return;
+                }
+                await db.ref(`friendRequests/${targetNick}/${currentUserData.nick}`).set({
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    fromAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png'
+                });
+                showToast('Dostluq sorğusu göndərildi.', 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+
+        window.acceptFriendRequest = async function(fromNick) {
+            if (!currentUserData) return;
+            try {
+                await db.ref(`friends/${currentUserData.nick}/${fromNick}`).set(true);
+                await db.ref(`friends/${fromNick}/${currentUserData.nick}`).set(true);
+                await db.ref(`friendRequests/${currentUserData.nick}/${fromNick}`).remove();
+                showToast(`${fromNick} ilə artıq dostsunuz!`, 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+
+        window.rejectFriendRequest = async function(fromNick) {
+            if (!currentUserData) return;
+            try {
+                await db.ref(`friendRequests/${currentUserData.nick}/${fromNick}`).remove();
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+
+        // Avtomatik açılan pəncərə (yeni sorğu gələndə)
+        function queueFriendRequestModal(fromNick, avatarUrl) {
+            friendModalQueue.push({ fromNick, avatarUrl });
+            showNextFriendRequestModal();
+        }
+        function showNextFriendRequestModal() {
+            const modal = document.getElementById('friendRequestModal');
+            if (modal.classList.contains('active') || !friendModalQueue.length) return;
+            const next = friendModalQueue[0];
+            document.getElementById('friendReqModalAvatar').src = next.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            document.getElementById('friendReqModalName').textContent = next.fromNick;
+            modal.classList.add('active');
+        }
+        window.acceptFriendRequestModal = function() {
+            const next = friendModalQueue.shift();
+            document.getElementById('friendRequestModal').classList.remove('active');
+            if (next) acceptFriendRequest(next.fromNick);
+            setTimeout(showNextFriendRequestModal, 400);
+        };
+        window.rejectFriendRequestModal = function() {
+            const next = friendModalQueue.shift();
+            document.getElementById('friendRequestModal').classList.remove('active');
+            if (next) rejectFriendRequest(next.fromNick);
+            setTimeout(showNextFriendRequestModal, 400);
+        };
+
+        window.toggleFriendReqDropdown = function(e) {
+            e.stopPropagation();
+            document.getElementById('friendReqDropdownPanel').classList.toggle('active');
+        };
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('friendReqDropdownPanel');
+            if (panel && panel.classList.contains('active') && !e.target.closest('#friendReqIconWrap')) {
+                panel.classList.remove('active');
+            }
+        });
+
+        function renderFriendReqDropdown() {
+            const list = document.getElementById('friendReqDropdownList');
+            const badge = document.getElementById('friendReqBadgeCount');
+            if (!list || !badge) return;
+            const entries = Object.entries(incomingFriendRequests);
+            if (entries.length > 0) {
+                badge.textContent = entries.length > 9 ? '9+' : entries.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+            if (!entries.length) {
+                list.innerHTML = '<div class="msg-dropdown-empty">Sorğu yoxdur</div>';
+                return;
+            }
+            list.innerHTML = entries.map(([nick, r]) => `
+                <div class="friend-req-item">
+                    <img src="${r.fromAvatar || 'https://www.w3schools.com/howto/img_avatar.png'}" class="friend-req-avatar" alt="av">
+                    <div class="friend-req-info">
+                        <b>${escapeHtml(nick)}</b> dostluq sorğusu göndərdi
+                        <div class="friend-req-actions">
+                            <button class="friend-req-btn accept" onclick="acceptFriendRequest('${nick.replace(/'/g, "\\'")}')">Qəbul et</button>
+                            <button class="friend-req-btn reject" onclick="rejectFriendRequest('${nick.replace(/'/g, "\\'")}')">Rədd et</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function initFriendSystem() {
+            if (!currentUserData) return;
+            friendReqFirstLoad = true;
+
+            db.ref(`friends/${currentUserData.nick}`).on('value', (snap) => {
+                myFriends = snap.val() || {};
+                if (typeof renderFriendsList === 'function') renderFriendsList();
+            });
+
+            db.ref(`friendRequests/${currentUserData.nick}`).on('value', (snap) => {
+                const newRequests = snap.val() || {};
+                if (!friendReqFirstLoad) {
+                    // Yalnız YENİ gələn sorğular üçün avtomatik pəncərə göstər
+                    Object.keys(newRequests).forEach(fromNick => {
+                        if (!incomingFriendRequests[fromNick]) {
+                            queueFriendRequestModal(fromNick, newRequests[fromNick].fromAvatar);
+                            playReceivedSound();
+                        }
+                    });
+                }
+                incomingFriendRequests = newRequests;
+                friendReqFirstLoad = false;
+                renderFriendReqDropdown();
+            });
+        }
+
+        function stopFriendSystem() {
+            if (currentUserData) {
+                db.ref(`friends/${currentUserData.nick}`).off();
+                db.ref(`friendRequests/${currentUserData.nick}`).off();
+            }
+            myFriends = {};
+            incomingFriendRequests = {};
+            renderFriendReqDropdown();
+        }
+
+        window.switchMainView = function(view) {
+            const friendsView = document.getElementById('friendsListView');
+            const generalBody = document.getElementById('generalChatBody');
+            const generalInputBar = document.getElementById('generalInputBar');
+            const tabFriends = document.getElementById('tabBtnFriends');
+            const tabGeneral = document.getElementById('tabBtnGeneral');
+            if (view === 'friends') {
+                friendsView.style.display = 'flex';
+                generalBody.style.display = 'none';
+                generalInputBar.style.display = 'none';
+                tabFriends.classList.add('active');
+                tabGeneral.classList.remove('active');
+                renderFriendsList();
+            } else {
+                friendsView.style.display = 'none';
+                generalBody.style.display = 'flex';
+                generalInputBar.style.display = 'flex';
+                tabFriends.classList.remove('active');
+                tabGeneral.classList.add('active');
+            }
+        };
+
+        function renderFriendsList() {
+            const container = document.getElementById('friendsListContainer');
+            if (!container || !currentUserData) return;
+            const friendNicks = Object.keys(myFriends);
+            if (!friendNicks.length) {
+                container.innerHTML = `<div class="friend-list-empty">Hələ heç bir dostunuz yoxdur. 🙂<br><br>"Ümumi çat" tabındakı Aktiv istifadəçilər bölməsindən kiməsə toxunub dostluq sorğusu göndərin.</div>`;
+                return;
+            }
+            const rows = friendNicks.map(nick => {
+                const userInfo = (typeof lastActiveUsersList !== 'undefined' ? lastActiveUsersList : []).find(u => u.nick === nick);
+                const online = !!(userInfo && userInfo.online);
+                const avatar = (userInfo && userInfo.avatarUrl) || 'https://www.w3schools.com/howto/img_avatar.png';
+                const msgs = privateMessagesByNick[nick] || [];
+                const lastMsg = msgs.length ? msgs[msgs.length - 1] : null;
+                let preview = 'Söhbətə başlayın';
+                let timeStr = '';
+                let isUnread = false;
+                let sortTs = 0;
+                if (lastMsg) {
+                    preview = (lastMsg.mediaType && lastMsg.mediaType !== 'text') ? '📎 Media' : (lastMsg.text || '');
+                    timeStr = formatMsgTime(lastMsg.timestamp);
+                    sortTs = lastMsg.timestamp || 0;
+                    if (lastMsg.sender === nick) {
+                        const readBy = lastMsg.readBy || [];
+                        isUnread = !readBy.includes(currentUserData.nick);
+                    }
+                }
+                return { nick, online, avatar, preview, timeStr, isUnread, sortTs };
+            }).sort((a, b) => b.sortTs - a.sortTs);
+
+            container.innerHTML = rows.map(r => `
+                <div class="friend-row" onclick="openPrivateChatWindow('${r.nick.replace(/'/g, "\\'")}')">
+                    <div class="friend-row-avatar-wrap">
+                        <img src="${r.avatar}" class="friend-row-avatar" alt="av">
+                        <span class="friend-row-online-dot ${r.online ? 'is-online' : ''}"></span>
+                    </div>
+                    <div class="friend-row-info">
+                        <div class="friend-row-name">${escapeHtml(r.nick)}</div>
+                        <div class="friend-row-preview ${r.isUnread ? 'unread' : ''}">${escapeHtml(r.preview)}</div>
+                    </div>
+                    <div class="friend-row-meta">
+                        <span class="friend-row-time">${r.timeStr}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        window.renderFriendsList = renderFriendsList;
 
         function initHeaderMessageInbox() {
             if (!currentUserData) return;
@@ -3006,6 +3380,8 @@ connectedRef.on('value', (snap) => {
                         loadActiveUsers();
                         loadPrivateMessages();
                         initHeaderMessageInbox();
+                        initFriendSystem();
+                        switchMainView('friends');
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
@@ -3040,6 +3416,7 @@ connectedRef.on('value', (snap) => {
                 db.ref('users').off();
                 db.ref('privateMessages').off();
                 stopHeaderMessageInbox();
+                stopFriendSystem();
                 // close all private windows
                 Object.keys(openPCWs).forEach(nick => {
                     const win = document.getElementById('pcw-' + nick);
@@ -3635,10 +4012,17 @@ connectedRef.on('value', (snap) => {
                 document.body.appendChild(popup);
             }
             const safeNick = user.nick.replace(/'/g, "\\'");
+            const safeAvatar = (avatarUrl || '').replace(/'/g, "\\'");
             const items = [
-                { label: '🖼️ Profil şəklinə bax', action: `openImageViewer('${avatarUrl}')` },
-                { label: '💬 Mesaj göndər', action: `openPrivateChatWindow('${safeNick}')` }
+                { label: '🖼️ Profil şəklinə bax', action: `openImageViewer('${avatarUrl}')` }
             ];
+            if (isFriend(user.nick)) {
+                items.push({ label: '💬 Mesaj göndər', action: `openPrivateChatWindow('${safeNick}')` });
+            } else if (incomingFriendRequests[user.nick]) {
+                items.push({ label: '✅ Dostluq sorğusunu qəbul et', action: `acceptFriendRequest('${safeNick}')` });
+            } else {
+                items.push({ label: '🤝 Dostluq göndər', action: `sendFriendRequest('${safeNick}', '${safeAvatar}')` });
+            }
 
             const myRole = currentUserData.role;
             let canBan = false, canUnban = false;
@@ -3918,6 +4302,7 @@ connectedRef.on('value', (snap) => {
                             bumpTabTitle();
                             if ((msg.timestamp || 0) > pageLoadTimestamp) playReceivedSound();
                         }
+                        if (typeof renderFriendsList === 'function') renderFriendsList();
                     }
                 }
             });
@@ -3929,8 +4314,8 @@ connectedRef.on('value', (snap) => {
                 if (!currentUserData) return;
                 if (msg.sender !== currentUserData.nick && msg.recipient !== currentUserData.nick) return;
                 const el = document.getElementById('pcwmsg-' + msg.id);
-                if (!el) return;
-                el.innerHTML = buildPrivateMessageContentHtml(msg);
+                if (el) el.innerHTML = buildPrivateMessageContentHtml(msg);
+                if (typeof renderFriendsList === 'function') renderFriendsList();
             });
         }
 
@@ -4166,7 +4551,7 @@ connectedRef.on('value', (snap) => {
                         <span class="dot"></span><span class="dot"></span><span class="dot"></span>
                     </div>
                 </div>
-                <div class="pcw-input-bar" style="position:relative;">
+                <div class="pcw-input-bar" style="position:relative;" id="pcw-inputbar-${targetNick}">
                     <div class="input-pill">
                         <div class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${targetNick}')">😊</div>
                         <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); sendPrivateChatMessage('${targetNick}');}" oninput="autoGrowTextarea(this); notifyTyping('${targetNick}');"></textarea>
@@ -4188,6 +4573,17 @@ connectedRef.on('value', (snap) => {
                 </div>
             `;
             document.getElementById('privateChatWindowsContainer').appendChild(win);
+
+            if (!isFriend(targetNick)) {
+                const bar = document.getElementById('pcw-inputbar-' + targetNick);
+                if (bar) {
+                    bar.innerHTML = `
+                        <button style="flex:1; background: linear-gradient(90deg, #ffc107, #ff9800); color:#06163a; border:none; border-radius:24px; padding:12px; font-weight:700; cursor:pointer;" onclick="sendFriendRequest('${targetNick}', '${avatar}'); this.textContent='Sorğu göndərildi ✓'; this.disabled=true; this.style.opacity=0.7;">
+                            🤝 Mesajlaşmaq üçün dostluq sorğusu göndər
+                        </button>
+                    `;
+                }
+            }
 
             const body = document.getElementById('pcw-body-' + targetNick);
             body.dataset.lastDateKey = '';
@@ -4228,6 +4624,10 @@ connectedRef.on('value', (snap) => {
         window.sendPrivateChatMessage = function(targetNick, mediaData = null, mediaType = 'image') {
             if (!currentUserData) {
                 showToast('Zəhmət olmasa daxil olun.', 'error');
+                return;
+            }
+            if (!isFriend(targetNick)) {
+                showToast('Yalnız dostlarınızla mesajlaşa bilərsiniz. Əvvəlcə dostluq sorğusu göndərin.', 'error', 5000);
                 return;
             }
 
