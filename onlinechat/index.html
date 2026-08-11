@@ -2600,7 +2600,28 @@
 
         window.toggleMsgDropdown = function(e) {
             e.stopPropagation();
-            document.getElementById('msgDropdownPanel').classList.toggle('active');
+            const panel = document.getElementById('msgDropdownPanel');
+            const willOpen = !panel.classList.contains('active');
+            panel.classList.toggle('active');
+            if (willOpen && window.innerWidth <= 700) {
+                const headerEl = document.querySelector('header');
+                const rect = headerEl.getBoundingClientRect();
+                panel.style.position = 'fixed';
+                panel.style.top = (rect.bottom + 8) + 'px';
+                panel.style.left = '50%';
+                panel.style.right = 'auto';
+                panel.style.transform = 'translateX(-50%)';
+                panel.style.width = '92vw';
+                panel.style.maxWidth = '380px';
+            } else {
+                panel.style.position = '';
+                panel.style.top = '';
+                panel.style.left = '';
+                panel.style.right = '';
+                panel.style.transform = '';
+                panel.style.width = '';
+                panel.style.maxWidth = '';
+            }
         };
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('msgDropdownPanel');
@@ -2691,7 +2712,28 @@
 
         window.toggleFriendReqDropdown = function(e) {
             e.stopPropagation();
-            document.getElementById('friendReqDropdownPanel').classList.toggle('active');
+            const panel = document.getElementById('friendReqDropdownPanel');
+            const willOpen = !panel.classList.contains('active');
+            panel.classList.toggle('active');
+            if (willOpen && window.innerWidth <= 700) {
+                const headerEl = document.querySelector('header');
+                const rect = headerEl.getBoundingClientRect();
+                panel.style.position = 'fixed';
+                panel.style.top = (rect.bottom + 8) + 'px';
+                panel.style.left = '50%';
+                panel.style.right = 'auto';
+                panel.style.transform = 'translateX(-50%)';
+                panel.style.width = '92vw';
+                panel.style.maxWidth = '380px';
+            } else {
+                panel.style.position = '';
+                panel.style.top = '';
+                panel.style.left = '';
+                panel.style.right = '';
+                panel.style.transform = '';
+                panel.style.width = '';
+                panel.style.maxWidth = '';
+            }
         };
         document.addEventListener('click', function(e) {
             const panel = document.getElementById('friendReqDropdownPanel');
