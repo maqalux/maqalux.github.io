@@ -3116,6 +3116,27 @@
             `;
         }
 
+        function buildVideoEmbedHtml(videoUrl, maxSize) {
+            maxSize = maxSize || 220;
+            // Cloudinary avtomatik miniatür (thumbnail) - video URL-inin uzantısını .jpg edərək
+            const thumbUrl = videoUrl.replace(/\.(mp4|webm|mov|mkv)(\?.*)?$/i, '.jpg$2');
+            const safeUrl = videoUrl.replace(/'/g, "\\'");
+            return `
+                <div class="yt-embed-wrap" style="width:${maxSize}px;" data-video-url="${safeUrl}">
+                    <img src="${thumbUrl}" alt="Video" class="yt-thumb" loading="lazy" onerror="this.style.display='none'">
+                    <div class="yt-play-btn" onclick="event.stopPropagation(); loadVideoEmbed(this)">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.loadVideoEmbed = function(btnEl) {
+            const wrap = btnEl.closest('.yt-embed-wrap');
+            const videoUrl = wrap.dataset.videoUrl;
+            wrap.innerHTML = `<video controls autoplay src="${videoUrl}" style="width:100%; height:100%; object-fit:cover;"></video>`;
+        };
+
         window.loadYouTubeEmbed = function(btnEl) {
             const wrap = btnEl.closest('.yt-embed-wrap');
             const videoId = wrap.dataset.videoId;
@@ -3777,7 +3798,7 @@ connectedRef.on('value', (snap) => {
                 content += `<br><audio controls src="${msg.mediaUrl}" style="max-width:220px; height:34px;"></audio>`;
             }
             if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<br><video controls src="${msg.mediaUrl}" style="max-width:220px; max-height:220px; border-radius:10px;"></video>`;
+                content += `<br>` + buildVideoEmbedHtml(msg.mediaUrl, 220);
             }
             if (!msg.isDeleted) {
                 const ytId = extractYouTubeId(msg.text);
@@ -4383,7 +4404,7 @@ connectedRef.on('value', (snap) => {
                 content += `<audio controls src="${msg.mediaUrl}" style="max-width:200px; height:32px;"></audio>`;
             }
             if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<video controls src="${msg.mediaUrl}" style="max-width:200px; max-height:200px; border-radius:10px;"></video>`;
+                content += buildVideoEmbedHtml(msg.mediaUrl, 200);
             }
             if (!msg.isDeleted) {
                 const ytId = extractYouTubeId(msg.text);
@@ -5210,19 +5231,28 @@ connectedRef.on('value', (snap) => {
                     stream.getTracks().forEach(t => t.stop());
                     setMicButtonState(target, false);
                     const inputEl = getVoiceInputEl(target);
-                    if (inputEl) inputEl.disabled = false;
 
                     if (rec && rec.shouldSend && blob.size > 500) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            const base64 = reader.result;
+                        if (inputEl) {
+                            inputEl.disabled = true;
+                            inputEl.placeholder = '🎤 Səs mesajı yüklənir... 0%';
+                        }
+                        uploadAudioToStorage(blob, (url, type) => {
                             if (target === 'main') {
-                                triggerMessageSend(base64, 'audio');
+                                triggerMessageSend(url, type);
                             } else {
-                                sendPrivateChatMessage(target, base64, 'audio');
+                                sendPrivateChatMessage(target, url, type);
                             }
-                        };
-                        reader.readAsDataURL(blob);
+                        }, (percent, done) => {
+                            if (inputEl) inputEl.placeholder = done ? '📤 Göndərilir...' : `🎤 Səs mesajı yüklənir... ${percent}%`;
+                        }).then(() => {
+                            if (inputEl) {
+                                inputEl.disabled = false;
+                                inputEl.placeholder = target === 'main' ? 'Mesajınızı bura yazın...' : 'Mesaj yaz...';
+                            }
+                        });
+                    } else if (inputEl) {
+                        inputEl.disabled = false;
                     }
                     delete voiceRecorders[target];
                 };
@@ -5323,6 +5353,50 @@ connectedRef.on('value', (snap) => {
                 xhr.onerror = () => {
                     console.error('Cloudinary XHR şəbəkə xətası. Status:', xhr.status, 'ReadyState:', xhr.readyState);
                     showToast(`Video yüklənərkən şəbəkə xətası (Cloud Name "${CLOUDINARY_CLOUD_NAME}" düzgündürmü? İnternetiniz sabitdirmi?).`, 'error', 8000);
+                    resolve(false);
+                };
+                xhr.send(formData);
+            });
+        }
+
+        function uploadAudioToStorage(blob, sendFn, onProgress) {
+            if (CLOUDINARY_CLOUD_NAME === "BURAYA_CLOUD_NAME_YAZ") {
+                showToast('Yükləmə xidməti hələ qurulmayıb.', 'error', 7000);
+                return Promise.resolve(false);
+            }
+            return new Promise((resolve) => {
+                const formData = new FormData();
+                formData.append('file', blob, 'voice.webm');
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, true);
+
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable && onProgress) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        onProgress(percent, false);
+                    }
+                };
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (onProgress) onProgress(100, true);
+                            sendFn(data.secure_url, 'audio');
+                            resolve(true);
+                        } catch (err) {
+                            showToast('Səs cavabı oxuna bilmədi: ' + err.message, 'error', 6000);
+                            resolve(false);
+                        }
+                    } else {
+                        console.error('Cloudinary səs yükləmə xətası:', xhr.status, xhr.responseText);
+                        showToast('Səs mesajı yüklənə bilmədi.', 'error', 6000);
+                        resolve(false);
+                    }
+                };
+                xhr.onerror = () => {
+                    showToast('Səs mesajı yüklənərkən şəbəkə xətası.', 'error', 6000);
                     resolve(false);
                 };
                 xhr.send(formData);
