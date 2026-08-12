@@ -911,7 +911,13 @@
             color: #fff;
             transform: rotate(90deg);
         }
-
+<!-- ============ MƏHSUL DETALI MODAL ============ -->
+    <div class="checkout-modal" id="productDetailModal" onclick="if(event.target===this) closeProductModal()">
+        <div class="modal-box" style="max-width: 450px; text-align: center;">
+            <button class="close-modal" onclick="closeProductModal()">✕</button>
+            <div id="productModalBody"></div>
+        </div>
+    </div>
         /* === TOAST === */
         .toast-container {
             position: fixed;
@@ -1800,7 +1806,7 @@
                 return `
               <div class="product-card" data-id="${p.id}">
                 <div class="image-wrap">
-                  <span style="font-size:4rem;opacity:0.6;">${p.image}</span>
+                  ${p.image.startsWith('http') ? `<img src="${p.image}" alt="${p.name}">` : `<span style="font-size:4rem;opacity:0.6;">${p.image}</span>`}
                   ${p.stock < 5 && p.stock > 0 ? `<span class="badge" style="background:#ff8c00;color:#fff;">Son ${p.stock}</span>` : ''}
                   ${p.stock === 0 ? `<span class="badge" style="background:#ff4444;color:#fff;">Stok yoxdur</span>` : ''}
                   ${p.rating >= 4.7 ? `<span class="badge new">⭐ Top</span>` : ''}
@@ -2062,7 +2068,7 @@
             grid.innerHTML = wishItems.map(p => `
             <div class="product-card">
               <div class="image-wrap">
-                <span style="font-size:3.5rem;opacity:0.6;">${p.image}</span>
+                ${p.image.startsWith('http') ? `<img src="${p.image}" alt="${p.name}">` : `<span style="font-size:3.5rem;opacity:0.6;">${p.image}</span>`}
                 <button class="wishlist-btn active" onclick="toggleWishlist(${p.id})">❤️</button>
               </div>
               <div class="info">
@@ -2099,13 +2105,43 @@
         }
 
         // ======================================================================
-        // 12. MƏHSUL ƏTRAFLI (MODAL) – SADƏ VERSİYA
+        // 12. MƏHSUL ƏTRAFLI (MODAL)
         // ======================================================================
         function showProductDetail(id) {
             const p = PRODUCTS.find(p => p.id === id);
             if (!p) return;
-            alert(
-                `🛍️ ${p.name}\n\n⭐ Reytinq: ${p.rating}\n💰 Qiymət: ${formatPrice(p.price)}\n📦 Stok: ${p.stock} ədəd\n\n📝 ${p.description}\n\n🔧 Xüsusiyyətlər:\n${p.specs.map(s => '• ' + s).join('\n')}\n\n🎨 Rənglər: ${p.colors.join(', ')}`
+
+            // Şəkil və ya emojini yoxlayırıq
+            const imgHtml = p.image.startsWith('http')
+                ? `<img src="${p.image}" style="width:100%; border-radius:12px; margin-bottom:15px; max-height:350px; object-fit:cover; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">`
+                : `<div style="font-size:6rem; margin-bottom:15px;">${p.image}</div>`;
+
+            // Modalın içini doldururuq
+            document.getElementById('productModalBody').innerHTML = `
+                ${imgHtml}
+                <h2 style="font-size:1.3rem; margin-bottom:5px;">${p.name}</h2>
+                <div style="color:var(--gold); margin-bottom:10px;">${getRatingStars(p.rating)} (${p.rating})</div>
+                <div style="font-size:1.4rem; font-weight:bold; margin-bottom:15px; color:var(--gold);">${formatPrice(p.price)}</div>
+                <p style="font-size:0.9rem; opacity:0.8; margin-bottom:15px;">${p.description}</p>
+                <div style="text-align:left; font-size:0.85rem; opacity:0.8; background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <strong>📦 Stok:</strong> ${p.stock > 0 ? p.stock + ' ədəd' : 'Bitib'}<br><br>
+                    <strong>🔧 Xüsusiyyətlər:</strong><br> ${p.specs.map(s => '• ' + s).join('<br>')}<br><br>
+                    <strong>🎨 Rənglər:</strong> ${p.colors.join(', ')}
+                </div>
+                <button class="submit-btn" style="margin-top:20px;" ${p.stock <= 0 ? 'disabled' : ''} onclick="addToCart(${p.id}); closeProductModal()">
+                    <i class="fa-solid fa-basket-shopping"></i> Səbətə at
+                </button>
+            `;
+
+            // Modalı açırıq
+            document.getElementById('productDetailModal').classList.add('open');
+            document.body.style.overflow = 'hidden'; // arxa planı sürüşdürməyi bağlayır
+        }
+
+        function closeProductModal() {
+            document.getElementById('productDetailModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
             );
         }
 
@@ -2202,9 +2238,9 @@
             if (e.key === 'Escape') {
                 if (document.getElementById('cartOverlay').classList.contains('open')) toggleCart();
                 if (document.getElementById('checkoutModal').classList.contains('open')) closeCheckout();
+                if (document.getElementById('productDetailModal').classList.contains('open')) closeProductModal();
             }
         });
-
         console.log('🛒 Maqalux E-Ticarət saytı işə düşdü!');
         console.log(`📦 ${PRODUCTS.length} məhsul, ${state.cart.length} səbət, ${state.orders.length} sifariş`);
     </script>
