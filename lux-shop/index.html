@@ -11,6 +11,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://maqalux.github.io/logo.png" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <style>
         /* === RESET & BASE === */
@@ -1223,7 +1224,7 @@
     <!-- ============ HEADER ============ -->
     <header>
         <a href="#" class="logo" onclick="navigateTo('home')">
-            <span>🛒 Maqalux</span>
+            <span><i class="fa-solid fa-basket-shopping"></i> Maqalux</span>
         </a>
 
         <nav id="mainNav">
@@ -1237,7 +1238,7 @@
         <div class="header-actions">
             <a href="#" class="wishlist-icon" onclick="navigateTo('wishlist')" title="İstək siyahısı">❤️</a>
             <a href="#" class="cart-icon" onclick="toggleCart()">
-                🛒 <span>Səbət</span>
+                <i class="fa-solid fa-basket-shopping"></i> <span>Səbət</span>
                 <span class="cart-badge" id="cartBadge">0</span>
             </a>
         </div>
@@ -1325,7 +1326,7 @@
     <div class="cart-overlay" id="cartOverlay" onclick="if(event.target===this) toggleCart()">
         <div class="cart-sidebar">
             <div class="cart-header">
-                <h2>🛒 Səbətiniz</h2>
+                <h2><i class="fa-solid fa-basket-shopping"></i> Səbətiniz</h2>
                 <button class="close-btn" onclick="toggleCart()">✕</button>
             </div>
             <div class="cart-items" id="cartItems">
@@ -1411,7 +1412,7 @@
         <a href="#" class="active" data-page="home" onclick="navigateTo('home')"><span class="nav-icon">🏠</span> Ana</a>
         <a href="#" data-page="shop" onclick="navigateTo('shop')"><span class="nav-icon">🛍️</span> Mağaza</a>
         <a href="#" data-page="wishlist" onclick="navigateTo('wishlist')"><span class="nav-icon">❤️</span> İstək</a>
-        <a href="#" onclick="toggleCart()"><span class="nav-icon">🛒</span> Səbət</a>
+        <a href="#" onclick="toggleCart()"><span class="nav-icon"><i class="fa-solid fa-basket-shopping"></i></span> Səbət</a>
         <a href="#" data-page="orders" onclick="navigateTo('orders')"><span class="nav-icon">📦</span> Sifarişlər</a>
     </div>
 
@@ -1419,7 +1420,7 @@
     <footer>
         <div class="footer-grid">
             <div>
-                <h4>🛒 Maqalux</h4>
+                <h4><i class="fa-solid fa-basket-shopping"></i> Maqalux</h4>
                 <p>Keyfiyyətli məhsullar, sürətli çatdırılma.</p>
             </div>
             <div>
@@ -1743,7 +1744,7 @@
         function showToast(message, icon = '✅') {
             const el = document.getElementById('toast');
             document.getElementById('toastMessage').textContent = message;
-            document.querySelector('.toast-icon').textContent = icon;
+            document.querySelector('.toast-icon').innerHTML = icon;
             el.classList.add('show');
             clearTimeout(toastTimer);
             toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
@@ -1819,7 +1820,7 @@
                     ${stockOk ? `✅ Stokda (${p.stock} ədəd)` : '❌ Stokda yoxdur'}
                   </div>
                   <button class="add-btn" ${!stockOk ? 'disabled' : ''} onclick="addToCart(${p.id})">
-                    ${qty > 0 ? `🛒 Səbətdə (${qty})` : '➕ Səbətə at'}
+                    ${qty > 0 ? `<i class="fa-solid fa-basket-shopping"></i> Səbətdə (${qty})` : '➕ Səbətə at'}
                   </button>
                 </div>
               </div>
@@ -1889,7 +1890,7 @@
             }
             saveState();
             updateCartUI();
-            showToast(`${product.name} səbətə əlavə olundu`, '🛒');
+            showToast(`${product.name} səbətə əlavə olundu`, '<i class="fa-solid fa-basket-shopping"></i>');
             renderProducts(state.filteredProducts);
         }
 
@@ -1940,7 +1941,7 @@
             const container = document.getElementById('cartItems');
             const summary = document.getElementById('cartSummary');
             if (!state.cart.length) {
-                container.innerHTML = `<div class="cart-empty-msg">🛒 Səbət boşdur.</div>`;
+                container.innerHTML = `<div class="cart-empty-msg"><i class="fa-solid fa-basket-shopping"></i> Səbət boşdur.</div>`;
                 summary.style.display = 'none';
                 return;
             }
@@ -2068,7 +2069,7 @@
                 <h3>${p.name}</h3>
                 <div class="rating">${getRatingStars(p.rating)}</div>
                 <div class="price-row"><span class="current">${formatPrice(p.price)}</span></div>
-                <button class="add-btn" onclick="addToCart(${p.id})">🛒 Səbətə at</button>
+                <button class="add-btn" onclick="addToCart(${p.id})"><i class="fa-solid fa-basket-shopping"></i> Səbətə at</button>
               </div>
             </div>
           `).join('');
