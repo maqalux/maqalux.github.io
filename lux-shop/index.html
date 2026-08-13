@@ -1307,7 +1307,8 @@
                 <div class="form-group">
                     <label>Ödəniş üsulu</label>
                     <div class="payment-options">
-                        <label><input type="radio" name="payment" value="card" checked /> 💳 Kart</label>
+                        <label><input type="radio" name="payment" value="whatsapp" checked /> 🟢 WhatsApp ilə ödəniş</label>
+                        <label><input type="radio" name="payment" value="card" /> 💳 Kart</label>
                         <label><input type="radio" name="payment" value="cod" /> 💵 Çatdırılmada nağd</label>
                         <label><input type="radio" name="payment" value="bank" /> 🏦 Bank köçürməsi</label>
                     </div>
@@ -1887,7 +1888,7 @@
             }
             container.innerHTML = state.cart.map(c => `
             <div class="cart-item">
-              <span style="font-size:2rem;">${c.image}</span>
+              ${c.image.startsWith('http') ? `<img src="${c.image}" alt="${c.name}">` : `<span style="font-size:2rem;">${c.image}</span>`}
               <div class="item-info">
                 <h4>${c.name}</h4>
                 <div class="item-price">${formatPrice(c.price)}</div>
@@ -1930,6 +1931,23 @@
             document.body.style.overflow = '';
         }
 
+        // WhatsApp nömrəsini öz nömrənizlə əvəz edin (beynəlxalq format, "+" olmadan)
+        const SHOP_WHATSAPP_NUMBER = "+994515032100";
+
+        function sendOrderToWhatsApp(order) {
+            const lines = order.items.map(c => `• ${c.name} x${c.quantity} — ${formatPrice(c.price * c.quantity)}`).join('\n');
+            const message =
+                `Salam! Bu məhsul(lar)ı almaq üçün ödəniş etmək istəyirəm:\n\n` +
+                `${lines}\n\n` +
+                `Ümumi: ${formatPrice(order.total)}\n` +
+                `Sifariş nömrəsi: ${order.id}\n` +
+                `Ad: ${order.shipping.name}\n` +
+                `Telefon: ${order.shipping.phone}\n` +
+                `Ünvan: ${order.shipping.city}, ${order.shipping.address}`;
+            const url = `https://wa.me/${SHOP_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
         function submitOrder(e) {
             e.preventDefault();
             const name = document.getElementById('fullName').value.trim();
@@ -1963,6 +1981,11 @@
                 const prod = PRODUCTS.find(p => p.id === c.id);
                 if (prod) prod.stock -= c.quantity;
             });
+
+            if (payment.value === 'whatsapp') {
+                sendOrderToWhatsApp(order);
+            }
+
             state.cart = [];
             saveState();
             updateCartUI();
