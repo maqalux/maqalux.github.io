@@ -4884,7 +4884,7 @@ connectedRef.on('value', (snap) => {
 
         async function loadTrendingGifs(target) {
             try {
-                const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=24&rating=pg-13`);
+                const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=50&rating=pg-13`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
                 // yerli kolleksiyanı GIPHY trend GIF-ləri ilə tamamla
@@ -4909,7 +4909,7 @@ connectedRef.on('value', (snap) => {
             }
             grid.innerHTML = `<div class="sticker-empty-state">Axtarılır...</div>`;
             try {
-                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=24&rating=pg-13&lang=az`);
+                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=50&rating=pg-13&lang=az`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
                 renderGifGrid(target, urls);
