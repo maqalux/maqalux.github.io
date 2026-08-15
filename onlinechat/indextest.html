@@ -4874,7 +4874,7 @@ connectedRef.on('value', (snap) => {
 
         async function loadTrendingGifs(target) {
             try {
-            const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=5=100&rating=pg-13`);
+            const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=100&rating=pg-13`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
                 // yerli kolleksiyanı GIPHY trend GIF-ləri ilə tamamla
