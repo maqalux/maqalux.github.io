@@ -2081,23 +2081,19 @@
             .pcw-header {
                 padding: 14px 16px;
             }
-          .sticker-panel {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 100%;
-    width: 100%;
-    max-width: 100%;
-    max-height: 44vh;
-    overflow-y: auto;
-    margin-bottom: 0;
-    border-radius: 16px 16px 0 0;
-    border-left: none;
-    border-right: none;
-    z-index: 100;
-    background: rgba(var(--surface-rgb), 0.97);
-    backdrop-filter: blur(25px);
-}
+            .sticker-panel {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 100%;
+                width: 100%;
+                max-width: 100%;
+                max-height: 44vh;
+                margin-bottom: 0;
+                border-radius: 16px 16px 0 0;
+                border-left: none;
+                border-right: none;
+            }
             .sticker-grid {
                 grid-template-columns: repeat(4, 1fr);
                 gap: 10px;
@@ -4821,10 +4817,31 @@ connectedRef.on('value', (snap) => {
                 panel.classList.add('active');
                 activeStickerTarget = target;
                 renderStickerBody(target, 'sticker');
+
+                // Mobil: klaviatura açıqsa görünən sahəyə görə hündürlüyü tənzimləyirik
+                if (window.innerWidth <= 700) {
+                    const visualH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                    const inputBar = panel.closest('.input-bar, .pcw-input-bar');
+                    const inputBarH = inputBar ? inputBar.getBoundingClientRect().height : 52;
+                    const available = visualH - inputBarH - 16;
+                    panel.style.maxHeight = Math.min(Math.max(available, 200), Math.round(visualH * 0.62)) + 'px';
+                }
             } else {
                 activeStickerTarget = null;
             }
         };
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                const panel = document.querySelector('.sticker-panel.active');
+                if (!panel || window.innerWidth > 700) return;
+                const visualH = window.visualViewport.height;
+                const inputBar = panel.closest('.input-bar, .pcw-input-bar');
+                const inputBarH = inputBar ? inputBar.getBoundingClientRect().height : 52;
+                const available = visualH - inputBarH - 16;
+                panel.style.maxHeight = Math.min(Math.max(available, 200), Math.round(visualH * 0.62)) + 'px';
+            });
+        }
 
         window.switchStickerTab = function(target, tab) {
             const panel = document.getElementById('stickerPanel-' + target);
@@ -4874,7 +4891,7 @@ connectedRef.on('value', (snap) => {
 
         async function loadTrendingGifs(target) {
             try {
-            const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=100&rating=pg-13`);
+                const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=50&rating=pg-13`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
                 // yerli kolleksiyanı GIPHY trend GIF-ləri ilə tamamla
@@ -4899,7 +4916,7 @@ connectedRef.on('value', (snap) => {
             }
             grid.innerHTML = `<div class="sticker-empty-state">Axtarılır...</div>`;
             try {
-                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=100&rating=pg-13&lang=az`);
+                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=50&rating=pg-13&lang=az`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
                 renderGifGrid(target, urls);
