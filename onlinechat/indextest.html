@@ -1449,6 +1449,15 @@
             right: 10px;
             width: 270px;
         }
+          /* Açıq stiker/GIF panelinin altında qalan mesajlar üçün yer ayır. */
+        .messages-area.sticker-panel-open {
+            padding-bottom: max(20px, var(--sticker-panel-reserve, 0px));
+            scroll-padding-bottom: max(20px, var(--sticker-panel-reserve, 0px));
+        }
+        .pcw-body.sticker-panel-open {
+            padding-bottom: max(14px, var(--sticker-panel-reserve, 0px));
+            scroll-padding-bottom: max(14px, var(--sticker-panel-reserve, 0px));
+        }
 
         /* Context Menu */
         .msg-context-menu {
@@ -1650,6 +1659,9 @@
             flex-direction: column;
             overflow: hidden;
             transition: height 0.25s ease;
+        }
+          .private-chat-window.sticker-panel-open {
+            height: min(560px, calc(100dvh - 20px));
         }
         .private-chat-window.minimized {
             height: 50px;
@@ -2070,6 +2082,9 @@
                 position: fixed;
                 inset: 0;
                 z-index: 3500;
+            }
+             .private-chat-window.sticker-panel-open {
+                height: 100dvh;
             }
             .private-chat-window.minimized {
                 height: 100dvh;
@@ -2522,6 +2537,7 @@
             "https://maqalux.github.io/stickers/9913-joobifp.png",
             "https://maqalux.github.io/stickers/9913-joobirose.png",
             "https://maqalux.github.io/stickers/9928-joobiwow.png",
+            "https://maqalux.github.io/stickers/1001600402.png",
             "https://maqalux.github.io/stickers/sticker_10.png"
         ];
 
@@ -3452,7 +3468,21 @@ connectedRef.on('value', (snap) => {
                         const hashMatch = window.location.hash.match(/^#open=(.+)$/);
                         const openParam = hashMatch ? decodeURIComponent(hashMatch[1]) : null;
                         if (openParam) {
-                            setTimeout(() => openPrivateChatWindow(openParam), 600);
+                             // Ana səhifədəki mesaj qutusundan gələndə dost siyahısı hələ
+                            // real-vaxt dinləyicisindən yüklənməmiş ola bilər. Pəncərəni
+                            // yaratmazdan əvvəl statusu birbaşa yoxlayırıq ki, dost üçün
+                            // səhvən "Dostluq göndər" düyməsi göstərilməsin.
+                            try {
+                                const friendSnap = await db.ref(`friends/${currentUserData.nick}/${openParam}`).once('value');
+                                if (friendSnap.exists()) {
+                                    myFriends[openParam] = friendSnap.val();
+                                } else {
+                                    delete myFriends[openParam];
+                                }
+                            } catch (err) {
+                                console.error('Dostluq statusu yoxlanılarkən xəta:', err);
+                            }
+                            openPrivateChatWindow(openParam);
                             const cleanUrl = window.location.pathname + window.location.search;
                             window.history.replaceState({}, document.title, cleanUrl);
                         }
@@ -3482,6 +3512,7 @@ connectedRef.on('value', (snap) => {
                 stopFriendSystem();
                 // close all private windows
                 Object.keys(openPCWs).forEach(nick => {
+                    closeStickerPanel(nick); 
                     const win = document.getElementById('pcw-' + nick);
                     if (win) win.remove();
                 });
@@ -3928,6 +3959,7 @@ connectedRef.on('value', (snap) => {
             const div = createMessageBubbleDiv(msg);
             area.appendChild(div);
             area.scrollTop = area.scrollHeight;
+            queueStickerPanelViewportUpdate('main');
 
             if (msg.sender !== currentUserData.nick && msg.id) {
                 markDelivered(msg.id, false);
@@ -4466,6 +4498,7 @@ connectedRef.on('value', (snap) => {
             const div = createPrivateMessageBubbleDiv(targetNick, msg);
             body.appendChild(div);
             body.scrollTop = body.scrollHeight;
+             queueStickerPanelViewportUpdate(targetNick);
 
             if (msg.sender !== currentUserData.nick && msg.id) {
                 markDelivered(msg.id, true);
@@ -4675,6 +4708,7 @@ connectedRef.on('value', (snap) => {
             if (win) win.classList.toggle('minimized');
         };
         window.closePrivateChatWindow = function(targetNick) {
+            closeStickerPanel(targetNick);
             delete openPCWs[targetNick];
             stopWatchingTypingStatus(targetNick);
             delete privateOldestTimestamp[targetNick];
@@ -4808,46 +4842,109 @@ connectedRef.on('value', (snap) => {
         // ============================================================
         // 11. STİKER / GIF PANELİ
         // ============================================================
+                    }
+
+            if (stickerPanelObservers[target]) {
+                stickerPanelObservers[target].disconnect();
+                delete stickerPanelObservers[target];
+            }
+        }
+
+        function closeStickerPanel(target) {
+            const panel = document.getElementById('stickerPanel-' + target);
+            if (panel) panel.classList.remove('active');
+            resetStickerPanelViewport(target);
+            if (activeStickerTarget === target) activeStickerTarget = null;
+        }
+
+        function getStickerPanelDefaultMaxHeight(panel) {
+            if (!panel.dataset.stickerDefaultMaxHeight) {
+                panel.style.removeProperty('max-height');
+                const cssMaxHeight = parseFloat(window.getComputedStyle(panel).maxHeight);
+                panel.dataset.stickerDefaultMaxHeight = String(cssMaxHeight || panel.getBoundingClientRect().height);
+            }
+            return Number(panel.dataset.stickerDefaultMaxHeight);
+        }
+
+        function updateStickerPanelViewport(target) {
+            const panel = document.getElementById('stickerPanel-' + target);
+            const area = getStickerPanelMessageArea(target);
+            if (!panel || !area || !panel.classList.contains('active')) return;
+
+            const panelRect = panel.getBoundingClientRect();
+            const areaRect = area.getBoundingClientRect();
+            const latestMessage = getLatestMessageElement(area, target);
+            const latestMessageHeight = latestMessage ? latestMessage.getBoundingClientRect().height : 64;
+
+            // Kiçik şəxsi pəncərədə paneli son mesaj üçün kifayət qədər yer qalacaq qədər qısalt.
+            const availablePanelHeight = Math.floor(
+                panelRect.bottom - areaRect.top - Math.max(64, latestMessageHeight) - STICKER_PANEL_SAFE_GAP
+            );
+            const defaultMaxHeight = getStickerPanelDefaultMaxHeight(panel);
+            const desiredMaxHeight = Math.max(96, Math.min(defaultMaxHeight, availablePanelHeight));
+            const currentMaxHeight = parseFloat(panel.style.maxHeight) || defaultMaxHeight;
+
+            if (Math.abs(currentMaxHeight - desiredMaxHeight) > 1) {
+                panel.style.maxHeight = `${desiredMaxHeight}px`;
+                queueStickerPanelViewportUpdate(target);
+                return;
+            }
+
+            // Panelin mesaj sahəsini örtdüyü hündürlüyü boşluq kimi əlavə et.
+            const coveredHeight = Math.max(0, areaRect.bottom - Math.max(areaRect.top, panelRect.top));
+            area.classList.add('sticker-panel-open');
+            area.style.setProperty('--sticker-panel-reserve', `${Math.ceil(coveredHeight + STICKER_PANEL_SAFE_GAP)}px`);
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function queueStickerPanelViewportUpdate(target) {
+            const panel = document.getElementById('stickerPanel-' + target);
+            if (!panel || !panel.classList.contains('active') || stickerPanelFrameRequests[target]) return;
+
+            stickerPanelFrameRequests[target] = window.requestAnimationFrame(() => {
+                delete stickerPanelFrameRequests[target];
+                updateStickerPanelViewport(target);
+            });
+        }
+
+        function observeStickerPanel(target) {
+            const panel = document.getElementById('stickerPanel-' + target);
+            if (!panel || !('ResizeObserver' in window)) return;
+            if (stickerPanelObservers[target]) stickerPanelObservers[target].disconnect();
+
+            stickerPanelObservers[target] = new ResizeObserver(() => queueStickerPanelViewportUpdate(target));
+            stickerPanelObservers[target].observe(panel);
+        }
+
         window.toggleStickerPanel = function(target) {
             const panel = document.getElementById('stickerPanel-' + target);
             if (!panel) return;
             const isOpening = !panel.classList.contains('active');
-            document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
-            if (isOpening) {
-                panel.classList.add('active');
-                activeStickerTarget = target;
-                renderStickerBody(target, 'sticker');
 
-                // Mobil: klaviatura açıqsa görünən sahəyə görə hündürlüyü tənzimləyirik
-                if (window.innerWidth <= 700) {
-                    const visualH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-                    const inputBar = panel.closest('.input-bar, .pcw-input-bar');
-                    const inputBarH = inputBar ? inputBar.getBoundingClientRect().height : 52;
-                    const available = visualH - inputBarH - 16;
-                    panel.style.maxHeight = Math.min(Math.max(available, 200), Math.round(visualH * 0.62)) + 'px';
-                }
-            } else {
-                activeStickerTarget = null;
-            }
-        };
-
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', () => {
-                const panel = document.querySelector('.sticker-panel.active');
-                if (!panel || window.innerWidth > 700) return;
-                const visualH = window.visualViewport.height;
-                const inputBar = panel.closest('.input-bar, .pcw-input-bar');
-                const inputBarH = inputBar ? inputBar.getBoundingClientRect().height : 52;
-                const available = visualH - inputBarH - 16;
-                panel.style.maxHeight = Math.min(Math.max(available, 200), Math.round(visualH * 0.62)) + 'px';
+            document.querySelectorAll('.sticker-panel.active').forEach(openPanel => {
+                const openTarget = openPanel.id.replace('stickerPanel-', '');
+                closeStickerPanel(openTarget);
             });
-        }
+
+            if (!isOpening) return;
+
+            if (target !== 'main') {
+                const win = document.getElementById('pcw-' + target);
+                if (win) win.classList.add('sticker-panel-open');
+            }
+            panel.classList.add('active');
+            activeStickerTarget = target;
+            renderStickerBody(target, 'sticker');
+            observeStickerPanel(target);
+            queueStickerPanelViewportUpdate(target);  
+        };
 
         window.switchStickerTab = function(target, tab) {
             const panel = document.getElementById('stickerPanel-' + target);
             if (!panel) return;
             panel.querySelectorAll('.sticker-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
             renderStickerBody(target, tab);
+            queueStickerPanelViewportUpdate(target);
         };
 
         // GIPHY-nin ictimai test açarı. Öz layihən üçün pulsuz açar al:
@@ -4884,6 +4981,7 @@ connectedRef.on('value', (snap) => {
             if (!grid) return;
             if (!urls.length) {
                 grid.innerHTML = `<div class="sticker-empty-state">🎞️ GIF tapılmadı.</div>`;
+                queueStickerPanelViewportUpdate(target);
                 return;
             }
             grid.innerHTML = urls.map(url => `<img src="${url}" loading="lazy" onclick="sendStickerOrGif('${target}','${url}','gif')">`).join('');
@@ -4933,14 +5031,22 @@ connectedRef.on('value', (snap) => {
                 sendPrivateChatMessage(target, url, type);
             }
             const panel = document.getElementById('stickerPanel-' + target);
-            if (panel) panel.classList.remove('active');
+             if (panel) closeStickerPanel(target);
         };
 
         document.addEventListener('click', (e) => {
             if (activeStickerTarget && !e.target.closest('.sticker-panel') && !e.target.closest('.pill-icon-btn')) {
-                document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
-                activeStickerTarget = null;
+                 closeStickerPanel(activeStickerTarget);
             }
+        });
+        
+               window.addEventListener('resize', () => {
+               document.querySelectorAll('.sticker-panel.active').forEach(panel => {
+                const target = panel.id.replace('stickerPanel-', '');
+                panel.style.removeProperty('max-height');
+                delete panel.dataset.stickerDefaultMaxHeight;
+                queueStickerPanelViewportUpdate(target);
+            });
         });
 
         // ============================================================
