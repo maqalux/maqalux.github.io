@@ -3457,7 +3457,21 @@ connectedRef.on('value', (snap) => {
                         const hashMatch = window.location.hash.match(/^#open=(.+)$/);
                         const openParam = hashMatch ? decodeURIComponent(hashMatch[1]) : null;
                         if (openParam) {
-                            setTimeout(() => openPrivateChatWindow(openParam), 600);
+                               // Ana səhifədəki mesaj qutusundan gələndə dost siyahısı hələ
+                            // real-vaxt dinləyicisindən yüklənməmiş ola bilər. Pəncərəni
+                            // yaratmazdan əvvəl statusu birbaşa yoxlayırıq ki, dost üçün
+                            // səhvən "Dostluq göndər" düyməsi göstərilməsin.
+                            try {
+                                const friendSnap = await db.ref(`friends/${currentUserData.nick}/${openParam}`).once('value');
+                                if (friendSnap.exists()) {
+                                    myFriends[openParam] = friendSnap.val();
+                                } else {
+                                    delete myFriends[openParam];
+                                }
+                            } catch (err) {
+                                console.error('Dostluq statusu yoxlanılarkən xəta:', err);
+                            }
+                            openPrivateChatWindow(openParam);
                             const cleanUrl = window.location.pathname + window.location.search;
                             window.history.replaceState({}, document.title, cleanUrl);
                         }
