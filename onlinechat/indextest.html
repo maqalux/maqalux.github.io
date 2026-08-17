@@ -1449,15 +1449,6 @@
             right: 10px;
             width: 270px;
         }
-          /* Açıq stiker/GIF panelinin altında qalan mesajlar üçün yer ayır. */
-        .messages-area.sticker-panel-open {
-            padding-bottom: max(20px, var(--sticker-panel-reserve, 0px));
-            scroll-padding-bottom: max(20px, var(--sticker-panel-reserve, 0px));
-        }
-        .pcw-body.sticker-panel-open {
-            padding-bottom: max(14px, var(--sticker-panel-reserve, 0px));
-            scroll-padding-bottom: max(14px, var(--sticker-panel-reserve, 0px));
-        }
 
         /* Context Menu */
         .msg-context-menu {
@@ -1659,9 +1650,6 @@
             flex-direction: column;
             overflow: hidden;
             transition: height 0.25s ease;
-        }
-          .private-chat-window.sticker-panel-open {
-            height: min(560px, calc(100dvh - 20px));
         }
         .private-chat-window.minimized {
             height: 50px;
@@ -2073,7 +2061,8 @@
                 bottom: 0;
                 flex-direction: column;
                 align-items: stretch;
-        }
+            }
+            .private-chat-window {
                 width: 100%;
                 height: 100dvh;
                 border-radius: 0;
@@ -2081,9 +2070,6 @@
                 position: fixed;
                 inset: 0;
                 z-index: 3500;
-            }
-             .private-chat-window.sticker-panel-open {
-                height: 100dvh;
             }
             .private-chat-window.minimized {
                 height: 100dvh;
@@ -2536,7 +2522,6 @@
             "https://maqalux.github.io/stickers/9913-joobifp.png",
             "https://maqalux.github.io/stickers/9913-joobirose.png",
             "https://maqalux.github.io/stickers/9928-joobiwow.png",
-            "https://maqalux.github.io/stickers/1001600402.png",
             "https://maqalux.github.io/stickers/sticker_10.png"
         ];
 
@@ -3467,21 +3452,7 @@ connectedRef.on('value', (snap) => {
                         const hashMatch = window.location.hash.match(/^#open=(.+)$/);
                         const openParam = hashMatch ? decodeURIComponent(hashMatch[1]) : null;
                         if (openParam) {
-                             // Ana səhifədəki mesaj qutusundan gələndə dost siyahısı hələ
-                            // real-vaxt dinləyicisindən yüklənməmiş ola bilər. Pəncərəni
-                            // yaratmazdan əvvəl statusu birbaşa yoxlayırıq ki, dost üçün
-                            // səhvən "Dostluq göndər" düyməsi göstərilməsin.
-                            try {
-                                const friendSnap = await db.ref(`friends/${currentUserData.nick}/${openParam}`).once('value');
-                                if (friendSnap.exists()) {
-                                    myFriends[openParam] = friendSnap.val();
-                                } else {
-                                    delete myFriends[openParam];
-                                }
-                            } catch (err) {
-                                console.error('Dostluq statusu yoxlanılarkən xəta:', err);
-                            }
-                            openPrivateChatWindow(openParam);
+                            setTimeout(() => openPrivateChatWindow(openParam), 600);
                             const cleanUrl = window.location.pathname + window.location.search;
                             window.history.replaceState({}, document.title, cleanUrl);
                         }
@@ -3511,7 +3482,6 @@ connectedRef.on('value', (snap) => {
                 stopFriendSystem();
                 // close all private windows
                 Object.keys(openPCWs).forEach(nick => {
-                    closeStickerPanel(nick); 
                     const win = document.getElementById('pcw-' + nick);
                     if (win) win.remove();
                 });
@@ -3957,8 +3927,7 @@ connectedRef.on('value', (snap) => {
 
             const div = createMessageBubbleDiv(msg);
             area.appendChild(div);
-            area.scrollTop = area.scrollHeight;
-            queueStickerPanelViewportUpdate('main');
+            setTimeout(() => { area.scrollTop = area.scrollHeight; }, 30);
 
             if (msg.sender !== currentUserData.nick && msg.id) {
                 markDelivered(msg.id, false);
@@ -4496,8 +4465,7 @@ connectedRef.on('value', (snap) => {
 
             const div = createPrivateMessageBubbleDiv(targetNick, msg);
             body.appendChild(div);
-            body.scrollTop = body.scrollHeight;
-             queueStickerPanelViewportUpdate(targetNick);
+            setTimeout(() => { body.scrollTop = body.scrollHeight; }, 30);
 
             if (msg.sender !== currentUserData.nick && msg.id) {
                 markDelivered(msg.id, true);
@@ -4707,7 +4675,6 @@ connectedRef.on('value', (snap) => {
             if (win) win.classList.toggle('minimized');
         };
         window.closePrivateChatWindow = function(targetNick) {
-            closeStickerPanel(targetNick);
             delete openPCWs[targetNick];
             stopWatchingTypingStatus(targetNick);
             delete privateOldestTimestamp[targetNick];
@@ -4838,300 +4805,100 @@ connectedRef.on('value', (snap) => {
             e.target.value = '';
         };
 
-        //         // ============================================================
+        // ============================================================
         // 11. STİKER / GIF PANELİ
         // ============================================================
-        const STICKER_PANEL_SAFE_GAP = 14;
-        const stickerPanelObservers = {};
-        const stickerPanelFrameRequests = {};
-
-        function getStickerPanelMessageArea(target) {
-            return target === 'main'
-                ? document.getElementById('chatMessagesArea')
-                : document.getElementById('pcw-body-' + target);
-        }
-
-        function getLatestMessageElement(area, target) {
-            const selector = target === 'main' ? '.msg-bubble' : '.pcw-msg';
-            const messages = area ? area.querySelectorAll(selector) : [];
-            return messages.length ? messages[messages.length - 1] : null;
-        }
-
-        function resetStickerPanelViewport(target) {
-            const area = getStickerPanelMessageArea(target);
-            if (area) {
-                area.classList.remove('sticker-panel-open');
-                area.style.removeProperty('--sticker-panel-reserve');
-            }
-
-            if (target !== 'main') {
-                const win = document.getElementById('pcw-' + target);
-                if (win) win.classList.remove('sticker-panel-open');
-            }
-
-            const panel = document.getElementById('stickerPanel-' + target);
-            if (panel) {
-                panel.style.removeProperty('max-height');
-                delete panel.dataset.stickerDefaultMaxHeight;
-            }
-
-            if (stickerPanelObservers[target]) {
-                stickerPanelObservers[target].disconnect();
-                delete stickerPanelObservers[target];
-            }
-        }
-
-        function closeStickerPanel(target) {
-            const panel = document.getElementById('stickerPanel-' + target);
-            if (panel) panel.classList.remove('active');
-            resetStickerPanelViewport(target);
-
-            if (activeStickerTarget === target) {
-                activeStickerTarget = null;
-            }
-        }
-
-        function getStickerPanelDefaultMaxHeight(panel) {
-            if (!panel.dataset.stickerDefaultMaxHeight) {
-                panel.style.removeProperty('max-height');
-
-                const cssMaxHeight = parseFloat(
-                    window.getComputedStyle(panel).maxHeight
-                );
-
-                panel.dataset.stickerDefaultMaxHeight = String(
-                    cssMaxHeight || panel.getBoundingClientRect().height
-                );
-            }
-
-            return Number(panel.dataset.stickerDefaultMaxHeight);
-        }
-
-        function updateStickerPanelViewport(target) {
-            const panel = document.getElementById('stickerPanel-' + target);
-            const area = getStickerPanelMessageArea(target);
-
-            if (!panel || !area || !panel.classList.contains('active')) {
-                return;
-            }
-
-            const panelRect = panel.getBoundingClientRect();
-            const areaRect = area.getBoundingClientRect();
-
-            const latestMessage = getLatestMessageElement(area, target);
-            const latestMessageHeight = latestMessage
-                ? latestMessage.getBoundingClientRect().height
-                : 64;
-
-            const availablePanelHeight = Math.floor(
-                panelRect.bottom
-                - areaRect.top
-                - Math.max(64, latestMessageHeight)
-                - STICKER_PANEL_SAFE_GAP
-            );
-
-            const defaultMaxHeight = getStickerPanelDefaultMaxHeight(panel);
-            const desiredMaxHeight = Math.max(
-                96,
-                Math.min(defaultMaxHeight, availablePanelHeight)
-            );
-
-            const currentMaxHeight =
-                parseFloat(panel.style.maxHeight) || defaultMaxHeight;
-
-            if (Math.abs(currentMaxHeight - desiredMaxHeight) > 1) {
-                panel.style.maxHeight = `${desiredMaxHeight}px`;
-                queueStickerPanelViewportUpdate(target);
-                return;
-            }
-
-            const coveredHeight = Math.max(
-                0,
-                areaRect.bottom - Math.max(areaRect.top, panelRect.top)
-            );
-
-            area.classList.add('sticker-panel-open');
-            area.style.setProperty(
-                '--sticker-panel-reserve',
-                `${Math.ceil(coveredHeight + STICKER_PANEL_SAFE_GAP)}px`
-            );
-
-            area.scrollTop = area.scrollHeight;
-        }
-
-        function queueStickerPanelViewportUpdate(target) {
-            const panel = document.getElementById('stickerPanel-' + target);
-
-            if (
-                !panel ||
-                !panel.classList.contains('active') ||
-                stickerPanelFrameRequests[target]
-            ) {
-                return;
-            }
-
-            stickerPanelFrameRequests[target] = window.requestAnimationFrame(() => {
-                delete stickerPanelFrameRequests[target];
-                updateStickerPanelViewport(target);
-            });
-        }
-
-        function observeStickerPanel(target) {
-            const panel = document.getElementById('stickerPanel-' + target);
-
-            if (!panel || !('ResizeObserver' in window)) {
-                return;
-            }
-
-            if (stickerPanelObservers[target]) {
-                stickerPanelObservers[target].disconnect();
-            }
-
-            stickerPanelObservers[target] = new ResizeObserver(() => {
-                queueStickerPanelViewportUpdate(target);
-            });
-
-            stickerPanelObservers[target].observe(panel);
-        }
-
         window.toggleStickerPanel = function(target) {
             const panel = document.getElementById('stickerPanel-' + target);
-
-            if (!panel) {
-                return;
-            }
-
+            if (!panel) return;
             const isOpening = !panel.classList.contains('active');
+            document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
+            if (isOpening) {
+                panel.classList.add('active');
+                activeStickerTarget = target;
+                renderStickerBody(target, 'sticker');
+                panel.style.maxHeight = '';
 
-            document.querySelectorAll('.sticker-panel.active').forEach(openPanel => {
-                const openTarget = openPanel.id.replace('stickerPanel-', '');
-                closeStickerPanel(openTarget);
-            });
-
-            if (!isOpening) {
-                return;
+                // Mesaj sahəsini aşağıya sürüşdür ki, son mesaj görünsün
+                setTimeout(() => {
+                    const msgArea = target === 'main'
+                        ? document.getElementById('chatMessagesArea')
+                        : document.getElementById('pcw-body-' + target);
+                    if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+                }, 50);
+            } else {
+                activeStickerTarget = null;
             }
-
-            if (target !== 'main') {
-                const win = document.getElementById('pcw-' + target);
-
-                if (win) {
-                    win.classList.add('sticker-panel-open');
-                }
-            }
-
-            panel.classList.add('active');
-            activeStickerTarget = target;
-
-            renderStickerBody(target, 'sticker');
-            observeStickerPanel(target);
-            queueStickerPanelViewportUpdate(target);
         };
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                const panel = document.querySelector('.sticker-panel.active');
+                if (!panel) return;
+                // Panel açıqkən klaviatura dəyişəndə son mesajı yenə göstər
+                const target = activeStickerTarget;
+                if (!target) return;
+                setTimeout(() => {
+                    const msgArea = target === 'main'
+                        ? document.getElementById('chatMessagesArea')
+                        : document.getElementById('pcw-body-' + target);
+                    if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+                }, 80);
+            });
+        }
 
         window.switchStickerTab = function(target, tab) {
             const panel = document.getElementById('stickerPanel-' + target);
-
-            if (!panel) {
-                return;
-            }
-
-            panel.querySelectorAll('.sticker-tab').forEach(tabElement => {
-                tabElement.classList.toggle(
-                    'active',
-                    tabElement.dataset.tab === tab
-                );
-            });
-
+            if (!panel) return;
+            panel.querySelectorAll('.sticker-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
             renderStickerBody(target, tab);
-            queueStickerPanelViewportUpdate(target);
         };
 
-        // Mövcud GIPHY_API_KEY sətrinizi saxlayın.
+        // GIPHY-nin ictimai test açarı. Öz layihən üçün pulsuz açar al:
+        // https://developers.giphy.com/dashboard/ -> "Create an App" -> API Key-i kopyala
         const GIPHY_API_KEY = 'WhNJ8gWSYutgDZ5lYidapQQNC8jxBUUu';
         let gifSearchTimers = {};
 
         function renderStickerBody(target, tab) {
             const body = document.getElementById('stickerBody-' + target);
-
-            if (!body) {
-                return;
-            }
+            if (!body) return;
 
             if (tab === 'sticker') {
                 if (!STICKER_LIST.length) {
-                    body.innerHTML = `
-                        <div class="sticker-empty-state">
-                            😊 Stiker tapılmadı.
-                        </div>
-                    `;
+                    body.innerHTML = `<div class="sticker-empty-state">😊 Stiker tapılmadı.</div>`;
                     return;
                 }
-
-                body.innerHTML = `
-                    <div class="sticker-grid">
-                        ${STICKER_LIST.map(url =>
-                            `<img src="${url}" loading="lazy"
-                                onclick="sendStickerOrGif('${target}', '${url}', 'sticker')">`
-                        ).join('')}
-                    </div>
-                `;
-
+                body.innerHTML = `<div class="sticker-grid">${STICKER_LIST.map(url => `<img src="${url}" loading="lazy" onclick="sendStickerOrGif('${target}','${url}','sticker')">`).join('')}</div>`;
                 return;
             }
 
+            // GIF tab — axtarış paneli + nəticə şəbəkəsi
             body.innerHTML = `
                 <div class="gif-search-bar">
-                    <input
-                        type="text"
-                        class="gif-search-input"
-                        id="gifSearch-${target}"
-                        placeholder="GIF axtar (məs: salam, gülüş...)"
-                        oninput="onGifSearchInput('${target}', this.value)"
-                    >
+                    <input type="text" class="gif-search-input" id="gifSearch-${target}" placeholder="GIF axtar (məs: salam, gülüş...)" oninput="onGifSearchInput('${target}', this.value)">
                 </div>
-
                 <div class="sticker-grid" id="gifGrid-${target}"></div>
             `;
-
             renderGifGrid(target, GIF_LIST);
             loadTrendingGifs(target);
         }
 
         function renderGifGrid(target, urls) {
             const grid = document.getElementById('gifGrid-' + target);
-
-            if (!grid) {
-                return;
-            }
-
+            if (!grid) return;
             if (!urls.length) {
-                grid.innerHTML = `
-                    <div class="sticker-empty-state">
-                        🎞️ GIF tapılmadı.
-                    </div>
-                `;
-
-                queueStickerPanelViewportUpdate(target);
+                grid.innerHTML = `<div class="sticker-empty-state">🎞️ GIF tapılmadı.</div>`;
                 return;
             }
-
-            grid.innerHTML = urls.map(url =>
-                `<img src="${url}" loading="lazy"
-                    onclick="sendStickerOrGif('${target}', '${url}', 'gif')">`
-            ).join('');
-
-            queueStickerPanelViewportUpdate(target);
+            grid.innerHTML = urls.map(url => `<img src="${url}" loading="lazy" onclick="sendStickerOrGif('${target}','${url}','gif')">`).join('');
         }
 
         async function loadTrendingGifs(target) {
             try {
-                const res = await fetch(
-                    `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=50&rating=pg-13`
-                );
-
+                const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=24&rating=pg-13`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
-
+                // yerli kolleksiyanı GIPHY trend GIF-ləri ilə tamamla
                 renderGifGrid(target, [...GIF_LIST, ...urls]);
             } catch (err) {
                 console.error('GIPHY trend GIF xətası:', err);
@@ -5139,81 +4906,45 @@ connectedRef.on('value', (snap) => {
         }
 
         window.onGifSearchInput = function(target, query) {
-            if (gifSearchTimers[target]) {
-                clearTimeout(gifSearchTimers[target]);
-            }
-
-            gifSearchTimers[target] = setTimeout(() => {
-                searchGifs(target, query.trim());
-            }, 400);
+            if (gifSearchTimers[target]) clearTimeout(gifSearchTimers[target]);
+            gifSearchTimers[target] = setTimeout(() => searchGifs(target, query.trim()), 400);
         };
 
         async function searchGifs(target, query) {
             const grid = document.getElementById('gifGrid-' + target);
-
-            if (!grid) {
-                return;
-            }
-
+            if (!grid) return;
             if (!query) {
                 renderGifGrid(target, GIF_LIST);
                 loadTrendingGifs(target);
                 return;
             }
-
-            grid.innerHTML = `
-                <div class="sticker-empty-state">Axtarılır...</div>
-            `;
-
+            grid.innerHTML = `<div class="sticker-empty-state">Axtarılır...</div>`;
             try {
-                const res = await fetch(
-                    `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=50&rating=pg-13&lang=az`
-                );
-
+                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=24&rating=pg-13&lang=az`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
-
                 renderGifGrid(target, urls);
             } catch (err) {
-                grid.innerHTML = `
-                    <div class="sticker-empty-state">
-                        GIF axtarışı zamanı xəta baş verdi.
-                    </div>
-                `;
+                grid.innerHTML = `<div class="sticker-empty-state">GIF axtarışı zamanı xəta baş verdi.</div>`;
             }
         }
 
         window.sendStickerOrGif = function(target, url, tab) {
             const type = tab === 'gif' ? 'gif' : 'sticker';
-
             if (target === 'main') {
                 triggerMessageSend(url, type);
             } else {
                 sendPrivateChatMessage(target, url, type);
             }
-
-            closeStickerPanel(target);
+            const panel = document.getElementById('stickerPanel-' + target);
+            if (panel) panel.classList.remove('active');
         };
 
-        document.addEventListener('click', event => {
-            if (
-                activeStickerTarget &&
-                !event.target.closest('.sticker-panel') &&
-                !event.target.closest('.pill-icon-btn')
-            ) {
-                closeStickerPanel(activeStickerTarget);
+        document.addEventListener('click', (e) => {
+            if (activeStickerTarget && !e.target.closest('.sticker-panel') && !e.target.closest('.pill-icon-btn')) {
+                document.querySelectorAll('.sticker-panel.active').forEach(p => p.classList.remove('active'));
+                activeStickerTarget = null;
             }
-        });
-
-        window.addEventListener('resize', () => {
-            document.querySelectorAll('.sticker-panel.active').forEach(panel => {
-                const target = panel.id.replace('stickerPanel-', '');
-
-                panel.style.removeProperty('max-height');
-                delete panel.dataset.stickerDefaultMaxHeight;
-
-                queueStickerPanelViewportUpdate(target);
-            });
         });
 
         // ============================================================
