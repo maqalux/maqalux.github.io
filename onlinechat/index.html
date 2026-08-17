@@ -1862,7 +1862,53 @@
             gap: 8px;
             font-size: 11.5px;
         }
-
+        .pcw-back-recent-btn {
+    margin: 20px auto;
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #ffc107, #ff9800);
+    border: none;
+    border-radius: 24px;
+    color: #06163a;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: block;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+}
+       /* === ŞƏXSİ MESAJ AXTARIŞI === */
+.pcw-search-bar {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(var(--surface-rgb), 0.6);
+    border-bottom: 1px solid var(--border-10);
+    flex-shrink: 0;
+}
+.pcw-search-input {
+    flex: 1;
+    min-width: 0;
+    background: var(--panel-08);
+    border: 1px solid var(--border-10);
+    border-radius: 12px;
+    color: var(--text-main);
+    padding: 6px 10px;
+    font-size: 12px;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+}
+.pcw-search-nav, .pcw-search-close {
+    background: none;
+    border: none;
+    color: var(--text-50);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+}
+.pcw-search-nav:hover, .pcw-search-close:hover { color: var(--text-main); }
+.pcw-search-count { font-size: 11px; color: var(--text-50); min-width: 30px; text-align: center; }
+.pcw-msg.search-match { box-shadow: 0 0 0 2px #ffaa00; transition: box-shadow 0.2s; }
+.pcw-msg.search-current { box-shadow: 0 0 0 3px #ff6b00; }
         /* Toast */
         #toastContainer {
             position: fixed;
@@ -4279,7 +4325,186 @@ connectedRef.on('value', (snap) => {
             }
         };
 
-        let forwardMsgContext = null;
+   let forwardMsgContext = null;
+
+// === ŞƏXSİ MESAJ AXTARIŞI STATE VƏ FUNKSİYALAR ===
+let privateSearchState = {}; 
+let privateJumpContext = {}; 
+
+window.togglePrivateSearch = function(targetNick, show) {
+    const bar = document.getElementById('pcw-search-bar-' + targetNick);
+    if (!bar) return;
+    bar.style.display = show ? 'flex' : 'none';
+    if (show) {
+        const input = document.getElementById('pcw-search-input-' + targetNick);
+        if (input) input.focus();
+    } else {
+        privateSearchState[targetNick] = { query: '', matches: [], currentIdx: 0 };
+        renderPrivateSearch(targetNick);
+    }
+};
+
+window.searchInPrivateChat = function(targetNick, query) {
+    const q = query.trim().toLowerCase();
+    const state = privateSearchState[targetNick] || { matches: [], currentIdx: 0 };
+    state.query = q;
+    state.matches = [];
+
+    if (q) {
+        const body = document.getElementById('pcw-body-' + targetNick);
+        if (body) {
+            // Artıq birbaşa ekrandakı (DOM) mesajların içində axtarırıq ki, köhnə mesajlar da daxil olsun
+            const localMsgs = body.querySelectorAll('.pcw-msg');
+            localMsgs.forEach(el => {
+                if (el.innerText.toLowerCase().includes(q)) {
+                    state.matches.push(el.id.replace('pcwmsg-', ''));
+                }
+            });
+        }
+    }
+
+    state.currentIdx = state.matches.length > 0 ? 0 : -1;
+    privateSearchState[targetNick] = state;
+    renderPrivateSearch(targetNick);
+};
+
+window.navPrivateSearch = function(targetNick, dir) {
+    const state = privateSearchState[targetNick];
+    if (!state || !state.matches.length) return;
+    state.currentIdx = (state.currentIdx + dir + state.matches.length) % state.matches.length;
+    renderPrivateSearch(targetNick);
+};
+
+function renderPrivateSearch(targetNick) {
+    const body = document.getElementById('pcw-body-' + targetNick);
+    const counter = document.getElementById('pcw-search-count-' + targetNick);
+    if (!body || !counter) return;
+
+    const state = privateSearchState[targetNick] || { query: '', matches: [], currentIdx: -1 };
+
+    body.querySelectorAll('.pcw-msg.search-match, .pcw-msg.search-current').forEach(el => {
+        el.classList.remove('search-match', 'search-current');
+    });
+
+    if (!state.query || state.matches.length === 0) {
+        counter.textContent = state.query ? '0/0' : '';
+        return;
+    }
+
+    state.matches.forEach((msgId, idx) => {
+        const el = document.getElementById('pcwmsg-' + msgId);
+        if (el) {
+            el.classList.add('search-match');
+            if (idx === state.currentIdx) {
+                el.classList.add('search-current');
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+
+    counter.textContent = `${state.currentIdx + 1}/${state.matches.length}`;
+}
+
+// === TARİXƏ KEÇİD FUNKSİYASI ===
+window.togglePrivateDateJump = function(targetNick, show) {
+    const bar = document.getElementById('pcw-date-jump-bar-' + targetNick);
+    if (bar) bar.style.display = show ? 'flex' : 'none';
+};
+
+window.handlePrivateDateJump = function(targetNick, dateStr) {
+    if (!dateStr) return;
+    const ts = new Date(dateStr + "T00:00:00").getTime();
+    jumpToPrivateDate(targetNick, ts);
+    togglePrivateDateJump(targetNick, false);
+};
+
+async function jumpToPrivateDate(targetNick, ts) {
+    const body = document.getElementById('pcw-body-' + targetNick);
+    if (!body) return;
+    body.innerHTML = '<div class="older-msgs-spinner">Seçilmiş tarix yüklənir...</div>';
+
+    const startOfDay = new Date(ts);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(ts);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Həmin günün mesajlarını və bir az əvvəlkinin (kontekst üçün) yükləyirik
+    const q1 = db.ref('privateMessages').orderByChild('timestamp').startAt(startOfDay.getTime()).endAt(endOfDay.getTime()).once('value');
+    const q2 = db.ref('privateMessages').orderByChild('timestamp').endAt(startOfDay.getTime() - 1).limitToLast(10).once('value');
+
+    const [snap1, snap2] = await Promise.all([q1, q2]);
+    const dayMsgs = [];
+    const contextMsgs = [];
+
+    snap1.forEach(child => {
+        const m = child.val();
+        m.id = child.key;
+        if ((m.sender === currentUserData.nick && m.recipient === targetNick) || 
+            (m.sender === targetNick && m.recipient === currentUserData.nick)) {
+            dayMsgs.push(m);
+        }
+    });
+
+    snap2.forEach(child => {
+        const m = child.val();
+        m.id = child.key;
+        if ((m.sender === currentUserData.nick && m.recipient === targetNick) || 
+            (m.sender === targetNick && m.recipient === currentUserData.nick)) {
+            contextMsgs.push(m);
+        }
+    });
+
+    body.innerHTML = '';
+
+    if (dayMsgs.length === 0 && contextMsgs.length === 0) {
+        body.innerHTML = '<div class="sticker-empty-state">Bu gündə heç bir mesaj tapılmadı.</div>';
+    } else {
+        // Əvvəlki kontekst mesajları
+        contextMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        contextMsgs.forEach(msg => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg)));
+
+        // Tarix ayracı
+        const sep = document.createElement('div');
+        sep.className = 'pcw-date-separator';
+        sep.innerText = formatDateSeparatorLabel(ts);
+        body.appendChild(sep);
+
+        // Günün mesajları
+        dayMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        dayMsgs.forEach(msg => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg)));
+    }
+
+    // Geri qayıtmaq düyməsi
+    const backBtn = document.createElement('button');
+    backBtn.className = 'pcw-back-recent-btn';
+    backBtn.innerText = '↩ Ən son mesajlara qayıt';
+    backBtn.onclick = () => returnToRecentPrivateMessages(targetNick);
+    body.appendChild(backBtn);
+
+    privateJumpContext[targetNick] = true;
+    
+    // Əgər axtarış açıqdırsa, təzə yüklənmiş mesajlarda da axtarış et
+    if (privateSearchState[targetNick] && privateSearchState[targetNick].query) {
+        searchInPrivateChat(targetNick, privateSearchState[targetNick].query);
+    }
+
+    setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
+}
+
+function returnToRecentPrivateMessages(targetNick) {
+    const body = document.getElementById('pcw-body-' + targetNick);
+    if (!body) return;
+    body.innerHTML = '';
+    privateJumpContext[targetNick] = false;
+    
+    // Ən son mesajları yenidən əlavə et
+    const existingMsgs = privateMessagesByNick[targetNick] || [];
+    existingMsgs.forEach(msg => appendPrivateMessage(targetNick, msg));
+    body.scrollTop = body.scrollHeight;
+    
+    // Axtarış panelini təmizlə
+    togglePrivateSearch(targetNick, false);
+}
 
         window.forwardMessage = function(msgId, isPrivate, targetNick) {
             const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
@@ -4397,6 +4622,11 @@ connectedRef.on('value', (snap) => {
                 if (msg.sender !== currentUserData.nick && msg.recipient !== currentUserData.nick) return;
                 const el = document.getElementById('pcwmsg-' + msg.id);
                 if (el) el.innerHTML = buildPrivateMessageContentHtml(msg);
+                // Əgər axtarış açıqdısa, yenidən render et ki, vurğulama itməsin
+                const tNick = msg.sender === currentUserData.nick ? msg.recipient : msg.sender;
+                if (privateSearchState[tNick] && privateSearchState[tNick].query) {
+                    renderPrivateSearch(tNick);
+                }
                 if (typeof renderFriendsList === 'function') renderFriendsList();
             });
         }
@@ -4624,9 +4854,22 @@ connectedRef.on('value', (snap) => {
                         </div>
                         <div class="pcw-lastseen" id="pcw-lastseen-${targetNick}">${online ? 'onlayn' : formatLastSeen(user && user.lastSeen)}</div>
                     </div>
-                    <div class="pcw-actions">
-                        <span onclick="event.stopPropagation(); closePrivateChatWindow('${targetNick}')">✕</span>
-                    </div>
+                   <div class="pcw-actions">
+    <span onclick="event.stopPropagation(); togglePrivateSearch('${targetNick}', true)" title="Axtar"><i class="fas fa-search"></i></span>
+    <span onclick="event.stopPropagation(); togglePrivateDateJump('${targetNick}', true)" title="Tarixə keç"><i class="far fa-calendar"></i></span>
+    <span onclick="event.stopPropagation(); closePrivateChatWindow('${targetNick}')">✕</span>
+                </div>
+                </div>
+                <div class="pcw-search-bar" id="pcw-date-jump-bar-${targetNick}" style="display: none;">
+    <input type="date" class="pcw-search-input" id="pcw-date-input-${targetNick}" style="cursor:pointer;" max="${new Date().toISOString().split('T')[0]}" onchange="handlePrivateDateJump('${targetNick}', this.value)">
+    <button class="pcw-search-close" onclick="togglePrivateDateJump('${targetNick}', false)">✕</button>
+                </div>
+                <div class="pcw-search-bar" id="pcw-search-bar-${targetNick}">
+    <input type="text" class="pcw-search-input" id="pcw-search-input-${targetNick}" placeholder="Bu söhbətdə axtar..." oninput="searchInPrivateChat('${targetNick}', this.value)">
+    <span class="pcw-search-count" id="pcw-search-count-${targetNick}"></span>
+    <button class="pcw-search-nav" onclick="navPrivateSearch('${targetNick}', -1)">▲</button>
+    <button class="pcw-search-nav" onclick="navPrivateSearch('${targetNick}', 1)">▼</button>
+    <button class="pcw-search-close" onclick="togglePrivateSearch('${targetNick}', false)">✕</button>
                 </div>
                 <div class="pcw-body" id="pcw-body-${targetNick}">
                     <div class="pcw-typing-bubble" id="pcw-typing-${targetNick}">
