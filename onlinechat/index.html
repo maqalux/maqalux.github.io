@@ -1911,7 +1911,11 @@
         }
 
         /* Mobil */
-        @media (max-width: 700px) {
+       @media (max-width: 700px) {
+    /* Mövcud input bar kodlarına bunu əlavə edin */
+    .input-bar, .pcw-input-bar {
+        flex-wrap: wrap;
+    }
             header {
                 height: auto !important;
                 flex-direction: column !important;
@@ -2082,18 +2086,19 @@
                 padding: 14px 16px;
             }
             .sticker-panel {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 100%;
-                width: 100%;
-                max-width: 100%;
-                max-height: 44vh;
-                margin-bottom: 0;
-                border-radius: 16px 16px 0 0;
-                border-left: none;
-                border-right: none;
-            }
+        position: relative; /* Paneli mesajların üzərinə çıxarmaq əvəzinə öz yerini tutmasını təmin edir */
+        order: -1; /* Paneli göndərmə düyməsi və inputdan əvvələ (yuxarıya) keçirir */
+        bottom: auto;
+        left: auto;
+        right: auto;
+        width: 100%;
+        max-width: 100%;
+        max-height: 44vh; /* Ekranın 44%-dən artıq yer tutmasını əngəlləyir */
+        margin-bottom: 8px; /* Input xanası ilə arasında səliqəli boşluq yaradır */
+        border-radius: 16px;
+        border: 1px solid var(--border-12);
+        box-shadow: none; /* Üst-üstə düşmədiyi üçün ağır kölgəyə ehtiyac qalmır */
+    }
             .sticker-grid {
                 grid-template-columns: repeat(4, 1fr);
                 gap: 10px;
@@ -2522,7 +2527,6 @@
             "https://maqalux.github.io/stickers/9913-joobifp.png",
             "https://maqalux.github.io/stickers/9913-joobirose.png",
             "https://maqalux.github.io/stickers/9928-joobiwow.png",
-            "https://maqalux.github.io/stickers/1001600402.png",
             "https://maqalux.github.io/stickers/sticker_10.png"
         ];
 
@@ -3453,21 +3457,7 @@ connectedRef.on('value', (snap) => {
                         const hashMatch = window.location.hash.match(/^#open=(.+)$/);
                         const openParam = hashMatch ? decodeURIComponent(hashMatch[1]) : null;
                         if (openParam) {
-                             // Ana səhifədəki mesaj qutusundan gələndə dost siyahısı hələ
-                            // real-vaxt dinləyicisindən yüklənməmiş ola bilər. Pəncərəni
-                            // yaratmazdan əvvəl statusu birbaşa yoxlayırıq ki, dost üçün
-                            // səhvən "Dostluq göndər" düyməsi göstərilməsin.
-                            try {
-                                const friendSnap = await db.ref(`friends/${currentUserData.nick}/${openParam}`).once('value');
-                                if (friendSnap.exists()) {
-                                    myFriends[openParam] = friendSnap.val();
-                                } else {
-                                    delete myFriends[openParam];
-                                }
-                            } catch (err) {
-                                console.error('Dostluq statusu yoxlanılarkən xəta:', err);
-                            }
-                            openPrivateChatWindow(openParam);
+                            setTimeout(() => openPrivateChatWindow(openParam), 600);
                             const cleanUrl = window.location.pathname + window.location.search;
                             window.history.replaceState({}, document.title, cleanUrl);
                         }
@@ -3942,7 +3932,7 @@ connectedRef.on('value', (snap) => {
 
             const div = createMessageBubbleDiv(msg);
             area.appendChild(div);
-            area.scrollTop = area.scrollHeight;
+            setTimeout(() => { area.scrollTop = area.scrollHeight; }, 30);
 
             if (msg.sender !== currentUserData.nick && msg.id) {
                 markDelivered(msg.id, false);
@@ -4480,7 +4470,7 @@ connectedRef.on('value', (snap) => {
 
             const div = createPrivateMessageBubbleDiv(targetNick, msg);
             body.appendChild(div);
-            body.scrollTop = body.scrollHeight;
+            setTimeout(() => { body.scrollTop = body.scrollHeight; }, 30);
 
             if (msg.sender !== currentUserData.nick && msg.id) {
                 markDelivered(msg.id, true);
@@ -4832,10 +4822,35 @@ connectedRef.on('value', (snap) => {
                 panel.classList.add('active');
                 activeStickerTarget = target;
                 renderStickerBody(target, 'sticker');
+                panel.style.maxHeight = '';
+
+                // Mesaj sahəsini aşağıya sürüşdür ki, son mesaj görünsün
+                setTimeout(() => {
+                    const msgArea = target === 'main'
+                        ? document.getElementById('chatMessagesArea')
+                        : document.getElementById('pcw-body-' + target);
+                    if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+                }, 50);
             } else {
                 activeStickerTarget = null;
             }
         };
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                const panel = document.querySelector('.sticker-panel.active');
+                if (!panel) return;
+                // Panel açıqkən klaviatura dəyişəndə son mesajı yenə göstər
+                const target = activeStickerTarget;
+                if (!target) return;
+                setTimeout(() => {
+                    const msgArea = target === 'main'
+                        ? document.getElementById('chatMessagesArea')
+                        : document.getElementById('pcw-body-' + target);
+                    if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+                }, 80);
+            });
+        }
 
         window.switchStickerTab = function(target, tab) {
             const panel = document.getElementById('stickerPanel-' + target);
@@ -4885,7 +4900,7 @@ connectedRef.on('value', (snap) => {
 
         async function loadTrendingGifs(target) {
             try {
-                const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=50&rating=pg-13`);
+                const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=24&rating=pg-13`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
                 // yerli kolleksiyanı GIPHY trend GIF-ləri ilə tamamla
@@ -4910,7 +4925,7 @@ connectedRef.on('value', (snap) => {
             }
             grid.innerHTML = `<div class="sticker-empty-state">Axtarılır...</div>`;
             try {
-                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=50&rating=pg-13&lang=az`);
+                const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=24&rating=pg-13&lang=az`);
                 const data = await res.json();
                 const urls = (data.data || []).map(g => g.images.fixed_height.url);
                 renderGifGrid(target, urls);
