@@ -1911,7 +1911,11 @@
         }
 
         /* Mobil */
-        @media (max-width: 700px) {
+       @media (max-width: 700px) {
+    /* Mövcud input bar kodlarına bunu əlavə edin */
+    .input-bar, .pcw-input-bar {
+        flex-wrap: wrap;
+    }
             header {
                 height: auto !important;
                 flex-direction: column !important;
@@ -2082,18 +2086,19 @@
                 padding: 14px 16px;
             }
             .sticker-panel {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 100%;
-                width: 100%;
-                max-width: 100%;
-                max-height: 44vh;
-                margin-bottom: 0;
-                border-radius: 16px 16px 0 0;
-                border-left: none;
-                border-right: none;
-            }
+        position: relative; /* Paneli mesajların üzərinə çıxarmaq əvəzinə öz yerini tutmasını təmin edir */
+        order: -1; /* Paneli göndərmə düyməsi və inputdan əvvələ (yuxarıya) keçirir */
+        bottom: auto;
+        left: auto;
+        right: auto;
+        width: 100%;
+        max-width: 100%;
+        max-height: 44vh; /* Ekranın 44%-dən artıq yer tutmasını əngəlləyir */
+        margin-bottom: 8px; /* Input xanası ilə arasında səliqəli boşluq yaradır */
+        border-radius: 16px;
+        border: 1px solid var(--border-12);
+        box-shadow: none; /* Üst-üstə düşmədiyi üçün ağır kölgəyə ehtiyac qalmır */
+    }
             .sticker-grid {
                 grid-template-columns: repeat(4, 1fr);
                 gap: 10px;
