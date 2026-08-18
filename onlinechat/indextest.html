@@ -2972,7 +2972,7 @@
             if (!container || !currentUserData) return;
             
             const q = (query || '').toLowerCase().trim();
-            const users = lastActiveUsersList.filter(u => u.nick !== currentUserData.nick && !u.isBanned);
+            const users = lastActiveUsersList.filter(u => u && u.nick && u.nick !== currentUserData.nick && !u.isBanned);
             const filtered = q ? users.filter(u => u.nick.toLowerCase().includes(q)) : users;
             
             // Online olanları üstdə sıralayaq
@@ -4722,7 +4722,7 @@ function returnToRecentPrivateMessages(targetNick) {
         window.renderForwardTargetList = function(query) {
             const container = document.getElementById('forwardTargetList');
             const q = (query || '').toLowerCase().trim();
-            const users = lastActiveUsersList.filter(u => u.nick !== currentUserData.nick && !u.isBanned);
+            const users = lastActiveUsersList.filter(u => u && u.nick && u.nick !== currentUserData.nick && !u.isBanned);
             const filtered = q ? users.filter(u => u.nick.toLowerCase().includes(q)) : users;
             filtered.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0));
 
