@@ -2892,7 +2892,7 @@
 
             // Həmişə siyahının ən üstündə Ümumi Çat olsun
             let html = `
-                <div class="friend-row" onclick="switchMainView('general')" style="background: rgba(255, 170, 0, 0.05);">
+                    <div class="friend-row" onclick="openPrivateChatWindow('__GENERAL__')" style="background: rgba(255, 170, 0, 0.05);">
                     <div class="friend-row-avatar-wrap">
                         <div style="width:48px; height:48px; border-radius:50%; background: linear-gradient(135deg, #024397, #00285e); display:flex; align-items:center; justify-content:center; font-size:24px; color:white;">
                             <i class="fas fa-globe"></i>
@@ -3906,7 +3906,7 @@ connectedRef.on('value', (snap) => {
                 msg.id = snap.key;
                 const idx = allMessages.findIndex(m => m.id === msg.id);
                 if (idx !== -1) allMessages[idx] = msg;
-                const el = document.getElementById('msg-' + msg.id);
+                const el = document.getElementById('gmsg-' + msg.id);
                 if (!el) return;
                 el.innerHTML = buildMessageContentHtml(msg);
             });
@@ -3980,10 +3980,9 @@ connectedRef.on('value', (snap) => {
             return content;
         }
 
-        let generalScrollHandlerAttached = false;
-        function setupInfiniteScroll(area) {
-            if (generalScrollHandlerAttached) return;
-            generalScrollHandlerAttached = true;
+            function setupInfiniteScroll(area) {
+            if (area.dataset.infiniteScrollAttached) return;
+            area.dataset.infiniteScrollAttached = '1';
             area.addEventListener('scroll', () => {
                 if (area.scrollTop < 60) loadOlderMessages();
             });
@@ -3992,12 +3991,12 @@ connectedRef.on('value', (snap) => {
         function loadOlderMessages() {
             if (isLoadingOlderMessages || !hasMoreOlderMessages || !oldestMessageTimestamp) return;
             isLoadingOlderMessages = true;
-            const area = document.getElementById('chatMessagesArea');
+            const area = document.getElementById('pcw-body-__GENERAL__');
+            if (!area) { isLoadingOlderMessages = false; return; }
 
-            let spinner = document.getElementById('olderMsgsSpinner');
+            let spinner = area.querySelector('.older-msgs-spinner');
             if (!spinner) {
                 spinner = document.createElement('div');
-                spinner.id = 'olderMsgsSpinner';
                 spinner.className = 'older-msgs-spinner';
                 spinner.textContent = 'Yüklənir...';
                 area.insertBefore(spinner, area.firstChild);
@@ -4025,16 +4024,15 @@ connectedRef.on('value', (snap) => {
                     const prevScrollTop = area.scrollTop;
 
                     loaded.forEach(msg => {
-                        if (document.getElementById('msg-' + msg.id)) return;
+                        if (document.getElementById('gmsg-' + msg.id)) return;
                         allMessages.unshift(msg);
-                        const div = createMessageBubbleDiv(msg);
+                        const div = createMessageBubbleDiv(msg, '__GENERAL__');
                         area.insertBefore(div, area.firstChild);
                     });
 
                     oldestMessageTimestamp = loaded[0].timestamp || oldestMessageTimestamp;
                     if (loaded.length < 30) hasMoreOlderMessages = false;
 
-                    // skrolu köhnə mövqedə saxla (ekran "sıçramasın")
                     area.scrollTop = prevScrollTop + (area.scrollHeight - prevScrollHeight);
                     isLoadingOlderMessages = false;
                 }).catch(err => {
@@ -4044,28 +4042,38 @@ connectedRef.on('value', (snap) => {
                 });
         }
 
-        function createMessageBubbleDiv(msg) {
+            function createMessageBubbleDiv(msg, targetNick = null) {
             const div = document.createElement('div');
             div.className = 'msg-bubble ' + (msg.sender === currentUserData.nick ? 'msg-me' : 'msg-other');
-            div.id = 'msg-' + msg.id;
+            div.id = 'gmsg-' + msg.id;
             div.dataset.msgId = msg.id;
-            div.oncontextmenu = (e) => { e.preventDefault();
-                openMsgContextMenu(e, msg.id, false, null); };
-            attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, null));
-            attachSwipeToReply(div, () => startReply(msg.id, false, null));
+            div.oncontextmenu = (e) => { e.preventDefault(); openMsgContextMenu(e, msg.id, false, targetNick); };
+            attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, targetNick));
+            attachSwipeToReply(div, () => startReply(msg.id, false, targetNick));
             div.innerHTML = buildMessageContentHtml(msg);
             return div;
         }
 
-        function appendMessage(msg) {
+            function appendMessage(msg) {
             if (!msg) return;
-            const area = document.getElementById('chatMessagesArea');
+            // Yalnız pəncərə açıqdısa render edirik
+            const area = document.getElementById('pcw-body-__GENERAL__');
             if (!area) return;
 
-            // əgər bu mesaj artıq DOM-dadırsa keç
-            if (document.getElementById('msg-' + msg.id)) return;
+            if (document.getElementById('gmsg-' + msg.id)) return;
 
-            const div = createMessageBubbleDiv(msg);
+            const div = createMessageBubbleDiv(msg, '__GENERAL__');
+            
+            const thisDateKey = dateKeyOf(msg.timestamp);
+            const lastKey = area.dataset.lastDateKey || null;
+            if (thisDateKey && thisDateKey !== lastKey) {
+                const sep = document.createElement('div');
+                sep.className = 'pcw-date-separator';
+                sep.innerText = formatDateSeparatorLabel(msg.timestamp);
+                area.appendChild(sep);
+                area.dataset.lastDateKey = thisDateKey;
+            }
+
             area.appendChild(div);
             setTimeout(() => { area.scrollTop = area.scrollHeight; }, 30);
 
@@ -4174,7 +4182,107 @@ connectedRef.on('value', (snap) => {
                 showToast('Mesaj göndərilərkən xəta: ' + err.message, 'error');
             });
         };
+                // === ÜMUMİ ÇAT PƏNCƏRƏSİNDƏN MESAJ GÖNDƏRMƏ ===
+        window.sendGeneralChatPcwMessage = function() {
+            const win = document.getElementById('pcw-__GENERAL__');
+            if (!win) return;
+            const input = win.querySelector('.pcw-text-input');
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
 
+            if (editContext && !editContext.isPrivate) {
+                const editId = editContext.id;
+                db.ref(`messages/${editId}`).update({ text: text, isEdited: true, mentions: extractMentions(text) }).then(() => {
+                    input.value = '';
+                    input.style.height = 'auto';
+                    cancelEdit();
+                }).catch(err => {
+                    showToast('Redaktə edilərkən xəta: ' + err.message, 'error');
+                });
+                return;
+            }
+
+            const payload = {
+                sender: currentUserData.nick,
+                senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                text: text || '',
+                mediaType: 'text',
+                mediaUrl: '',
+                replyTo: replyContext ? { sender: replyContext.sender, text: replyContext.text, mediaType: replyContext.mediaType, mediaUrl: replyContext.mediaUrl } : null,
+                forwardedFrom: null,
+                mentions: extractMentions(text),
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                isDeleted: false,
+                reactions: {},
+                deliveredTo: [],
+                readBy: []
+            };
+            
+            db.ref('messages').push().set(payload).then(() => {
+                input.value = '';
+                input.style.height = 'auto';
+                cancelReply();
+                playSentSound();
+            }).catch(err => {
+                showToast('Mesaj göndərilərkən xəta: ' + err.message, 'error');
+            });
+        };
+
+        // Pəncərədən şəkil/video göndərmək üçün
+        window.handleGeneralMediaUploadPcw = async function(e) {
+            const file = e.target.files[0];
+            const win = document.getElementById('pcw-__GENERAL__');
+            const input = win ? win.querySelector('.pcw-text-input') : null;
+            if (!file || !input) return;
+
+            if (file.type.startsWith('video/')) {
+                input.placeholder = '🎬 Video yüklənir... 0%';
+                input.disabled = true;
+                try {
+                    const ok = await uploadVideoToStorage(file, (data, type) => {
+                        // Göndərmək üçün direct DB-yə yazırıq
+                        db.ref('messages').push().set({
+                            sender: currentUserData.nick,
+                            senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                            text: '', mediaType: type, mediaUrl: data, timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            isDeleted: false, reactions: {}, deliveredTo: [], readBy: []
+                        });
+                    }, (percent, done) => {
+                        if (input) input.placeholder = done ? '📤 Göndərilir...' : `🎬 Video yüklənir... ${percent}%`;
+                    });
+                } finally {
+                    input.placeholder = 'Mesaj yaz...';
+                    input.disabled = false;
+                    e.target.value = '';
+                }
+                return;
+            }
+
+            input.placeholder = '📸 Şəkil yüklənir...';
+            input.disabled = true;
+            const formData = new FormData();
+            formData.append('image', file);
+            try {
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    db.ref('messages').push().set({
+                        sender: currentUserData.nick,
+                        senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                        text: '', mediaType: 'image', mediaUrl: data.data.url, timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        isDeleted: false, reactions: {}, deliveredTo: [], readBy: []
+                    });
+                }
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            } finally {
+                input.placeholder = 'Mesaj yaz...';
+                input.disabled = false;
+                e.target.value = '';
+            }
+        };
+        
         window.handleKeyPress = function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -4296,8 +4404,8 @@ connectedRef.on('value', (snap) => {
             return '📎 Media';
         }
 
-        window.startReply = function(msgId, isPrivate, targetNick) {
-            const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
+                window.startReply = function(msgId, isPrivate, targetNick) {
+            const list = (isPrivate && targetNick !== '__GENERAL__') ? (privateMessagesByNick[targetNick] || []) : allMessages;
             const msg = list.find(m => m.id === msgId);
             if (!msg || msg.isDeleted) return;
             cancelEdit();
@@ -4310,7 +4418,8 @@ connectedRef.on('value', (snap) => {
                 mediaUrl: hasMedia ? msg.mediaUrl : null
             };
             const thumbHtml = replyContext.mediaUrl ? `<img src="${replyContext.mediaUrl}" class="reply-thumb" alt="">` : '';
-            if (isPrivate) {
+            
+            if (isPrivate || targetNick === '__GENERAL__') {
                 const pcw = document.getElementById('pcw-' + targetNick);
                 if (pcw) {
                     let bar = pcw.querySelector('.pcw-reply-preview');
@@ -4319,8 +4428,7 @@ connectedRef.on('value', (snap) => {
                         bar.className = 'pcw-reply-preview';
                         pcw.querySelector('.pcw-input-bar').insertAdjacentElement('beforebegin', bar);
                     }
-                    bar.innerHTML =
-                        `${thumbHtml}<div style="flex:1;border-left:2px solid #ffaa00;padding-left:8px;overflow:hidden;"><b style="color:#ffc107;display:block;">${escapeHtml(msg.sender)}</b><span style="opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">${escapeHtml(replyContext.text)}</span></div><span style="cursor:pointer;opacity:0.6;" onclick="this.closest('.pcw-reply-preview').remove(); replyContext=null;">✕</span>`;
+                    bar.innerHTML = `${thumbHtml}<div style="flex:1;border-left:2px solid #ffaa00;padding-left:8px;overflow:hidden;"><b style="color:#ffc107;display:block;">${escapeHtml(msg.sender)}</b><span style="opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">${escapeHtml(replyContext.text)}</span></div><span style="cursor:pointer;opacity:0.6;" onclick="this.closest('.pcw-reply-preview').remove(); replyContext=null;">✕</span>`;
                 }
             } else {
                 document.getElementById('replyPreviewSender').innerText = msg.sender;
@@ -4345,13 +4453,14 @@ connectedRef.on('value', (snap) => {
         };
 
         window.startEdit = function(msgId, isPrivate, targetNick) {
-            const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
+            const list = (isPrivate && targetNick !== '__GENERAL__') ? (privateMessagesByNick[targetNick] || []) : allMessages;
             const msg = list.find(m => m.id === msgId);
             if (!msg || msg.isDeleted) return;
             if (msg.sender !== currentUserData.nick) return;
             cancelReply();
             editContext = { id: msg.id, isPrivate: isPrivate, targetNick: targetNick || null };
-            if (isPrivate) {
+            
+            if (isPrivate || targetNick === '__GENERAL__') {
                 const pcw = document.getElementById('pcw-' + targetNick);
                 if (pcw) {
                     let bar = pcw.querySelector('.pcw-edit-preview');
@@ -4360,8 +4469,7 @@ connectedRef.on('value', (snap) => {
                         bar.className = 'pcw-reply-preview pcw-edit-preview';
                         pcw.querySelector('.pcw-input-bar').insertAdjacentElement('beforebegin', bar);
                     }
-                    bar.innerHTML =
-                        `<div style="flex:1;border-left:2px solid #4fc3f7;padding-left:8px;overflow:hidden;"><b style="color:#4fc3f7;display:block;">✏️ Mesajı redaktə edirsiniz</b></div><span style="cursor:pointer;opacity:0.6;" onclick="cancelEdit()">✕</span>`;
+                    bar.innerHTML = `<div style="flex:1;border-left:2px solid #4fc3f7;padding-left:8px;overflow:hidden;"><b style="color:#4fc3f7;display:block;">✏️ Mesajı redaktə edirsiniz</b></div><span style="cursor:pointer;opacity:0.6;" onclick="cancelEdit()">✕</span>`;
                     const input = pcw.querySelector('.pcw-text-input');
                     input.value = msg.text || '';
                     autoGrowTextarea(input);
@@ -4383,23 +4491,21 @@ connectedRef.on('value', (snap) => {
             const wasPrivate = editContext.isPrivate;
             const targetNick = editContext.targetNick;
             editContext = null;
-            if (wasPrivate) {
+            
+            if (wasPrivate || targetNick === '__GENERAL__') {
                 const pcw = document.getElementById('pcw-' + targetNick);
                 if (pcw) {
                     const bar = pcw.querySelector('.pcw-edit-preview');
                     if (bar) bar.remove();
                     const input = pcw.querySelector('.pcw-text-input');
-                    if (input) { input.value = '';
-                        input.style.height = 'auto'; }
+                    if (input) { input.value = ''; input.style.height = 'auto'; }
                 }
             } else {
                 document.getElementById('editPreviewBar').style.display = 'none';
                 const input = document.getElementById('messageInputField');
-                if (input) { input.value = '';
-                    input.style.height = 'auto'; }
+                if (input) { input.value = ''; input.style.height = 'auto'; }
             }
         };
-
    let forwardMsgContext = null;
 
 // === ŞƏXSİ MESAJ AXTARIŞI STATE VƏ FUNKSİYALAR ===
@@ -4897,10 +5003,13 @@ function returnToRecentPrivateMessages(targetNick) {
             });
         }
 
-        window.openPrivateChatWindow = function(targetNick) {
+                window.openPrivateChatWindow = function(targetNick) {
             if (targetNick === currentUserData.nick) return;
-            if (openPCWs[targetNick]) {
-                const win = document.getElementById('pcw-' + targetNick);
+            const isGeneral = targetNick === '__GENERAL__';
+            const winId = isGeneral ? '__GENERAL__' : targetNick;
+
+            if (openPCWs[winId]) {
+                const win = document.getElementById('pcw-' + winId);
                 if (win) {
                     win.classList.remove('minimized');
                     const inp = win.querySelector('.pcw-text-input');
@@ -4908,74 +5017,88 @@ function returnToRecentPrivateMessages(targetNick) {
                 }
                 return;
             }
-            openPCWs[targetNick] = true;
-            if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
-            watchTypingStatus(targetNick);
+            openPCWs[winId] = true;
+            
+            if (!isGeneral) {
+                if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
+                watchTypingStatus(targetNick);
+            }
 
-            const user = lastActiveUsersList.find(u => u.nick === targetNick);
-            const avatar = user && user.avatarUrl ? user.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png';
-            const online = !!(user && user.online);
+            let avatar = 'https://maqalux.github.io/Picsart_25-10-28_10-01-29-931.png'; // Logo üçün
+            let title = '💬 Ümumi çat';
+            let online = true;
+            let typingBubbleHtml = '';
+            let sendAction = `sendGeneralChatPcwMessage()`;
+            let stickerTarget = '__GENERAL__';
+            
+            if (!isGeneral) {
+                const user = lastActiveUsersList.find(u => u.nick === targetNick);
+                avatar = user && user.avatarUrl ? user.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png';
+                title = escapeHtml(targetNick);
+                online = !!(user && user.online);
+                typingBubbleHtml = `<div class="pcw-typing-bubble" id="pcw-typing-${targetNick}"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+                sendAction = `sendPrivateChatMessage('${targetNick}')`;
+                stickerTarget = targetNick;
+            }
 
             const win = document.createElement('div');
             win.className = 'private-chat-window';
-            win.id = 'pcw-' + targetNick;
+            win.id = 'pcw-' + winId;
             win.innerHTML = `
-                <div class="pcw-header" onclick="togglePCWMinimize('${targetNick}')">
+                <div class="pcw-header" onclick="togglePCWMinimize('${winId}')">
                     <img src="${avatar}" alt="av" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${avatar}')">
                     <div class="pcw-title">
                         <div class="pcw-name-row">
                             <span class="pcw-online-dot ${online?'is-online':''}"></span>
-                            ${escapeHtml(targetNick)}
+                            ${title}
                         </div>
-                        <div class="pcw-lastseen" id="pcw-lastseen-${targetNick}">${online ? 'onlayn' : formatLastSeen(user && user.lastSeen)}</div>
+                        <div class="pcw-lastseen" id="pcw-lastseen-${winId}">${online ? 'onlayn' : 'son görülmə məlum deyil'}</div>
                     </div>
                    <div class="pcw-actions">
-    <span onclick="event.stopPropagation(); togglePrivateSearch('${targetNick}', true)" title="Axtar"><i class="fas fa-search"></i></span>
-    <span onclick="event.stopPropagation(); togglePrivateDateJump('${targetNick}', true)" title="Tarixə keç"><i class="far fa-calendar"></i></span>
-    <span onclick="event.stopPropagation(); closePrivateChatWindow('${targetNick}')">✕</span>
+                       <span onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true)" title="Axtar"><i class="fas fa-search"></i></span>
+                       <span onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true)" title="Tarixə keç"><i class="far fa-calendar"></i></span>
+                       <span onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')">✕</span>
+                   </div>
                 </div>
+                <div class="pcw-search-bar" id="pcw-date-jump-bar-${winId}" style="display: none;">
+                    <input type="date" class="pcw-search-input" id="pcw-date-input-${winId}" style="cursor:pointer;" max="${new Date().toISOString().split('T')[0]}" onchange="handlePrivateDateJump('${winId}', this.value)">
+                    <button class="pcw-search-close" onclick="togglePrivateDateJump('${winId}', false)">✕</button>
                 </div>
-                <div class="pcw-search-bar" id="pcw-date-jump-bar-${targetNick}" style="display: none;">
-    <input type="date" class="pcw-search-input" id="pcw-date-input-${targetNick}" style="cursor:pointer;" max="${new Date().toISOString().split('T')[0]}" onchange="handlePrivateDateJump('${targetNick}', this.value)">
-    <button class="pcw-search-close" onclick="togglePrivateDateJump('${targetNick}', false)">✕</button>
+                <div class="pcw-search-bar" id="pcw-search-bar-${winId}">
+                    <input type="text" class="pcw-search-input" id="pcw-search-input-${winId}" placeholder="Bu söhbətdə axtar..." oninput="searchInPrivateChat('${winId}', this.value)">
+                    <span class="pcw-search-count" id="pcw-search-count-${winId}"></span>
+                    <button class="pcw-search-nav" onclick="navPrivateSearch('${winId}', -1)">▲</button>
+                    <button class="pcw-search-nav" onclick="navPrivateSearch('${winId}', 1)">▼</button>
+                    <button class="pcw-search-close" onclick="togglePrivateSearch('${winId}', false)">✕</button>
                 </div>
-                <div class="pcw-search-bar" id="pcw-search-bar-${targetNick}">
-    <input type="text" class="pcw-search-input" id="pcw-search-input-${targetNick}" placeholder="Bu söhbətdə axtar..." oninput="searchInPrivateChat('${targetNick}', this.value)">
-    <span class="pcw-search-count" id="pcw-search-count-${targetNick}"></span>
-    <button class="pcw-search-nav" onclick="navPrivateSearch('${targetNick}', -1)">▲</button>
-    <button class="pcw-search-nav" onclick="navPrivateSearch('${targetNick}', 1)">▼</button>
-    <button class="pcw-search-close" onclick="togglePrivateSearch('${targetNick}', false)">✕</button>
+                <div class="pcw-body" id="pcw-body-${winId}">
+                    ${typingBubbleHtml}
                 </div>
-                <div class="pcw-body" id="pcw-body-${targetNick}">
-                    <div class="pcw-typing-bubble" id="pcw-typing-${targetNick}">
-                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                    </div>
-                </div>
-                <div class="pcw-input-bar" style="position:relative;" id="pcw-inputbar-${targetNick}">
+                <div class="pcw-input-bar" style="position:relative;" id="pcw-inputbar-${winId}">
                     <div class="input-pill">
-                        <div class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${targetNick}')">😊</div>
-                        <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); sendPrivateChatMessage('${targetNick}');}" oninput="autoGrowTextarea(this); notifyTyping('${targetNick}');"></textarea>
+                        <div class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Stiker və GIF" onclick="toggleStickerPanel('${stickerTarget}')">😊</div>
+                        <textarea class="pcw-text-input" placeholder="Mesaj yaz..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); ${sendAction};}" oninput="autoGrowTextarea(this); ${isGeneral ? '' : `notifyTyping('${targetNick}');`};"></textarea>
                         <label class="pill-icon-btn" style="width:26px;height:26px;font-size:15px;" title="Şəkil / Video göndər">
                             🖼️
-                            <input type="file" accept="image/*,video/*" style="display:none;" onchange="handlePrivateMediaUpload(event, '${targetNick}')">
+                            <input type="file" accept="image/*,video/*" style="display:none;" onchange="${isGeneral ? `handleGeneralMediaUploadPcw(event)` : `handlePrivateMediaUpload(event, '${targetNick}')`}">
                         </label>
-                        <div class="pill-icon-btn mic-cancel-btn hidden" style="width:26px;height:26px;font-size:15px;" id="micCancel-${targetNick}" title="Ləğv et" onclick="cancelVoiceRecording('${targetNick}')">✕</div>
-                        <div class="pill-icon-btn mic-btn" style="width:26px;height:26px;font-size:15px;" id="micBtn-${targetNick}" title="Səs mesajı" onclick="toggleVoiceRecording('${targetNick}')"><i class="fa-solid fa-microphone"></i></div>
+                        <div class="pill-icon-btn mic-cancel-btn hidden" style="width:26px;height:26px;font-size:15px;" id="micCancel-${winId}" title="Ləğv et" onclick="cancelVoiceRecording('${winId}')">✕</div>
+                        <div class="pill-icon-btn mic-btn" style="width:26px;height:26px;font-size:15px;" id="micBtn-${winId}" title="Səs mesajı" onclick="toggleVoiceRecording('${winId}')"><i class="fa-solid fa-microphone"></i></div>
                     </div>
-                    <button class="pcw-send-btn" onclick="sendPrivateChatMessage('${targetNick}')">➤</button>
-                    <div class="sticker-panel pcw-sticker-panel" id="stickerPanel-${targetNick}">
+                    <button class="pcw-send-btn" onclick="${sendAction}">➤</button>
+                    <div class="sticker-panel pcw-sticker-panel" id="stickerPanel-${stickerTarget}">
                         <div class="sticker-tabs">
-                            <div class="sticker-tab active" data-tab="sticker" onclick="switchStickerTab('${targetNick}','sticker')">Stiker</div>
-                            <div class="sticker-tab" data-tab="gif" onclick="switchStickerTab('${targetNick}','gif')">GIF</div>
+                            <div class="sticker-tab active" data-tab="sticker" onclick="switchStickerTab('${stickerTarget}','sticker')">Stiker</div>
+                            <div class="sticker-tab" data-tab="gif" onclick="switchStickerTab('${stickerTarget}','gif')">GIF</div>
                         </div>
-                        <div class="sticker-body" id="stickerBody-${targetNick}"></div>
+                        <div class="sticker-body" id="stickerBody-${stickerTarget}"></div>
                     </div>
                 </div>
             `;
             document.getElementById('privateChatWindowsContainer').appendChild(win);
 
-            if (!isFriend(targetNick)) {
-                const bar = document.getElementById('pcw-inputbar-' + targetNick);
+            if (!isGeneral && !isFriend(targetNick)) {
+                const bar = document.getElementById('pcw-inputbar-' + winId);
                 if (bar) {
                     bar.innerHTML = `
                         <button style="flex:1; background: linear-gradient(90deg, #ffc107, #ff9800); color:#06163a; border:none; border-radius:24px; padding:12px; font-weight:700; cursor:pointer;" onclick="sendFriendRequest('${targetNick}', '${avatar}'); this.textContent='Sorğu göndərildi ✓'; this.disabled=true; this.style.opacity=0.7;">
@@ -4985,25 +5108,29 @@ function returnToRecentPrivateMessages(targetNick) {
                 }
             }
 
-            const body = document.getElementById('pcw-body-' + targetNick);
+            const body = document.getElementById('pcw-body-' + winId);
             body.dataset.lastDateKey = '';
             body.dataset.firstDateKey = '';
-            (privateMessagesByNick[targetNick] || []).forEach(msg => appendPrivateMessage(targetNick, msg));
-            body.scrollTop = body.scrollHeight;
-            markAllConversationRead(targetNick);
 
-            const existingMsgs = privateMessagesByNick[targetNick] || [];
-            privateOldestTimestamp[targetNick] = existingMsgs.length
-                ? Math.min(...existingMsgs.map(m => m.timestamp || Infinity))
-                : Date.now();
-            privateNoMoreOlder[targetNick] = false;
-            privateOlderLoading[targetNick] = false;
-            setupPrivateInfiniteScroll(targetNick);
+            if (isGeneral) {
+                // Ümumi çatın mesajlarını pəncərə içinə yükləyirik
+                                allMessages.forEach(msg => appendMessage(msg));
+                body.scrollTop = body.scrollHeight;
+                setupInfiniteScroll(body); // Skrollda köhnə mesajları yükləmək üçün
+            } else {
+                (privateMessagesByNick[targetNick] || []).forEach(msg => appendPrivateMessage(targetNick, msg));
+                body.scrollTop = body.scrollHeight;
+                markAllConversationRead(targetNick);
+                
+                const existingMsgs = privateMessagesByNick[targetNick] || [];
+                privateOldestTimestamp[targetNick] = existingMsgs.length ? Math.min(...existingMsgs.map(m => m.timestamp || Infinity)) : Date.now();
+                privateNoMoreOlder[targetNick] = false;
+                privateOlderLoading[targetNick] = false;
+                setupPrivateInfiniteScroll(targetNick);
 
-            // Qlobal 200-mesaj limiti səbəbindən bu söhbətin heç bir mesajı yüklənməyibsə,
-            // boş pəncərədə sürüşdürmə mümkün olmadığı üçün tarixçəni özümüz tələb edək.
-            if (!existingMsgs.length) {
-                loadOlderPrivateMessages(targetNick);
+                if (!existingMsgs.length) {
+                    loadOlderPrivateMessages(targetNick);
+                }
             }
         };
 
@@ -5266,9 +5393,9 @@ function returnToRecentPrivateMessages(targetNick) {
             }
         }
 
-        window.sendStickerOrGif = function(target, url, tab) {
+               window.sendStickerOrGif = function(target, url, tab) {
             const type = tab === 'gif' ? 'gif' : 'sticker';
-            if (target === 'main') {
+            if (target === 'main' || target === '__GENERAL__') {
                 triggerMessageSend(url, type);
             } else {
                 sendPrivateChatMessage(target, url, type);
@@ -5599,8 +5726,8 @@ function returnToRecentPrivateMessages(targetNick) {
                             inputEl.disabled = true;
                             inputEl.placeholder = '🎤 Səs mesajı yüklənir... 0%';
                         }
-                        uploadAudioToStorage(blob, (url, type) => {
-                            if (target === 'main') {
+                          uploadAudioToStorage(blob, (url, type) => {
+                            if (target === 'main' || target === '__GENERAL__') {
                                 triggerMessageSend(url, type);
                             } else {
                                 sendPrivateChatMessage(target, url, type);
