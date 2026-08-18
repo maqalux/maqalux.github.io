@@ -2419,7 +2419,7 @@
         </div>
     </div>
         
-    <!-- Yeni Söhbət Modalı -->
+       <!-- Yeni Söhbət Modalı -->
     <div class="modal-overlay" id="newChatModal">
         <div class="modal-box">
             <button class="modal-close" onclick="closeNewChatModal()">✕</button>
@@ -2429,6 +2429,7 @@
             <div class="forward-target-list" id="newChatUserList" style="max-height: 350px; margin-top: 15px;"></div>
         </div>
     </div>
+    
     <!-- Söhbət arxa fonu Modal -->
     <div class="modal-overlay" id="wallpaperModal">
         <div class="modal-box">
@@ -2953,23 +2954,28 @@
             container.innerHTML = html;
         }
         window.renderFriendsList = renderFriendsList;
-
         // === YENİ SÖHBƏT MODAL FUNKSİYALARI ===
         window.openNewChatModal = function() {
+            const modal = document.getElementById('newChatModal');
+            if (!modal) return;
             document.getElementById('newChatSearchInput').value = '';
             renderNewChatUserList('');
-            document.getElementById('newChatModal').classList.add('active');
+            modal.classList.add('active');
         };
+        
         window.closeNewChatModal = function() {
             document.getElementById('newChatModal').classList.remove('active');
         };
 
         window.renderNewChatUserList = function(query) {
             const container = document.getElementById('newChatUserList');
-            if (!container) return;
+            if (!container || !currentUserData) return;
+            
             const q = (query || '').toLowerCase().trim();
             const users = lastActiveUsersList.filter(u => u.nick !== currentUserData.nick && !u.isBanned);
             const filtered = q ? users.filter(u => u.nick.toLowerCase().includes(q)) : users;
+            
+            // Online olanları üstdə sıralayaq
             filtered.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0));
 
             if (!filtered.length) {
@@ -2981,28 +2987,31 @@
                 const safeNick = u.nick.replace(/'/g, "\\'");
                 const safeAvatar = (u.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png').replace(/'/g, "\\'");
                 const isF = isFriend(u.nick);
+                
                 // Dostdursa yazışma aç, deyilsə dostluq sorğusu göndər
                 const action = isF 
                     ? `closeNewChatModal(); openPrivateChatWindow('${safeNick}');` 
                     : `closeNewChatModal(); sendFriendRequest('${safeNick}', '${safeAvatar}');`;
+                    
                 const btnText = isF ? '💬 Yazışmağa keç' : '🤝 Dostluq göndər';
                 const btnStyle = isF 
                     ? 'background: linear-gradient(90deg, #2ecc71, #27ae60); color:white;' 
                     : 'background: linear-gradient(90deg, #ffc107, #ff9800); color:#06163a;';
 
+                // Bütün sətir kliklənən olsun
                 return `
-                    <div class="forward-target-item" style="flex-wrap:nowrap; border-bottom: 1px solid var(--border-10); padding: 10px 0;">
+                    <div class="forward-target-item" style="cursor: pointer; flex-wrap:nowrap; border-bottom: 1px solid var(--border-10); padding: 10px 0;" onclick="${action}">
                         <img src="${u.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png'}" class="forward-target-avatar" alt="av">
                         <span class="forward-target-name">${escapeHtml(u.nick)}</span>
                         ${u.online ? '<span class="forward-online-dot"></span>' : ''}
-                        <button onclick="${action}" style="margin-left:auto; border:none; padding:6px 12px; border-radius:16px; font-size:12px; font-weight:700; cursor:pointer; ${btnStyle}">
+                        <button onclick="event.stopPropagation(); ${action}" style="margin-left:auto; border:none; padding:6px 12px; border-radius:16px; font-size:12px; font-weight:700; cursor:pointer; ${btnStyle}">
                             ${btnText}
                         </button>
                     </div>
                 `;
             }).join('');
         };
-
+        
         function initHeaderMessageInbox() {
             if (!currentUserData) return;
             if (msgInboxRef) msgInboxRef.off();
