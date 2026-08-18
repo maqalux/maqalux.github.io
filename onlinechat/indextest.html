@@ -2317,9 +2317,11 @@
                     <button class="logout-btn" onclick="handleLogout()">Çıxış</button>
                 </div>
 
-                <div class="main-view-tabs">
-                    <button class="main-view-tab active" id="tabBtnFriends" onclick="switchMainView('friends')">👥 Dostlar</button>
-                    <button class="main-view-tab" id="tabBtnGeneral" onclick="switchMainView('general')">💬 Ümumi çat</button>
+                  <div class="main-view-tabs" style="display:flex; justify-content:space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid var(--border-10);">
+                    <h4 style="margin:0; color:#ffaa00; font-size:18px; font-weight:700;">Söhbətlər</h4>
+                    <button class="login-btn" style="width:auto; margin:0; padding:8px 16px; font-size:13px;" onclick="openNewChatModal()">
+                        ✏️ Yeni söhbət
+                    </button>
                 </div>
 
                 <div class="friends-list-view" id="friendsListView">
@@ -2416,7 +2418,17 @@
             </div>
         </div>
     </div>
-
+        
+    <!-- Yeni Söhbət Modalı -->
+    <div class="modal-overlay" id="newChatModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeNewChatModal()">✕</button>
+            <h3>Yeni söhbət</h3>
+            <p class="modal-desc">Kimə mesaj göndərmək istədiyinizi axtarın.</p>
+            <input type="text" id="newChatSearchInput" class="custom-input" placeholder="İstifadəçi adı..." oninput="renderNewChatUserList(this.value)">
+            <div class="forward-target-list" id="newChatUserList" style="max-height: 350px; margin-top: 15px;"></div>
+        </div>
+    </div>
     <!-- Söhbət arxa fonu Modal -->
     <div class="modal-overlay" id="wallpaperModal">
         <div class="modal-box">
@@ -2858,36 +2870,48 @@
             renderFriendReqDropdown();
         }
 
-        window.switchMainView = function(view) {
+                window.switchMainView = function(view) {
             const friendsView = document.getElementById('friendsListView');
             const generalBody = document.getElementById('generalChatBody');
             const generalInputBar = document.getElementById('generalInputBar');
-            const tabFriends = document.getElementById('tabBtnFriends');
-            const tabGeneral = document.getElementById('tabBtnGeneral');
             if (view === 'friends') {
                 friendsView.style.display = 'flex';
                 generalBody.style.display = 'none';
                 generalInputBar.style.display = 'none';
-                tabFriends.classList.add('active');
-                tabGeneral.classList.remove('active');
                 renderFriendsList();
             } else {
                 friendsView.style.display = 'none';
                 generalBody.style.display = 'flex';
                 generalInputBar.style.display = 'flex';
-                tabFriends.classList.remove('active');
-                tabGeneral.classList.add('active');
             }
         };
 
         function renderFriendsList() {
             const container = document.getElementById('friendsListContainer');
             if (!container || !currentUserData) return;
+
+            // Həmişə siyahının ən üstündə Ümumi Çat olsun
+            let html = `
+                <div class="friend-row" onclick="switchMainView('general')" style="background: rgba(255, 170, 0, 0.05);">
+                    <div class="friend-row-avatar-wrap">
+                        <div style="width:48px; height:48px; border-radius:50%; background: linear-gradient(135deg, #024397, #00285e); display:flex; align-items:center; justify-content:center; font-size:24px; color:white;">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                    </div>
+                    <div class="friend-row-info">
+                        <div class="friend-row-name">💬 Ümumi çat</div>
+                        <div class="friend-row-preview">Bütün istifadəçilərlə söhbət</div>
+                    </div>
+                </div>
+            `;
+
             const friendNicks = Object.keys(myFriends);
             if (!friendNicks.length) {
-                container.innerHTML = `<div class="friend-list-empty">Hələ heç bir dostunuz yoxdur. 🙂<br><br>"Ümumi çat" tabındakı Aktiv istifadəçilər bölməsindən kiməsə toxunub dostluq sorğusu göndərin.</div>`;
+                html += `<div class="friend-list-empty" style="padding: 20px;">Heç bir dostunuz yoxdur.<br><br>Yuxarıdakı "Yeni söhbət" düyməsinə toxunaraq dost əldə edə bilərsiniz.</div>`;
+                container.innerHTML = html;
                 return;
             }
+            
             const rows = friendNicks.map(nick => {
                 const userInfo = (typeof lastActiveUsersList !== 'undefined' ? lastActiveUsersList : []).find(u => u.nick === nick);
                 const online = !!(userInfo && userInfo.online);
@@ -2910,7 +2934,7 @@
                 return { nick, online, avatar, preview, timeStr, isUnread, sortTs };
             }).sort((a, b) => b.sortTs - a.sortTs);
 
-            container.innerHTML = rows.map(r => `
+            html += rows.map(r => `
                 <div class="friend-row" onclick="openPrivateChatWindow('${r.nick.replace(/'/g, "\\'")}')">
                     <div class="friend-row-avatar-wrap">
                         <img src="${r.avatar}" class="friend-row-avatar" alt="av">
@@ -2925,8 +2949,59 @@
                     </div>
                 </div>
             `).join('');
+
+            container.innerHTML = html;
         }
         window.renderFriendsList = renderFriendsList;
+
+        // === YENİ SÖHBƏT MODAL FUNKSİYALARI ===
+        window.openNewChatModal = function() {
+            document.getElementById('newChatSearchInput').value = '';
+            renderNewChatUserList('');
+            document.getElementById('newChatModal').classList.add('active');
+        };
+        window.closeNewChatModal = function() {
+            document.getElementById('newChatModal').classList.remove('active');
+        };
+
+        window.renderNewChatUserList = function(query) {
+            const container = document.getElementById('newChatUserList');
+            if (!container) return;
+            const q = (query || '').toLowerCase().trim();
+            const users = lastActiveUsersList.filter(u => u.nick !== currentUserData.nick && !u.isBanned);
+            const filtered = q ? users.filter(u => u.nick.toLowerCase().includes(q)) : users;
+            filtered.sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0));
+
+            if (!filtered.length) {
+                container.innerHTML = '<div class="sticker-empty-state">İstifadəçi tapılmadı.</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(u => {
+                const safeNick = u.nick.replace(/'/g, "\\'");
+                const safeAvatar = (u.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png').replace(/'/g, "\\'");
+                const isF = isFriend(u.nick);
+                // Dostdursa yazışma aç, deyilsə dostluq sorğusu göndər
+                const action = isF 
+                    ? `closeNewChatModal(); openPrivateChatWindow('${safeNick}');` 
+                    : `closeNewChatModal(); sendFriendRequest('${safeNick}', '${safeAvatar}');`;
+                const btnText = isF ? '💬 Yazışmağa keç' : '🤝 Dostluq göndər';
+                const btnStyle = isF 
+                    ? 'background: linear-gradient(90deg, #2ecc71, #27ae60); color:white;' 
+                    : 'background: linear-gradient(90deg, #ffc107, #ff9800); color:#06163a;';
+
+                return `
+                    <div class="forward-target-item" style="flex-wrap:nowrap; border-bottom: 1px solid var(--border-10); padding: 10px 0;">
+                        <img src="${u.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png'}" class="forward-target-avatar" alt="av">
+                        <span class="forward-target-name">${escapeHtml(u.nick)}</span>
+                        ${u.online ? '<span class="forward-online-dot"></span>' : ''}
+                        <button onclick="${action}" style="margin-left:auto; border:none; padding:6px 12px; border-radius:16px; font-size:12px; font-weight:700; cursor:pointer; ${btnStyle}">
+                            ${btnText}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        };
 
         function initHeaderMessageInbox() {
             if (!currentUserData) return;
