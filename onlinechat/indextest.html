@@ -5634,6 +5634,10 @@ function returnToRecentPrivateMessages(targetNick) {
                 `<button type="button" class="ctx-item" onclick="startReply('${msgId}', ${isPrivate}, ${targetNick ? `'${targetNick}'` : null})">↩️ Cavabla</button>`;
             items +=
                 `<button type="button" class="ctx-item" onclick="forwardMessage('${msgId}', ${isPrivate}, ${targetNick ? `'${targetNick}'` : null})">↪️ Yönləndir</button>`;
+            if (msg.text && msg.text.trim()) {
+                items +=
+                    `<button type="button" class="ctx-item" onclick="copyMessageText('${msgId}', ${isPrivate}, ${targetNick ? `'${targetNick}'` : null})">📋 Mətni kopyala</button>`;
+            }
 
             const myRole = currentUserData.role;
             const isOwn = msg.sender === currentUserData.nick;
@@ -5660,6 +5664,39 @@ function returnToRecentPrivateMessages(targetNick) {
         window.closeMsgContextMenu = function() {
             document.getElementById('msgContextMenu').style.display = 'none';
             document.getElementById('ctxOverlay').style.display = 'none';
+        };
+
+        window.copyMessageText = function(msgId, isPrivate, targetNick) {
+            const list = isPrivate ? (privateMessagesByNick[targetNick] || []) : allMessages;
+            const msg = list.find(m => m.id === msgId);
+            closeMsgContextMenu();
+            if (!msg || msg.isDeleted || !msg.text) return;
+            const text = msg.text;
+
+            const fallbackCopy = () => {
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast('Mətn kopyalandı', 'success', 1500);
+                } catch (err) {
+                    showToast('Kopyalama uğursuz oldu', 'error');
+                }
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Mətn kopyalandı', 'success', 1500);
+                }).catch(fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
         };
 
         function attachLongPress(el, callback, duration = 480) {
