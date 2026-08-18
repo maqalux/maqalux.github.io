@@ -932,6 +932,11 @@
             touch-action: manipulation;
             -webkit-tap-highlight-color: rgba(255, 170, 0, 0.25);
         }
+        /* Ardıcıl mesaj qruplaşdırması: eyni göndərəndən gələn ardıcıl mesajlarda
+           ad/avatar təkrarlanmır, aralıq daha sıx olur */
+        .msg-bubble.msg-grouped {
+            margin-top: -11px;
+        }
 
         /* Input bar */
         .input-bar {
@@ -1809,6 +1814,9 @@
         .pcw-msg.pcw-msg-other {
             background: var(--panel-08);
             border-bottom-left-radius: 4px;
+        }
+        .pcw-msg.pcw-grouped {
+            margin-top: -6px;
         }
         .pcw-msg img {
             max-width: 100%;
@@ -3917,11 +3925,23 @@ connectedRef.on('value', (snap) => {
                 if (idx !== -1) allMessages[idx] = msg;
                 const el = document.getElementById('gmsg-' + msg.id);
                 if (!el) return;
-                el.innerHTML = buildMessageContentHtml(msg);
+                const grouped = el.dataset.grouped === '1';
+                el.innerHTML = buildMessageContentHtml(msg, grouped);
             });
         }
 
-        function buildMessageContentHtml(msg) {
+        // Eyni göndərəndən 5 dəqiqə ərzində ardıcıl gələn mesajlar qruplaşdırılır
+        // (WhatsApp/Telegram tərzi): ad və avatar yalnız qrupun ilk mesajında göstərilir.
+        const MESSAGE_GROUP_WINDOW_MS = 5 * 60 * 1000;
+        function isGroupedMessage(msg, prevMsg) {
+            if (!msg || !prevMsg) return false;
+            if (prevMsg.sender !== msg.sender) return false;
+            const gap = (msg.timestamp || 0) - (prevMsg.timestamp || 0);
+            if (gap < 0 || gap > MESSAGE_GROUP_WINDOW_MS) return false;
+            return true;
+        }
+
+        function buildMessageContentHtml(msg, grouped = false) {
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             const isOther = msg.sender !== currentUserData.nick;
             const avatarClickAttrs = isOther ? ` onclick="event.stopPropagation(); openImageViewer('${avatar}')" style="cursor:zoom-in;"` : '';
@@ -3929,10 +3949,10 @@ connectedRef.on('value', (snap) => {
                 ` onclick="event.stopPropagation(); openPrivateChatWindow('${escapeHtml(msg.sender)}')" ontouchend="event.stopPropagation(); event.preventDefault(); openPrivateChatWindow('${escapeHtml(msg.sender)}')" style="cursor:pointer;"` :
                 '';
             let content = `
-                <div class="msg-header">
+                ${grouped ? '' : `<div class="msg-header">
                     <img src="${avatar}" class="msg-avatar" alt="Profile" draggable="false"${avatarClickAttrs}>
                     <b${nameClickAttrs}>${escapeHtml(msg.sender)}</b>
-                </div>
+                </div>`}
                 ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
                 ${msg.replyTo ? `<div class="msg-reply-preview">${msg.replyTo.mediaUrl ? `<img src="${msg.replyTo.mediaUrl}" class="reply-thumb" alt="">` : ''}<div class="reply-text-wrap"><b>${escapeHtml(msg.replyTo.sender)}</b><span class="reply-text">${escapeHtml(msg.replyTo.text || '')}</span></div></div>` : ''}
                 <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : highlightMentions(msg.text, msg.mentions)}</div>
@@ -4032,12 +4052,18 @@ connectedRef.on('value', (snap) => {
                     const prevScrollHeight = area.scrollHeight;
                     const prevScrollTop = area.scrollTop;
 
-                    loaded.forEach(msg => {
-                        if (document.getElementById('gmsg-' + msg.id)) return;
-                        allMessages.unshift(msg);
-                        const div = createMessageBubbleDiv(msg, '__GENERAL__');
-                        area.insertBefore(div, area.firstChild);
-                    });
+                    const newOnes = loaded.filter(msg => !document.getElementById('gmsg-' + msg.id));
+                    if (newOnes.length) {
+                        allMessages = newOnes.concat(allMessages);
+                        const fragment = document.createDocumentFragment();
+                        let prevInBatch = null;
+                        newOnes.forEach(msg => {
+                            const grouped = isGroupedMessage(msg, prevInBatch);
+                            fragment.appendChild(createMessageBubbleDiv(msg, '__GENERAL__', grouped));
+                            prevInBatch = msg;
+                        });
+                        area.insertBefore(fragment, area.firstChild);
+                    }
 
                     oldestMessageTimestamp = loaded[0].timestamp || oldestMessageTimestamp;
                     if (loaded.length < 30) hasMoreOlderMessages = false;
@@ -4051,15 +4077,16 @@ connectedRef.on('value', (snap) => {
                 });
         }
 
-            function createMessageBubbleDiv(msg, targetNick = null) {
+            function createMessageBubbleDiv(msg, targetNick = null, grouped = false) {
             const div = document.createElement('div');
-            div.className = 'msg-bubble ' + (msg.sender === currentUserData.nick ? 'msg-me' : 'msg-other');
+            div.className = 'msg-bubble ' + (msg.sender === currentUserData.nick ? 'msg-me' : 'msg-other') + (grouped ? ' msg-grouped' : '');
             div.id = 'gmsg-' + msg.id;
             div.dataset.msgId = msg.id;
+            div.dataset.grouped = grouped ? '1' : '0';
             div.oncontextmenu = (e) => { e.preventDefault(); openMsgContextMenu(e, msg.id, false, targetNick); };
             attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, false, targetNick));
             attachSwipeToReply(div, () => startReply(msg.id, false, targetNick));
-            div.innerHTML = buildMessageContentHtml(msg);
+            div.innerHTML = buildMessageContentHtml(msg, grouped);
             return div;
         }
 
@@ -4071,17 +4098,22 @@ connectedRef.on('value', (snap) => {
 
             if (document.getElementById('gmsg-' + msg.id)) return;
 
-            const div = createMessageBubbleDiv(msg, '__GENERAL__');
-            
             const thisDateKey = dateKeyOf(msg.timestamp);
             const lastKey = area.dataset.lastDateKey || null;
+            let isNewDay = false;
             if (thisDateKey && thisDateKey !== lastKey) {
                 const sep = document.createElement('div');
                 sep.className = 'pcw-date-separator';
                 sep.innerText = formatDateSeparatorLabel(msg.timestamp);
                 area.appendChild(sep);
                 area.dataset.lastDateKey = thisDateKey;
+                isNewDay = true;
             }
+
+            const idx = allMessages.indexOf(msg);
+            const prevMsg = (!isNewDay && idx > 0) ? allMessages[idx - 1] : null;
+            const grouped = isGroupedMessage(msg, prevMsg);
+            const div = createMessageBubbleDiv(msg, '__GENERAL__', grouped);
 
             area.appendChild(div);
             setTimeout(() => { area.scrollTop = area.scrollHeight; }, 30);
@@ -4651,7 +4683,7 @@ async function jumpToPrivateDate(targetNick, ts) {
     } else {
         // Əvvəlki kontekst mesajları
         contextMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        contextMsgs.forEach(msg => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg)));
+        contextMsgs.forEach((msg, i) => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg, isGroupedMessage(msg, i > 0 ? contextMsgs[i - 1] : null))));
 
         // Tarix ayracı
         const sep = document.createElement('div');
@@ -4661,7 +4693,7 @@ async function jumpToPrivateDate(targetNick, ts) {
 
         // Günün mesajları
         dayMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        dayMsgs.forEach(msg => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg)));
+        dayMsgs.forEach((msg, i) => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg, isGroupedMessage(msg, i > 0 ? dayMsgs[i - 1] : null))));
     }
 
     // Geri qayıtmaq düyməsi
@@ -4811,7 +4843,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 if (!currentUserData) return;
                 if (msg.sender !== currentUserData.nick && msg.recipient !== currentUserData.nick) return;
                 const el = document.getElementById('pcwmsg-' + msg.id);
-                if (el) el.innerHTML = buildPrivateMessageContentHtml(msg);
+                if (el) el.innerHTML = buildPrivateMessageContentHtml(msg, el.dataset.grouped === '1');
                 // Əgər axtarış açıqdısa, yenidən render et ki, vurğulama itməsin
                 const tNick = msg.sender === currentUserData.nick ? msg.recipient : msg.sender;
                 if (privateSearchState[tNick] && privateSearchState[tNick].query) {
@@ -4821,14 +4853,14 @@ function returnToRecentPrivateMessages(targetNick) {
             });
         }
 
-        function buildPrivateMessageContentHtml(msg) {
+        function buildPrivateMessageContentHtml(msg, grouped = false) {
             const isMe = msg.sender === currentUserData.nick;
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             let content = `
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                ${grouped ? '' : `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
                     <img src="${avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;cursor:zoom-in;" alt="av" onclick="event.stopPropagation(); openImageViewer('${avatar}')">
                     <b style="font-size:0.8em;opacity:0.85;color:#ffc107;">${escapeHtml(msg.sender)}</b>
-                </div>
+                </div>`}
                 ${msg.forwardedFrom ? `<div class="msg-forward-tag">↪️ ${escapeHtml(msg.forwardedFrom)} tərəfindən yönləndirilib</div>` : ''}
                 ${msg.replyTo ? `<div class="msg-reply-preview">${msg.replyTo.mediaUrl ? `<img src="${msg.replyTo.mediaUrl}" class="reply-thumb" alt="">` : ''}<div class="reply-text-wrap"><b>${escapeHtml(msg.replyTo.sender)}</b><span class="reply-text">${escapeHtml(msg.replyTo.text || '')}</span></div></div>` : ''}
                 <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : linkifyText(escapeHtml(msg.text))}</div>
@@ -4872,17 +4904,18 @@ function returnToRecentPrivateMessages(targetNick) {
             return content;
         }
 
-        function createPrivateMessageBubbleDiv(targetNick, msg) {
+        function createPrivateMessageBubbleDiv(targetNick, msg, grouped = false) {
             const div = document.createElement('div');
             const isMe = msg.sender === currentUserData.nick;
-            div.className = 'pcw-msg ' + (isMe ? 'pcw-msg-me' : 'pcw-msg-other');
+            div.className = 'pcw-msg ' + (isMe ? 'pcw-msg-me' : 'pcw-msg-other') + (grouped ? ' pcw-grouped' : '');
             div.id = 'pcwmsg-' + msg.id;
             div.dataset.msgId = msg.id;
+            div.dataset.grouped = grouped ? '1' : '0';
             div.oncontextmenu = (e) => { e.preventDefault();
                 openMsgContextMenu(e, msg.id, true, targetNick); };
             attachLongPress(div, (e) => openMsgContextMenu(e, msg.id, true, targetNick));
             attachSwipeToReply(div, () => startReply(msg.id, true, targetNick));
-            div.innerHTML = buildPrivateMessageContentHtml(msg);
+            div.innerHTML = buildPrivateMessageContentHtml(msg, grouped);
             return div;
         }
 
@@ -4893,16 +4926,22 @@ function returnToRecentPrivateMessages(targetNick) {
 
             const thisDateKey = dateKeyOf(msg.timestamp);
             const lastKey = body.dataset.lastDateKey || null;
+            let isNewDay = false;
             if (thisDateKey && thisDateKey !== lastKey) {
                 const sep = document.createElement('div');
                 sep.className = 'pcw-date-separator';
                 sep.innerText = formatDateSeparatorLabel(msg.timestamp);
                 body.appendChild(sep);
                 body.dataset.lastDateKey = thisDateKey;
+                isNewDay = true;
             }
             if (!body.dataset.firstDateKey) body.dataset.firstDateKey = thisDateKey;
 
-            const div = createPrivateMessageBubbleDiv(targetNick, msg);
+            const list = privateMessagesByNick[targetNick] || [];
+            const idx = list.indexOf(msg);
+            const prevMsg = (!isNewDay && idx > 0) ? list[idx - 1] : null;
+            const grouped = isGroupedMessage(msg, prevMsg);
+            const div = createPrivateMessageBubbleDiv(targetNick, msg, grouped);
             body.appendChild(div);
             setTimeout(() => { body.scrollTop = body.scrollHeight; }, 30);
 
@@ -4927,17 +4966,22 @@ function returnToRecentPrivateMessages(targetNick) {
 
             const fragment = document.createDocumentFragment();
             let runningDateKey = null;
+            let prevInBatch = null;
             batch.forEach(msg => {
                 if (document.getElementById('pcwmsg-' + msg.id)) return;
                 const thisDateKey = dateKeyOf(msg.timestamp);
+                let isNewDay = false;
                 if (thisDateKey && thisDateKey !== runningDateKey) {
                     const sep = document.createElement('div');
                     sep.className = 'pcw-date-separator';
                     sep.innerText = formatDateSeparatorLabel(msg.timestamp);
                     fragment.appendChild(sep);
                     runningDateKey = thisDateKey;
+                    isNewDay = true;
                 }
-                fragment.appendChild(createPrivateMessageBubbleDiv(targetNick, msg));
+                const grouped = isGroupedMessage(msg, isNewDay ? null : prevInBatch);
+                fragment.appendChild(createPrivateMessageBubbleDiv(targetNick, msg, grouped));
+                prevInBatch = msg;
             });
 
             // batch ilə mövcud ilk mesaj eyni günə aiddirsə, təkrarlanan ayırıcını sil
@@ -4996,7 +5040,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 const prevScrollTop = body.scrollTop;
 
                 if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
-                batch.forEach(msg => privateMessagesByNick[targetNick].unshift(msg));
+                privateMessagesByNick[targetNick] = batch.concat(privateMessagesByNick[targetNick]);
                 prependPrivateMessages(targetNick, batch);
                 markAllConversationRead(targetNick);
 
