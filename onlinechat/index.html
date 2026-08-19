@@ -5081,47 +5081,6 @@ function returnToRecentPrivateMessages(targetNick) {
             });
         }
 
-        let privateHistoryFetched = {};
-
-        function ensurePrivateHistoryLoaded(targetNick, callback) {
-            if (privateHistoryFetched[targetNick]) {
-                if (callback) callback();
-                return;
-            }
-            privateHistoryFetched[targetNick] = true;
-            const myNick = currentUserData.nick;
-
-            const q1 = db.ref('privateMessages').orderByChild('sender').equalTo(myNick).once('value');
-            const q2 = db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value');
-
-            Promise.all([q1, q2]).then(([snap1, snap2]) => {
-                if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
-                const existingIds = new Set(privateMessagesByNick[targetNick].map(m => m.id));
-
-                snap1.forEach(child => {
-                    const m = child.val();
-                    m.id = child.key;
-                    if (m.recipient === targetNick && !existingIds.has(m.id)) {
-                        privateMessagesByNick[targetNick].push(m);
-                        existingIds.add(m.id);
-                    }
-                });
-                snap2.forEach(child => {
-                    const m = child.val();
-                    m.id = child.key;
-                    if (m.recipient === myNick && !existingIds.has(m.id)) {
-                        privateMessagesByNick[targetNick].push(m);
-                        existingIds.add(m.id);
-                    }
-                });
-
-                privateMessagesByNick[targetNick].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                if (callback) callback();
-            }).catch(err => {
-                console.error('Tam tarixçə yüklənərkən xəta:', err);
-                if (callback) callback();
-            });
-        }
                 window.openPrivateChatWindow = function(targetNick) {
             if (targetNick === currentUserData.nick) return;
             const isGeneral = targetNick === '__GENERAL__';
@@ -5236,20 +5195,22 @@ function returnToRecentPrivateMessages(targetNick) {
                                 allMessages.forEach(msg => appendMessage(msg));
                 body.scrollTop = body.scrollHeight;
                 setupInfiniteScroll(body); // Skrollda köhnə mesajları yükləmək üçün
-                } else {
-                ensurePrivateHistoryLoaded(targetNick, () => {
-                    (privateMessagesByNick[targetNick] || []).forEach(msg => appendPrivateMessage(targetNick, msg));
-                    body.scrollTop = body.scrollHeight;
-                    markAllConversationRead(targetNick);
+            } else {
+                (privateMessagesByNick[targetNick] || []).forEach(msg => appendPrivateMessage(targetNick, msg));
+                body.scrollTop = body.scrollHeight;
+                markAllConversationRead(targetNick);
+                
+                const existingMsgs = privateMessagesByNick[targetNick] || [];
+                privateOldestTimestamp[targetNick] = existingMsgs.length ? Math.min(...existingMsgs.map(m => m.timestamp || Infinity)) : Date.now();
+                privateNoMoreOlder[targetNick] = false;
+                privateOlderLoading[targetNick] = false;
+                setupPrivateInfiniteScroll(targetNick);
 
-                    const existingMsgs = privateMessagesByNick[targetNick] || [];
-                    privateOldestTimestamp[targetNick] = existingMsgs.length ? Math.min(...existingMsgs.map(m => m.timestamp || Infinity)) : Date.now();
-                    privateNoMoreOlder[targetNick] = false;
-                    privateOlderLoading[targetNick] = false;
-                    setupPrivateInfiniteScroll(targetNick);
-                });
+                if (!existingMsgs.length) {
+                    loadOlderPrivateMessages(targetNick);
+                }
             }
-            };
+        };
 
         window.togglePCWMinimize = function(targetNick) {
             const win = document.getElementById('pcw-' + targetNick);
@@ -6174,8 +6135,8 @@ function returnToRecentPrivateMessages(targetNick) {
         console.log('Maqalux Çat - Socket.io istifadə edilmir, tamamilə Firebase ilə işləyir.');
         console.log('✅ Fiks edildi: Ümumi mesajlar indi Ctrl+Shift+R-dən sonra itmir.');
         console.log('✅ Fiks edildi: Şəxsi mesajlar indi işləyir.');
-        </script>
-        </script>
+    </script>
+    <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker qeydiyyat xətası:', err));
