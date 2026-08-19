@@ -4835,45 +4835,47 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         // 10. ŞƏXSİ MESAJLAR - FİKS EDİLDİ
         // ============================================================
-    function loadPrivateMessages() {
-            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_added', (snap) => {
-                const msg = snap.val();
-                msg.id = snap.key;
-                if (!currentUserData) return;
-                if (msg.sender === currentUserData.nick || msg.recipient === currentUserData.nick) {
-                    const other = msg.sender === currentUserData.nick ? msg.recipient : msg.sender;
-                    if (!privateMessagesByNick[other]) privateMessagesByNick[other] = [];
-                    // təkrar əlavənin qarşısını al
-                    const exists = privateMessagesByNick[other].some(m => m.id === msg.id);
-                    if (!exists) {
-                        privateMessagesByNick[other].push(msg);
-                        if (openPCWs[other]) {
-                            appendPrivateMessage(other, msg);
-                        }
-                        if (msg.sender !== currentUserData.nick) {
-                            bumpTabTitle();
-                            if ((msg.timestamp || 0) > pageLoadTimestamp) playReceivedSound();
-                        }
-                        if (typeof renderFriendsList === 'function') renderFriendsList();
-                    }
-                }
-            });
+        function loadPrivateMessages() {
+            if (!currentUserData) return;
+            const myNick = currentUserData.nick;
 
-            // Mövcud mesajın istənilən sahəsi (tik, reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
-            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_changed', (snap) => {
+            function handlePrivateAdded(snap) {
                 const msg = snap.val();
                 msg.id = snap.key;
-                if (!currentUserData) return;
-                if (msg.sender !== currentUserData.nick && msg.recipient !== currentUserData.nick) return;
+                const other = msg.sender === myNick ? msg.recipient : msg.sender;
+                if (!other) return;
+                if (!privateMessagesByNick[other]) privateMessagesByNick[other] = [];
+                const exists = privateMessagesByNick[other].some(m => m.id === msg.id);
+                if (!exists) {
+                    privateMessagesByNick[other].push(msg);
+                    if (openPCWs[other]) {
+                        appendPrivateMessage(other, msg);
+                    }
+                    if (msg.sender !== myNick) {
+                        bumpTabTitle();
+                        if ((msg.timestamp || 0) > pageLoadTimestamp) playReceivedSound();
+                    }
+                    if (typeof renderFriendsList === 'function') renderFriendsList();
+                }
+            }
+
+            function handlePrivateChanged(snap) {
+                const msg = snap.val();
+                msg.id = snap.key;
                 const el = document.getElementById('pcwmsg-' + msg.id);
                 if (el) el.innerHTML = buildPrivateMessageContentHtml(msg, el.dataset.grouped === '1');
-                // Əgər axtarış açıqdısa, yenidən render et ki, vurğulama itməsin
-                const tNick = msg.sender === currentUserData.nick ? msg.recipient : msg.sender;
+                const tNick = msg.sender === myNick ? msg.recipient : msg.sender;
                 if (privateSearchState[tNick] && privateSearchState[tNick].query) {
                     renderPrivateSearch(tNick);
                 }
                 if (typeof renderFriendsList === 'function') renderFriendsList();
-            });
+            }
+
+            // Server-tərəfli filtrlə: yalnız MƏNƏ aid mesajlar yüklənir (bütün onlayn istifadəçilərə deyil)
+            db.ref('privateMessages').orderByChild('recipient').equalTo(myNick).limitToLast(200).on('child_added', handlePrivateAdded);
+            db.ref('privateMessages').orderByChild('sender').equalTo(myNick).limitToLast(200).on('child_added', handlePrivateAdded);
+            db.ref('privateMessages').orderByChild('recipient').equalTo(myNick).limitToLast(200).on('child_changed', handlePrivateChanged);
+            db.ref('privateMessages').orderByChild('sender').equalTo(myNick).limitToLast(200).on('child_changed', handlePrivateChanged);
         }
 
         function buildPrivateMessageContentHtml(msg, grouped = false) {
