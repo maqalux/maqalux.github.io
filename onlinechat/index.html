@@ -2708,6 +2708,7 @@
         let friendReqListenersAttached = false;
         let friendReqFirstLoad = true;
         let friendModalQueue = [];
+        let friendsLoaded = false;
 
         function isFriend(nick) {
             return !!myFriends[nick];
@@ -2843,31 +2844,39 @@
             `).join('');
         }
 
-        function initFriendSystem() {
-            if (!currentUserData) return;
-            friendReqFirstLoad = true;
+    async function initFriendSystem() {
+    if (!currentUserData) return;
+    friendReqFirstLoad = true;
 
-            db.ref(`friends/${currentUserData.nick}`).on('value', (snap) => {
-                myFriends = snap.val() || {};
-                if (typeof renderFriendsList === 'function') renderFriendsList();
-            });
+    // Əvvəlcə ilk snapshot-u GÖZLƏYİRİK ki, myFriends UI-dan əvvəl dolsun
+    try {
+        const initialSnap = await db.ref(`friends/${currentUserData.nick}`).once('value');
+        myFriends = initialSnap.val() || {};
+    } catch (err) {
+        console.error('Dostlar ilkin yüklənərkən xəta:', err);
+    }
+    friendsLoaded = true;
 
-            db.ref(`friendRequests/${currentUserData.nick}`).on('value', (snap) => {
-                const newRequests = snap.val() || {};
-                if (!friendReqFirstLoad) {
-                    // Yalnız YENİ gələn sorğular üçün avtomatik pəncərə göstər
-                    Object.keys(newRequests).forEach(fromNick => {
-                        if (!incomingFriendRequests[fromNick]) {
-                            queueFriendRequestModal(fromNick, newRequests[fromNick].fromAvatar);
-                            playReceivedSound();
-                        }
-                    });
+    db.ref(`friends/${currentUserData.nick}`).on('value', (snap) => {
+        myFriends = snap.val() || {};
+        if (typeof renderFriendsList === 'function') renderFriendsList();
+    });
+
+    db.ref(`friendRequests/${currentUserData.nick}`).on('value', (snap) => {
+        const newRequests = snap.val() || {};
+        if (!friendReqFirstLoad) {
+            Object.keys(newRequests).forEach(fromNick => {
+                if (!incomingFriendRequests[fromNick]) {
+                    queueFriendRequestModal(fromNick, newRequests[fromNick].fromAvatar);
+                    playReceivedSound();
                 }
-                incomingFriendRequests = newRequests;
-                friendReqFirstLoad = false;
-                renderFriendReqDropdown();
             });
         }
+        incomingFriendRequests = newRequests;
+        friendReqFirstLoad = false;
+        renderFriendReqDropdown();
+    });
+}
 
         function stopFriendSystem() {
             if (currentUserData) {
@@ -2898,6 +2907,10 @@
         function renderFriendsList() {
             const container = document.getElementById('friendsListContainer');
             if (!container || !currentUserData) return;
+            if (!friendsLoaded) {
+            container.innerHTML = '<div class="loading" style="padding:20px;text-align:center;opacity:0.6;">Yüklənir...</div>';
+            return;
+            }
 
             // Həmişə siyahının ən üstündə Ümumi Çat olsun
             let html = `
@@ -3586,7 +3599,7 @@ connectedRef.on('value', (snap) => {
                         loadActiveUsers();
                         loadPrivateMessages();
                         initHeaderMessageInbox();
-                        initFriendSystem();
+                        await initFriendSystem();
                         switchMainView('friends');
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
@@ -3707,10 +3720,20 @@ connectedRef.on('value', (snap) => {
             }
         };
 
-        window.handleLogout = async function() {
+               window.handleLogout = async function() {
             if (currentUser) {
-                await db.ref(`users/${currentUser.uid}`).update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP });
-                await auth.signOut();
+                try {
+                    const updatePromise = db.ref(`users/${currentUser.uid}`).update({
+                        online: false,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 2000));
+                    await Promise.race([updatePromise, timeoutPromise]);
+                } catch (err) {
+                    console.error('Logout zamanı DB yeniləmə xətası:', err);
+                } finally {
+                    await auth.signOut();
+                }
             }
         };
 
@@ -5467,24 +5490,44 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         // 12. AKTİV İSTİFADƏÇİLƏR
         // ============================================================
-        function loadActiveUsers() {
-            db.ref('users').on('value', (snap) => {
-                const list = [];
-                snap.forEach(child => {
-                    const u = child.val();
-                    u.uid = child.key;
-                    list.push(u);
-                });
-                lastActiveUsersList = list;
-                renderActiveUsers(list);
-                Object.keys(openPCWs).forEach(nick => {
-                    const found = list.find(u => u.nick === nick);
-                    const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
-                    if (dot) dot.classList.toggle('is-online', !!(found && found.online));
-                    updatePcwStatusLine(nick);
-                });
-            });
+       function loadActiveUsers() {
+    // 1) İlk açılışda tam siyahını bir dəfə çək
+    db.ref('users').once('value', (snap) => {
+        const list = [];
+        snap.forEach(child => {
+            const u = child.val();
+            u.uid = child.key;
+            list.push(u);
+        });
+        lastActiveUsersList = list;
+        renderActiveUsers(list);
+    });
+
+    // 2) Sonra yalnız DƏYİŞƏN istifadəçini yenilə (bütün cədvəli yox)
+    db.ref('users').on('child_changed', (snap) => {
+        const u = snap.val();
+        u.uid = snap.key;
+        const idx = lastActiveUsersList.findIndex(x => x.uid === u.uid);
+        if (idx !== -1) lastActiveUsersList[idx] = u; else lastActiveUsersList.push(u);
+        renderActiveUsers(lastActiveUsersList);
+        Object.keys(openPCWs).forEach(nick => {
+            const found = lastActiveUsersList.find(x => x.nick === nick);
+            const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
+            if (dot) dot.classList.toggle('is-online', !!(found && found.online));
+            updatePcwStatusLine(nick);
+        });
+    });
+
+    // 3) Yeni qeydiyyatdan keçən istifadəçi əlavə olunsun
+    db.ref('users').on('child_added', (snap) => {
+        const u = snap.val();
+        u.uid = snap.key;
+        if (!lastActiveUsersList.some(x => x.uid === u.uid)) {
+            lastActiveUsersList.push(u);
+            renderActiveUsers(lastActiveUsersList);
         }
+    });
+}
 
         function renderActiveUsers(users) {
             const container = document.getElementById('activeUsersList');
@@ -6055,6 +6098,21 @@ function returnToRecentPrivateMessages(targetNick) {
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 resetTabTitle();
+                 // Arxa planda listener qopmuş ola bilər — serverdən son mesajları yoxla
+                if (currentUserData) {
+                    db.ref('messages').orderByChild('timestamp').limitToLast(30).once('value', (snap) => {
+                        snap.forEach(childSnap => {
+                            const msg = childSnap.val();
+                            msg.id = childSnap.key;
+                            const exists = allMessages.some(m => m.id === msg.id);
+                            if (!exists) {
+                                allMessages.push(msg);
+                                appendMessage(msg);
+                                if (msg.sender !== currentUserData.nick) playReceivedSound();
+                            }
+                        });
+                    });
+                }
                 const current = dateKeyOf(Date.now());
                 if (current !== lastKnownDateKey) {
                     lastKnownDateKey = current;
