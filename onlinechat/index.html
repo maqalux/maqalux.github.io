@@ -4944,15 +4944,8 @@ function returnToRecentPrivateMessages(targetNick) {
                 console.error('Şəxsi mesajlar ilkin yüklənərkən xəta:', err);
                 showToast('Mesajlar yüklənərkən xəta: ' + err.message, 'error');
             });
-        }
-
-            // Server-tərəfli filtrlə: yalnız MƏNƏ aid mesajlar yüklənir (bütün onlayn istifadəçilərə deyil)
-            db.ref('privateMessages').orderByChild('recipient').equalTo(myNick).limitToLast(200).on('child_added', handlePrivateAdded);
-            db.ref('privateMessages').orderByChild('sender').equalTo(myNick).limitToLast(200).on('child_added', handlePrivateAdded);
-            db.ref('privateMessages').orderByChild('recipient').equalTo(myNick).limitToLast(200).on('child_changed', handlePrivateChanged);
-            db.ref('privateMessages').orderByChild('sender').equalTo(myNick).limitToLast(200).on('child_changed', handlePrivateChanged);
-        }
-
+            }
+        
         function buildPrivateMessageContentHtml(msg, grouped = false) {
             const isMe = msg.sender === currentUserData.nick;
             const avatar = msg.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
@@ -5161,52 +5154,6 @@ function returnToRecentPrivateMessages(targetNick) {
             });
         }
 
-            const q1 = db.ref('privateMessages').orderByChild('sender').equalTo(currentUserData.nick).once('value');
-            const q2 = db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value');
-
-            Promise.all([q1, q2]).then(([snap1, snap2]) => {
-                const results = [];
-                snap1.forEach(child => {
-                    const m = child.val();
-                    m.id = child.key;
-                    if (m.recipient === targetNick && (m.timestamp || 0) < oldestTs) results.push(m);
-                });
-                snap2.forEach(child => {
-                    const m = child.val();
-                    m.id = child.key;
-                    if (m.recipient === currentUserData.nick && (m.timestamp || 0) < oldestTs) results.push(m);
-                });
-                results.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                const batch = results.slice(0, 30);
-                batch.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-                if (spinner) spinner.remove();
-
-                if (!batch.length) {
-                    privateNoMoreOlder[targetNick] = true;
-                    privateOlderLoading[targetNick] = false;
-                    return;
-                }
-
-                const prevScrollHeight = body.scrollHeight;
-                const prevScrollTop = body.scrollTop;
-
-                if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
-                privateMessagesByNick[targetNick] = batch.concat(privateMessagesByNick[targetNick]);
-                prependPrivateMessages(targetNick, batch);
-                markAllConversationRead(targetNick);
-
-                privateOldestTimestamp[targetNick] = batch[0].timestamp || privateOldestTimestamp[targetNick];
-                if (batch.length < 30) privateNoMoreOlder[targetNick] = true;
-
-                body.scrollTop = prevScrollTop + (body.scrollHeight - prevScrollHeight);
-                privateOlderLoading[targetNick] = false;
-            }).catch(err => {
-                if (spinner) spinner.remove();
-                privateOlderLoading[targetNick] = false;
-                console.error('Köhnə şəxsi mesajlar yüklənərkən xəta:', err);
-            });
-        }
 
                 window.openPrivateChatWindow = function(targetNick) {
             if (targetNick === currentUserData.nick) return;
