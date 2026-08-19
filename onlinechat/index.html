@@ -4835,7 +4835,7 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         // 10. ŞƏXSİ MESAJLAR - FİKS EDİLDİ
         // ============================================================
-        function loadPrivateMessages() {
+              function loadPrivateMessages() {
             if (!currentUserData) return;
             const myNick = currentUserData.nick;
 
@@ -4848,6 +4848,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 const exists = privateMessagesByNick[other].some(m => m.id === msg.id);
                 if (!exists) {
                     privateMessagesByNick[other].push(msg);
+                    privateMessagesByNick[other].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     if (openPCWs[other]) {
                         appendPrivateMessage(other, msg);
                     }
@@ -4862,14 +4863,88 @@ function returnToRecentPrivateMessages(targetNick) {
             function handlePrivateChanged(snap) {
                 const msg = snap.val();
                 msg.id = snap.key;
+                // LOKAL CACHE-I DƏ YENİLƏ - köhnə kodda bu YOX idi
+                const tNick = msg.sender === myNick ? msg.recipient : msg.sender;
+                if (tNick && privateMessagesByNick[tNick]) {
+                    const idx = privateMessagesByNick[tNick].findIndex(m => m.id === msg.id);
+                    if (idx !== -1) privateMessagesByNick[tNick][idx] = msg;
+                }
                 const el = document.getElementById('pcwmsg-' + msg.id);
                 if (el) el.innerHTML = buildPrivateMessageContentHtml(msg, el.dataset.grouped === '1');
-                const tNick = msg.sender === myNick ? msg.recipient : msg.sender;
                 if (privateSearchState[tNick] && privateSearchState[tNick].query) {
                     renderPrivateSearch(tNick);
                 }
                 if (typeof renderFriendsList === 'function') renderFriendsList();
             }
+
+            // 1) İLK YÜKLƏNMƏ: once('value') ilə bütün mövcud mesajları etibarlı yüklə
+            Promise.all([
+                db.ref('privateMessages').orderByChild('recipient').equalTo(myNick).limitToLast(200).once('value'),
+                db.ref('privateMessages').orderByChild('sender').equalTo(myNick).limitToLast(200).once('value')
+            ]).then(([snapReceived, snapSent]) => {
+                const allMsgs = [];
+                snapReceived.forEach(child => {
+                    const m = child.val();
+                    m.id = child.key;
+                    allMsgs.push(m);
+                });
+                snapSent.forEach(child => {
+                    const m = child.val();
+                    m.id = child.key;
+                    allMsgs.push(m);
+                });
+                // Təkrarlanmaları sil və vaxta görə sırala
+                const uniqueMap = new Map();
+                allMsgs.forEach(m => uniqueMap.set(m.id, m));
+                const uniqueMsgs = Array.from(uniqueMap.values());
+                uniqueMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                uniqueMsgs.forEach(msg => {
+                    const other = msg.sender === myNick ? msg.recipient : msg.sender;
+                    if (!other) return;
+                    if (!privateMessagesByNick[other]) privateMessagesByNick[other] = [];
+                    if (!privateMessagesByNick[other].some(m => m.id === msg.id)) {
+                        privateMessagesByNick[other].push(msg);
+                    }
+                });
+                // Hər söhbəti sırala
+                Object.keys(privateMessagesByNick).forEach(nick => {
+                    privateMessagesByNick[nick].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                });
+
+                // Açıq pəncərələri yenilə
+                Object.keys(openPCWs).forEach(nick => {
+                    if (nick === '__GENERAL__') return;
+                    const body = document.getElementById('pcw-body-' + nick);
+                    if (body) {
+                        body.innerHTML = '';
+                        body.dataset.lastDateKey = '';
+                        body.dataset.firstDateKey = '';
+                        (privateMessagesByNick[nick] || []).forEach(msg => appendPrivateMessage(nick, msg));
+                        body.scrollTop = body.scrollHeight;
+                    }
+                });
+
+                if (typeof renderFriendsList === 'function') renderFriendsList();
+
+                // 2) YENİ MESAJLAR ÜÇÜN LISTENER - yalnız page load-dan sonrakı
+                const newMsgThreshold = Date.now();
+                db.ref('privateMessages').orderByChild('recipient').equalTo(myNick)
+                    .startAt(newMsgThreshold).limitToLast(200).on('child_added', handlePrivateAdded);
+                db.ref('privateMessages').orderByChild('sender').equalTo(myNick)
+                    .startAt(newMsgThreshold).limitToLast(200).on('child_added', handlePrivateAdded);
+
+                // 3) CHILD_CHANGED - dəyişiklikləri dinlə
+                db.ref('privateMessages').orderByChild('recipient').equalTo(myNick)
+                    .limitToLast(200).on('child_changed', handlePrivateChanged);
+                db.ref('privateMessages').orderByChild('sender').equalTo(myNick)
+                    .limitToLast(200).on('child_changed', handlePrivateChanged);
+
+            }).catch(err => {
+                console.error('Şəxsi mesajlar ilkin yüklənərkən xəta:', err);
+                showToast('Mesajlar yüklənərkən xəta: ' + err.message, 'error');
+            });
+        }
 
             // Server-tərəfli filtrlə: yalnız MƏNƏ aid mesajlar yüklənir (bütün onlayn istifadəçilərə deyil)
             db.ref('privateMessages').orderByChild('recipient').equalTo(myNick).limitToLast(200).on('child_added', handlePrivateAdded);
@@ -5018,10 +5093,8 @@ function returnToRecentPrivateMessages(targetNick) {
             body.insertBefore(fragment, body.firstChild);
         }
 
-        function loadOlderPrivateMessages(targetNick) {
+                function loadOlderPrivateMessages(targetNick) {
             if (privateOlderLoading[targetNick] || privateNoMoreOlder[targetNick]) return;
-            const oldestTs = privateOldestTimestamp[targetNick];
-            if (!oldestTs) return;
             privateOlderLoading[targetNick] = true;
 
             const body = document.getElementById('pcw-body-' + targetNick);
@@ -5033,6 +5106,60 @@ function returnToRecentPrivateMessages(targetNick) {
                 spinner.textContent = 'Yüklənir...';
                 body.insertBefore(spinner, body.firstChild);
             }
+
+            const oldestTs = privateOldestTimestamp[targetNick] || Date.now();
+
+            // recipient = myNick və sender = myNick sorğularını birbaşa işlədirik
+            Promise.all([
+                db.ref('privateMessages').orderByChild('recipient').equalTo(currentUserData.nick).once('value'),
+                db.ref('privateMessages').orderByChild('sender').equalTo(currentUserData.nick).once('value')
+            ]).then(([snapReceived, snapSent]) => {
+                const results = [];
+                snapReceived.forEach(child => {
+                    const m = child.val();
+                    m.id = child.key;
+                    if (m.sender === targetNick && (m.timestamp || 0) < oldestTs) results.push(m);
+                });
+                snapSent.forEach(child => {
+                    const m = child.val();
+                    m.id = child.key;
+                    if (m.recipient === targetNick && (m.timestamp || 0) < oldestTs) results.push(m);
+                });
+                results.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                const batch = results.slice(0, 30);
+                batch.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                if (spinner) spinner.remove();
+
+                if (!batch.length) {
+                    privateNoMoreOlder[targetNick] = true;
+                    privateOlderLoading[targetNick] = false;
+                    return;
+                }
+
+                const prevScrollHeight = body.scrollHeight;
+                const prevScrollTop = body.scrollTop;
+
+                if (!privateMessagesByNick[targetNick]) privateMessagesByNick[targetNick] = [];
+                // Yalnız cache-də olmayanları əlavə et
+                const newBatch = batch.filter(m => !privateMessagesByNick[targetNick].some(c => c.id === m.id));
+                if (newBatch.length) {
+                    privateMessagesByNick[targetNick] = newBatch.concat(privateMessagesByNick[targetNick]);
+                    prependPrivateMessages(targetNick, newBatch);
+                }
+                markAllConversationRead(targetNick);
+
+                privateOldestTimestamp[targetNick] = batch[0].timestamp || privateOldestTimestamp[targetNick];
+                if (batch.length < 30) privateNoMoreOlder[targetNick] = true;
+
+                body.scrollTop = prevScrollTop + (body.scrollHeight - prevScrollHeight);
+                privateOlderLoading[targetNick] = false;
+            }).catch(err => {
+                if (spinner) spinner.remove();
+                privateOlderLoading[targetNick] = false;
+                console.error('Köhnə şəxsi mesajlar yüklənərkən xəta:', err);
+            });
+        }
 
             const q1 = db.ref('privateMessages').orderByChild('sender').equalTo(currentUserData.nick).once('value');
             const q2 = db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value');
@@ -5190,7 +5317,7 @@ function returnToRecentPrivateMessages(targetNick) {
             body.dataset.lastDateKey = '';
             body.dataset.firstDateKey = '';
 
-            if (isGeneral) {
+                        if (isGeneral) {
                 // Ümumi çatın mesajlarını pəncərə içinə yükləyirik
                                 allMessages.forEach(msg => appendMessage(msg));
                 body.scrollTop = body.scrollHeight;
@@ -5206,6 +5333,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 privateOlderLoading[targetNick] = false;
                 setupPrivateInfiniteScroll(targetNick);
 
+                // ƏGƏR HEÇ BİR MESAJ YOXSA - köhnə mesajları yüklə
                 if (!existingMsgs.length) {
                     loadOlderPrivateMessages(targetNick);
                 }
