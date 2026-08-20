@@ -3917,7 +3917,7 @@ connectedRef.on('value', (snap) => {
             isLoadingOlderMessages = false;
 
             // 1) Əvvəlcə bütün mövcud mesajları bir dəfə yüklə (once value)
-            db.ref('messages').orderByChild('timestamp').limitToLast(150).once('value', (snapshot) => {
+            db.ref('messages').orderByChild('timestamp').limitToLast(100).once('value', (snapshot) => {
                 const loaded = [];
                 snapshot.forEach((childSnap) => {
                     const msg = childSnap.val();
@@ -3931,11 +3931,10 @@ connectedRef.on('value', (snap) => {
                     appendMessage(msg);
                 });
                 if (loaded.length) oldestMessageTimestamp = loaded[0].timestamp || null;
-                if (loaded.length < 150) hasMoreOlderMessages = false;
+                if (loaded.length < 100) hasMoreOlderMessages = false;
                 isMessagesLoaded = true;
                 const area = document.getElementById('chatMessagesArea');
                 area.scrollTop = area.scrollHeight;
-                setupInfiniteScroll(area);
             }).catch(err => {
                 showToast('Mesajlar yüklənərkən xəta: ' + err.message, 'error');
             });
@@ -3955,7 +3954,7 @@ connectedRef.on('value', (snap) => {
             });
 
             // 3) Mövcud mesajın istənilən sahəsi (reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
-            db.ref('messages').orderByChild('timestamp').limitToLast(150).on('child_changed', (snap) => {
+            db.ref('messages').orderByChild('timestamp').limitToLast(100).on('child_changed', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
                 const idx = allMessages.findIndex(m => m.id === msg.id);
@@ -4678,6 +4677,7 @@ window.handlePrivateDateJump = function(targetNick, dateStr) {
 };
 
 async function jumpToPrivateDate(targetNick, ts) {
+    const isGeneral = targetNick === '__GENERAL__';
     const body = document.getElementById('pcw-body-' + targetNick);
     if (!body) return;
     body.innerHTML = '<div class="older-msgs-spinner">Seçilmiş tarix yüklənir...</div>';
@@ -4687,30 +4687,32 @@ async function jumpToPrivateDate(targetNick, ts) {
     const endOfDay = new Date(ts);
     endOfDay.setHours(23, 59, 59, 999);
 
-    // Həmin günün mesajlarını və bir az əvvəlkinin (kontekst üçün) yükləyirik
-    const q1 = db.ref('privateMessages').orderByChild('timestamp').startAt(startOfDay.getTime()).endAt(endOfDay.getTime()).once('value');
-    const q2 = db.ref('privateMessages').orderByChild('timestamp').endAt(startOfDay.getTime() - 1).limitToLast(10).once('value');
+    // Ümumi çat üçün 'messages', şəxsi çat üçün 'privateMessages' node-undan oxuyuruq.
+    // Bu, tarix axtarışında yalnız seçilmiş günün mesajlarını (+ bir az kontekst) yükləyir —
+    // başqa heç bir vaxt bundan artıq data çəkilmir.
+    const refName = isGeneral ? 'messages' : 'privateMessages';
+    const q1 = db.ref(refName).orderByChild('timestamp').startAt(startOfDay.getTime()).endAt(endOfDay.getTime()).once('value');
+    const q2 = db.ref(refName).orderByChild('timestamp').endAt(startOfDay.getTime() - 1).limitToLast(10).once('value');
 
     const [snap1, snap2] = await Promise.all([q1, q2]);
     const dayMsgs = [];
     const contextMsgs = [];
 
+    const belongsToChat = (m) => isGeneral ? true : (
+        (m.sender === currentUserData.nick && m.recipient === targetNick) ||
+        (m.sender === targetNick && m.recipient === currentUserData.nick)
+    );
+
     snap1.forEach(child => {
         const m = child.val();
         m.id = child.key;
-        if ((m.sender === currentUserData.nick && m.recipient === targetNick) || 
-            (m.sender === targetNick && m.recipient === currentUserData.nick)) {
-            dayMsgs.push(m);
-        }
+        if (belongsToChat(m)) dayMsgs.push(m);
     });
 
     snap2.forEach(child => {
         const m = child.val();
         m.id = child.key;
-        if ((m.sender === currentUserData.nick && m.recipient === targetNick) || 
-            (m.sender === targetNick && m.recipient === currentUserData.nick)) {
-            contextMsgs.push(m);
-        }
+        if (belongsToChat(m)) contextMsgs.push(m);
     });
 
     body.innerHTML = '';
@@ -4718,9 +4720,13 @@ async function jumpToPrivateDate(targetNick, ts) {
     if (dayMsgs.length === 0 && contextMsgs.length === 0) {
         body.innerHTML = '<div class="sticker-empty-state">Bu gündə heç bir mesaj tapılmadı.</div>';
     } else {
+        const buildBubble = (msg, grouped) => isGeneral
+            ? createMessageBubbleDiv(msg, targetNick, grouped)
+            : createPrivateMessageBubbleDiv(targetNick, msg, grouped);
+
         // Əvvəlki kontekst mesajları
         contextMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        contextMsgs.forEach((msg, i) => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg, isGroupedMessage(msg, i > 0 ? contextMsgs[i - 1] : null))));
+        contextMsgs.forEach((msg, i) => body.appendChild(buildBubble(msg, isGroupedMessage(msg, i > 0 ? contextMsgs[i - 1] : null))));
 
         // Tarix ayracı
         const sep = document.createElement('div');
@@ -4730,7 +4736,7 @@ async function jumpToPrivateDate(targetNick, ts) {
 
         // Günün mesajları
         dayMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        dayMsgs.forEach((msg, i) => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg, isGroupedMessage(msg, i > 0 ? dayMsgs[i - 1] : null))));
+        dayMsgs.forEach((msg, i) => body.appendChild(buildBubble(msg, isGroupedMessage(msg, i > 0 ? dayMsgs[i - 1] : null))));
     }
 
     // Geri qayıtmaq düyməsi
@@ -4751,14 +4757,21 @@ async function jumpToPrivateDate(targetNick, ts) {
 }
 
 function returnToRecentPrivateMessages(targetNick) {
+    const isGeneral = targetNick === '__GENERAL__';
     const body = document.getElementById('pcw-body-' + targetNick);
     if (!body) return;
     body.innerHTML = '';
+    body.dataset.lastDateKey = '';
     privateJumpContext[targetNick] = false;
-    
-    // Ən son mesajları yenidən əlavə et
-    const existingMsgs = privateMessagesByNick[targetNick] || [];
-    existingMsgs.forEach(msg => appendPrivateMessage(targetNick, msg));
+
+    // Ən son mesajları yenidən əlavə et (yaddaşda onsuz da olan son 100/mövcud mesajlar,
+    // yenidən server sorğusu getmir)
+    if (isGeneral) {
+        allMessages.forEach(msg => appendMessage(msg));
+    } else {
+        const existingMsgs = privateMessagesByNick[targetNick] || [];
+        existingMsgs.forEach(msg => appendPrivateMessage(targetNick, msg));
+    }
     body.scrollTop = body.scrollHeight;
     
     // Axtarış panelini təmizlə
@@ -5206,7 +5219,9 @@ function returnToRecentPrivateMessages(targetNick) {
                 // Ümumi çatın mesajlarını pəncərə içinə yükləyirik
                                 allMessages.forEach(msg => appendMessage(msg));
                 body.scrollTop = body.scrollHeight;
-                setupInfiniteScroll(body); // Skrollda köhnə mesajları yükləmək üçün
+                // NOT: burada bilərəkdən setupInfiniteScroll() çağırılmır — ümumi çatda
+                // yalnız son 100 mesaj yüklənir, skrollda əlavə köhnə mesaj sorğusu getmir.
+                // Köhnə mesajlara yalnız "Tarixə keç" (tarix axtarışı) ilə baxıla bilər.
             } else {
                 (privateMessagesByNick[targetNick] || []).forEach(msg => appendPrivateMessage(targetNick, msg));
                 body.scrollTop = body.scrollHeight;
