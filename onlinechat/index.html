@@ -3994,10 +3994,10 @@ connectedRef.on('value', (snap) => {
                 <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : highlightMentions(msg.text, msg.mentions)}</div>
             `;
             if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<br><img src="${msg.mediaUrl}" alt="Media" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
+                content += `<br><img src="${msg.mediaUrl}" alt="Media" loading="lazy" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
             }
             if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
-                content += `<br><img src="${msg.mediaUrl}" alt="Stiker" style="max-width:140px; max-height:140px; background:none;">`;
+                content += `<br><img src="${msg.mediaUrl}" alt="Stiker" loading="lazy" style="max-width:140px; max-height:140px; background:none;">`;
             }
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<br><audio controls src="${msg.mediaUrl}" style="max-width:220px; height:34px;"></audio>`;
@@ -4916,10 +4916,10 @@ function returnToRecentPrivateMessages(targetNick) {
                 <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : linkifyText(escapeHtml(msg.text))}</div>
             `;
             if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<img src="${msg.mediaUrl}" alt="Media" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
+                content += `<img src="${msg.mediaUrl}" alt="Media" loading="lazy" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
             }
             if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
-                content += `<img src="${msg.mediaUrl}" alt="Stiker" style="max-width:100px;max-height:100px;background:none;">`;
+                content += `<img src="${msg.mediaUrl}" alt="Stiker" loading="lazy" style="max-width:100px;max-height:100px;background:none;">`;
             }
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<audio controls src="${msg.mediaUrl}" style="max-width:200px; height:32px;"></audio>`;
