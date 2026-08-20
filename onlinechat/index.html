@@ -3220,8 +3220,9 @@
         window.handleWallpaperUpload = async function(e) {
             const file = e.target.files[0];
             if (!file) return;
+            const compressed = await compressImageFile(file);
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', compressed, 'avatar.jpg');
             try {
                 showToast('Şəkil yüklənir...', 'info');
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
@@ -3848,15 +3849,54 @@ connectedRef.on('value', (snap) => {
             });
         };
 
+                // ============================================================
+        // ŞƏKİL SIXMA — imgbb-ə göndərilən HƏR şəkil buradan keçir
+        // ============================================================
+        function compressImageFile(file, maxDim = 1280, quality = 0.75) {
+            return new Promise((resolve, reject) => {
+                if (!file.type.startsWith('image/') || file.type === 'image/gif') {
+                    resolve(file); // GIF-i toxunmadan burax (animasiya pozulmasın)
+                    return;
+                }
+                const img = new Image();
+                const reader = new FileReader();
+                reader.onload = (e) => { img.src = e.target.result; };
+                reader.onerror = reject;
+                img.onload = () => {
+                    let { width, height } = img;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round(height * (maxDim / width));
+                            width = maxDim;
+                        } else {
+                            width = Math.round(width * (maxDim / height));
+                            height = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        resolve(blob || file);
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => resolve(file); // xəta olsa, orijinalı göndər
+                reader.readAsDataURL(file);
+            });
+        }
+
         // ============================================================
         // 8. AVATAR YENİLƏMƏ
         // ============================================================
         window.uploadProfileAvatar = async function(e) {
             const file = e.target.files[0];
             if (!file) return;
+            const compressed = await compressImageFile(file);
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', compressed, 'wallpaper.jpg');
             try {
+                showToast('Şəkil yüklənir...', 'info');
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const data = await res.json();
                 if (data.success) {
@@ -4338,8 +4378,9 @@ connectedRef.on('value', (snap) => {
 
             input.placeholder = '📸 Şəkil yüklənir...';
             input.disabled = true;
+            const compressed = await compressImageFile(file);
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', compressed, 'photo.jpg');
             try {
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const data = await res.json();
@@ -5358,8 +5399,9 @@ function returnToRecentPrivateMessages(targetNick) {
                 return;
             }
 
+            const compressed = await compressImageFile(file);
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', compressed, 'photo.jpg');
             try {
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const data = await res.json();
