@@ -4903,46 +4903,69 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         // 10. ŞƏXSİ MESAJLAR - FİKS EDİLDİ
         // ============================================================
-    function loadPrivateMessages() {
-            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_added', (snap) => {
-                const msg = snap.val();
-                msg.id = snap.key;
-                if (!currentUserData) return;
-                if (msg.sender === currentUserData.nick || msg.recipient === currentUserData.nick) {
-                    const other = msg.sender === currentUserData.nick ? msg.recipient : msg.sender;
-                    if (!privateMessagesByNick[other]) privateMessagesByNick[other] = [];
-                    // təkrar əlavənin qarşısını al
-                    const exists = privateMessagesByNick[other].some(m => m.id === msg.id);
-                    if (!exists) {
-                        privateMessagesByNick[other].push(msg);
-                        if (openPCWs[other]) {
-                            appendPrivateMessage(other, msg);
-                        }
-                        if (msg.sender !== currentUserData.nick) {
-                            bumpTabTitle();
-                            if ((msg.timestamp || 0) > pageLoadTimestamp) playReceivedSound();
-                        }
-                        if (typeof renderFriendsList === 'function') renderFriendsList();
+       function loadPrivateMessages() {
+        if (!currentUserData) return;
+        const myNick = currentUserData.nick;
+
+        function ingestMsg(msg, key, isLive) {
+            msg.id = key;
+            const other = msg.sender === myNick ? msg.recipient : msg.sender;
+            if (!privateMessagesByNick[other]) privateMessagesByNick[other] = [];
+            const exists = privateMessagesByNick[other].some(m => m.id === msg.id);
+            if (!exists) {
+                privateMessagesByNick[other].push(msg);
+                if (isLive) {
+                    if (openPCWs[other]) appendPrivateMessage(other, msg);
+                    if (msg.sender !== myNick) {
+                        bumpTabTitle();
+                        if ((msg.timestamp || 0) > pageLoadTimestamp) playReceivedSound();
                     }
                 }
-            });
-
-            // Mövcud mesajın istənilən sahəsi (tik, reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
-            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_changed', (snap) => {
-                const msg = snap.val();
-                msg.id = snap.key;
-                if (!currentUserData) return;
-                if (msg.sender !== currentUserData.nick && msg.recipient !== currentUserData.nick) return;
-                const el = document.getElementById('pcwmsg-' + msg.id);
-                if (el) el.innerHTML = buildPrivateMessageContentHtml(msg, el.dataset.grouped === '1');
-                // Əgər axtarış açıqdısa, yenidən render et ki, vurğulama itməsin
-                const tNick = msg.sender === currentUserData.nick ? msg.recipient : msg.sender;
-                if (privateSearchState[tNick] && privateSearchState[tNick].query) {
-                    renderPrivateSearch(tNick);
-                }
-                if (typeof renderFriendsList === 'function') renderFriendsList();
-            });
+            }
         }
+
+        // Yalnız MƏNİM göndərdiyim və MƏNƏ gələn mesajlar — server tərəfdə filtrlənir
+        const sentRef = db.ref('privateMessages').orderByChild('sender').equalTo(myNick);
+        const recvRef = db.ref('privateMessages').orderByChild('recipient').equalTo(myNick);
+        let sentDone = false, recvDone = false;
+
+        function finalizeInitialLoad() {
+            if (!sentDone || !recvDone) return;
+            Object.keys(privateMessagesByNick).forEach(n =>
+                privateMessagesByNick[n].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0))
+            );
+            if (typeof renderFriendsList === 'function') renderFriendsList();
+
+            // İlkin yüklənmədən SONRA canlı əlavələr
+            sentRef.on('child_added', (snap) => { ingestMsg(snap.val(), snap.key, true); renderFriendsList(); });
+            recvRef.on('child_added', (snap) => { ingestMsg(snap.val(), snap.key, true); renderFriendsList(); });
+        }
+
+        sentRef.once('value', (snap) => {
+            snap.forEach(child => ingestMsg(child.val(), child.key, false));
+            sentDone = true;
+            finalizeInitialLoad();
+        });
+        recvRef.once('value', (snap) => {
+            snap.forEach(child => ingestMsg(child.val(), child.key, false));
+            recvDone = true;
+            finalizeInitialLoad();
+        });
+
+        function handlePMChanged(snap) {
+            const msg = snap.val();
+            msg.id = snap.key;
+            const el = document.getElementById('pcwmsg-' + msg.id);
+            if (el) el.innerHTML = buildPrivateMessageContentHtml(msg, el.dataset.grouped === '1');
+            const tNick = msg.sender === currentUserData.nick ? msg.recipient : msg.sender;
+            if (privateSearchState[tNick] && privateSearchState[tNick].query) {
+                renderPrivateSearch(tNick);
+            }
+            if (typeof renderFriendsList === 'function') renderFriendsList();
+        }
+        sentRef.on('child_changed', handlePMChanged);
+        recvRef.on('child_changed', handlePMChanged);
+    }
 
         function buildPrivateMessageContentHtml(msg, grouped = false) {
             const isMe = msg.sender === currentUserData.nick;
