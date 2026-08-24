@@ -2855,7 +2855,8 @@
     } catch (err) {
         console.error('Dostlar ilkin yüklənərkən xəta:', err);
     }
-    friendsLoaded = true;
+        friendsLoaded = true;
+    if (typeof renderFriendsList === 'function') renderFriendsList();
 
     db.ref(`friends/${currentUserData.nick}`).on('value', (snap) => {
         myFriends = snap.val() || {};
@@ -3614,8 +3615,8 @@ connectedRef.on('value', (snap) => {
                         loadActiveUsers();
                         loadPrivateMessages();
                         initHeaderMessageInbox();
-                        await initFriendSystem();
                         switchMainView('friends');
+                        initFriendSystem();
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
