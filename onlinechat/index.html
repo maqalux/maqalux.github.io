@@ -3034,47 +3034,21 @@
             }).join('');
         };
         
-        function initHeaderMessageInbox() {
+function initHeaderMessageInbox() {
     if (!currentUserData) return;
-    if (msgInboxRef) msgInboxRef.off();
-    msgConversations = {};
-    msgInboxCache = {};
-    msgInboxRef = db.ref('privateMessages').orderByChild('recipient').equalTo(currentUserData.nick);
 
-    function rebuildConvs() {
-        const convs = {};
-        Object.values(msgInboxCache).forEach((m) => {
-            if (!m || m.isDeleted) return;
-            const readBy = m.readBy || [];
-            const isUnread = !readBy.includes(currentUserData.nick);
-            if (!convs[m.sender]) {
-                convs[m.sender] = { avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png', text: '', timestamp: 0, unreadCount: 0 };
-            }
-            const conv = convs[m.sender];
-            if ((m.timestamp || 0) >= conv.timestamp) {
-                conv.avatar = m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
-                conv.text = (m.mediaType && m.mediaType !== 'text') ? '📎 Media' : (m.text || '');
-                conv.timestamp = m.timestamp || 0;
-            }
-            if (isUnread) conv.unreadCount++;
-        });
-        return convs;
+    if (msgInboxRef) {
+        msgInboxRef.off();
     }
 
-    msgInboxRef.once('value', (snap) => {
-        snap.forEach((child) => { msgInboxCache[child.key] = child.val(); });
-        msgConversations = rebuildConvs();
-        renderHeaderMsgDropdown();
-    });
-    msgInboxRef.on('child_added', (snap) => {
-        if (msgInboxCache[snap.key]) return;
-        msgInboxCache[snap.key] = snap.val();
-        msgConversations = rebuildConvs();
-        renderHeaderMsgDropdown();
-    });
-    msgInboxRef.on('child_changed', (snap) => {
-        msgInboxCache[snap.key] = snap.val();
-        msgConversations = rebuildConvs();
+    msgConversations = {};
+
+    msgInboxRef = db.ref(
+        `inboxes/${currentUserData.nick}`
+    );
+
+    msgInboxRef.on('value', (snap) => {
+        msgConversations = snap.val() || {};
         renderHeaderMsgDropdown();
     });
 }
@@ -3611,12 +3585,12 @@ connectedRef.on('value', (snap) => {
                         document.getElementById('loginScreen').classList.remove('active');
                         document.getElementById('mainChatScreen').classList.add('active');
 
-                        loadMessages();
-                        loadActiveUsers();
-                        loadPrivateMessages();
-                        // initHeaderMessageInbox();
-                        switchMainView('friends');
-                        initFriendSystem();
+                       loadMessages();
+                       loadActiveUsers();
+                       loadPrivateMessages();
+                       initHeaderMessageInbox();
+                       switchMainView('friends');
+                       initFriendSystem();
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
@@ -4211,35 +4185,34 @@ connectedRef.on('value', (snap) => {
         }
 
         function markAllConversationRead(targetNick) {
-            // Yerli yaddaşdakı (yüklənmiş) mesajları dərhal işarələ
-            const cached = privateMessagesByNick[targetNick] || [];
-            cached.forEach(msg => {
-                if (msg.sender === currentUserData.nick || !msg.id) return;
-                const readBy = msg.readBy || [];
-                if (readBy.includes(currentUserData.nick)) return;
-                db.ref(`privateMessages/${msg.id}/readBy`).transaction((list) => {
-                    list = list || [];
-                    if (!list.includes(currentUserData.nick)) list.push(currentUserData.nick);
-                    return list;
-                });
-            });
 
-            // Bundan əlavə, Firebase-dən BÜTÜN söhbəti (yerli yaddaşda olmayanlar daxil,
-            // məs. çox köhnə, heç vaxt yüklənməmiş mesajlar) birbaşa sorğula və onları da işarələ.
-            db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value').then(snap => {
-                snap.forEach(child => {
-                    const m = child.val();
-                    if (m.recipient !== currentUserData.nick) return;
-                    const readBy = m.readBy || [];
-                    if (readBy.includes(currentUserData.nick)) return;
-                    db.ref(`privateMessages/${child.key}/readBy`).transaction((list) => {
-                        list = list || [];
-                        if (!list.includes(currentUserData.nick)) list.push(currentUserData.nick);
-                        return list;
-                    });
-                });
+    // Header-dəki oxunmamış DM sayını sıfırla
+    db.ref(
+        `inboxes/${currentUserData.nick}/${targetNick}/unreadCount`
+    ).set(0);
+
+    // Hazırda brauzerdə olan mesajları oxunmuş işarələ
+    const cached = privateMessagesByNick[targetNick] || [];
+
+    cached.forEach(msg => {
+        if (msg.sender === currentUserData.nick || !msg.id) return;
+
+        const readBy = msg.readBy || [];
+
+        if (readBy.includes(currentUserData.nick)) return;
+
+        db.ref(`privateMessages/${msg.id}/readBy`)
+            .transaction((list) => {
+                list = list || [];
+
+                if (!list.includes(currentUserData.nick)) {
+                    list.push(currentUserData.nick);
+                }
+
+                return list;
             });
-        }
+    });
+}
 
         function markMessageReadOnView(el, msgId, isPrivate) {
             const observer = new IntersectionObserver((entries) => {
@@ -4867,7 +4840,46 @@ function returnToRecentPrivateMessages(targetNick) {
 
             container.innerHTML = html || '<div class="sticker-empty-state">İstifadəçi tapılmadı.</div>';
         };
+        function updateInboxForPrivateMessage(targetNick, payload) {
+    if (!currentUserData || !targetNick) {
+        return Promise.resolve();
+    }
 
+    const inboxRef = db.ref(
+        `inboxes/${targetNick}/${currentUserData.nick}`
+    );
+
+    let previewText = payload.text || '';
+
+    if (payload.mediaType && payload.mediaType !== 'text') {
+        if (payload.mediaType === 'image') {
+            previewText = '📷 Şəkil';
+        } else if (payload.mediaType === 'video') {
+            previewText = '🎬 Video';
+        } else if (payload.mediaType === 'audio') {
+            previewText = '🎤 Səsli mesaj';
+        } else if (payload.mediaType === 'gif') {
+            previewText = 'GIF';
+        } else if (payload.mediaType === 'sticker') {
+            previewText = 'Stiker';
+        } else {
+            previewText = '📎 Media';
+        }
+    }
+
+    return inboxRef.update({
+        avatar: currentUserData.avatarUrl ||
+            'https://www.w3schools.com/howto/img_avatar.png',
+
+        text: previewText,
+
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+        return inboxRef.child('unreadCount').transaction(count => {
+            return (count || 0) + 1;
+        });
+    });
+}
         window.confirmForwardTo = function(targetNickOrNull) {
             if (!forwardMsgContext) return;
             const msg = forwardMsgContext;
@@ -4892,12 +4904,25 @@ function returnToRecentPrivateMessages(targetNick) {
                 db.ref('messages').push().set(payload).then(() => {
                     showToast('Mesaj Ümumi çata yönləndirildi.', 'success');
                 }).catch(err => showToast('Xəta: ' + err.message, 'error'));
-            } else {
-                payload.recipient = targetNickOrNull;
-                db.ref('privateMessages').push().set(payload).then(() => {
-                    showToast(`Mesaj ${targetNickOrNull} istifadəçisinə yönləndirildi.`, 'success');
-                }).catch(err => showToast('Xəta: ' + err.message, 'error'));
-            }
+} else {
+    payload.recipient = targetNickOrNull;
+
+    db.ref('privateMessages').push().set(payload).then(() => {
+
+        updateInboxForPrivateMessage(targetNickOrNull, payload)
+            .catch(err => {
+                console.error('Inbox yenilənmə xətası:', err);
+            });
+
+        showToast(
+            `Mesaj ${targetNickOrNull} istifadəçisinə yönləndirildi.`,
+            'success'
+        );
+
+    }).catch(err => {
+        showToast('Xəta: ' + err.message, 'error');
+    });
+}
             closeForwardModal();
         };
 
@@ -5348,8 +5373,15 @@ function returnToRecentPrivateMessages(targetNick) {
                 deliveredTo: [],
                 readBy: []
             };
-            const newRef = db.ref('privateMessages').push();
+           const newRef = db.ref('privateMessages').push();
+
             newRef.set(payload).then(() => {
+
+            updateInboxForPrivateMessage(targetNick, payload)
+            .catch(err => {
+            console.error('Inbox yenilənmə xətası:', err);
+        });
+
                 input.value = '';
                 input.style.height = 'auto';
                 replyContext = null;
