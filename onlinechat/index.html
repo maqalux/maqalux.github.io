@@ -3958,7 +3958,7 @@ connectedRef.on('value', (snap) => {
             isLoadingOlderMessages = false;
 
             // 1) Əvvəlcə bütün mövcud mesajları bir dəfə yüklə (once value)
-            db.ref('messages').orderByChild('timestamp').limitToLast(100).once('value', (snapshot) => {
+            db.ref('messages').orderByChild('timestamp').limitToLast(50).once('value', (snapshot) => {
                 const loaded = [];
                 snapshot.forEach((childSnap) => {
                     const msg = childSnap.val();
@@ -3995,7 +3995,7 @@ connectedRef.on('value', (snap) => {
             });
 
             // 3) Mövcud mesajın istənilən sahəsi (reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
-            db.ref('messages').orderByChild('timestamp').limitToLast(100).on('child_changed', (snap) => {
+            db.ref('messages').orderByChild('timestamp').limitToLast(50).on('child_changed', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
                 const idx = allMessages.findIndex(m => m.id === msg.id);
@@ -4905,7 +4905,7 @@ function returnToRecentPrivateMessages(targetNick) {
         // 10. ŞƏXSİ MESAJLAR - FİKS EDİLDİ
         // ============================================================
     function loadPrivateMessages() {
-            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_added', (snap) => {
+            db.ref('privateMessages').orderByChild('timestamp').limitToLast(50).on('child_added', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
                 if (!currentUserData) return;
@@ -4929,7 +4929,7 @@ function returnToRecentPrivateMessages(targetNick) {
             });
 
             // Mövcud mesajın istənilən sahəsi (tik, reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
-            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_changed', (snap) => {
+            db.ref('privateMessages').orderByChild('timestamp').limitToLast(50).on('child_changed', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
                 if (!currentUserData) return;
