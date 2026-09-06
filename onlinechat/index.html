@@ -6023,6 +6023,59 @@ function returnToRecentPrivateMessages(targetNick) {
 
         const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
 
+        // ============================================================
+        // VİDEO MƏHDUDİYYƏTLƏRİ — kredit istifadəsini azaltmaq üçün
+        // ============================================================
+        const DAILY_VIDEO_LIMIT = 5; // Hər istifadəçi üçün gündə maksimum video sayı
+        const MAX_VIDEO_DURATION_SECONDS = 60; // Maksimum video müddəti (saniyə)
+
+        // Faylın video müddətini (saniyə) öyrənir — brauzerdə, serverə göndərmədən
+        function getVideoDurationSeconds(file) {
+            return new Promise((resolve) => {
+                try {
+                    const videoEl = document.createElement('video');
+                    videoEl.preload = 'metadata';
+                    const url = URL.createObjectURL(file);
+                    videoEl.src = url;
+                    videoEl.onloadedmetadata = () => {
+                        URL.revokeObjectURL(url);
+                        resolve(videoEl.duration || 0);
+                    };
+                    videoEl.onerror = () => {
+                        URL.revokeObjectURL(url);
+                        resolve(0); // müddət oxuna bilmirsə, məhdudiyyəti yoxlamırıq (0 = bilinmir)
+                    };
+                } catch (e) {
+                    resolve(0);
+                }
+            });
+        }
+
+        // Gündəlik video sayını Firebase-də saxlayır: videoUploadLimits/{nick}/{tarix-açarı}
+        async function checkAndIncrementDailyVideoLimit() {
+            if (!currentUserData) return { allowed: false, used: 0, remaining: 0 };
+            const todayKey = dateKeyOf(Date.now());
+            const ref = db.ref(`videoUploadLimits/${currentUserData.nick}/${todayKey}`);
+            let wasAllowed = false;
+            let usedAfter = 0;
+            await ref.transaction((current) => {
+                const count = current || 0;
+                if (count >= DAILY_VIDEO_LIMIT) {
+                    wasAllowed = false;
+                    usedAfter = count;
+                    return count; // dəyişiklik yoxdur, limit artıq doludur
+                }
+                wasAllowed = true;
+                usedAfter = count + 1;
+                return count + 1;
+            });
+            return {
+                allowed: wasAllowed,
+                used: usedAfter,
+                remaining: Math.max(0, DAILY_VIDEO_LIMIT - usedAfter)
+            };
+        }
+
         // Pulsuz video yükləmə üçün Cloudinary (kart tələb etmir).
         // ÖZ hesabını yaratmaq üçün: https://cloudinary.com/users/register/free
         // Sonra: Settings -> Upload -> "Add upload preset" -> Signing Mode: "Unsigned" et,
@@ -6099,24 +6152,53 @@ function returnToRecentPrivateMessages(targetNick) {
             throw lastErr || new Error('Bütün video hesabları uğursuz oldu');
         }
 
-        function uploadVideoToStorage(file, sendFn, onProgress) {
+        async function uploadVideoToStorage(file, sendFn, onProgress) {
             if (file.size > MAX_VIDEO_BYTES) {
                 showToast(`Video həddindən artıq böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 150MB icazəlidir.`, 'error', 7000);
-                return Promise.resolve(false);
+                return false;
             }
             if (VIDEO_CLOUDINARY_ACCOUNTS.length === 0 || VIDEO_CLOUDINARY_ACCOUNTS[0].cloudName === "BURAYA_CLOUD_NAME_YAZ") {
                 showToast('Video yükləmə xidməti hələ qurulmayıb. Sayt sahibi Cloudinary hesabını qoşmalıdır.', 'error', 7000);
-                return Promise.resolve(false);
+                return false;
             }
+
+            // Müddət yoxlaması
+            const duration = await getVideoDurationSeconds(file);
+            if (duration > 0 && duration > MAX_VIDEO_DURATION_SECONDS) {
+                showToast(`Video həddindən artıq uzundur (${Math.round(duration)} saniyə). Maksimum ${MAX_VIDEO_DURATION_SECONDS} saniyə icazəlidir.`, 'error', 7000);
+                return false;
+            }
+
+            // Gündəlik limit yoxlaması
+            let limitInfo;
+            try {
+                limitInfo = await checkAndIncrementDailyVideoLimit();
+            } catch (err) {
+                console.error('Gündəlik limit yoxlanılarkən xəta:', err);
+                limitInfo = { allowed: true, used: 0, remaining: DAILY_VIDEO_LIMIT }; // xəta olsa, bloklamırıq
+            }
+            if (!limitInfo.allowed) {
+                showToast(`Bugünkü video limitinizə (${DAILY_VIDEO_LIMIT}/gün) çatmısınız. Sabah yenidən cəhd edin.`, 'error', 8000);
+                return false;
+            }
+
             return uploadVideoWithFallback(file, onProgress)
                 .then((url) => {
                     if (onProgress) onProgress(100, true);
                     sendFn(url, 'video');
+                    showToast(`Video göndərildi. Bugünkü limit: ${limitInfo.used}/${DAILY_VIDEO_LIMIT} istifadə olundu, ${limitInfo.remaining} qalıb.`, 'success', 5000);
                     return true;
                 })
                 .catch((err) => {
                     console.error('Bütün Cloudinary hesabları video yükləməsini rədd etdi:', err.message);
                     showToast('Video yüklənmədi. Bütün pulsuz hesabların limiti dola bilər — yeni pulsuz Cloudinary hesabı əlavə edin (koddakı VIDEO_CLOUDINARY_ACCOUNTS siyahısına).', 'error', 9000);
+                    // Uğursuz olduğu üçün, tutduğumuz gündəlik kvotanı geri qaytaraq
+                    if (currentUserData) {
+                        const todayKey = dateKeyOf(Date.now());
+                        db.ref(`videoUploadLimits/${currentUserData.nick}/${todayKey}`).transaction((current) => {
+                            return Math.max(0, (current || 1) - 1);
+                        });
+                    }
                     return false;
                 });
         }
