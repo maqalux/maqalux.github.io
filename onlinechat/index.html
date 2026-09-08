@@ -2237,6 +2237,306 @@
             .user-badge .role-tag,
             .user-badge .badge-actions { display: none !important; }
         }
+
+        /* ============================================================
+           FEED MODULU — YENİ ƏLAVƏ (post, like, şərh, repost)
+           ============================================================ */
+        .feed-view {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 14px;
+            gap: 14px;
+        }
+        .feed-tab-btn {
+            width: auto;
+            margin: 0;
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 20px;
+            border: 1px solid var(--border-10);
+            background: var(--panel-08);
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .feed-tab-btn.active {
+            background: #ffaa00;
+            color: #14141a;
+            border-color: #ffaa00;
+        }
+        .feed-composer {
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            border-radius: 14px;
+            padding: 12px;
+        }
+        .feed-composer-top {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .feed-composer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .feed-composer-input {
+            flex: 1;
+            min-height: 44px;
+            max-height: 160px;
+            resize: none;
+            background: var(--panel-05);
+            border: 1px solid var(--border-10);
+            border-radius: 10px;
+            color: var(--text-main);
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .feed-composer-preview {
+            margin-top: 10px;
+            position: relative;
+            display: none;
+        }
+        .feed-composer-preview img,
+        .feed-composer-preview video {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 10px;
+            display: block;
+        }
+        .feed-composer-preview .feed-remove-media {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+        }
+        .feed-composer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .feed-composer-tools {
+            display: flex;
+            gap: 6px;
+        }
+        .feed-tool-btn {
+            background: none;
+            border: none;
+            font-size: 19px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            color: var(--text-55);
+        }
+        .feed-tool-btn:hover { background: var(--panel-06); }
+        .feed-post-btn {
+            background: #ffaa00;
+            color: #14141a;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .feed-post-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .feed-post-card {
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            border-radius: 14px;
+            padding: 14px;
+        }
+        .feed-repost-tag {
+            font-size: 12px;
+            color: var(--text-55);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .feed-post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feed-post-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .feed-post-author {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 14.5px;
+        }
+        .feed-post-time {
+            font-size: 12px;
+            color: var(--text-50);
+        }
+        .feed-post-menu-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-55);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .feed-post-menu {
+            position: absolute;
+            right: 14px;
+            margin-top: 4px;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--border-15);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            z-index: 20;
+            min-width: 150px;
+        }
+        .feed-post-menu.active { display: block; }
+        .feed-post-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px 14px;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .feed-post-menu button:hover { background: var(--panel-06); }
+        .feed-post-text {
+            margin: 10px 0;
+            color: var(--text-main);
+            font-size: 14.5px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .feed-post-media img,
+        .feed-post-media video {
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .feed-post-actions {
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid var(--border-10);
+            padding-top: 8px;
+        }
+        .feed-action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--text-55);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 4px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .feed-action-btn:hover { background: var(--panel-06); }
+        .feed-action-btn.liked { color: #ff4d6d; }
+        .feed-action-btn.reposted { color: #4fc3f7; }
+        .feed-comments-box {
+            margin-top: 10px;
+            display: none;
+            border-top: 1px solid var(--border-10);
+            padding-top: 10px;
+        }
+        .feed-comments-box.active { display: block; }
+        .feed-comment-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .feed-comment-item.is-reply {
+            margin-left: 34px;
+        }
+        .feed-comment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .feed-comment-bubble {
+            background: var(--panel-06);
+            border-radius: 12px;
+            padding: 7px 11px;
+            font-size: 13.5px;
+            flex: 1;
+        }
+        .feed-comment-author {
+            font-weight: 700;
+            font-size: 12.5px;
+            color: var(--text-main);
+        }
+        .feed-comment-text { color: var(--text-main); word-break: break-word; }
+        .feed-comment-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 11.5px;
+            color: var(--text-50);
+            margin-top: 3px;
+        }
+        .feed-comment-meta span { cursor: pointer; }
+        .feed-comment-meta span:hover { text-decoration: underline; }
+        .feed-comment-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            align-items: center;
+        }
+        .feed-comment-input {
+            flex: 1;
+            background: var(--panel-05);
+            border: 1px solid var(--border-10);
+            border-radius: 16px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .feed-comment-reply-tag {
+            font-size: 11.5px;
+            color: var(--text-50);
+            margin-top: 4px;
+        }
+        .feed-comment-reply-tag span { color: #4fc3f7; cursor: pointer; }
+        .feed-empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-50);
+        }
+        @media (max-width: 768px) {
+            .feed-view { padding: 8px; }
+            .feed-post-card { padding: 10px; border-radius: 10px; }
+            .feed-comment-item.is-reply { margin-left: 20px; }
+        }
     </style>
 </head>
 
@@ -2325,8 +2625,11 @@
                     <button class="logout-btn" onclick="handleLogout()">Çıxış</button>
                 </div>
 
-                  <div class="main-view-tabs" style="display:flex; justify-content:space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid var(--border-10);">
-                    <h4 style="margin:0; color:#ffaa00; font-size:18px; font-weight:700;">Söhbətlər</h4>
+                  <div class="main-view-tabs" style="display:flex; justify-content:space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid var(--border-10); gap:10px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button type="button" class="feed-tab-btn active" id="chatsTabBtn" onclick="switchMainView('friends')">💬 Söhbətlər</button>
+                        <button type="button" class="feed-tab-btn" id="feedTabBtn" onclick="switchMainView('feed')">🏠 Lent</button>
+                    </div>
                     <button class="login-btn" style="width:auto; margin:0; padding:8px 16px; font-size:13px;" onclick="openNewChatModal()">
                         ✏️ Yeni söhbət
                     </button>
@@ -2342,6 +2645,34 @@
                         <h4>Aktiv istifadəçilər</h4>
                         <div id="activeUsersList"></div>
                     </div>
+                </div>
+
+                <!-- ============================================================
+                     FEED EKRANI — YENİ ƏLAVƏ
+                     ============================================================ -->
+                <div class="feed-view" id="feedView">
+                    <div class="feed-composer" id="feedComposer">
+                        <div class="feed-composer-top">
+                            <img class="feed-composer-avatar" id="feedComposerAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+                            <textarea class="feed-composer-input" id="feedComposerInput" placeholder="Nə düşünürsən?" rows="2" oninput="autoGrowTextarea(this)"></textarea>
+                        </div>
+                        <div class="feed-composer-preview" id="feedComposerPreview">
+                            <button type="button" class="feed-remove-media" onclick="removeFeedComposerMedia()">✕</button>
+                            <div id="feedComposerPreviewInner"></div>
+                        </div>
+                        <div class="feed-composer-actions">
+                            <div class="feed-composer-tools">
+                                <label class="feed-tool-btn" title="Şəkil / Video əlavə et">
+                                    📷
+                                    <input type="file" id="feedMediaInput" accept="image/*,video/*" style="display:none;" onchange="handleFeedMediaSelect(event)">
+                                </label>
+                            </div>
+                            <button type="button" class="feed-post-btn" id="feedPostSubmitBtn" onclick="createPost()">Paylaş</button>
+                        </div>
+                    </div>
+
+                    <div id="feedPostsContainer"></div>
+                    <div class="feed-empty-state" id="feedEmptyState" style="display:none;">Hələ heç bir paylaşım yoxdur. İlk paylaşımı sən et!</div>
                 </div>
 
                 <!-- Reply Preview Bar -->
@@ -2893,15 +3224,39 @@
             const friendsView = document.getElementById('friendsListView');
             const generalBody = document.getElementById('generalChatBody');
             const generalInputBar = document.getElementById('generalInputBar');
+            const feedView = document.getElementById('feedView');
+            const chatsTabBtn = document.getElementById('chatsTabBtn');
+            const feedTabBtn = document.getElementById('feedTabBtn');
+
+            // YENİ: Feed tabları arasında aktiv/passiv görünüş
+            if (chatsTabBtn && feedTabBtn) {
+                chatsTabBtn.classList.toggle('active', view !== 'feed');
+                feedTabBtn.classList.toggle('active', view === 'feed');
+            }
+
+            if (view === 'feed') {
+                // YENİ: Feed görünüşünü aç, çat hissəsini gizlət
+                friendsView.style.display = 'none';
+                generalBody.style.display = 'none';
+                generalInputBar.style.display = 'none';
+                if (feedView) feedView.style.display = 'flex';
+                if (window.location.hash !== '#feed') history.replaceState(null, '', '#feed');
+                initFeedIfNeeded();
+                return;
+            }
+            if (feedView) feedView.style.display = 'none';
+
             if (view === 'friends') {
                 friendsView.style.display = 'flex';
                 generalBody.style.display = 'none';
                 generalInputBar.style.display = 'none';
+                if (window.location.hash === '#feed') history.replaceState(null, '', ' ');
                 renderFriendsList();
             } else {
                 friendsView.style.display = 'none';
                 generalBody.style.display = 'flex';
                 generalInputBar.style.display = 'flex';
+                if (window.location.hash === '#feed') history.replaceState(null, '', ' ');
             }
         };
 
@@ -3582,6 +3937,9 @@ connectedRef.on('value', (snap) => {
 
                         document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
                         document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
+                        // YENİ: Feed composer avatarını da yenilə
+                        const feedAvatarEl = document.getElementById('feedComposerAvatar');
+                        if (feedAvatarEl) feedAvatarEl.src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
                         document.getElementById('loginScreen').classList.remove('active');
                         document.getElementById('mainChatScreen').classList.add('active');
 
@@ -3591,6 +3949,11 @@ connectedRef.on('value', (snap) => {
                        initHeaderMessageInbox();
                        switchMainView('friends');
                        initFriendSystem();
+
+                       // YENİ: Refresh-dən sonra #feed hash-i varsa, birbaşa Feed-i aç
+                       if (window.location.hash === '#feed') {
+                           switchMainView('feed');
+                       }
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
@@ -6246,6 +6609,475 @@ function returnToRecentPrivateMessages(targetNick) {
                 xhr.send(formData);
             });
         }
+
+        // ============================================================
+        // FEED MODULU — YENİ ƏLAVƏ
+        // Firebase yolları:
+        //   posts/{postId}                 -> post məlumatları
+        //   postLikes/{postId}/{nick}      -> like edənlərin siyahısı (bool)
+        //   postComments/{postId}/{cId}    -> şərhlər (parentId ilə cavablar)
+        //   postReposts/{postId}/{nick}    -> kimin repost etdiyi (dəyər = repost postId-si)
+        // ============================================================
+        let feedListenerAttached = false;
+        let feedComposerMediaFile = null;
+        let feedComposerMediaType = null;
+        let feedPostsCache = {};
+        const feedOpenCommentBoxes = new Set();
+        const feedCommentListeners = {};
+        const feedReplyTarget = {}; // { postId: { commentId, authorNick } | null }
+
+        function initFeedIfNeeded() {
+            if (feedListenerAttached) return;
+            feedListenerAttached = true;
+            loadFeed();
+        }
+
+        function formatFeedTime(ts) {
+            if (!ts) return '';
+            const diff = Math.floor((Date.now() - ts) / 1000);
+            if (diff < 60) return 'İndi';
+            if (diff < 3600) return Math.floor(diff / 60) + ' dəq əvvəl';
+            if (diff < 86400) return Math.floor(diff / 3600) + ' saat əvvəl';
+            if (diff < 604800) return Math.floor(diff / 86400) + ' gün əvvəl';
+            const d = new Date(ts);
+            return d.toLocaleDateString('az-AZ') + ' ' + d.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ---- FEED YÜKLƏMƏ (real-time) ----
+        function loadFeed() {
+            const container = document.getElementById('feedPostsContainer');
+            const emptyState = document.getElementById('feedEmptyState');
+            db.ref('posts').orderByChild('timestamp').on('value', (snap) => {
+                const val = snap.val() || {};
+                feedPostsCache = val;
+                const ids = Object.keys(val).sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
+                if (ids.length === 0) {
+                    container.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                emptyState.style.display = 'none';
+                container.innerHTML = ids.map(id => renderPostCard(id, val[id])).join('');
+                // Açıq olan şərh qutularını yenidən aç (real-time yeniləmədən sonra)
+                feedOpenCommentBoxes.forEach(postId => {
+                    const box = document.getElementById(`feedComments-${postId}`);
+                    if (box) box.classList.add('active');
+                });
+            });
+        }
+
+        function renderPostCard(postId, post) {
+            if (!post) return '';
+            const isMine = currentUserData && post.authorNick === currentUserData.nick;
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+            const myNick = currentUserData ? currentUserData.nick : null;
+            const likedByMe = !!(post.likedBy && myNick && post.likedBy[myNick]);
+            const repostedByMe = !!(post.repostedBy && myNick && post.repostedBy[myNick]);
+            const likesCount = post.likesCount || 0;
+            const commentsCount = post.commentsCount || 0;
+            const repostsCount = post.repostsCount || 0;
+
+            let repostTag = '';
+            let displayAuthor = post.authorNick;
+            let displayAvatar = post.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+            let displayText = post.text || '';
+            let displayMediaUrl = post.mediaUrl;
+            let displayMediaType = post.mediaType;
+            let originalMissing = false;
+
+            if (post.isRepost) {
+                repostTag = `<div class="feed-repost-tag">🔁 <b>${escapeHtml(post.authorNick)}</b> paylaşdı</div>`;
+                const original = post.originalPostId ? feedPostsCache[post.originalPostId] : null;
+                if (post.originalPostId && !original) {
+                    originalMissing = true;
+                } else if (original) {
+                    displayAuthor = original.authorNick;
+                    displayAvatar = original.authorAvatar || displayAvatar;
+                    displayText = original.text || '';
+                    displayMediaUrl = original.mediaUrl;
+                    displayMediaType = original.mediaType;
+                }
+            }
+
+            const mediaHtml = originalMissing
+                ? `<div style="padding:12px; text-align:center; color:var(--text-50); background:var(--panel-05); border-radius:10px;">Bu paylaşım silinib.</div>`
+                : (displayMediaUrl ? `<div class="feed-post-media">${
+                    displayMediaType === 'video'
+                        ? `<video src="${displayMediaUrl}" controls></video>`
+                        : `<img src="${displayMediaUrl}" onclick="openImageViewer('${displayMediaUrl}')" alt="">`
+                  }</div>` : '');
+
+            const menuBtn = (isMine || isMod) ? `<button type="button" class="feed-post-menu-btn" onclick="toggleFeedPostMenu(event,'${postId}')">⋮</button>` : '';
+            let menuItems = '';
+            if (post.isRepost && isMine) {
+                menuItems += `<button onclick="deleteRepost('${postId}')">🗑️ Repostu sil</button>`;
+            } else {
+                if (isMine) menuItems += `<button onclick="startEditPost('${postId}')">✏️ Redaktə et</button>`;
+                if (isMine || isMod) menuItems += `<button onclick="deletePost('${postId}')">🗑️ Sil</button>`;
+            }
+
+            return `
+            <div class="feed-post-card" id="feedPost-${postId}" data-post-id="${postId}" style="position:relative;">
+                ${repostTag}
+                <div class="feed-post-header">
+                    <img class="feed-post-avatar" src="${displayAvatar}" alt="">
+                    <div>
+                        <div class="feed-post-author">${escapeHtml(displayAuthor)}</div>
+                        <div class="feed-post-time">${formatFeedTime(post.timestamp)}${post.editedAt ? ' · redaktə edilib' : ''}</div>
+                    </div>
+                    ${menuBtn}
+                    <div class="feed-post-menu" id="feedMenu-${postId}">${menuItems}</div>
+                </div>
+                <div class="feed-post-text" id="feedPostText-${postId}">${originalMissing ? '' : escapeHtml(displayText)}</div>
+                ${mediaHtml}
+                <div class="feed-post-actions">
+                    <button type="button" class="feed-action-btn ${likedByMe ? 'liked' : ''}" onclick="togglePostLike('${postId}')">
+                        ${likedByMe ? '❤️' : '🤍'} <span id="feedLikeCount-${postId}">${likesCount}</span>
+                    </button>
+                    <button type="button" class="feed-action-btn" onclick="toggleFeedComments('${postId}')">
+                        💬 <span id="feedCommentCount-${postId}">${commentsCount}</span>
+                    </button>
+                    <button type="button" class="feed-action-btn ${repostedByMe ? 'reposted' : ''}" onclick="repostPost('${postId}')" ${post.isRepost ? 'disabled title="Repost edilmiş paylaşım yenidən repost edilə bilməz"' : ''}>
+                        🔁 <span id="feedRepostCount-${postId}">${repostsCount}</span>
+                    </button>
+                </div>
+                <div class="feed-comments-box" id="feedComments-${postId}">
+                    <div id="feedCommentsList-${postId}"></div>
+                    <div class="feed-comment-reply-tag" id="feedReplyTag-${postId}" style="display:none;"></div>
+                    <div class="feed-comment-input-row">
+                        <img class="feed-comment-avatar" src="${currentUserData && currentUserData.avatarUrl ? currentUserData.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png'}" alt="">
+                        <input type="text" class="feed-comment-input" id="feedCommentInput-${postId}" placeholder="Şərh yaz..." onkeydown="if(event.key==='Enter'){addComment('${postId}');}">
+                        <button type="button" class="feed-tool-btn" onclick="addComment('${postId}')">➤</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        window.toggleFeedPostMenu = function(e, postId) {
+            e.stopPropagation();
+            document.querySelectorAll('.feed-post-menu.active').forEach(m => { if (m.id !== `feedMenu-${postId}`) m.classList.remove('active'); });
+            const menu = document.getElementById(`feedMenu-${postId}`);
+            if (menu) menu.classList.toggle('active');
+        };
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.feed-post-menu') && !e.target.closest('.feed-post-menu-btn')) {
+                document.querySelectorAll('.feed-post-menu.active').forEach(m => m.classList.remove('active'));
+            }
+        });
+
+        // ---- POST YARATMA ----
+        window.handleFeedMediaSelect = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            feedComposerMediaFile = file;
+            feedComposerMediaType = file.type.startsWith('video/') ? 'video' : 'image';
+            const preview = document.getElementById('feedComposerPreview');
+            const inner = document.getElementById('feedComposerPreviewInner');
+            const url = URL.createObjectURL(file);
+            inner.innerHTML = feedComposerMediaType === 'video'
+                ? `<video src="${url}" controls></video>`
+                : `<img src="${url}" alt="">`;
+            preview.style.display = 'block';
+        };
+        window.removeFeedComposerMedia = function() {
+            feedComposerMediaFile = null;
+            feedComposerMediaType = null;
+            document.getElementById('feedComposerPreview').style.display = 'none';
+            document.getElementById('feedComposerPreviewInner').innerHTML = '';
+            document.getElementById('feedMediaInput').value = '';
+        };
+
+        window.createPost = async function() {
+            if (!currentUserData) return;
+            const inputEl = document.getElementById('feedComposerInput');
+            const text = inputEl.value.trim();
+            if (!text && !feedComposerMediaFile) {
+                showToast('Paylaşım üçün mətn və ya media əlavə edin.', 'error');
+                return;
+            }
+            const btn = document.getElementById('feedPostSubmitBtn');
+            btn.disabled = true;
+
+            const finalize = async (mediaUrl, mediaType) => {
+                try {
+                    await db.ref('posts').push({
+                        authorNick: currentUserData.nick,
+                        authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                        authorRole: currentUserData.role || 'user',
+                        text: text,
+                        mediaUrl: mediaUrl || null,
+                        mediaType: mediaType || null,
+                        timestamp: Date.now(),
+                        editedAt: null,
+                        likesCount: 0,
+                        commentsCount: 0,
+                        repostsCount: 0,
+                        isRepost: false
+                    });
+                    inputEl.value = '';
+                    removeFeedComposerMedia();
+                    showToast('Paylaşım göndərildi!', 'success');
+                } catch (err) {
+                    showToast('Xəta: ' + err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                }
+            };
+
+            if (!feedComposerMediaFile) {
+                await finalize(null, null);
+                return;
+            }
+            try {
+                if (feedComposerMediaType === 'video') {
+                    // Mövcud video yükləmə sistemini (Cloudinary + limit yoxlaması) reuse edirik
+                    const ok = await uploadVideoToStorage(feedComposerMediaFile, (url) => finalize(url, 'video'), null);
+                    if (!ok) btn.disabled = false;
+                } else {
+                    const compressed = await compressImageFile(feedComposerMediaFile);
+                    const formData = new FormData();
+                    formData.append('image', compressed, 'post.jpg');
+                    showToast('Şəkil yüklənir...', 'info');
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if (data.success) {
+                        await finalize(data.data.url, 'image');
+                    } else {
+                        showToast('Şəkil yüklənə bilmədi.', 'error');
+                        btn.disabled = false;
+                    }
+                }
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+                btn.disabled = false;
+            }
+        };
+
+        // ---- REDAKTƏ / SİLMƏ ----
+        window.startEditPost = function(postId) {
+            const post = feedPostsCache[postId];
+            if (!post) return;
+            const textEl = document.getElementById(`feedPostText-${postId}`);
+            const menu = document.getElementById(`feedMenu-${postId}`);
+            if (menu) menu.classList.remove('active');
+            const newText = prompt('Paylaşımı redaktə et:', post.text || '');
+            if (newText === null) return;
+            db.ref(`posts/${postId}`).update({ text: newText.trim(), editedAt: Date.now() })
+                .then(() => showToast('Paylaşım yeniləndi.', 'success'))
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.deletePost = function(postId) {
+            const post = feedPostsCache[postId];
+            if (!post) return;
+            const isMine = currentUserData && post.authorNick === currentUserData.nick;
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+            if (!isMine && !isMod) return;
+            if (!confirm('Bu paylaşımı silmək istədiyinizə əminsiniz?')) return;
+            // DÜZƏLİŞ: tək multi-path update() əvəzinə ardıcıl silmə —
+            // şərh/like qovluqlarını post hələ mövcud olarkən silirik ki,
+            // Rules-dakı "post sahibiyəm" yoxlaması uğurla keçsin.
+            db.ref(`postComments/${postId}`).remove()
+                .then(() => db.ref(`postLikes/${postId}`).remove())
+                .then(() => db.ref(`posts/${postId}`).remove())
+                .then(() => showToast('Paylaşım silindi.', 'success'))
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        // ---- LIKE SİSTEMİ ----
+        window.togglePostLike = function(postId) {
+            if (!currentUserData) return;
+            const nick = currentUserData.nick;
+            const likeRef = db.ref(`postLikes/${postId}/${nick}`);
+            const postRef = db.ref(`posts/${postId}`);
+            likeRef.once('value').then(snap => {
+                if (snap.exists()) {
+                    likeRef.remove();
+                    postRef.child('likedBy').child(nick).remove();
+                    postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1));
+                } else {
+                    likeRef.set(true);
+                    postRef.child('likedBy').child(nick).set(true);
+                    postRef.child('likesCount').transaction(c => (c || 0) + 1);
+                }
+            });
+        };
+
+        // ---- ŞƏRH SİSTEMİ ----
+        window.toggleFeedComments = function(postId) {
+            const box = document.getElementById(`feedComments-${postId}`);
+            if (!box) return;
+            const willOpen = !box.classList.contains('active');
+            box.classList.toggle('active', willOpen);
+            if (willOpen) {
+                feedOpenCommentBoxes.add(postId);
+                attachCommentListener(postId);
+            } else {
+                feedOpenCommentBoxes.delete(postId);
+            }
+        };
+
+        function attachCommentListener(postId) {
+            if (feedCommentListeners[postId]) return;
+            feedCommentListeners[postId] = true;
+            db.ref(`postComments/${postId}`).orderByChild('timestamp').on('value', (snap) => {
+                const val = snap.val() || {};
+                renderComments(postId, val);
+            });
+        }
+
+        function renderComments(postId, commentsObj) {
+            const list = document.getElementById(`feedCommentsList-${postId}`);
+            if (!list) return;
+            const ids = Object.keys(commentsObj).sort((a, b) => (commentsObj[a].timestamp || 0) - (commentsObj[b].timestamp || 0));
+            const topLevel = ids.filter(id => !commentsObj[id].parentId);
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+
+            const renderOne = (id, c, isReply) => {
+                const isMine = currentUserData && c.authorNick === currentUserData.nick;
+                return `
+                <div class="feed-comment-item ${isReply ? 'is-reply' : ''}" id="feedComment-${postId}-${id}">
+                    <img class="feed-comment-avatar" src="${c.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png'}" alt="">
+                    <div style="flex:1;">
+                        <div class="feed-comment-bubble">
+                            <div class="feed-comment-author">${escapeHtml(c.authorNick)}</div>
+                            <div class="feed-comment-text" id="feedCommentText-${postId}-${id}">${escapeHtml(c.text)}</div>
+                        </div>
+                        <div class="feed-comment-meta">
+                            <span>${formatFeedTime(c.timestamp)}${c.editedAt ? ' · redaktə edilib' : ''}</span>
+                            <span onclick="startReplyToComment('${postId}','${id}','${c.authorNick.replace(/'/g, "\\'")}')">Cavabla</span>
+                            ${isMine ? `<span onclick="startEditComment('${postId}','${id}')">Redaktə et</span>` : ''}
+                            ${(isMine || isMod) ? `<span onclick="deleteComment('${postId}','${id}')">Sil</span>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            };
+
+            let html = '';
+            topLevel.forEach(id => {
+                html += renderOne(id, commentsObj[id], false);
+                const replies = ids.filter(rid => commentsObj[rid].parentId === id);
+                replies.forEach(rid => { html += renderOne(rid, commentsObj[rid], true); });
+            });
+            list.innerHTML = html || `<div style="color:var(--text-50); font-size:12.5px; padding:6px 0;">Hələ şərh yoxdur.</div>`;
+        }
+
+        window.startReplyToComment = function(postId, commentId, authorNick) {
+            feedReplyTarget[postId] = { commentId, authorNick };
+            const tag = document.getElementById(`feedReplyTag-${postId}`);
+            tag.style.display = 'block';
+            tag.innerHTML = `${escapeHtml(authorNick)} istifadəçisinə cavab verirsiniz <span onclick="cancelCommentReply('${postId}')">✕ ləğv et</span>`;
+            document.getElementById(`feedCommentInput-${postId}`).focus();
+        };
+        window.cancelCommentReply = function(postId) {
+            feedReplyTarget[postId] = null;
+            const tag = document.getElementById(`feedReplyTag-${postId}`);
+            tag.style.display = 'none';
+            tag.innerHTML = '';
+        };
+
+        window.addComment = function(postId) {
+            if (!currentUserData) return;
+            const input = document.getElementById(`feedCommentInput-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+            const replyInfo = feedReplyTarget[postId];
+            const commentData = {
+                authorNick: currentUserData.nick,
+                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                text: text,
+                timestamp: Date.now(),
+                editedAt: null,
+                parentId: replyInfo ? replyInfo.commentId : null
+            };
+            db.ref(`postComments/${postId}`).push(commentData)
+                .then(() => {
+                    db.ref(`posts/${postId}/commentsCount`).transaction(c => (c || 0) + 1);
+                    input.value = '';
+                    cancelCommentReply(postId);
+                })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.startEditComment = function(postId, commentId) {
+            const textEl = document.getElementById(`feedCommentText-${postId}-${commentId}`);
+            if (!textEl) return;
+            const current = textEl.innerText;
+            const updated = prompt('Şərhi redaktə et:', current);
+            if (updated === null) return;
+            db.ref(`postComments/${postId}/${commentId}`).update({ text: updated.trim(), editedAt: Date.now() })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.deleteComment = function(postId, commentId) {
+            if (!confirm('Şərhi silmək istədiyinizə əminsiniz?')) return;
+            db.ref(`postComments/${postId}/${commentId}`).remove()
+                .then(() => db.ref(`posts/${postId}/commentsCount`).transaction(c => Math.max(0, (c || 0) - 1)))
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        // ---- REPOST SİSTEMİ ----
+        window.repostPost = async function(postId) {
+            if (!currentUserData) return;
+            const post = feedPostsCache[postId];
+            if (!post || post.isRepost) return;
+            const nick = currentUserData.nick;
+            const existingSnap = await db.ref(`postReposts/${postId}/${nick}`).once('value');
+            if (existingSnap.exists()) {
+                showToast('Bu paylaşımı artıq repost etmisiniz.', 'info');
+                return;
+            }
+            try {
+                const newPostRef = db.ref('posts').push();
+                await newPostRef.set({
+                    authorNick: nick,
+                    authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                    authorRole: currentUserData.role || 'user',
+                    text: '',
+                    mediaUrl: null,
+                    mediaType: null,
+                    timestamp: Date.now(),
+                    editedAt: null,
+                    likesCount: 0,
+                    commentsCount: 0,
+                    repostsCount: 0,
+                    isRepost: true,
+                    originalPostId: postId,
+                    originalAuthorNick: post.authorNick
+                });
+                await db.ref(`postReposts/${postId}/${nick}`).set(newPostRef.key);
+                await db.ref(`posts/${postId}/repostedBy/${nick}`).set(true);
+                await db.ref(`posts/${postId}/repostsCount`).transaction(c => (c || 0) + 1);
+                showToast('Repost edildi!', 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+
+        window.deleteRepost = function(repostPostId) {
+            const repost = feedPostsCache[repostPostId];
+            if (!repost || !repost.isRepost) return;
+            const isMine = currentUserData && repost.authorNick === currentUserData.nick;
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+            if (!isMine && !isMod) return;
+            if (!confirm('Repostu geri götürmək istəyirsiniz?')) return;
+            const originalPostId = repost.originalPostId;
+            const nick = repost.authorNick;
+            const updates = {};
+            updates[`posts/${repostPostId}`] = null;
+            if (originalPostId) {
+                updates[`postReposts/${originalPostId}/${nick}`] = null;
+                updates[`posts/${originalPostId}/repostedBy/${nick}`] = null;
+            }
+            db.ref().update(updates)
+                .then(() => {
+                    if (originalPostId) {
+                        db.ref(`posts/${originalPostId}/repostsCount`).transaction(c => Math.max(0, (c || 0) - 1));
+                    }
+                    showToast('Repost silindi.', 'success');
+                })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
 
         window.handleMediaUpload = async function(e) {
             const file = e.target.files[0];
