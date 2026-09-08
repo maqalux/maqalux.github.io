@@ -6874,11 +6874,12 @@ function returnToRecentPrivateMessages(targetNick) {
             const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
             if (!isMine && !isMod) return;
             if (!confirm('Bu paylaşımı silmək istədiyinizə əminsiniz?')) return;
-            const updates = {};
-            updates[`posts/${postId}`] = null;
-            updates[`postComments/${postId}`] = null;
-            updates[`postLikes/${postId}`] = null;
-            db.ref().update(updates)
+            // DÜZƏLİŞ: tək multi-path update() əvəzinə ardıcıl silmə —
+            // şərh/like qovluqlarını post hələ mövcud olarkən silirik ki,
+            // Rules-dakı "post sahibiyəm" yoxlaması uğurla keçsin.
+            db.ref(`postComments/${postId}`).remove()
+                .then(() => db.ref(`postLikes/${postId}`).remove())
+                .then(() => db.ref(`posts/${postId}`).remove())
                 .then(() => showToast('Paylaşım silindi.', 'success'))
                 .catch(err => showToast('Xəta: ' + err.message, 'error'));
         };
