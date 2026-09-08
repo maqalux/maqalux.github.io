@@ -6,7 +6,7 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ffaa00">
     <link rel="apple-touch-icon" href="/icon-192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Maqalux">
     <title>Maqalux - Modern Çat</title>
@@ -2237,6 +2237,306 @@
             .user-badge .role-tag,
             .user-badge .badge-actions { display: none !important; }
         }
+
+        /* ============================================================
+           FEED MODULU — YENİ ƏLAVƏ (post, like, şərh, repost)
+           ============================================================ */
+        .feed-view {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 14px;
+            gap: 14px;
+        }
+        .feed-tab-btn {
+            width: auto;
+            margin: 0;
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 20px;
+            border: 1px solid var(--border-10);
+            background: var(--panel-08);
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .feed-tab-btn.active {
+            background: #ffaa00;
+            color: #14141a;
+            border-color: #ffaa00;
+        }
+        .feed-composer {
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            border-radius: 14px;
+            padding: 12px;
+        }
+        .feed-composer-top {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .feed-composer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .feed-composer-input {
+            flex: 1;
+            min-height: 44px;
+            max-height: 160px;
+            resize: none;
+            background: var(--panel-05);
+            border: 1px solid var(--border-10);
+            border-radius: 10px;
+            color: var(--text-main);
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .feed-composer-preview {
+            margin-top: 10px;
+            position: relative;
+            display: none;
+        }
+        .feed-composer-preview img,
+        .feed-composer-preview video {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 10px;
+            display: block;
+        }
+        .feed-composer-preview .feed-remove-media {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+        }
+        .feed-composer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .feed-composer-tools {
+            display: flex;
+            gap: 6px;
+        }
+        .feed-tool-btn {
+            background: none;
+            border: none;
+            font-size: 19px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            color: var(--text-55);
+        }
+        .feed-tool-btn:hover { background: var(--panel-06); }
+        .feed-post-btn {
+            background: #ffaa00;
+            color: #14141a;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .feed-post-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .feed-post-card {
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            border-radius: 14px;
+            padding: 14px;
+        }
+        .feed-repost-tag {
+            font-size: 12px;
+            color: var(--text-55);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .feed-post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feed-post-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .feed-post-author {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 14.5px;
+        }
+        .feed-post-time {
+            font-size: 12px;
+            color: var(--text-50);
+        }
+        .feed-post-menu-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-55);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .feed-post-menu {
+            position: absolute;
+            right: 14px;
+            margin-top: 4px;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--border-15);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            z-index: 20;
+            min-width: 150px;
+        }
+        .feed-post-menu.active { display: block; }
+        .feed-post-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px 14px;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .feed-post-menu button:hover { background: var(--panel-06); }
+        .feed-post-text {
+            margin: 10px 0;
+            color: var(--text-main);
+            font-size: 14.5px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .feed-post-media img,
+        .feed-post-media video {
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .feed-post-actions {
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid var(--border-10);
+            padding-top: 8px;
+        }
+        .feed-action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--text-55);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 4px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .feed-action-btn:hover { background: var(--panel-06); }
+        .feed-action-btn.liked { color: #ff4d6d; }
+        .feed-action-btn.reposted { color: #4fc3f7; }
+        .feed-comments-box {
+            margin-top: 10px;
+            display: none;
+            border-top: 1px solid var(--border-10);
+            padding-top: 10px;
+        }
+        .feed-comments-box.active { display: block; }
+        .feed-comment-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .feed-comment-item.is-reply {
+            margin-left: 34px;
+        }
+        .feed-comment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .feed-comment-bubble {
+            background: var(--panel-06);
+            border-radius: 12px;
+            padding: 7px 11px;
+            font-size: 13.5px;
+            flex: 1;
+        }
+        .feed-comment-author {
+            font-weight: 700;
+            font-size: 12.5px;
+            color: var(--text-main);
+        }
+        .feed-comment-text { color: var(--text-main); word-break: break-word; }
+        .feed-comment-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 11.5px;
+            color: var(--text-50);
+            margin-top: 3px;
+        }
+        .feed-comment-meta span { cursor: pointer; }
+        .feed-comment-meta span:hover { text-decoration: underline; }
+        .feed-comment-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            align-items: center;
+        }
+        .feed-comment-input {
+            flex: 1;
+            background: var(--panel-05);
+            border: 1px solid var(--border-10);
+            border-radius: 16px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .feed-comment-reply-tag {
+            font-size: 11.5px;
+            color: var(--text-50);
+            margin-top: 4px;
+        }
+        .feed-comment-reply-tag span { color: #4fc3f7; cursor: pointer; }
+        .feed-empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-50);
+        }
+        @media (max-width: 768px) {
+            .feed-view { padding: 8px; }
+            .feed-post-card { padding: 10px; border-radius: 10px; }
+            .feed-comment-item.is-reply { margin-left: 20px; }
+        }
     </style>
 </head>
 
@@ -2325,8 +2625,11 @@
                     <button class="logout-btn" onclick="handleLogout()">Çıxış</button>
                 </div>
 
-                  <div class="main-view-tabs" style="display:flex; justify-content:space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid var(--border-10);">
-                    <h4 style="margin:0; color:#ffaa00; font-size:18px; font-weight:700;">Söhbətlər</h4>
+                  <div class="main-view-tabs" style="display:flex; justify-content:space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid var(--border-10); gap:10px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button type="button" class="feed-tab-btn active" id="chatsTabBtn" onclick="switchMainView('friends')">💬 Söhbətlər</button>
+                        <button type="button" class="feed-tab-btn" id="feedTabBtn" onclick="switchMainView('feed')">🏠 Lent</button>
+                    </div>
                     <button class="login-btn" style="width:auto; margin:0; padding:8px 16px; font-size:13px;" onclick="openNewChatModal()">
                         ✏️ Yeni söhbət
                     </button>
@@ -2342,6 +2645,34 @@
                         <h4>Aktiv istifadəçilər</h4>
                         <div id="activeUsersList"></div>
                     </div>
+                </div>
+
+                <!-- ============================================================
+                     FEED EKRANI — YENİ ƏLAVƏ
+                     ============================================================ -->
+                <div class="feed-view" id="feedView">
+                    <div class="feed-composer" id="feedComposer">
+                        <div class="feed-composer-top">
+                            <img class="feed-composer-avatar" id="feedComposerAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+                            <textarea class="feed-composer-input" id="feedComposerInput" placeholder="Nə düşünürsən?" rows="2" oninput="autoGrowTextarea(this)"></textarea>
+                        </div>
+                        <div class="feed-composer-preview" id="feedComposerPreview">
+                            <button type="button" class="feed-remove-media" onclick="removeFeedComposerMedia()">✕</button>
+                            <div id="feedComposerPreviewInner"></div>
+                        </div>
+                        <div class="feed-composer-actions">
+                            <div class="feed-composer-tools">
+                                <label class="feed-tool-btn" title="Şəkil / Video əlavə et">
+                                    📷
+                                    <input type="file" id="feedMediaInput" accept="image/*,video/*" style="display:none;" onchange="handleFeedMediaSelect(event)">
+                                </label>
+                            </div>
+                            <button type="button" class="feed-post-btn" id="feedPostSubmitBtn" onclick="createPost()">Paylaş</button>
+                        </div>
+                    </div>
+
+                    <div id="feedPostsContainer"></div>
+                    <div class="feed-empty-state" id="feedEmptyState" style="display:none;">Hələ heç bir paylaşım yoxdur. İlk paylaşımı sən et!</div>
                 </div>
 
                 <!-- Reply Preview Bar -->
@@ -2708,6 +3039,7 @@
         let friendReqListenersAttached = false;
         let friendReqFirstLoad = true;
         let friendModalQueue = [];
+        let friendsLoaded = false;
 
         function isFriend(nick) {
             return !!myFriends[nick];
@@ -2843,31 +3175,40 @@
             `).join('');
         }
 
-        function initFriendSystem() {
-            if (!currentUserData) return;
-            friendReqFirstLoad = true;
+    async function initFriendSystem() {
+    if (!currentUserData) return;
+    friendReqFirstLoad = true;
 
-            db.ref(`friends/${currentUserData.nick}`).on('value', (snap) => {
-                myFriends = snap.val() || {};
-                if (typeof renderFriendsList === 'function') renderFriendsList();
-            });
+    // Əvvəlcə ilk snapshot-u GÖZLƏYİRİK ki, myFriends UI-dan əvvəl dolsun
+    try {
+        const initialSnap = await db.ref(`friends/${currentUserData.nick}`).once('value');
+        myFriends = initialSnap.val() || {};
+    } catch (err) {
+        console.error('Dostlar ilkin yüklənərkən xəta:', err);
+    }
+        friendsLoaded = true;
+    if (typeof renderFriendsList === 'function') renderFriendsList();
 
-            db.ref(`friendRequests/${currentUserData.nick}`).on('value', (snap) => {
-                const newRequests = snap.val() || {};
-                if (!friendReqFirstLoad) {
-                    // Yalnız YENİ gələn sorğular üçün avtomatik pəncərə göstər
-                    Object.keys(newRequests).forEach(fromNick => {
-                        if (!incomingFriendRequests[fromNick]) {
-                            queueFriendRequestModal(fromNick, newRequests[fromNick].fromAvatar);
-                            playReceivedSound();
-                        }
-                    });
+    db.ref(`friends/${currentUserData.nick}`).on('value', (snap) => {
+        myFriends = snap.val() || {};
+        if (typeof renderFriendsList === 'function') renderFriendsList();
+    });
+
+    db.ref(`friendRequests/${currentUserData.nick}`).on('value', (snap) => {
+        const newRequests = snap.val() || {};
+        if (!friendReqFirstLoad) {
+            Object.keys(newRequests).forEach(fromNick => {
+                if (!incomingFriendRequests[fromNick]) {
+                    queueFriendRequestModal(fromNick, newRequests[fromNick].fromAvatar);
+                    playReceivedSound();
                 }
-                incomingFriendRequests = newRequests;
-                friendReqFirstLoad = false;
-                renderFriendReqDropdown();
             });
         }
+        incomingFriendRequests = newRequests;
+        friendReqFirstLoad = false;
+        renderFriendReqDropdown();
+    });
+}
 
         function stopFriendSystem() {
             if (currentUserData) {
@@ -2883,21 +3224,49 @@
             const friendsView = document.getElementById('friendsListView');
             const generalBody = document.getElementById('generalChatBody');
             const generalInputBar = document.getElementById('generalInputBar');
+            const feedView = document.getElementById('feedView');
+            const chatsTabBtn = document.getElementById('chatsTabBtn');
+            const feedTabBtn = document.getElementById('feedTabBtn');
+
+            // YENİ: Feed tabları arasında aktiv/passiv görünüş
+            if (chatsTabBtn && feedTabBtn) {
+                chatsTabBtn.classList.toggle('active', view !== 'feed');
+                feedTabBtn.classList.toggle('active', view === 'feed');
+            }
+
+            if (view === 'feed') {
+                // YENİ: Feed görünüşünü aç, çat hissəsini gizlət
+                friendsView.style.display = 'none';
+                generalBody.style.display = 'none';
+                generalInputBar.style.display = 'none';
+                if (feedView) feedView.style.display = 'flex';
+                if (window.location.hash !== '#feed') history.replaceState(null, '', '#feed');
+                initFeedIfNeeded();
+                return;
+            }
+            if (feedView) feedView.style.display = 'none';
+
             if (view === 'friends') {
                 friendsView.style.display = 'flex';
                 generalBody.style.display = 'none';
                 generalInputBar.style.display = 'none';
+                if (window.location.hash === '#feed') history.replaceState(null, '', ' ');
                 renderFriendsList();
             } else {
                 friendsView.style.display = 'none';
                 generalBody.style.display = 'flex';
                 generalInputBar.style.display = 'flex';
+                if (window.location.hash === '#feed') history.replaceState(null, '', ' ');
             }
         };
 
         function renderFriendsList() {
             const container = document.getElementById('friendsListContainer');
             if (!container || !currentUserData) return;
+            if (!friendsLoaded) {
+            container.innerHTML = '<div class="loading" style="padding:20px;text-align:center;opacity:0.6;">Yüklənir...</div>';
+            return;
+            }
 
             // Həmişə siyahının ən üstündə Ümumi Çat olsun
             let html = `
@@ -3020,36 +3389,24 @@
             }).join('');
         };
         
-        function initHeaderMessageInbox() {
-            if (!currentUserData) return;
-            if (msgInboxRef) msgInboxRef.off();
-            msgConversations = {};
-            msgInboxRef = db.ref('privateMessages').orderByChild('recipient').equalTo(currentUserData.nick);
-            msgInboxRef.on('value', (snap) => {
-                const convs = {};
-                snap.forEach((child) => {
-                    const m = child.val();
-                    if (!m || m.isDeleted) return;
-                    const readBy = m.readBy || [];
-                    const isUnread = !readBy.includes(currentUserData.nick);
-                    if (!convs[m.sender]) {
-                        convs[m.sender] = {
-                            avatar: m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png',
-                            text: '', timestamp: 0, unreadCount: 0
-                        };
-                    }
-                    const conv = convs[m.sender];
-                    if ((m.timestamp || 0) >= conv.timestamp) {
-                        conv.avatar = m.senderAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
-                        conv.text = (m.mediaType && m.mediaType !== 'text') ? '📎 Media' : (m.text || '');
-                        conv.timestamp = m.timestamp || 0;
-                    }
-                    if (isUnread) conv.unreadCount++;
-                });
-                msgConversations = convs;
-                renderHeaderMsgDropdown();
-            });
-        }
+function initHeaderMessageInbox() {
+    if (!currentUserData) return;
+
+    if (msgInboxRef) {
+        msgInboxRef.off();
+    }
+
+    msgConversations = {};
+
+    msgInboxRef = db.ref(
+        `inboxes/${currentUserData.nick}`
+    );
+
+    msgInboxRef.on('value', (snap) => {
+        msgConversations = snap.val() || {};
+        renderHeaderMsgDropdown();
+    });
+}
 
         function stopHeaderMessageInbox() {
             if (msgInboxRef) { msgInboxRef.off(); msgInboxRef = null; }
@@ -3193,8 +3550,9 @@
         window.handleWallpaperUpload = async function(e) {
             const file = e.target.files[0];
             if (!file) return;
+            const compressed = await compressImageFile(file);
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', compressed, 'avatar.jpg');
             try {
                 showToast('Şəkil yüklənir...', 'info');
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
@@ -3579,15 +3937,23 @@ connectedRef.on('value', (snap) => {
 
                         document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
                         document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
+                        // YENİ: Feed composer avatarını da yenilə
+                        const feedAvatarEl = document.getElementById('feedComposerAvatar');
+                        if (feedAvatarEl) feedAvatarEl.src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
                         document.getElementById('loginScreen').classList.remove('active');
                         document.getElementById('mainChatScreen').classList.add('active');
 
-                        loadMessages();
-                        loadActiveUsers();
-                        loadPrivateMessages();
-                        initHeaderMessageInbox();
-                        initFriendSystem();
-                        switchMainView('friends');
+                       loadMessages();
+                       loadActiveUsers();
+                       loadPrivateMessages();
+                       initHeaderMessageInbox();
+                       switchMainView('friends');
+                       initFriendSystem();
+
+                       // YENİ: Refresh-dən sonra #feed hash-i varsa, birbaşa Feed-i aç
+                       if (window.location.hash === '#feed') {
+                           switchMainView('feed');
+                       }
 
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
@@ -3707,10 +4073,20 @@ connectedRef.on('value', (snap) => {
             }
         };
 
-        window.handleLogout = async function() {
+               window.handleLogout = async function() {
             if (currentUser) {
-                await db.ref(`users/${currentUser.uid}`).update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP });
-                await auth.signOut();
+                try {
+                    const updatePromise = db.ref(`users/${currentUser.uid}`).update({
+                        online: false,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 2000));
+                    await Promise.race([updatePromise, timeoutPromise]);
+                } catch (err) {
+                    console.error('Logout zamanı DB yeniləmə xətası:', err);
+                } finally {
+                    await auth.signOut();
+                }
             }
         };
 
@@ -3811,15 +4187,54 @@ connectedRef.on('value', (snap) => {
             });
         };
 
+                // ============================================================
+        // ŞƏKİL SIXMA — imgbb-ə göndərilən HƏR şəkil buradan keçir
+        // ============================================================
+        function compressImageFile(file, maxDim = 1280, quality = 0.75) {
+            return new Promise((resolve, reject) => {
+                if (!file.type.startsWith('image/') || file.type === 'image/gif') {
+                    resolve(file); // GIF-i toxunmadan burax (animasiya pozulmasın)
+                    return;
+                }
+                const img = new Image();
+                const reader = new FileReader();
+                reader.onload = (e) => { img.src = e.target.result; };
+                reader.onerror = reject;
+                img.onload = () => {
+                    let { width, height } = img;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round(height * (maxDim / width));
+                            width = maxDim;
+                        } else {
+                            width = Math.round(width * (maxDim / height));
+                            height = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        resolve(blob || file);
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => resolve(file); // xəta olsa, orijinalı göndər
+                reader.readAsDataURL(file);
+            });
+        }
+
         // ============================================================
         // 8. AVATAR YENİLƏMƏ
         // ============================================================
         window.uploadProfileAvatar = async function(e) {
             const file = e.target.files[0];
             if (!file) return;
+            const compressed = await compressImageFile(file);
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', compressed, 'wallpaper.jpg');
             try {
+                showToast('Şəkil yüklənir...', 'info');
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const data = await res.json();
                 if (data.success) {
@@ -3880,7 +4295,7 @@ connectedRef.on('value', (snap) => {
             isLoadingOlderMessages = false;
 
             // 1) Əvvəlcə bütün mövcud mesajları bir dəfə yüklə (once value)
-            db.ref('messages').orderByChild('timestamp').limitToLast(150).once('value', (snapshot) => {
+            db.ref('messages').orderByChild('timestamp').limitToLast(50).once('value', (snapshot) => {
                 const loaded = [];
                 snapshot.forEach((childSnap) => {
                     const msg = childSnap.val();
@@ -3894,11 +4309,10 @@ connectedRef.on('value', (snap) => {
                     appendMessage(msg);
                 });
                 if (loaded.length) oldestMessageTimestamp = loaded[0].timestamp || null;
-                if (loaded.length < 150) hasMoreOlderMessages = false;
+                if (loaded.length < 100) hasMoreOlderMessages = false;
                 isMessagesLoaded = true;
                 const area = document.getElementById('chatMessagesArea');
                 area.scrollTop = area.scrollHeight;
-                setupInfiniteScroll(area);
             }).catch(err => {
                 showToast('Mesajlar yüklənərkən xəta: ' + err.message, 'error');
             });
@@ -3918,7 +4332,7 @@ connectedRef.on('value', (snap) => {
             });
 
             // 3) Mövcud mesajın istənilən sahəsi (reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
-            db.ref('messages').orderByChild('timestamp').limitToLast(150).on('child_changed', (snap) => {
+            db.ref('messages').orderByChild('timestamp').limitToLast(50).on('child_changed', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
                 const idx = allMessages.findIndex(m => m.id === msg.id);
@@ -3958,10 +4372,10 @@ connectedRef.on('value', (snap) => {
                 <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : highlightMentions(msg.text, msg.mentions)}</div>
             `;
             if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<br><img src="${msg.mediaUrl}" alt="Media" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
+                content += `<br><img src="${msg.mediaUrl}" alt="Media" loading="lazy" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
             }
             if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
-                content += `<br><img src="${msg.mediaUrl}" alt="Stiker" style="max-width:140px; max-height:140px; background:none;">`;
+                content += `<br><img src="${msg.mediaUrl}" alt="Stiker" loading="lazy" style="max-width:140px; max-height:140px; background:none;">`;
             }
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<br><audio controls src="${msg.mediaUrl}" style="max-width:220px; height:34px;"></audio>`;
@@ -4134,35 +4548,34 @@ connectedRef.on('value', (snap) => {
         }
 
         function markAllConversationRead(targetNick) {
-            // Yerli yaddaşdakı (yüklənmiş) mesajları dərhal işarələ
-            const cached = privateMessagesByNick[targetNick] || [];
-            cached.forEach(msg => {
-                if (msg.sender === currentUserData.nick || !msg.id) return;
-                const readBy = msg.readBy || [];
-                if (readBy.includes(currentUserData.nick)) return;
-                db.ref(`privateMessages/${msg.id}/readBy`).transaction((list) => {
-                    list = list || [];
-                    if (!list.includes(currentUserData.nick)) list.push(currentUserData.nick);
-                    return list;
-                });
-            });
 
-            // Bundan əlavə, Firebase-dən BÜTÜN söhbəti (yerli yaddaşda olmayanlar daxil,
-            // məs. çox köhnə, heç vaxt yüklənməmiş mesajlar) birbaşa sorğula və onları da işarələ.
-            db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value').then(snap => {
-                snap.forEach(child => {
-                    const m = child.val();
-                    if (m.recipient !== currentUserData.nick) return;
-                    const readBy = m.readBy || [];
-                    if (readBy.includes(currentUserData.nick)) return;
-                    db.ref(`privateMessages/${child.key}/readBy`).transaction((list) => {
-                        list = list || [];
-                        if (!list.includes(currentUserData.nick)) list.push(currentUserData.nick);
-                        return list;
-                    });
-                });
+    // Header-dəki oxunmamış DM sayını sıfırla
+    db.ref(
+        `inboxes/${currentUserData.nick}/${targetNick}/unreadCount`
+    ).set(0);
+
+    // Hazırda brauzerdə olan mesajları oxunmuş işarələ
+    const cached = privateMessagesByNick[targetNick] || [];
+
+    cached.forEach(msg => {
+        if (msg.sender === currentUserData.nick || !msg.id) return;
+
+        const readBy = msg.readBy || [];
+
+        if (readBy.includes(currentUserData.nick)) return;
+
+        db.ref(`privateMessages/${msg.id}/readBy`)
+            .transaction((list) => {
+                list = list || [];
+
+                if (!list.includes(currentUserData.nick)) {
+                    list.push(currentUserData.nick);
+                }
+
+                return list;
             });
-        }
+    });
+}
 
         function markMessageReadOnView(el, msgId, isPrivate) {
             const observer = new IntersectionObserver((entries) => {
@@ -4302,8 +4715,9 @@ connectedRef.on('value', (snap) => {
 
             input.placeholder = '📸 Şəkil yüklənir...';
             input.disabled = true;
+            const compressed = await compressImageFile(file);
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', compressed, 'photo.jpg');
             try {
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const data = await res.json();
@@ -4641,6 +5055,7 @@ window.handlePrivateDateJump = function(targetNick, dateStr) {
 };
 
 async function jumpToPrivateDate(targetNick, ts) {
+    const isGeneral = targetNick === '__GENERAL__';
     const body = document.getElementById('pcw-body-' + targetNick);
     if (!body) return;
     body.innerHTML = '<div class="older-msgs-spinner">Seçilmiş tarix yüklənir...</div>';
@@ -4650,30 +5065,32 @@ async function jumpToPrivateDate(targetNick, ts) {
     const endOfDay = new Date(ts);
     endOfDay.setHours(23, 59, 59, 999);
 
-    // Həmin günün mesajlarını və bir az əvvəlkinin (kontekst üçün) yükləyirik
-    const q1 = db.ref('privateMessages').orderByChild('timestamp').startAt(startOfDay.getTime()).endAt(endOfDay.getTime()).once('value');
-    const q2 = db.ref('privateMessages').orderByChild('timestamp').endAt(startOfDay.getTime() - 1).limitToLast(10).once('value');
+    // Ümumi çat üçün 'messages', şəxsi çat üçün 'privateMessages' node-undan oxuyuruq.
+    // Bu, tarix axtarışında yalnız seçilmiş günün mesajlarını (+ bir az kontekst) yükləyir —
+    // başqa heç bir vaxt bundan artıq data çəkilmir.
+    const refName = isGeneral ? 'messages' : 'privateMessages';
+    const q1 = db.ref(refName).orderByChild('timestamp').startAt(startOfDay.getTime()).endAt(endOfDay.getTime()).once('value');
+    const q2 = db.ref(refName).orderByChild('timestamp').endAt(startOfDay.getTime() - 1).limitToLast(10).once('value');
 
     const [snap1, snap2] = await Promise.all([q1, q2]);
     const dayMsgs = [];
     const contextMsgs = [];
 
+    const belongsToChat = (m) => isGeneral ? true : (
+        (m.sender === currentUserData.nick && m.recipient === targetNick) ||
+        (m.sender === targetNick && m.recipient === currentUserData.nick)
+    );
+
     snap1.forEach(child => {
         const m = child.val();
         m.id = child.key;
-        if ((m.sender === currentUserData.nick && m.recipient === targetNick) || 
-            (m.sender === targetNick && m.recipient === currentUserData.nick)) {
-            dayMsgs.push(m);
-        }
+        if (belongsToChat(m)) dayMsgs.push(m);
     });
 
     snap2.forEach(child => {
         const m = child.val();
         m.id = child.key;
-        if ((m.sender === currentUserData.nick && m.recipient === targetNick) || 
-            (m.sender === targetNick && m.recipient === currentUserData.nick)) {
-            contextMsgs.push(m);
-        }
+        if (belongsToChat(m)) contextMsgs.push(m);
     });
 
     body.innerHTML = '';
@@ -4681,9 +5098,13 @@ async function jumpToPrivateDate(targetNick, ts) {
     if (dayMsgs.length === 0 && contextMsgs.length === 0) {
         body.innerHTML = '<div class="sticker-empty-state">Bu gündə heç bir mesaj tapılmadı.</div>';
     } else {
+        const buildBubble = (msg, grouped) => isGeneral
+            ? createMessageBubbleDiv(msg, targetNick, grouped)
+            : createPrivateMessageBubbleDiv(targetNick, msg, grouped);
+
         // Əvvəlki kontekst mesajları
         contextMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        contextMsgs.forEach((msg, i) => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg, isGroupedMessage(msg, i > 0 ? contextMsgs[i - 1] : null))));
+        contextMsgs.forEach((msg, i) => body.appendChild(buildBubble(msg, isGroupedMessage(msg, i > 0 ? contextMsgs[i - 1] : null))));
 
         // Tarix ayracı
         const sep = document.createElement('div');
@@ -4693,7 +5114,7 @@ async function jumpToPrivateDate(targetNick, ts) {
 
         // Günün mesajları
         dayMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        dayMsgs.forEach((msg, i) => body.appendChild(createPrivateMessageBubbleDiv(targetNick, msg, isGroupedMessage(msg, i > 0 ? dayMsgs[i - 1] : null))));
+        dayMsgs.forEach((msg, i) => body.appendChild(buildBubble(msg, isGroupedMessage(msg, i > 0 ? dayMsgs[i - 1] : null))));
     }
 
     // Geri qayıtmaq düyməsi
@@ -4714,14 +5135,21 @@ async function jumpToPrivateDate(targetNick, ts) {
 }
 
 function returnToRecentPrivateMessages(targetNick) {
+    const isGeneral = targetNick === '__GENERAL__';
     const body = document.getElementById('pcw-body-' + targetNick);
     if (!body) return;
     body.innerHTML = '';
+    body.dataset.lastDateKey = '';
     privateJumpContext[targetNick] = false;
-    
-    // Ən son mesajları yenidən əlavə et
-    const existingMsgs = privateMessagesByNick[targetNick] || [];
-    existingMsgs.forEach(msg => appendPrivateMessage(targetNick, msg));
+
+    // Ən son mesajları yenidən əlavə et (yaddaşda onsuz da olan son 100/mövcud mesajlar,
+    // yenidən server sorğusu getmir)
+    if (isGeneral) {
+        allMessages.forEach(msg => appendMessage(msg));
+    } else {
+        const existingMsgs = privateMessagesByNick[targetNick] || [];
+        existingMsgs.forEach(msg => appendPrivateMessage(targetNick, msg));
+    }
     body.scrollTop = body.scrollHeight;
     
     // Axtarış panelini təmizlə
@@ -4775,7 +5203,46 @@ function returnToRecentPrivateMessages(targetNick) {
 
             container.innerHTML = html || '<div class="sticker-empty-state">İstifadəçi tapılmadı.</div>';
         };
+        function updateInboxForPrivateMessage(targetNick, payload) {
+    if (!currentUserData || !targetNick) {
+        return Promise.resolve();
+    }
 
+    const inboxRef = db.ref(
+        `inboxes/${targetNick}/${currentUserData.nick}`
+    );
+
+    let previewText = payload.text || '';
+
+    if (payload.mediaType && payload.mediaType !== 'text') {
+        if (payload.mediaType === 'image') {
+            previewText = '📷 Şəkil';
+        } else if (payload.mediaType === 'video') {
+            previewText = '🎬 Video';
+        } else if (payload.mediaType === 'audio') {
+            previewText = '🎤 Səsli mesaj';
+        } else if (payload.mediaType === 'gif') {
+            previewText = 'GIF';
+        } else if (payload.mediaType === 'sticker') {
+            previewText = 'Stiker';
+        } else {
+            previewText = '📎 Media';
+        }
+    }
+
+    return inboxRef.update({
+        avatar: currentUserData.avatarUrl ||
+            'https://www.w3schools.com/howto/img_avatar.png',
+
+        text: previewText,
+
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+        return inboxRef.child('unreadCount').transaction(count => {
+            return (count || 0) + 1;
+        });
+    });
+}
         window.confirmForwardTo = function(targetNickOrNull) {
             if (!forwardMsgContext) return;
             const msg = forwardMsgContext;
@@ -4800,12 +5267,25 @@ function returnToRecentPrivateMessages(targetNick) {
                 db.ref('messages').push().set(payload).then(() => {
                     showToast('Mesaj Ümumi çata yönləndirildi.', 'success');
                 }).catch(err => showToast('Xəta: ' + err.message, 'error'));
-            } else {
-                payload.recipient = targetNickOrNull;
-                db.ref('privateMessages').push().set(payload).then(() => {
-                    showToast(`Mesaj ${targetNickOrNull} istifadəçisinə yönləndirildi.`, 'success');
-                }).catch(err => showToast('Xəta: ' + err.message, 'error'));
-            }
+} else {
+    payload.recipient = targetNickOrNull;
+
+    db.ref('privateMessages').push().set(payload).then(() => {
+
+        updateInboxForPrivateMessage(targetNickOrNull, payload)
+            .catch(err => {
+                console.error('Inbox yenilənmə xətası:', err);
+            });
+
+        showToast(
+            `Mesaj ${targetNickOrNull} istifadəçisinə yönləndirildi.`,
+            'success'
+        );
+
+    }).catch(err => {
+        showToast('Xəta: ' + err.message, 'error');
+    });
+}
             closeForwardModal();
         };
 
@@ -4813,7 +5293,7 @@ function returnToRecentPrivateMessages(targetNick) {
         // 10. ŞƏXSİ MESAJLAR - FİKS EDİLDİ
         // ============================================================
     function loadPrivateMessages() {
-            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_added', (snap) => {
+            db.ref('privateMessages').orderByChild('timestamp').limitToLast(50).on('child_added', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
                 if (!currentUserData) return;
@@ -4837,7 +5317,7 @@ function returnToRecentPrivateMessages(targetNick) {
             });
 
             // Mövcud mesajın istənilən sahəsi (tik, reaksiya, silinmə və s.) dəyişəndə tam yenidən çək
-            db.ref('privateMessages').orderByChild('timestamp').limitToLast(200).on('child_changed', (snap) => {
+            db.ref('privateMessages').orderByChild('timestamp').limitToLast(50).on('child_changed', (snap) => {
                 const msg = snap.val();
                 msg.id = snap.key;
                 if (!currentUserData) return;
@@ -4866,10 +5346,10 @@ function returnToRecentPrivateMessages(targetNick) {
                 <div>${msg.isDeleted ? `<i style="opacity:0.6;">${escapeHtml(msg.text)}</i>` : linkifyText(escapeHtml(msg.text))}</div>
             `;
             if (msg.mediaType === 'image' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<img src="${msg.mediaUrl}" alt="Media" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
+                content += `<img src="${msg.mediaUrl}" alt="Media" loading="lazy" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${msg.mediaUrl}')">`;
             }
             if ((msg.mediaType === 'sticker' || msg.mediaType === 'gif') && msg.mediaUrl && !msg.isDeleted) {
-                content += `<img src="${msg.mediaUrl}" alt="Stiker" style="max-width:100px;max-height:100px;background:none;">`;
+                content += `<img src="${msg.mediaUrl}" alt="Stiker" loading="lazy" style="max-width:100px;max-height:100px;background:none;">`;
             }
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<audio controls src="${msg.mediaUrl}" style="max-width:200px; height:32px;"></audio>`;
@@ -5169,7 +5649,9 @@ function returnToRecentPrivateMessages(targetNick) {
                 // Ümumi çatın mesajlarını pəncərə içinə yükləyirik
                                 allMessages.forEach(msg => appendMessage(msg));
                 body.scrollTop = body.scrollHeight;
-                setupInfiniteScroll(body); // Skrollda köhnə mesajları yükləmək üçün
+                // NOT: burada bilərəkdən setupInfiniteScroll() çağırılmır — ümumi çatda
+                // yalnız son 100 mesaj yüklənir, skrollda əlavə köhnə mesaj sorğusu getmir.
+                // Köhnə mesajlara yalnız "Tarixə keç" (tarix axtarışı) ilə baxıla bilər.
             } else {
                 (privateMessagesByNick[targetNick] || []).forEach(msg => appendPrivateMessage(targetNick, msg));
                 body.scrollTop = body.scrollHeight;
@@ -5254,8 +5736,15 @@ function returnToRecentPrivateMessages(targetNick) {
                 deliveredTo: [],
                 readBy: []
             };
-            const newRef = db.ref('privateMessages').push();
+           const newRef = db.ref('privateMessages').push();
+
             newRef.set(payload).then(() => {
+
+            updateInboxForPrivateMessage(targetNick, payload)
+            .catch(err => {
+            console.error('Inbox yenilənmə xətası:', err);
+        });
+
                 input.value = '';
                 input.style.height = 'auto';
                 replyContext = null;
@@ -5306,8 +5795,9 @@ function returnToRecentPrivateMessages(targetNick) {
                 return;
             }
 
+            const compressed = await compressImageFile(file);
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', compressed, 'photo.jpg');
             try {
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const data = await res.json();
@@ -5467,24 +5957,44 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         // 12. AKTİV İSTİFADƏÇİLƏR
         // ============================================================
-        function loadActiveUsers() {
-            db.ref('users').on('value', (snap) => {
-                const list = [];
-                snap.forEach(child => {
-                    const u = child.val();
-                    u.uid = child.key;
-                    list.push(u);
-                });
-                lastActiveUsersList = list;
-                renderActiveUsers(list);
-                Object.keys(openPCWs).forEach(nick => {
-                    const found = list.find(u => u.nick === nick);
-                    const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
-                    if (dot) dot.classList.toggle('is-online', !!(found && found.online));
-                    updatePcwStatusLine(nick);
-                });
-            });
+       function loadActiveUsers() {
+    // 1) İlk açılışda tam siyahını bir dəfə çək
+    db.ref('users').once('value', (snap) => {
+        const list = [];
+        snap.forEach(child => {
+            const u = child.val();
+            u.uid = child.key;
+            list.push(u);
+        });
+        lastActiveUsersList = list;
+        renderActiveUsers(list);
+    });
+
+    // 2) Sonra yalnız DƏYİŞƏN istifadəçini yenilə (bütün cədvəli yox)
+    db.ref('users').on('child_changed', (snap) => {
+        const u = snap.val();
+        u.uid = snap.key;
+        const idx = lastActiveUsersList.findIndex(x => x.uid === u.uid);
+        if (idx !== -1) lastActiveUsersList[idx] = u; else lastActiveUsersList.push(u);
+        renderActiveUsers(lastActiveUsersList);
+        Object.keys(openPCWs).forEach(nick => {
+            const found = lastActiveUsersList.find(x => x.nick === nick);
+            const dot = document.querySelector(`#pcw-${nick} .pcw-online-dot`);
+            if (dot) dot.classList.toggle('is-online', !!(found && found.online));
+            updatePcwStatusLine(nick);
+        });
+    });
+
+    // 3) Yeni qeydiyyatdan keçən istifadəçi əlavə olunsun
+    db.ref('users').on('child_added', (snap) => {
+        const u = snap.val();
+        u.uid = snap.key;
+        if (!lastActiveUsersList.some(x => x.uid === u.uid)) {
+            lastActiveUsersList.push(u);
+            renderActiveUsers(lastActiveUsersList);
         }
+    });
+}
 
         function renderActiveUsers(users) {
             const container = document.getElementById('activeUsersList');
@@ -5876,6 +6386,59 @@ function returnToRecentPrivateMessages(targetNick) {
 
         const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
 
+        // ============================================================
+        // VİDEO MƏHDUDİYYƏTLƏRİ — kredit istifadəsini azaltmaq üçün
+        // ============================================================
+        const DAILY_VIDEO_LIMIT = 5; // Hər istifadəçi üçün gündə maksimum video sayı
+        const MAX_VIDEO_DURATION_SECONDS = 60; // Maksimum video müddəti (saniyə)
+
+        // Faylın video müddətini (saniyə) öyrənir — brauzerdə, serverə göndərmədən
+        function getVideoDurationSeconds(file) {
+            return new Promise((resolve) => {
+                try {
+                    const videoEl = document.createElement('video');
+                    videoEl.preload = 'metadata';
+                    const url = URL.createObjectURL(file);
+                    videoEl.src = url;
+                    videoEl.onloadedmetadata = () => {
+                        URL.revokeObjectURL(url);
+                        resolve(videoEl.duration || 0);
+                    };
+                    videoEl.onerror = () => {
+                        URL.revokeObjectURL(url);
+                        resolve(0); // müddət oxuna bilmirsə, məhdudiyyəti yoxlamırıq (0 = bilinmir)
+                    };
+                } catch (e) {
+                    resolve(0);
+                }
+            });
+        }
+
+        // Gündəlik video sayını Firebase-də saxlayır: videoUploadLimits/{nick}/{tarix-açarı}
+        async function checkAndIncrementDailyVideoLimit() {
+            if (!currentUserData) return { allowed: false, used: 0, remaining: 0 };
+            const todayKey = dateKeyOf(Date.now());
+            const ref = db.ref(`videoUploadLimits/${currentUserData.nick}/${todayKey}`);
+            let wasAllowed = false;
+            let usedAfter = 0;
+            await ref.transaction((current) => {
+                const count = current || 0;
+                if (count >= DAILY_VIDEO_LIMIT) {
+                    wasAllowed = false;
+                    usedAfter = count;
+                    return count; // dəyişiklik yoxdur, limit artıq doludur
+                }
+                wasAllowed = true;
+                usedAfter = count + 1;
+                return count + 1;
+            });
+            return {
+                allowed: wasAllowed,
+                used: usedAfter,
+                remaining: Math.max(0, DAILY_VIDEO_LIMIT - usedAfter)
+            };
+        }
+
         // Pulsuz video yükləmə üçün Cloudinary (kart tələb etmir).
         // ÖZ hesabını yaratmaq üçün: https://cloudinary.com/users/register/free
         // Sonra: Settings -> Upload -> "Add upload preset" -> Signing Mode: "Unsigned" et,
@@ -5883,23 +6446,29 @@ function returnToRecentPrivateMessages(targetNick) {
         const CLOUDINARY_CLOUD_NAME = "tkcanoov";
         const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
-        function uploadVideoToStorage(file, sendFn, onProgress) {
-            if (file.size > MAX_VIDEO_BYTES) {
-                showToast(`Video həddindən artıq böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 150MB icazəlidir.`, 'error', 7000);
-                return Promise.resolve(false);
-            }
-            if (CLOUDINARY_CLOUD_NAME === "BURAYA_CLOUD_NAME_YAZ") {
-                showToast('Video yükləmə xidməti hələ qurulmayıb. Sayt sahibi Cloudinary hesabını qoşmalıdır.', 'error', 7000);
-                return Promise.resolve(false);
-            }
-            return new Promise((resolve) => {
+        // ============================================================
+        // VİDEO ÜÇÜN BİR NEÇƏ PULSUZ CLOUDINARY HESABI (EHTİYAT SİSTEMİ)
+        // ============================================================
+        // Bir hesabın aylıq pulsuz limiti (25 kredit) dolanda, kod avtomatik
+        // növbəti hesaba keçir. Limitə çatanda yeni pulsuz hesab yaradıb
+        // (https://cloudinary.com/users/register/free) aşağıdakı siyahıya
+        // əlavə etmək kifayətdir — başqa heç bir kod dəyişikliyi lazım deyil.
+        // Hər hesabda: Settings -> Upload -> Add upload preset -> Signing Mode: Unsigned.
+        const VIDEO_CLOUDINARY_ACCOUNTS = [
+            { cloudName: "tkcanoov", preset: "ml_default" },
+            { cloudName: "rzr5o0zd", preset: "ml_default" },
+            // { cloudName: "UCUNCU_HESABIN_CLOUD_NAME", preset: "UCUNCU_PRESET" },
+        ];
+
+        function uploadVideoToCloudinaryAccount(file, account, onProgress) {
+            return new Promise((resolve, reject) => {
                 const formData = new FormData();
                 formData.append('file', file);
-                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                formData.append('upload_preset', account.preset);
                 formData.append('resource_type', 'video');
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`, true);
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${account.cloudName}/video/upload`, true);
 
                 xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable && onProgress) {
@@ -5911,31 +6480,90 @@ function returnToRecentPrivateMessages(targetNick) {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try {
                             const data = JSON.parse(xhr.responseText);
-                            if (onProgress) onProgress(100, true);
-                            sendFn(data.secure_url, 'video');
-                            resolve(true);
+                            resolve(data.secure_url);
                         } catch (err) {
-                            showToast('Video cavabı oxuna bilmədi: ' + err.message, 'error', 6000);
-                            resolve(false);
+                            reject(new Error('Cavab oxuna bilmədi: ' + err.message));
                         }
                     } else {
+                        // 420 / 402 / limit mesajları = bu hesabın limiti dolub, növbəti hesaba keç
                         let detail = xhr.responseText || '';
                         try {
                             const errJson = JSON.parse(xhr.responseText);
                             if (errJson.error && errJson.error.message) detail = errJson.error.message;
                         } catch (e) {}
-                        console.error('Cloudinary yükləmə xətası:', xhr.status, xhr.responseText);
-                        showToast(`Video yüklənmədi (kod: ${xhr.status}). Səbəb: ${detail.slice(0, 200)}`, 'error', 9000);
-                        resolve(false);
+                        console.warn(`Cloudinary hesabı "${account.cloudName}" rədd etdi (${xhr.status}): ${detail}`);
+                        reject(new Error(`cloudinary_error_${xhr.status}`));
                     }
                 };
-                xhr.onerror = () => {
-                    console.error('Cloudinary XHR şəbəkə xətası. Status:', xhr.status, 'ReadyState:', xhr.readyState);
-                    showToast(`Video yüklənərkən şəbəkə xətası (Cloud Name "${CLOUDINARY_CLOUD_NAME}" düzgündürmü? İnternetiniz sabitdirmi?).`, 'error', 8000);
-                    resolve(false);
-                };
+                xhr.onerror = () => reject(new Error('network_error'));
                 xhr.send(formData);
             });
+        }
+
+        async function uploadVideoWithFallback(file, onProgress) {
+            let lastErr = null;
+            for (let i = 0; i < VIDEO_CLOUDINARY_ACCOUNTS.length; i++) {
+                const account = VIDEO_CLOUDINARY_ACCOUNTS[i];
+                try {
+                    if (i > 0) console.log(`Video: "${VIDEO_CLOUDINARY_ACCOUNTS[i - 1].cloudName}" limiti/xətası səbəbindən "${account.cloudName}" hesabına keçilir...`);
+                    return await uploadVideoToCloudinaryAccount(file, account, onProgress);
+                } catch (err) {
+                    lastErr = err;
+                    continue; // növbəti pulsuz hesabı sına
+                }
+            }
+            throw lastErr || new Error('Bütün video hesabları uğursuz oldu');
+        }
+
+        async function uploadVideoToStorage(file, sendFn, onProgress) {
+            if (file.size > MAX_VIDEO_BYTES) {
+                showToast(`Video həddindən artıq böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 150MB icazəlidir.`, 'error', 7000);
+                return false;
+            }
+            if (VIDEO_CLOUDINARY_ACCOUNTS.length === 0 || VIDEO_CLOUDINARY_ACCOUNTS[0].cloudName === "BURAYA_CLOUD_NAME_YAZ") {
+                showToast('Video yükləmə xidməti hələ qurulmayıb. Sayt sahibi Cloudinary hesabını qoşmalıdır.', 'error', 7000);
+                return false;
+            }
+
+            // Müddət yoxlaması
+            const duration = await getVideoDurationSeconds(file);
+            if (duration > 0 && duration > MAX_VIDEO_DURATION_SECONDS) {
+                showToast(`Video həddindən artıq uzundur (${Math.round(duration)} saniyə). Maksimum ${MAX_VIDEO_DURATION_SECONDS} saniyə icazəlidir.`, 'error', 7000);
+                return false;
+            }
+
+            // Gündəlik limit yoxlaması
+            let limitInfo;
+            try {
+                limitInfo = await checkAndIncrementDailyVideoLimit();
+            } catch (err) {
+                console.error('Gündəlik limit yoxlanılarkən xəta:', err);
+                limitInfo = { allowed: true, used: 0, remaining: DAILY_VIDEO_LIMIT }; // xəta olsa, bloklamırıq
+            }
+            if (!limitInfo.allowed) {
+                showToast(`Bugünkü video limitinizə (${DAILY_VIDEO_LIMIT}/gün) çatmısınız. Sabah yenidən cəhd edin.`, 'error', 8000);
+                return false;
+            }
+
+            return uploadVideoWithFallback(file, onProgress)
+                .then((url) => {
+                    if (onProgress) onProgress(100, true);
+                    sendFn(url, 'video');
+                    showToast(`Video göndərildi. Bugünkü limit: ${limitInfo.used}/${DAILY_VIDEO_LIMIT} istifadə olundu, ${limitInfo.remaining} qalıb.`, 'success', 5000);
+                    return true;
+                })
+                .catch((err) => {
+                    console.error('Bütün Cloudinary hesabları video yükləməsini rədd etdi:', err.message);
+                    showToast('Video yüklənmədi. Bütün pulsuz hesabların limiti dola bilər — yeni pulsuz Cloudinary hesabı əlavə edin (koddakı VIDEO_CLOUDINARY_ACCOUNTS siyahısına).', 'error', 9000);
+                    // Uğursuz olduğu üçün, tutduğumuz gündəlik kvotanı geri qaytaraq
+                    if (currentUserData) {
+                        const todayKey = dateKeyOf(Date.now());
+                        db.ref(`videoUploadLimits/${currentUserData.nick}/${todayKey}`).transaction((current) => {
+                            return Math.max(0, (current || 1) - 1);
+                        });
+                    }
+                    return false;
+                });
         }
 
         function uploadAudioToStorage(blob, sendFn, onProgress) {
@@ -5981,6 +6609,474 @@ function returnToRecentPrivateMessages(targetNick) {
                 xhr.send(formData);
             });
         }
+
+        // ============================================================
+        // FEED MODULU — YENİ ƏLAVƏ
+        // Firebase yolları:
+        //   posts/{postId}                 -> post məlumatları
+        //   postLikes/{postId}/{nick}      -> like edənlərin siyahısı (bool)
+        //   postComments/{postId}/{cId}    -> şərhlər (parentId ilə cavablar)
+        //   postReposts/{postId}/{nick}    -> kimin repost etdiyi (dəyər = repost postId-si)
+        // ============================================================
+        let feedListenerAttached = false;
+        let feedComposerMediaFile = null;
+        let feedComposerMediaType = null;
+        let feedPostsCache = {};
+        const feedOpenCommentBoxes = new Set();
+        const feedCommentListeners = {};
+        const feedReplyTarget = {}; // { postId: { commentId, authorNick } | null }
+
+        function initFeedIfNeeded() {
+            if (feedListenerAttached) return;
+            feedListenerAttached = true;
+            loadFeed();
+        }
+
+        function formatFeedTime(ts) {
+            if (!ts) return '';
+            const diff = Math.floor((Date.now() - ts) / 1000);
+            if (diff < 60) return 'İndi';
+            if (diff < 3600) return Math.floor(diff / 60) + ' dəq əvvəl';
+            if (diff < 86400) return Math.floor(diff / 3600) + ' saat əvvəl';
+            if (diff < 604800) return Math.floor(diff / 86400) + ' gün əvvəl';
+            const d = new Date(ts);
+            return d.toLocaleDateString('az-AZ') + ' ' + d.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ---- FEED YÜKLƏMƏ (real-time) ----
+        function loadFeed() {
+            const container = document.getElementById('feedPostsContainer');
+            const emptyState = document.getElementById('feedEmptyState');
+            db.ref('posts').orderByChild('timestamp').on('value', (snap) => {
+                const val = snap.val() || {};
+                feedPostsCache = val;
+                const ids = Object.keys(val).sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
+                if (ids.length === 0) {
+                    container.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                emptyState.style.display = 'none';
+                container.innerHTML = ids.map(id => renderPostCard(id, val[id])).join('');
+                // Açıq olan şərh qutularını yenidən aç (real-time yeniləmədən sonra)
+                feedOpenCommentBoxes.forEach(postId => {
+                    const box = document.getElementById(`feedComments-${postId}`);
+                    if (box) box.classList.add('active');
+                });
+            });
+        }
+
+        function renderPostCard(postId, post) {
+            if (!post) return '';
+            const isMine = currentUserData && post.authorNick === currentUserData.nick;
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+            const myNick = currentUserData ? currentUserData.nick : null;
+            const likedByMe = !!(post.likedBy && myNick && post.likedBy[myNick]);
+            const repostedByMe = !!(post.repostedBy && myNick && post.repostedBy[myNick]);
+            const likesCount = post.likesCount || 0;
+            const commentsCount = post.commentsCount || 0;
+            const repostsCount = post.repostsCount || 0;
+
+            let repostTag = '';
+            let displayAuthor = post.authorNick;
+            let displayAvatar = post.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+            let displayText = post.text || '';
+            let displayMediaUrl = post.mediaUrl;
+            let displayMediaType = post.mediaType;
+            let originalMissing = false;
+
+            if (post.isRepost) {
+                repostTag = `<div class="feed-repost-tag">🔁 <b>${escapeHtml(post.authorNick)}</b> paylaşdı</div>`;
+                const original = post.originalPostId ? feedPostsCache[post.originalPostId] : null;
+                if (post.originalPostId && !original) {
+                    originalMissing = true;
+                } else if (original) {
+                    displayAuthor = original.authorNick;
+                    displayAvatar = original.authorAvatar || displayAvatar;
+                    displayText = original.text || '';
+                    displayMediaUrl = original.mediaUrl;
+                    displayMediaType = original.mediaType;
+                }
+            }
+
+            const mediaHtml = originalMissing
+                ? `<div style="padding:12px; text-align:center; color:var(--text-50); background:var(--panel-05); border-radius:10px;">Bu paylaşım silinib.</div>`
+                : (displayMediaUrl ? `<div class="feed-post-media">${
+                    displayMediaType === 'video'
+                        ? `<video src="${displayMediaUrl}" controls></video>`
+                        : `<img src="${displayMediaUrl}" onclick="openImageViewer('${displayMediaUrl}')" alt="">`
+                  }</div>` : '');
+
+            const menuBtn = (isMine || isMod) ? `<button type="button" class="feed-post-menu-btn" onclick="toggleFeedPostMenu(event,'${postId}')">⋮</button>` : '';
+            let menuItems = '';
+            if (post.isRepost && isMine) {
+                menuItems += `<button onclick="deleteRepost('${postId}')">🗑️ Repostu sil</button>`;
+            } else {
+                if (isMine) menuItems += `<button onclick="startEditPost('${postId}')">✏️ Redaktə et</button>`;
+                if (isMine || isMod) menuItems += `<button onclick="deletePost('${postId}')">🗑️ Sil</button>`;
+            }
+
+            return `
+            <div class="feed-post-card" id="feedPost-${postId}" data-post-id="${postId}" style="position:relative;">
+                ${repostTag}
+                <div class="feed-post-header">
+                    <img class="feed-post-avatar" src="${displayAvatar}" alt="">
+                    <div>
+                        <div class="feed-post-author">${escapeHtml(displayAuthor)}</div>
+                        <div class="feed-post-time">${formatFeedTime(post.timestamp)}${post.editedAt ? ' · redaktə edilib' : ''}</div>
+                    </div>
+                    ${menuBtn}
+                    <div class="feed-post-menu" id="feedMenu-${postId}">${menuItems}</div>
+                </div>
+                <div class="feed-post-text" id="feedPostText-${postId}">${originalMissing ? '' : escapeHtml(displayText)}</div>
+                ${mediaHtml}
+                <div class="feed-post-actions">
+                    <button type="button" class="feed-action-btn ${likedByMe ? 'liked' : ''}" onclick="togglePostLike('${postId}')">
+                        ${likedByMe ? '❤️' : '🤍'} <span id="feedLikeCount-${postId}">${likesCount}</span>
+                    </button>
+                    <button type="button" class="feed-action-btn" onclick="toggleFeedComments('${postId}')">
+                        💬 <span id="feedCommentCount-${postId}">${commentsCount}</span>
+                    </button>
+                    <button type="button" class="feed-action-btn ${repostedByMe ? 'reposted' : ''}" onclick="repostPost('${postId}')" ${post.isRepost ? 'disabled title="Repost edilmiş paylaşım yenidən repost edilə bilməz"' : ''}>
+                        🔁 <span id="feedRepostCount-${postId}">${repostsCount}</span>
+                    </button>
+                </div>
+                <div class="feed-comments-box" id="feedComments-${postId}">
+                    <div id="feedCommentsList-${postId}"></div>
+                    <div class="feed-comment-reply-tag" id="feedReplyTag-${postId}" style="display:none;"></div>
+                    <div class="feed-comment-input-row">
+                        <img class="feed-comment-avatar" src="${currentUserData && currentUserData.avatarUrl ? currentUserData.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png'}" alt="">
+                        <input type="text" class="feed-comment-input" id="feedCommentInput-${postId}" placeholder="Şərh yaz..." onkeydown="if(event.key==='Enter'){addComment('${postId}');}">
+                        <button type="button" class="feed-tool-btn" onclick="addComment('${postId}')">➤</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        window.toggleFeedPostMenu = function(e, postId) {
+            e.stopPropagation();
+            document.querySelectorAll('.feed-post-menu.active').forEach(m => { if (m.id !== `feedMenu-${postId}`) m.classList.remove('active'); });
+            const menu = document.getElementById(`feedMenu-${postId}`);
+            if (menu) menu.classList.toggle('active');
+        };
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.feed-post-menu') && !e.target.closest('.feed-post-menu-btn')) {
+                document.querySelectorAll('.feed-post-menu.active').forEach(m => m.classList.remove('active'));
+            }
+        });
+
+        // ---- POST YARATMA ----
+        window.handleFeedMediaSelect = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            feedComposerMediaFile = file;
+            feedComposerMediaType = file.type.startsWith('video/') ? 'video' : 'image';
+            const preview = document.getElementById('feedComposerPreview');
+            const inner = document.getElementById('feedComposerPreviewInner');
+            const url = URL.createObjectURL(file);
+            inner.innerHTML = feedComposerMediaType === 'video'
+                ? `<video src="${url}" controls></video>`
+                : `<img src="${url}" alt="">`;
+            preview.style.display = 'block';
+        };
+        window.removeFeedComposerMedia = function() {
+            feedComposerMediaFile = null;
+            feedComposerMediaType = null;
+            document.getElementById('feedComposerPreview').style.display = 'none';
+            document.getElementById('feedComposerPreviewInner').innerHTML = '';
+            document.getElementById('feedMediaInput').value = '';
+        };
+
+        window.createPost = async function() {
+            if (!currentUserData) return;
+            const inputEl = document.getElementById('feedComposerInput');
+            const text = inputEl.value.trim();
+            if (!text && !feedComposerMediaFile) {
+                showToast('Paylaşım üçün mətn və ya media əlavə edin.', 'error');
+                return;
+            }
+            const btn = document.getElementById('feedPostSubmitBtn');
+            btn.disabled = true;
+
+            const finalize = async (mediaUrl, mediaType) => {
+                try {
+                    await db.ref('posts').push({
+                        authorNick: currentUserData.nick,
+                        authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                        authorRole: currentUserData.role || 'user',
+                        text: text,
+                        mediaUrl: mediaUrl || null,
+                        mediaType: mediaType || null,
+                        timestamp: Date.now(),
+                        editedAt: null,
+                        likesCount: 0,
+                        commentsCount: 0,
+                        repostsCount: 0,
+                        isRepost: false
+                    });
+                    inputEl.value = '';
+                    removeFeedComposerMedia();
+                    showToast('Paylaşım göndərildi!', 'success');
+                } catch (err) {
+                    showToast('Xəta: ' + err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                }
+            };
+
+            if (!feedComposerMediaFile) {
+                await finalize(null, null);
+                return;
+            }
+            try {
+                if (feedComposerMediaType === 'video') {
+                    // Mövcud video yükləmə sistemini (Cloudinary + limit yoxlaması) reuse edirik
+                    const ok = await uploadVideoToStorage(feedComposerMediaFile, (url) => finalize(url, 'video'), null);
+                    if (!ok) btn.disabled = false;
+                } else {
+                    const compressed = await compressImageFile(feedComposerMediaFile);
+                    const formData = new FormData();
+                    formData.append('image', compressed, 'post.jpg');
+                    showToast('Şəkil yüklənir...', 'info');
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if (data.success) {
+                        await finalize(data.data.url, 'image');
+                    } else {
+                        showToast('Şəkil yüklənə bilmədi.', 'error');
+                        btn.disabled = false;
+                    }
+                }
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+                btn.disabled = false;
+            }
+        };
+
+        // ---- REDAKTƏ / SİLMƏ ----
+        window.startEditPost = function(postId) {
+            const post = feedPostsCache[postId];
+            if (!post) return;
+            const textEl = document.getElementById(`feedPostText-${postId}`);
+            const menu = document.getElementById(`feedMenu-${postId}`);
+            if (menu) menu.classList.remove('active');
+            const newText = prompt('Paylaşımı redaktə et:', post.text || '');
+            if (newText === null) return;
+            db.ref(`posts/${postId}`).update({ text: newText.trim(), editedAt: Date.now() })
+                .then(() => showToast('Paylaşım yeniləndi.', 'success'))
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.deletePost = function(postId) {
+            const post = feedPostsCache[postId];
+            if (!post) return;
+            const isMine = currentUserData && post.authorNick === currentUserData.nick;
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+            if (!isMine && !isMod) return;
+            if (!confirm('Bu paylaşımı silmək istədiyinizə əminsiniz?')) return;
+            const updates = {};
+            updates[`posts/${postId}`] = null;
+            updates[`postComments/${postId}`] = null;
+            updates[`postLikes/${postId}`] = null;
+            db.ref().update(updates)
+                .then(() => showToast('Paylaşım silindi.', 'success'))
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        // ---- LIKE SİSTEMİ ----
+        window.togglePostLike = function(postId) {
+            if (!currentUserData) return;
+            const nick = currentUserData.nick;
+            const likeRef = db.ref(`postLikes/${postId}/${nick}`);
+            const postRef = db.ref(`posts/${postId}`);
+            likeRef.once('value').then(snap => {
+                if (snap.exists()) {
+                    likeRef.remove();
+                    postRef.child('likedBy').child(nick).remove();
+                    postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1));
+                } else {
+                    likeRef.set(true);
+                    postRef.child('likedBy').child(nick).set(true);
+                    postRef.child('likesCount').transaction(c => (c || 0) + 1);
+                }
+            });
+        };
+
+        // ---- ŞƏRH SİSTEMİ ----
+        window.toggleFeedComments = function(postId) {
+            const box = document.getElementById(`feedComments-${postId}`);
+            if (!box) return;
+            const willOpen = !box.classList.contains('active');
+            box.classList.toggle('active', willOpen);
+            if (willOpen) {
+                feedOpenCommentBoxes.add(postId);
+                attachCommentListener(postId);
+            } else {
+                feedOpenCommentBoxes.delete(postId);
+            }
+        };
+
+        function attachCommentListener(postId) {
+            if (feedCommentListeners[postId]) return;
+            feedCommentListeners[postId] = true;
+            db.ref(`postComments/${postId}`).orderByChild('timestamp').on('value', (snap) => {
+                const val = snap.val() || {};
+                renderComments(postId, val);
+            });
+        }
+
+        function renderComments(postId, commentsObj) {
+            const list = document.getElementById(`feedCommentsList-${postId}`);
+            if (!list) return;
+            const ids = Object.keys(commentsObj).sort((a, b) => (commentsObj[a].timestamp || 0) - (commentsObj[b].timestamp || 0));
+            const topLevel = ids.filter(id => !commentsObj[id].parentId);
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+
+            const renderOne = (id, c, isReply) => {
+                const isMine = currentUserData && c.authorNick === currentUserData.nick;
+                return `
+                <div class="feed-comment-item ${isReply ? 'is-reply' : ''}" id="feedComment-${postId}-${id}">
+                    <img class="feed-comment-avatar" src="${c.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png'}" alt="">
+                    <div style="flex:1;">
+                        <div class="feed-comment-bubble">
+                            <div class="feed-comment-author">${escapeHtml(c.authorNick)}</div>
+                            <div class="feed-comment-text" id="feedCommentText-${postId}-${id}">${escapeHtml(c.text)}</div>
+                        </div>
+                        <div class="feed-comment-meta">
+                            <span>${formatFeedTime(c.timestamp)}${c.editedAt ? ' · redaktə edilib' : ''}</span>
+                            <span onclick="startReplyToComment('${postId}','${id}','${c.authorNick.replace(/'/g, "\\'")}')">Cavabla</span>
+                            ${isMine ? `<span onclick="startEditComment('${postId}','${id}')">Redaktə et</span>` : ''}
+                            ${(isMine || isMod) ? `<span onclick="deleteComment('${postId}','${id}')">Sil</span>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            };
+
+            let html = '';
+            topLevel.forEach(id => {
+                html += renderOne(id, commentsObj[id], false);
+                const replies = ids.filter(rid => commentsObj[rid].parentId === id);
+                replies.forEach(rid => { html += renderOne(rid, commentsObj[rid], true); });
+            });
+            list.innerHTML = html || `<div style="color:var(--text-50); font-size:12.5px; padding:6px 0;">Hələ şərh yoxdur.</div>`;
+        }
+
+        window.startReplyToComment = function(postId, commentId, authorNick) {
+            feedReplyTarget[postId] = { commentId, authorNick };
+            const tag = document.getElementById(`feedReplyTag-${postId}`);
+            tag.style.display = 'block';
+            tag.innerHTML = `${escapeHtml(authorNick)} istifadəçisinə cavab verirsiniz <span onclick="cancelCommentReply('${postId}')">✕ ləğv et</span>`;
+            document.getElementById(`feedCommentInput-${postId}`).focus();
+        };
+        window.cancelCommentReply = function(postId) {
+            feedReplyTarget[postId] = null;
+            const tag = document.getElementById(`feedReplyTag-${postId}`);
+            tag.style.display = 'none';
+            tag.innerHTML = '';
+        };
+
+        window.addComment = function(postId) {
+            if (!currentUserData) return;
+            const input = document.getElementById(`feedCommentInput-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+            const replyInfo = feedReplyTarget[postId];
+            const commentData = {
+                authorNick: currentUserData.nick,
+                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                text: text,
+                timestamp: Date.now(),
+                editedAt: null,
+                parentId: replyInfo ? replyInfo.commentId : null
+            };
+            db.ref(`postComments/${postId}`).push(commentData)
+                .then(() => {
+                    db.ref(`posts/${postId}/commentsCount`).transaction(c => (c || 0) + 1);
+                    input.value = '';
+                    cancelCommentReply(postId);
+                })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.startEditComment = function(postId, commentId) {
+            const textEl = document.getElementById(`feedCommentText-${postId}-${commentId}`);
+            if (!textEl) return;
+            const current = textEl.innerText;
+            const updated = prompt('Şərhi redaktə et:', current);
+            if (updated === null) return;
+            db.ref(`postComments/${postId}/${commentId}`).update({ text: updated.trim(), editedAt: Date.now() })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.deleteComment = function(postId, commentId) {
+            if (!confirm('Şərhi silmək istədiyinizə əminsiniz?')) return;
+            db.ref(`postComments/${postId}/${commentId}`).remove()
+                .then(() => db.ref(`posts/${postId}/commentsCount`).transaction(c => Math.max(0, (c || 0) - 1)))
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        // ---- REPOST SİSTEMİ ----
+        window.repostPost = async function(postId) {
+            if (!currentUserData) return;
+            const post = feedPostsCache[postId];
+            if (!post || post.isRepost) return;
+            const nick = currentUserData.nick;
+            const existingSnap = await db.ref(`postReposts/${postId}/${nick}`).once('value');
+            if (existingSnap.exists()) {
+                showToast('Bu paylaşımı artıq repost etmisiniz.', 'info');
+                return;
+            }
+            try {
+                const newPostRef = db.ref('posts').push();
+                await newPostRef.set({
+                    authorNick: nick,
+                    authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                    authorRole: currentUserData.role || 'user',
+                    text: '',
+                    mediaUrl: null,
+                    mediaType: null,
+                    timestamp: Date.now(),
+                    editedAt: null,
+                    likesCount: 0,
+                    commentsCount: 0,
+                    repostsCount: 0,
+                    isRepost: true,
+                    originalPostId: postId,
+                    originalAuthorNick: post.authorNick
+                });
+                await db.ref(`postReposts/${postId}/${nick}`).set(newPostRef.key);
+                await db.ref(`posts/${postId}/repostedBy/${nick}`).set(true);
+                await db.ref(`posts/${postId}/repostsCount`).transaction(c => (c || 0) + 1);
+                showToast('Repost edildi!', 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+
+        window.deleteRepost = function(repostPostId) {
+            const repost = feedPostsCache[repostPostId];
+            if (!repost || !repost.isRepost) return;
+            const isMine = currentUserData && repost.authorNick === currentUserData.nick;
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+            if (!isMine && !isMod) return;
+            if (!confirm('Repostu geri götürmək istəyirsiniz?')) return;
+            const originalPostId = repost.originalPostId;
+            const nick = repost.authorNick;
+            const updates = {};
+            updates[`posts/${repostPostId}`] = null;
+            if (originalPostId) {
+                updates[`postReposts/${originalPostId}/${nick}`] = null;
+                updates[`posts/${originalPostId}/repostedBy/${nick}`] = null;
+            }
+            db.ref().update(updates)
+                .then(() => {
+                    if (originalPostId) {
+                        db.ref(`posts/${originalPostId}/repostsCount`).transaction(c => Math.max(0, (c || 0) - 1));
+                    }
+                    showToast('Repost silindi.', 'success');
+                })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
 
         window.handleMediaUpload = async function(e) {
             const file = e.target.files[0];
@@ -6055,6 +7151,21 @@ function returnToRecentPrivateMessages(targetNick) {
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 resetTabTitle();
+                 // Arxa planda listener qopmuş ola bilər — serverdən son mesajları yoxla
+                if (currentUserData) {
+                    db.ref('messages').orderByChild('timestamp').limitToLast(30).once('value', (snap) => {
+                        snap.forEach(childSnap => {
+                            const msg = childSnap.val();
+                            msg.id = childSnap.key;
+                            const exists = allMessages.some(m => m.id === msg.id);
+                            if (!exists) {
+                                allMessages.push(msg);
+                                appendMessage(msg);
+                                if (msg.sender !== currentUserData.nick) playReceivedSound();
+                            }
+                        });
+                    });
+                }
                 const current = dateKeyOf(Date.now());
                 if (current !== lastKnownDateKey) {
                     lastKnownDateKey = current;
