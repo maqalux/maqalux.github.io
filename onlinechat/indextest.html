@@ -7008,6 +7008,165 @@ function returnToRecentPrivateMessages(targetNick) {
             mqSeenStoryIds = snap.val() || {};
             return mqSeenStoryIds;
         }
+                // ============================================================
+        // STORY MODULU — Composer UI funksiyaları (YENİ)
+        // ============================================================
+
+        function mqResetStoryComposer() {
+            mqStoryComposerMode = null;
+            mqStoryComposerFile = null;
+            mqStoryComposerBg = '#16213e';
+            document.getElementById('mqStoryMediaInput').value = '';
+            document.getElementById('mqStoryPreviewEmpty').style.display = 'flex';
+            document.getElementById('mqStoryPreviewImg').style.display = 'none';
+            document.getElementById('mqStoryPreviewImg').src = '';
+            document.getElementById('mqStoryPreviewVideo').style.display = 'none';
+            document.getElementById('mqStoryPreviewVideo').src = '';
+            document.getElementById('mqStoryTextInput').style.display = 'none';
+            document.getElementById('mqStoryTextInput').value = '';
+            document.getElementById('mqStoryPreviewWrap').style.background = 'var(--panel-08)';
+            document.getElementById('mqStoryBgRow').style.display = 'none';
+        }
+
+        // Story bar-dakı öz avatarına klik ediləndə: aktiv story-n varsa özünə bax,
+        // yoxdursa Composer aç. (mqAllStories ADDIM 7-də real-vaxt dolduracaq)
+        window.handleMyStoryClick = function () {
+            if (!currentUserData) return;
+            const myActiveStories = Object.values(mqAllStories)
+                .filter(s => s.authorNick === currentUserData.nick)
+                .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+            if (myActiveStories.length > 0) {
+                // ADDIM 8-də yazılacaq: öz story qrupunu viewer-də aç
+                if (typeof openStoryViewer === 'function') {
+                    openStoryViewer(currentUserData.nick);
+                }
+            } else {
+                openStoryComposerModal();
+            }
+        };
+
+        window.openStoryComposerModal = function () {
+            mqResetStoryComposer();
+            document.getElementById('mqStoryComposerModal').classList.add('active');
+        };
+
+        window.closeStoryComposerModal = function () {
+            document.getElementById('mqStoryComposerModal').classList.remove('active');
+            mqResetStoryComposer();
+        };
+
+        // Şəkil/video seçiləndə preview göstərir
+        window.handleStoryMediaSelect = async function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const isVideo = file.type.startsWith('video/');
+            mqStoryComposerFile = file;
+            mqStoryComposerMode = isVideo ? 'video' : 'image';
+
+            document.getElementById('mqStoryPreviewEmpty').style.display = 'none';
+            document.getElementById('mqStoryTextInput').style.display = 'none';
+            document.getElementById('mqStoryBgRow').style.display = 'none';
+            document.getElementById('mqStoryPreviewWrap').style.background = 'transparent';
+
+            if (isVideo) {
+                if (file.size > MAX_VIDEO_BYTES) {
+                    showToast(`Video həddindən artıq böyükdür. Maksimum 150MB icazəlidir.`, 'error', 6000);
+                    return;
+                }
+                const duration = await getVideoDurationSeconds(file);
+                if (duration > 0 && duration > MAX_VIDEO_DURATION_SECONDS) {
+                    showToast(`Video həddindən artıq uzundur. Maksimum ${MAX_VIDEO_DURATION_SECONDS} saniyə icazəlidir.`, 'error', 6000);
+                    return;
+                }
+                const videoEl = document.getElementById('mqStoryPreviewVideo');
+                videoEl.src = URL.createObjectURL(file);
+                videoEl.style.display = 'block';
+                videoEl.muted = true;
+                videoEl.play().catch(() => {});
+            } else {
+                const imgEl = document.getElementById('mqStoryPreviewImg');
+                imgEl.src = URL.createObjectURL(file);
+                imgEl.style.display = 'block';
+            }
+        };
+
+        // "✍️ Mətn" düyməsi — text-story rejiminə keçid
+        window.toggleStoryTextMode = function () {
+            mqStoryComposerMode = 'text';
+            mqStoryComposerFile = null;
+            document.getElementById('mqStoryMediaInput').value = '';
+
+            document.getElementById('mqStoryPreviewEmpty').style.display = 'none';
+            document.getElementById('mqStoryPreviewImg').style.display = 'none';
+            document.getElementById('mqStoryPreviewVideo').style.display = 'none';
+
+            const textEl = document.getElementById('mqStoryTextInput');
+            textEl.style.display = 'flex';
+            document.getElementById('mqStoryBgRow').style.display = 'flex';
+            document.getElementById('mqStoryPreviewWrap').style.background = mqStoryComposerBg;
+            textEl.focus();
+        };
+
+        window.setStoryBackground = function (bg) {
+            mqStoryComposerBg = bg;
+            document.getElementById('mqStoryPreviewWrap').style.background = bg;
+            document.querySelectorAll('.mq-story-bg-swatch').forEach(el => el.classList.remove('mq-active'));
+            const swatches = document.querySelectorAll('.mq-story-bg-swatch');
+            swatches.forEach(el => {
+                if (el.getAttribute('style').includes(bg)) el.classList.add('mq-active');
+            });
+        };
+
+        // Composer-dəki "Paylaş" düyməsi
+        window.publishStory = async function () {
+            if (!currentUserData) return;
+
+            const textVal = document.getElementById('mqStoryTextInput').value.trim();
+            if (!mqStoryComposerMode || (mqStoryComposerMode === 'text' && !textVal)) {
+                showToast('Əvvəlcə şəkil/video seç və ya mətn yaz.', 'info');
+                return;
+            }
+
+            const btn = document.getElementById('mqStoryPublishBtn');
+            btn.disabled = true;
+            btn.textContent = 'Paylaşılır...';
+
+            try {
+                let mediaUrl = null;
+
+                if (mqStoryComposerMode === 'image') {
+                    showToast('Şəkil yüklənir...', 'info');
+                    const compressed = await compressImageFile(mqStoryComposerFile);
+                    const formData = new FormData();
+                    formData.append('image', compressed, 'story.jpg');
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if (!data.success) throw new Error('Şəkil yüklənmədi');
+                    mediaUrl = data.data.url;
+                } else if (mqStoryComposerMode === 'video') {
+                    showToast('Video yüklənir...', 'info');
+                    mediaUrl = await uploadVideoWithFallback(mqStoryComposerFile, null);
+                }
+
+                await mqCreateStoryRecord({
+                    type: mqStoryComposerMode,
+                    mediaUrl: mediaUrl,
+                    text: mqStoryComposerMode === 'text' ? textVal : null,
+                    background: mqStoryComposerMode === 'text' ? mqStoryComposerBg : null
+                });
+
+                showToast('Story paylaşıldı!', 'success');
+                closeStoryComposerModal();
+            } catch (err) {
+                console.error('Story paylaşılarkən xəta:', err);
+                showToast('Story paylaşılmadı: ' + err.message, 'error', 6000);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Paylaş';
+            }
+        };
         // ============================================================
         // FEED MODULU — YENİ ƏLAVƏ
         // Firebase yolları:
