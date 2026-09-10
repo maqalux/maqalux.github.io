@@ -2268,6 +2268,25 @@
             cursor: pointer;
         }
         .feed-load-more-btn:disabled { opacity: 0.5; cursor: default; }
+        /* YENİ: lentin scroll zolağını saytın ümumi dizaynına uyğunlaşdırırıq
+           (mesaj sahəsində istifadə olunanla eyni üslub) */
+        .feed-view {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 162, 0, 0.3) transparent;
+        }
+        .feed-view::-webkit-scrollbar {
+            width: 6px;
+        }
+        .feed-view::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .feed-view::-webkit-scrollbar-thumb {
+            background: rgba(255, 162, 0, 0.3);
+            border-radius: 10px;
+        }
+        .feed-view::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 162, 0, 0.5);
+        }
         .feed-tab-btn {
             width: auto;
             margin: 0;
