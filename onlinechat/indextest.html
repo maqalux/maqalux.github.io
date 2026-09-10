@@ -1494,7 +1494,185 @@
             z-index: 5999;
             display: none;
         }
+        /* ============================================================
+           STORY SİSTEMİ — CSS (YENİ)
+           ============================================================ */
+        .mq-story-bar {
+            display: flex;
+            gap: 14px;
+            padding: 14px 16px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            border-bottom: 1px solid var(--border-10);
+            scrollbar-width: none;
+        }
+        .mq-story-bar::-webkit-scrollbar { display: none; }
 
+        .mq-story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 0 0 auto;
+            width: 68px;
+            cursor: pointer;
+        }
+
+        .mq-story-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            padding: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel-08);
+            border: 2px solid var(--border-10);
+        }
+        /* baxılmamış story olan halqa */
+        .mq-story-ring.mq-unseen {
+            background: linear-gradient(45deg, #ffaa00, #ff3ba0, #6a3bff);
+            border: none;
+        }
+        /* bütün story-lərə baxılıb */
+        .mq-story-ring.mq-seen {
+            background: var(--panel-08);
+            border: 2px solid var(--border-12);
+            opacity: 0.65;
+        }
+        /* öz story-m üçün */
+        .mq-story-ring.mq-own {
+            background: var(--panel-08);
+            border: 2px dashed var(--border-20, var(--border-12));
+        }
+
+        .mq-story-avatar-wrap {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--dropdown-bg);
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mq-story-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .mq-story-add-icon {
+            position: relative;
+        }
+        .mq-story-plus {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffaa00;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            border: 2px solid var(--dropdown-bg);
+        }
+
+        .mq-story-label {
+            font-size: 11.5px;
+            color: var(--text-main);
+            opacity: 0.85;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 68px;
+        }
+
+        @media (max-width: 480px) {
+            .mq-story-item { width: 60px; }
+            .mq-story-ring { width: 54px; height: 54px; }
+        }
+                .mq-story-composer-box {
+            max-width: 380px;
+        }
+        .mq-story-preview-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            max-height: 420px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+        .mq-story-preview-wrap img,
+        .mq-story-preview-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .mq-story-text-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            background: transparent;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 600;
+            text-align: center;
+            padding: 20px;
+            outline: none;
+            display: flex;
+            align-items: center;
+        }
+        .mq-story-bg-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            justify-content: center;
+        }
+        .mq-story-bg-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--border-12);
+        }
+        .mq-story-bg-swatch.mq-active {
+            border: 2px solid var(--text-main);
+        }
+        .mq-story-composer-tools {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .mq-story-tool-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 13.5px;
+        }
+        .mq-story-composer-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
         /* Modallar */
         .modal-overlay {
             position: fixed;
@@ -2248,6 +2426,44 @@
             overflow-y: auto;
             padding: 14px;
             gap: 14px;
+            /* DÜZƏLİŞ: masaüstündə lent sütununu normal post genişliyində saxlayırıq,
+               əks halda geniş konteynerdə şəkillər həddindən artıq nəhəng görünürdü. */
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            align-self: center;
+        }
+        .feed-load-more-btn {
+            display: block;
+            margin: 4px auto 10px;
+            padding: 9px 22px;
+            border-radius: 20px;
+            border: 1px solid var(--border-10);
+            background: var(--panel-08);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .feed-load-more-btn:disabled { opacity: 0.5; cursor: default; }
+        /* YENİ: lentin scroll zolağını saytın ümumi dizaynına uyğunlaşdırırıq
+           (mesaj sahəsində istifadə olunanla eyni üslub) */
+        .feed-view {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 162, 0, 0.3) transparent;
+        }
+        .feed-view::-webkit-scrollbar {
+            width: 6px;
+        }
+        .feed-view::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .feed-view::-webkit-scrollbar-thumb {
+            background: rgba(255, 162, 0, 0.3);
+            border-radius: 10px;
+        }
+        .feed-view::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 162, 0, 0.5);
         }
         .feed-tab-btn {
             width: auto;
@@ -2634,7 +2850,22 @@
                         ✏️ Yeni söhbət
                     </button>
                 </div>
+                               <!-- ============================================================
+                     STORY BAR — YENİ ƏLAVƏ
+                     ============================================================ -->
+                <div class="mq-story-bar" id="mqStoryBar">
+                    <div class="mq-story-item" onclick="handleMyStoryClick()">
+                        <div class="mq-story-ring mq-own" id="mqMyStoryRing">
+                            <div class="mq-story-avatar-wrap mq-story-add-icon">
+                                <img id="mqMyStoryAvatarImg" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+                                <span class="mq-story-plus">+</span>
+                            </div>
+                        </div>
+                        <div class="mq-story-label">Mənim Story-m</div>
+                    </div>
 
+                    <div id="mqStoryBarList"></div>
+                </div>
                 <div class="friends-list-view" id="friendsListView">
                     <div id="friendsListContainer"></div>
                 </div>
@@ -2673,6 +2904,8 @@
 
                     <div id="feedPostsContainer"></div>
                     <div class="feed-empty-state" id="feedEmptyState" style="display:none;">Hələ heç bir paylaşım yoxdur. İlk paylaşımı sən et!</div>
+                    <!-- YENİ: sürüşdürmə ilə "daha çox yüklə" üçün görünməz nişan (sentinel) -->
+                    <div id="feedScrollSentinel" style="height:1px;"></div>
                 </div>
 
                 <!-- Reply Preview Bar -->
@@ -2788,7 +3021,51 @@
         <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
         <img id="imageViewerImg" src="" alt="Şəkil">
     </div>
+        <!-- ============================================================
+         STORY COMPOSER MODAL — YENİ
+         ============================================================ -->
+    <div class="modal-overlay" id="mqStoryComposerModal">
+        <div class="modal-box mq-story-composer-box">
+            <button class="modal-close" onclick="closeStoryComposerModal()">✕</button>
+            <h3 style="color: var(--text-main); margin-bottom: 14px;">Story yarat</h3>
 
+            <div class="mq-story-preview-wrap" id="mqStoryPreviewWrap">
+                <div class="mq-story-preview-empty" id="mqStoryPreviewEmpty">
+                    <p style="color: var(--text-main); opacity:0.7; text-align:center;">
+                        Şəkil/video seç və ya mətn yaz
+                    </p>
+                </div>
+                <img id="mqStoryPreviewImg" style="display:none;">
+                <video id="mqStoryPreviewVideo" style="display:none;" muted playsinline></video>
+                <textarea id="mqStoryTextInput"
+                    class="mq-story-text-input"
+                    placeholder="Nə düşünürsən?"
+                    style="display:none;"
+                    maxlength="220"></textarea>
+            </div>
+
+            <div class="mq-story-bg-row" id="mqStoryBgRow" style="display:none;">
+                <div class="mq-story-bg-swatch" style="background:#ffaa00" onclick="setStoryBackground('#ffaa00')"></div>
+                <div class="mq-story-bg-swatch" style="background:#3b5bff" onclick="setStoryBackground('#3b5bff')"></div>
+                <div class="mq-story-bg-swatch" style="background:#ff3ba0" onclick="setStoryBackground('#ff3ba0')"></div>
+                <div class="mq-story-bg-swatch" style="background:linear-gradient(135deg,#6a3bff,#ff3ba0)" onclick="setStoryBackground('linear-gradient(135deg,#6a3bff,#ff3ba0)')"></div>
+                <div class="mq-story-bg-swatch" style="background:#16213e" onclick="setStoryBackground('#16213e')"></div>
+            </div>
+
+            <div class="mq-story-composer-tools">
+                <label class="mq-story-tool-btn" title="Şəkil / Video seç">
+                    📷 Media
+                    <input type="file" id="mqStoryMediaInput" accept="image/*,video/*" style="display:none;" onchange="handleStoryMediaSelect(event)">
+                </label>
+                <button type="button" class="mq-story-tool-btn" onclick="toggleStoryTextMode()">✍️ Mətn</button>
+            </div>
+
+            <div class="mq-story-composer-actions">
+                <button type="button" class="ctx-item" onclick="closeStoryComposerModal()">Ləğv et</button>
+                <button type="button" class="login-btn" style="width:auto; margin:0; padding:10px 22px;" id="mqStoryPublishBtn" onclick="publishStory()">Paylaş</button>
+            </div>
+        </div>
+    </div>
     <!-- Profile Settings Modal -->
     <div class="modal-overlay" id="profileSettingsModal">
         <div class="modal-box settings-modal-box">
@@ -6626,10 +6903,30 @@ function returnToRecentPrivateMessages(targetNick) {
         const feedCommentListeners = {};
         const feedReplyTarget = {}; // { postId: { commentId, authorNick } | null }
 
+        // YENİ: Səhifələmə (pagination) — bütün postlar bir dəfəyə yox,
+        // kiçik "səhifələr" şəklində yüklənir. İstifadəçi aşağı sürüşdürməyibsə,
+        // görünməyən postların şəkilləri də yüklənmir (data qənaəti).
+        const FEED_PAGE_SIZE = 6;
+        let feedPageSize = FEED_PAGE_SIZE;
+        let feedQueryRef = null;
+        let feedHasMoreOlder = true;
+        let feedLoadingMore = false;
+        let feedObserver = null;
+
         function initFeedIfNeeded() {
             if (feedListenerAttached) return;
             feedListenerAttached = true;
             loadFeed();
+        }
+
+        // YENİ: Cloudinary videoları üçün əlavə yükləmə olmadan "poster" (üz qapağı) şəkli
+        // — video oxudulana qədər heç bir video datası yüklənmir (preload="none").
+        function getVideoPosterUrl(url) {
+            if (!url) return '';
+            if (url.includes('res.cloudinary.com')) {
+                return url.replace(/\.(mp4|mov|webm|mkv|avi)(\?.*)?$/i, '.jpg$2');
+            }
+            return '';
         }
 
         function formatFeedTime(ts) {
@@ -6643,17 +6940,33 @@ function returnToRecentPrivateMessages(targetNick) {
             return d.toLocaleDateString('az-AZ') + ' ' + d.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
         }
 
-        // ---- FEED YÜKLƏMƏ (real-time) ----
+        // ---- FEED YÜKLƏMƏ (səhifələnmiş, real-time) ----
         function loadFeed() {
+            subscribeFeed();
+            setupFeedInfiniteScroll();
+        }
+
+        function subscribeFeed() {
             const container = document.getElementById('feedPostsContainer');
             const emptyState = document.getElementById('feedEmptyState');
-            db.ref('posts').orderByChild('timestamp').on('value', (snap) => {
+
+            // Köhnə dinləyicini söndürürük, çünki hər "daha çox yüklə" zamanı
+            // limitToLast dəyəri artır və yeni sorğu qururuq.
+            if (feedQueryRef) feedQueryRef.off('value');
+            feedQueryRef = db.ref('posts').orderByChild('timestamp').limitToLast(feedPageSize);
+
+            feedQueryRef.on('value', (snap) => {
                 const val = snap.val() || {};
                 feedPostsCache = val;
                 const ids = Object.keys(val).sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
+
+                feedHasMoreOlder = ids.length >= feedPageSize;
+                feedLoadingMore = false;
+
                 if (ids.length === 0) {
                     container.innerHTML = '';
                     emptyState.style.display = 'block';
+                    updateFeedLoadMoreUI();
                     return;
                 }
                 emptyState.style.display = 'none';
@@ -6663,7 +6976,49 @@ function returnToRecentPrivateMessages(targetNick) {
                     const box = document.getElementById(`feedComments-${postId}`);
                     if (box) box.classList.add('active');
                 });
+                updateFeedLoadMoreUI();
             });
+        }
+
+        function updateFeedLoadMoreUI() {
+            let btn = document.getElementById('feedLoadMoreBtn');
+            const container = document.getElementById('feedPostsContainer');
+            if (!feedHasMoreOlder) {
+                if (btn) btn.remove();
+                return;
+            }
+            if (!btn) {
+                btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = 'feedLoadMoreBtn';
+                btn.className = 'feed-load-more-btn';
+                btn.onclick = loadMoreFeedPosts;
+                container.parentNode.insertBefore(btn, container.nextSibling);
+            }
+            btn.textContent = feedLoadingMore ? 'Yüklənir...' : 'Daha çox göstər';
+            btn.disabled = feedLoadingMore;
+        }
+
+        function loadMoreFeedPosts() {
+            if (feedLoadingMore || !feedHasMoreOlder) return;
+            feedLoadingMore = true;
+            updateFeedLoadMoreUI();
+            feedPageSize += FEED_PAGE_SIZE;
+            subscribeFeed();
+        }
+
+        // YENİ: İstifadəçi lentin sonuna yaxınlaşanda avtomatik "daha çox yüklə"
+        function setupFeedInfiniteScroll() {
+            if (feedObserver) return;
+            const scrollHost = document.getElementById('feedView');
+            if (!scrollHost || typeof IntersectionObserver === 'undefined') return;
+            feedObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) loadMoreFeedPosts();
+                });
+            }, { root: scrollHost, rootMargin: '400px' });
+            const sentinel = document.getElementById('feedScrollSentinel');
+            if (sentinel) feedObserver.observe(sentinel);
         }
 
         function renderPostCard(postId, post) {
@@ -6699,12 +7054,19 @@ function returnToRecentPrivateMessages(targetNick) {
                 }
             }
 
+            // YENİ: siyahıda KİÇİK (thumbnail) versiya göstərilir, tam ölçülü şəkil
+            // yalnız üstünə basanda (openImageViewer) yüklənir — data qənaəti üçün.
+            const displayMediaThumb = post.isRepost
+                ? (feedPostsCache[post.originalPostId] ? feedPostsCache[post.originalPostId].mediaThumbUrl : null)
+                : post.mediaThumbUrl;
+            const thumbSrc = displayMediaThumb || displayMediaUrl;
+
             const mediaHtml = originalMissing
                 ? `<div style="padding:12px; text-align:center; color:var(--text-50); background:var(--panel-05); border-radius:10px;">Bu paylaşım silinib.</div>`
                 : (displayMediaUrl ? `<div class="feed-post-media">${
                     displayMediaType === 'video'
-                        ? `<video src="${displayMediaUrl}" controls></video>`
-                        : `<img src="${displayMediaUrl}" onclick="openImageViewer('${displayMediaUrl}')" alt="">`
+                        ? `<video src="${displayMediaUrl}" controls preload="none" poster="${getVideoPosterUrl(displayMediaUrl)}"></video>`
+                        : `<img src="${thumbSrc}" data-full="${displayMediaUrl}" loading="lazy" decoding="async" onclick="openImageViewer('${displayMediaUrl}')" alt="">`
                   }</div>` : '');
 
             const menuBtn = (isMine || isMod) ? `<button type="button" class="feed-post-menu-btn" onclick="toggleFeedPostMenu(event,'${postId}')">⋮</button>` : '';
@@ -6720,7 +7082,7 @@ function returnToRecentPrivateMessages(targetNick) {
             <div class="feed-post-card" id="feedPost-${postId}" data-post-id="${postId}" style="position:relative;">
                 ${repostTag}
                 <div class="feed-post-header">
-                    <img class="feed-post-avatar" src="${displayAvatar}" alt="">
+                    <img class="feed-post-avatar" src="${displayAvatar}" alt="" loading="lazy" decoding="async">
                     <div>
                         <div class="feed-post-author">${escapeHtml(displayAuthor)}</div>
                         <div class="feed-post-time">${formatFeedTime(post.timestamp)}${post.editedAt ? ' · redaktə edilib' : ''}</div>
@@ -6745,7 +7107,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     <div id="feedCommentsList-${postId}"></div>
                     <div class="feed-comment-reply-tag" id="feedReplyTag-${postId}" style="display:none;"></div>
                     <div class="feed-comment-input-row">
-                        <img class="feed-comment-avatar" src="${currentUserData && currentUserData.avatarUrl ? currentUserData.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png'}" alt="">
+                        <img class="feed-comment-avatar" src="${currentUserData && currentUserData.avatarUrl ? currentUserData.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png'}" alt="" loading="lazy" decoding="async">
                         <input type="text" class="feed-comment-input" id="feedCommentInput-${postId}" placeholder="Şərh yaz..." onkeydown="if(event.key==='Enter'){addComment('${postId}');}">
                         <button type="button" class="feed-tool-btn" onclick="addComment('${postId}')">➤</button>
                     </div>
@@ -6798,7 +7160,7 @@ function returnToRecentPrivateMessages(targetNick) {
             const btn = document.getElementById('feedPostSubmitBtn');
             btn.disabled = true;
 
-            const finalize = async (mediaUrl, mediaType) => {
+            const finalize = async (mediaUrl, mediaType, mediaThumbUrl) => {
                 try {
                     await db.ref('posts').push({
                         authorNick: currentUserData.nick,
@@ -6807,6 +7169,7 @@ function returnToRecentPrivateMessages(targetNick) {
                         text: text,
                         mediaUrl: mediaUrl || null,
                         mediaType: mediaType || null,
+                        mediaThumbUrl: mediaThumbUrl || null,
                         timestamp: Date.now(),
                         editedAt: null,
                         likesCount: 0,
@@ -6825,23 +7188,38 @@ function returnToRecentPrivateMessages(targetNick) {
             };
 
             if (!feedComposerMediaFile) {
-                await finalize(null, null);
+                await finalize(null, null, null);
                 return;
             }
             try {
                 if (feedComposerMediaType === 'video') {
                     // Mövcud video yükləmə sistemini (Cloudinary + limit yoxlaması) reuse edirik
-                    const ok = await uploadVideoToStorage(feedComposerMediaFile, (url) => finalize(url, 'video'), null);
+                    const ok = await uploadVideoToStorage(feedComposerMediaFile, (url) => finalize(url, 'video', null), null);
                     if (!ok) btn.disabled = false;
                 } else {
-                    const compressed = await compressImageFile(feedComposerMediaFile);
-                    const formData = new FormData();
-                    formData.append('image', compressed, 'post.jpg');
+                    // YENİ: Şəkli iki ölçüdə hazırlayırıq —
+                    //  1) "compressed" (maks 1280px) — lentdə/əsl görünüşdə istifadə olunur
+                    //  2) "thumb" (maks 480px, aşağı keyfiyyət) — siyahıda göstərilən kiçik versiya,
+                    //     hər dəfə lent yüklənəndə data sərf etməsin deyə.
+                    const compressed = await compressImageFile(feedComposerMediaFile, 1280, 0.75);
+                    const thumb = await compressImageFile(feedComposerMediaFile, 480, 0.6);
                     showToast('Şəkil yüklənir...', 'info');
-                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                    const data = await res.json();
-                    if (data.success) {
-                        await finalize(data.data.url, 'image');
+
+                    const uploadOne = async (blob, filename) => {
+                        const formData = new FormData();
+                        formData.append('image', blob, filename);
+                        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                        const data = await res.json();
+                        return data.success ? data.data.url : null;
+                    };
+
+                    const [fullUrl, thumbUrl] = await Promise.all([
+                        uploadOne(compressed, 'post.jpg'),
+                        uploadOne(thumb, 'post_thumb.jpg')
+                    ]);
+
+                    if (fullUrl) {
+                        await finalize(fullUrl, 'image', thumbUrl || fullUrl);
                     } else {
                         showToast('Şəkil yüklənə bilmədi.', 'error');
                         btn.disabled = false;
@@ -6937,7 +7315,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 const isMine = currentUserData && c.authorNick === currentUserData.nick;
                 return `
                 <div class="feed-comment-item ${isReply ? 'is-reply' : ''}" id="feedComment-${postId}-${id}">
-                    <img class="feed-comment-avatar" src="${c.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png'}" alt="">
+                    <img class="feed-comment-avatar" src="${c.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png'}" alt="" loading="lazy" decoding="async">
                     <div style="flex:1;">
                         <div class="feed-comment-bubble">
                             <div class="feed-comment-author">${escapeHtml(c.authorNick)}</div>
