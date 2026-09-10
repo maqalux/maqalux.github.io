@@ -1239,14 +1239,56 @@ let currentCategory = '';
 
     // YENİ: Poster şəkillərini data qənaəti üçün kiçildilmiş versiyada yükləyirik.
     // Kart eninə uyğun ölçü kifayətdir (böyük ekranlar üçün retina ehtiyatı ilə).
-    function optimizeMoviePosterUrl(url, width = 342) {
+    function optimizeMoviePosterUrl(url, width = 300) {
       if (!url) return url;
       if (url.includes('m.media-amazon.com')) {
         // IMDB şəkil linkləri "_V1_...UX1000_.jpg" kimi ölçü parametri daşıyır,
-        // onu daha kiçik "UX{width}_" ilə əvəz edirik (server tərəfdə real resize).
+        // onu daha kiçik "UX{width}_" ilə əvəz edirik (server tərəfdə real resize,
+        // yəni brauzer artıq 1000px yox, {width}px-lik faylı yükləyir).
         return url.replace(/_V1_[^/]*\.jpg/i, `_V1_UX${width}_.jpg`);
       }
+      if (url.includes('upload.wikimedia.org/wikipedia/')) {
+        // Wikimedia-nın öz "thumb" xidmətindən istifadə edərək kiçik versiya alırıq.
+        const m = url.match(/^(https:\/\/upload\.wikimedia\.org\/wikipedia\/[^/]+)\/([0-9a-f])\/([0-9a-f]{2})\/([^/]+)$/i);
+        if (m) {
+          const [, base, d1, d2, filename] = m;
+          return `${base}/thumb/${d1}/${d2}/${filename}/${width}px-${filename}`;
+        }
+      }
       return url;
+    }
+
+    // YENİ: Şəkillər üçün öz (manual) lazy-loading sistemimiz — brauzerin
+    // "loading=lazy" atributuna əlavə olaraq, ekrana yaxınlaşana qədər
+    // <img> elementinin src-i belə təyin olunmur, yəni heç bir data yüklənmir.
+    let moviePosterObserver = null;
+    function getMoviePosterObserver() {
+      if (moviePosterObserver) return moviePosterObserver;
+      if (typeof IntersectionObserver === 'undefined') return null;
+      moviePosterObserver = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            const realSrc = img.getAttribute('data-src');
+            if (realSrc) {
+              img.src = realSrc;
+              img.removeAttribute('data-src');
+            }
+            obs.unobserve(img);
+          }
+        });
+      }, { rootMargin: '300px' });
+      return moviePosterObserver;
+    }
+    function observeLazyPosters() {
+      const observer = getMoviePosterObserver();
+      const imgs = document.querySelectorAll('.movie-poster[data-src]');
+      if (!observer) {
+        // IntersectionObserver dəstəklənmirsə, ehtiyat variant kimi hamısını yüklə
+        imgs.forEach(img => { img.src = img.getAttribute('data-src'); img.removeAttribute('data-src'); });
+        return;
+      }
+      imgs.forEach(img => observer.observe(img));
     }
 
     function renderMovies() {
@@ -1297,7 +1339,7 @@ let currentCategory = '';
         card.innerHTML = `
           <div class="movie-poster-wrap">
             <span class="movie-badge"><i class="fas fa-star"></i> ${movie.imdb}</span>
-            <img src="${optimizeMoviePosterUrl(movie.poster)}" alt="${movie.title}" class="movie-poster" loading="lazy" decoding="async">
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBTAA7" data-src="${optimizeMoviePosterUrl(movie.poster)}" alt="${movie.title}" class="movie-poster" loading="lazy" decoding="async">
           </div>
           <div class="movie-info">
             <div class="movie-meta">
@@ -1319,6 +1361,9 @@ let currentCategory = '';
         `;
         grid.appendChild(card);
       });
+
+      // YENİ: kartlar DOM-a əlavə olunduqdan sonra lazy-load müşahidəsini işə sal
+      observeLazyPosters();
     }
 
     function checkURLForMovie() {
