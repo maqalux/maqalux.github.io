@@ -1237,6 +1237,18 @@ let currentCategory = '';
     let currentSort = '';
     let activeMovieId = null;
 
+    // YENİ: Poster şəkillərini data qənaəti üçün kiçildilmiş versiyada yükləyirik.
+    // Kart eninə uyğun ölçü kifayətdir (böyük ekranlar üçün retina ehtiyatı ilə).
+    function optimizeMoviePosterUrl(url, width = 342) {
+      if (!url) return url;
+      if (url.includes('m.media-amazon.com')) {
+        // IMDB şəkil linkləri "_V1_...UX1000_.jpg" kimi ölçü parametri daşıyır,
+        // onu daha kiçik "UX{width}_" ilə əvəz edirik (server tərəfdə real resize).
+        return url.replace(/_V1_[^/]*\.jpg/i, `_V1_UX${width}_.jpg`);
+      }
+      return url;
+    }
+
     function renderMovies() {
       const grid = document.getElementById("moviesGrid");
       if (!grid) return;
@@ -1285,7 +1297,7 @@ let currentCategory = '';
         card.innerHTML = `
           <div class="movie-poster-wrap">
             <span class="movie-badge"><i class="fas fa-star"></i> ${movie.imdb}</span>
-            <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" loading="lazy">
+            <img src="${optimizeMoviePosterUrl(movie.poster)}" alt="${movie.title}" class="movie-poster" loading="lazy" decoding="async">
           </div>
           <div class="movie-info">
             <div class="movie-meta">
