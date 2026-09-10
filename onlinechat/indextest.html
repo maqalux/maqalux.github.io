@@ -3230,11 +3230,21 @@
             </div>
         </div>
     </div>
+    
     <!-- Profile Settings Modal -->
     <div class="modal-overlay" id="profileSettingsModal">
         <div class="modal-box settings-modal-box">
             <button class="modal-close" onclick="closeProfileSettingsModal()">✕</button>
-            <h3>Profil ayarları</h3>
+            <h3>Profil ayarları</h3>    <!-- ============================================================
+         STORY BAXIŞLARI SİYAHISI — YENİ
+         ============================================================ -->
+    <div class="modal-overlay" id="mqStoryViewersListModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="mqCloseStoryViewersList()">✕</button>
+            <h3 style="color: var(--text-main); margin-bottom: 12px;">👁 Story baxışları</h3>
+            <div id="mqStoryViewersListBody" style="max-height:340px; overflow-y:auto;"></div>
+        </div>
+    </div>
             <p class="modal-desc">Şifrənizi və ya e-poçt ünvanınızı buradan yeniləyə bilərsiniz.</p>
             <div class="settings-section">
                 <h4>🔑 Şifrəni yenilə</h4>
@@ -7346,18 +7356,110 @@ function returnToRecentPrivateMessages(targetNick) {
 
             mqLoadSeenStoryIds().finally(() => {
                 mqStoryListenerRef = mqListenActiveStories(renderStoryBar);
+                mqStartExpiryWatcher();
             });
         }
+        // Firebase yalnız yeni data gələndə "value" hadisəsini atəşləyir — əgər saatlarla
+        // heç bir yeni story yaradılmasa, expired olanlar bar-da "asılı" qala bilər.
+        // Bunun qarşısını almaq üçün hər 60 saniyədə lokal olaraq yenidən süzürük.
+        let mqExpiryCheckInterval = null;
 
-        function stopStorySystem() {
+        function mqStartExpiryWatcher() {
+            if (mqExpiryCheckInterval) clearInterval(mqExpiryCheckInterval);
+            mqExpiryCheckInterval = setInterval(() => {
+                const stillActive = {};
+                let changed = false;
+                Object.keys(mqAllStories).forEach(id => {
+                    if (mqIsStoryActive(mqAllStories[id])) {
+                        stillActive[id] = mqAllStories[id];
+                    } else {
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    mqAllStories = stillActive;
+                    renderStoryBar(mqAllStories);
+                    // Viewer açıqdırsa və indi baxdığımız story expired olubsa, bağla
+                    const viewerOpen = document.getElementById('mqStoryViewerModal').classList.contains('active');
+                    if (viewerOpen) {
+                        const authorStories = mqCurrentViewerAuthorStories();
+                        const current = authorStories[mqViewerStoryIndex];
+                        if (!current || !mqIsStoryActive(current)) {
+                            closeStoryViewer();
+                            showToast('Story müddəti bitdi.', 'info');
+                        }
+                    }
+                }
+            }, 60 * 1000);
+        }
+
+        function mqStopExpiryWatcher() {
+            if (mqExpiryCheckInterval) {
+                clearInterval(mqExpiryCheckInterval);
+                mqExpiryCheckInterval = null;
+            }
+        }
+                // ============================================================
+        // STORY MODULU — Baxış siyahısı (YENİ)
+        // ============================================================
+
+        window.mqOpenStoryViewersList = async function () {
+            const authorStories = mqCurrentViewerAuthorStories();
+            const story = authorStories[mqViewerStoryIndex];
+            if (!story || story.authorNick !== currentUserData.nick) return;
+
+            mqClearViewerTimer(); // baxış siyahısı açıqkən progress dayansın
+
+            const body = document.getElementById('mqStoryViewersListBody');
+            body.innerHTML = '<p style="color:var(--text-main); opacity:0.6; text-align:center;">Yüklənir...</p>';
+            document.getElementById('mqStoryViewersListModal').classList.add('active');
+
+            const views = story.views || {};
+            const nicks = Object.keys(views).sort((a, b) => (views[a] || 0) - (views[b] || 0));
+
+            if (nicks.length === 0) {
+                body.innerHTML = '<p style="color:var(--text-main); opacity:0.6; text-align:center;">Hələ heç kim baxmayıb.</p>';
+                return;
+            }
+
+            // Avatarları users/ node-undan çəkirik (nick -> avatarUrl axtarışı üçün usernameToEmail deyil,
+            // users node-unda birbaşa uid-lə saxlanılır, ona görə nick üzərindən axtarış edirik)
+            try {
+                const usersSnap = await db.ref('users').once('value');
+                const usersData = usersSnap.val() || {};
+                const nickToAvatar = {};
+                Object.values(usersData).forEach(u => {
+                    if (u && u.nick) nickToAvatar[u.nick] = u.avatarUrl;
+                });
+
+                body.innerHTML = nicks.map(nick => `
+                    <div class="friend-req-item">
+                        <img src="${nickToAvatar[nick] || 'https://www.w3schools.com/howto/img_avatar.png'}"
+                             style="width:38px;height:38px;border-radius:50%;object-fit:cover;">
+                        <div class="friend-req-info">${escapeHtml(nick)}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                body.innerHTML = '<p style="color:var(--text-main); opacity:0.6; text-align:center;">Siyahı yüklənmədi.</p>';
+            }
+        };
+
+        window.mqCloseStoryViewersList = function () {
+            document.getElementById('mqStoryViewersListModal').classList.remove('active');
+            // Viewer hələ açıqdırsa, progress-i davam etdir
+            const viewerOpen = document.getElementById('mqStoryViewerModal').classList.contains('active');
+            if (viewerOpen) mqShowViewerStory();
+        };
+
+            function stopStorySystem() {
             mqStopListenActiveStories(mqStoryListenerRef);
             mqStoryListenerRef = null;
+            mqStopExpiryWatcher();
             mqAllStories = {};
             mqSeenStoryIds = {};
             const list = document.getElementById('mqStoryBarList');
             if (list) list.innerHTML = '';
         }
-
         // Bir istifadəçinin BÜTÜN aktiv story-lərinə baxılıbmı — hamısına baxılıbsa "seen"
         function mqIsAuthorFullySeen(authorStories) {
             return authorStories.every(s => s.views && s.views[currentUserData.nick]);
