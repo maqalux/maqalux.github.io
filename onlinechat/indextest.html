@@ -3187,6 +3187,7 @@
         let mqViewerStoryIndex = 0;       // o istifadəçinin hansı story-sindəyik
         let mqViewerTimer = null;         // progress bar interval/timeout
         let mqViewerPaused = false;
+        let mqStoryListenerRef = null;    // aktiv story dinləyicisinin referansı (logout-da .off() üçün)
         const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
         const STICKER_LIST = [
@@ -4244,6 +4245,7 @@ connectedRef.on('value', (snap) => {
                        initHeaderMessageInbox();
                        switchMainView('friends');
                        initFriendSystem();
+                       initStorySystem();
 
                        // YENİ: Refresh-dən sonra #feed hash-i varsa, birbaşa Feed-i aç
                        if (window.location.hash === '#feed') {
@@ -4298,6 +4300,7 @@ connectedRef.on('value', (snap) => {
                 db.ref('privateMessages').off();
                 stopHeaderMessageInbox();
                 stopFriendSystem();
+                stopStorySystem();
                 // close all private windows
                 Object.keys(openPCWs).forEach(nick => {
                     const win = document.getElementById('pcw-' + nick);
@@ -7167,6 +7170,87 @@ function returnToRecentPrivateMessages(targetNick) {
                 btn.textContent = 'Paylaş';
             }
         };
+                // ============================================================
+        // STORY MODULU — Yükləmə və Bar render (YENİ)
+        // ============================================================
+
+        function initStorySystem() {
+            if (!currentUserData) return;
+            document.getElementById('mqMyStoryAvatarImg').src =
+                currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+
+            mqLoadSeenStoryIds().finally(() => {
+                mqStoryListenerRef = mqListenActiveStories(renderStoryBar);
+            });
+        }
+
+        function stopStorySystem() {
+            mqStopListenActiveStories(mqStoryListenerRef);
+            mqStoryListenerRef = null;
+            mqAllStories = {};
+            mqSeenStoryIds = {};
+            const list = document.getElementById('mqStoryBarList');
+            if (list) list.innerHTML = '';
+        }
+
+        // Bir istifadəçinin BÜTÜN aktiv story-lərinə baxılıbmı — hamısına baxılıbsa "seen"
+        function mqIsAuthorFullySeen(authorStories) {
+            return authorStories.every(s => s.views && s.views[currentUserData.nick]);
+        }
+
+        function renderStoryBar(activeStoriesObj) {
+            if (!currentUserData) return;
+
+            // Öz story qrupumu ayırırıq, öz ring vəziyyətimi yeniləyirik
+            const myNick = currentUserData.nick;
+            const grouped = {}; // { nick: [story, story, ...] }
+            Object.values(activeStoriesObj).forEach(s => {
+                if (!grouped[s.authorNick]) grouped[s.authorNick] = [];
+                grouped[s.authorNick].push(s);
+            });
+            Object.keys(grouped).forEach(nick => {
+                grouped[nick].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+            });
+
+            // --- Öz ring-imi yenilə ---
+            const myRing = document.getElementById('mqMyStoryRing');
+            const myPlus = myRing.querySelector('.mq-story-plus');
+            if (grouped[myNick] && grouped[myNick].length > 0) {
+                myRing.classList.remove('mq-own');
+                myRing.classList.add(mqIsAuthorFullySeen(grouped[myNick]) ? 'mq-seen' : 'mq-unseen');
+                if (myPlus) myPlus.style.display = 'none';
+            } else {
+                myRing.classList.remove('mq-seen', 'mq-unseen');
+                myRing.classList.add('mq-own');
+                if (myPlus) myPlus.style.display = 'flex';
+            }
+
+            // --- Başqa istifadəçilərin ring-lərini qur ---
+            const otherNicks = Object.keys(grouped).filter(nick => nick !== myNick);
+            // Baxılmamışlar əvvəldə görünsün
+            otherNicks.sort((a, b) => {
+                const aSeen = mqIsAuthorFullySeen(grouped[a]) ? 1 : 0;
+                const bSeen = mqIsAuthorFullySeen(grouped[b]) ? 1 : 0;
+                return aSeen - bSeen;
+            });
+
+            const listEl = document.getElementById('mqStoryBarList');
+            listEl.innerHTML = otherNicks.map(nick => {
+                const stories = grouped[nick];
+                const avatar = stories[0].authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+                const seenClass = mqIsAuthorFullySeen(stories) ? 'mq-seen' : 'mq-unseen';
+                return `
+                    <div class="mq-story-item" onclick="openStoryViewer('${escapeHtml(nick)}')">
+                        <div class="mq-story-ring ${seenClass}">
+                            <div class="mq-story-avatar-wrap">
+                                <img src="${avatar}" alt="">
+                            </div>
+                        </div>
+                        <div class="mq-story-label">${escapeHtml(nick)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
         // ============================================================
         // FEED MODULU — YENİ ƏLAVƏ
         // Firebase yolları:
