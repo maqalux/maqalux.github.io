@@ -1247,15 +1247,21 @@ let currentCategory = '';
         // yəni brauzer artıq 1000px yox, {width}px-lik faylı yükləyir).
         return url.replace(/_V1_[^/]*\.jpg/i, `_V1_UX${width}_.jpg`);
       }
-      if (url.includes('upload.wikimedia.org/wikipedia/')) {
-        // Wikimedia-nın öz "thumb" xidmətindən istifadə edərək kiçik versiya alırıq.
-        const m = url.match(/^(https:\/\/upload\.wikimedia\.org\/wikipedia\/[^/]+)\/([0-9a-f])\/([0-9a-f]{2})\/([^/]+)$/i);
-        if (m) {
-          const [, base, d1, d2, filename] = m;
-          return `${base}/thumb/${d1}/${d2}/${filename}/${width}px-${filename}`;
-        }
-      }
+      // QEYD: Wikimedia "thumb" linkləri bəzi fayllar üçün (məs. Örümcək Adam
+      // posterləri) 404 verdiyi üçün bu mənbədə optimizasiya etmirik —
+      // əvəzinə orijinal linki olduğu kimi saxlayırıq ki, cover itməsin.
       return url;
+    }
+
+    // YENİ: Optimizasiya edilmiş link hər hansı səbəbdən yüklənməzsə
+    // (404, server xətası və s.), avtomatik olaraq orijinal linkə keçirik ki,
+    // cover heç vaxt "boş" qalmasın.
+    function handlePosterLoadError(img) {
+      const fallback = img.getAttribute('data-fallback');
+      if (fallback && img.src !== fallback) {
+        img.onerror = null;
+        img.src = fallback;
+      }
     }
 
     // YENİ: Şəkillər üçün öz (manual) lazy-loading sistemimiz — brauzerin
@@ -1339,7 +1345,7 @@ let currentCategory = '';
         card.innerHTML = `
           <div class="movie-poster-wrap">
             <span class="movie-badge"><i class="fas fa-star"></i> ${movie.imdb}</span>
-            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBTAA7" data-src="${optimizeMoviePosterUrl(movie.poster)}" alt="${movie.title}" class="movie-poster" loading="lazy" decoding="async">
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBTAA7" data-src="${optimizeMoviePosterUrl(movie.poster)}" data-fallback="${movie.poster}" onerror="handlePosterLoadError(this)" alt="${movie.title}" class="movie-poster" loading="lazy" decoding="async">
           </div>
           <div class="movie-info">
             <div class="movie-meta">
