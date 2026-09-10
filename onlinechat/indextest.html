@@ -3168,7 +3168,25 @@
         let activeStickerTarget = null;
         let lastKnownDateKey = null;
         let isMessagesLoaded = false;
+        // ============================================================
+        // STORY SİSTEMİ — QLOBAL DƏYİŞƏNLƏR (YENİ)
+        // ============================================================
+        const STORY_DURATION_MS = 24 * 60 * 60 * 1000; // 24 saat
+        let mqAllStories = {};            // { storyId: {...} } — bütün aktiv story-lər (cache)
+        let mqStoryListenerAttached = false;
+        let mqSeenStoryIds = {};          // { storyId: true } — bu istifadəçinin baxdığı story-lər (Firebase-dən)
 
+        // Composer vəziyyəti
+        let mqStoryComposerMode = null;   // "image" | "video" | "text"
+        let mqStoryComposerFile = null;   // seçilmiş şəkil/video file
+        let mqStoryComposerBg = '#16213e';
+
+        // Viewer vəziyyəti
+        let mqViewerGroupNicks = [];      // hazırkı viewer-də gəzdiyimiz istifadəçi sırası
+        let mqViewerGroupIndex = 0;       // hansı istifadəçinin story qrupundayıq
+        let mqViewerStoryIndex = 0;       // o istifadəçinin hansı story-sindəyik
+        let mqViewerTimer = null;         // progress bar interval/timeout
+        let mqViewerPaused = false;
         const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
         const STICKER_LIST = [
@@ -6886,7 +6904,110 @@ function returnToRecentPrivateMessages(targetNick) {
                 xhr.send(formData);
             });
         }
+                // ============================================================
+        // STORY MODULU — Firebase funksiyaları (YENİ)
+        // Firebase yolları:
+        //   stories/{storyId}                -> story məlumatları
+        //   stories/{storyId}/views/{nick}   -> baxan istifadəçilər (dəyər = timestamp)
+        //   storyViews/{nick}/{storyId}      -> istifadəçinin öz "baxdım" qeydi (seen/unseen üçün)
+        // ============================================================
 
+        function mqIsStoryActive(story) {
+            return !!story && typeof story.expiresAt === 'number' && Date.now() < story.expiresAt;
+        }
+
+        // Yeni Story-ni Firebase-ə yazır. data = { type, mediaUrl, text, background }
+        async function mqCreateStoryRecord(data) {
+            if (!currentUserData) throw new Error('İstifadəçi tapılmadı');
+            const now = Date.now();
+            const storyRef = db.ref('stories').push();
+            const payload = {
+                authorNick: currentUserData.nick,
+                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                type: data.type,                 // "image" | "video" | "text"
+                mediaUrl: data.mediaUrl || null,
+                text: data.text || null,
+                background: data.background || null,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
+                expiresAt: now + STORY_DURATION_MS,
+                views: {}
+            };
+            await storyRef.set(payload);
+            return storyRef.key;
+        }
+
+        // Bütün story-lərə real-vaxt dinləyici qoyur, callback-ə YALNIZ aktiv olanları ötürür.
+        // Performans üçün son 24-48 saatlıq story-lərlə məhdudlaşdırırıq (limitToLast əvəzinə
+        // timestamp-a görə orderByChild + startAt istifadə edirik ki, köhnə data çəkilməsin).
+        function mqListenActiveStories(callback) {
+            const cutoff = Date.now() - (STORY_DURATION_MS + 60 * 60 * 1000); // 25 saat marja
+            const storiesRef = db.ref('stories').orderByChild('timestamp').startAt(cutoff);
+
+            storiesRef.on('value', (snap) => {
+                const raw = snap.val() || {};
+                const active = {};
+                Object.keys(raw).forEach((id) => {
+                    const story = raw[id];
+                    story.id = id;
+                    if (mqIsStoryActive(story)) {
+                        active[id] = story;
+                    }
+                });
+                mqAllStories = active;
+                callback(active);
+            });
+
+            return storiesRef; // sonra .off() etmək üçün referansı qaytarırıq
+        }
+
+        function mqStopListenActiveStories(ref) {
+            if (ref) ref.off('value');
+        }
+
+        // Story-ni Firebase-dən silir. Yalnız sahibi, admin və ya moderator silə bilər
+        // (bu icazə həm burada, həm də ADDIM 14-də Rules-da təkrar yoxlanacaq).
+        async function mqDeleteStoryRecord(storyId) {
+            const story = mqAllStories[storyId];
+            if (!story) throw new Error('Story tapılmadı');
+            const myRole = currentUserData && currentUserData.role;
+            const isOwner = story.authorNick === currentUserData.nick;
+            const isMod = myRole === 'admin' || myRole === 'moderator';
+            if (!isOwner && !isMod) throw new Error('İcazə yoxdur');
+            await db.ref(`stories/${storyId}`).remove();
+        }
+
+        // Story-yə baxışı qeyd edir: həm story-nin öz "views" siyahısına,
+        // həm də istifadəçinin şəxsi "storyViews" qovluğuna yazır (cross-device seen/unseen üçün).
+        async function mqRegisterStoryView(storyId) {
+            if (!currentUserData) return;
+            const nick = currentUserData.nick;
+            const story = mqAllStories[storyId];
+            if (!story) return;
+            if (story.views && story.views[nick]) return; // artıq baxılıb, təkrar yazma
+
+            const now = firebase.database.ServerValue.TIMESTAMP;
+            const updates = {};
+            updates[`stories/${storyId}/views/${nick}`] = now;
+            updates[`storyViews/${nick}/${storyId}`] = now;
+            await db.ref().update(updates);
+
+            // Lokal cache-i də yeniləyək ki, UI dərhal "seen" göstərsin
+            if (mqAllStories[storyId]) {
+                if (!mqAllStories[storyId].views) mqAllStories[storyId].views = {};
+                mqAllStories[storyId].views[nick] = Date.now();
+            }
+            mqSeenStoryIds[storyId] = true;
+        }
+
+        // İstifadəçinin bütün "baxdım" qeydlərini Firebase-dən bir dəfə çəkir
+        // (story bar-ı ilk dəfə render edərkən lazım olacaq — ADDIM 11-də istifadə ediləcək).
+        async function mqLoadSeenStoryIds() {
+            if (!currentUserData) return {};
+            const snap = await db.ref(`storyViews/${currentUserData.nick}`).once('value');
+            mqSeenStoryIds = snap.val() || {};
+            return mqSeenStoryIds;
+        }
         // ============================================================
         // FEED MODULU — YENİ ƏLAVƏ
         // Firebase yolları:
