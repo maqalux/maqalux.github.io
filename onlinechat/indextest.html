@@ -3036,16 +3036,19 @@
                                <!-- ============================================================
                      STORY BAR — YENİ ƏLAVƏ
                      ============================================================ -->
-                <div class="mq-story-bar" id="mqStoryBar">
+                                <div class="mq-story-bar" id="mqStoryBar">
                     <div class="mq-story-item" onclick="handleMyStoryClick()">
-                        <div class="mq-story-ring mq-own" id="mqMyStoryRing">
+                        <div class="mq-story-ring" id="mqMyStoryRing">
                             <div class="mq-story-avatar-wrap mq-story-add-icon">
                                 <img id="mqMyStoryAvatarImg" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
-                                <span class="mq-story-plus">+</span>
+                                <span class="mq-story-plus" id="mqMyStoryPlusBtn" onclick="event.stopPropagation(); openStoryComposerModal();">+</span>
                             </div>
                         </div>
                         <div class="mq-story-label">Mənim Story-m</div>
                     </div>
+
+                    <div id="mqStoryBarList"></div>
+                </div>
 
                     <div id="mqStoryBarList"></div>
                 </div>
@@ -3294,11 +3297,7 @@
         </div>
     </div>
     
-    <!-- Profile Settings Modal -->
-    <div class="modal-overlay" id="profileSettingsModal">
-        <div class="modal-box settings-modal-box">
-            <button class="modal-close" onclick="closeProfileSettingsModal()">✕</button>
-            <h3>Profil ayarları</h3>    <!-- ============================================================
+       <!-- ============================================================
          STORY BAXIŞLARI SİYAHISI — YENİ
          ============================================================ -->
     <div class="modal-overlay" id="mqStoryViewersListModal">
@@ -3308,6 +3307,12 @@
             <div id="mqStoryViewersListBody" style="max-height:340px; overflow-y:auto;"></div>
         </div>
     </div>
+
+    <!-- Profile Settings Modal -->
+    <div class="modal-overlay" id="profileSettingsModal">
+        <div class="modal-box settings-modal-box">
+            <button class="modal-close" onclick="closeProfileSettingsModal()">✕</button>
+            <h3>Profil ayarları</h3>
             <p class="modal-desc">Şifrənizi və ya e-poçt ünvanınızı buradan yeniləyə bilərsiniz.</p>
             <div class="settings-section">
                 <h4>🔑 Şifrəni yenilə</h4>
@@ -7632,13 +7637,15 @@ function returnToRecentPrivateMessages(targetNick) {
                 grouped[nick].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
             });
 
-            // --- Öz ring-imi yenilə ---
+                        // --- Öz ring-imi yenilə ---
             const myRing = document.getElementById('mqMyStoryRing');
             const myPlus = myRing.querySelector('.mq-story-plus');
             if (grouped[myNick] && grouped[myNick].length > 0) {
                 myRing.classList.remove('mq-own');
                 myRing.classList.add(mqIsAuthorFullySeen(grouped[myNick]) ? 'mq-seen' : 'mq-unseen');
-                if (myPlus) myPlus.style.display = 'none';
+                // "+" işarəsi HƏMİŞƏ görünür ki, aktiv Story olsa belə yeni Story əlavə edə biləsən.
+                // Sadəcə kiçikləşdirib küncdə saxlayırıq ki, halqanın özünə klikləməyə mane olmasın.
+                if (myPlus) myPlus.style.display = 'flex';
             } else {
                 myRing.classList.remove('mq-seen', 'mq-unseen');
                 myRing.classList.add('mq-own');
