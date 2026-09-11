@@ -1803,6 +1803,10 @@
             cursor: pointer;
         }
         .mq-story-viewer-delete-btn { background: rgba(255,60,60,0.25); } 
+        /* Story baxışları modalı Story Viewer-in (z-index:9000) ÜSTÜNDƏ görünsün */
+        #mqStoryViewersListModal {
+            z-index: 9500;
+        }
             .mq-story-privacy-row {
             display: flex;
             align-items: center;
@@ -3298,16 +3302,7 @@
     <div class="modal-overlay" id="profileSettingsModal">
         <div class="modal-box settings-modal-box">
             <button class="modal-close" onclick="closeProfileSettingsModal()">✕</button>
-            <h3>Profil ayarları</h3>    <!-- ============================================================
-         STORY BAXIŞLARI SİYAHISI — YENİ
-         ============================================================ -->
-    <div class="modal-overlay" id="mqStoryViewersListModal">
-        <div class="modal-box">
-            <button class="modal-close" onclick="mqCloseStoryViewersList()">✕</button>
-            <h3 style="color: var(--text-main); margin-bottom: 12px;">👁 Story baxışları</h3>
-            <div id="mqStoryViewersListBody" style="max-height:340px; overflow-y:auto;"></div>
-        </div>
-    </div>
+            <h3>Profil ayarları</h3>
             <p class="modal-desc">Şifrənizi və ya e-poçt ünvanınızı buradan yeniləyə bilərsiniz.</p>
             <div class="settings-section">
                 <h4>🔑 Şifrəni yenilə</h4>
@@ -3331,6 +3326,17 @@
                     <button class="login-btn" onclick="submitUpdateEmail()">E-poçtu yenilə</button>
                 </div>
             </div>
+               </div>
+    </div>
+
+    <!-- ============================================================
+         STORY BAXIŞLARI SİYAHISI — YENİ
+         ============================================================ -->
+    <div class="modal-overlay" id="mqStoryViewersListModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="mqCloseStoryViewersList()">✕</button>
+            <h3 style="color: var(--text-main); margin-bottom: 12px;">👁 Story baxışları</h3>
+            <div id="mqStoryViewersListBody" style="max-height:340px; overflow-y:auto;"></div>
         </div>
     </div>
 
@@ -7486,7 +7492,8 @@ function returnToRecentPrivateMessages(targetNick) {
         // STORY MODULU — Baxış siyahısı (YENİ)
         // ============================================================
 
-        window.mqOpenStoryViewersList = async function () {
+            window.mqOpenStoryViewersList = async function () {
+            mqRefreshViewerSnapshot();
             const authorStories = mqCurrentViewerAuthorStories();
             const story = authorStories[mqViewerStoryIndex];
             if (!story || story.authorNick !== currentUserData.nick) return;
@@ -7738,6 +7745,14 @@ function returnToRecentPrivateMessages(targetNick) {
             const nick = mqViewerGroupNicks[mqViewerGroupIndex];
             return (mqViewerLastGrouped && mqViewerLastGrouped[nick]) || [];
         }
+        // mqViewerLastGrouped köhnəlmiş qala bilər (Firebase real-vaxt yeniləməsi
+        // mqAllStories-i yeni obyektlərlə əvəz edir, amma bu snapshot köhnə referansları saxlayır).
+        // Mövcud arxitekturanı (order/index) pozmadan YALNIZ məzmunu təzələyirik.
+        function mqRefreshViewerSnapshot() {
+            if (!mqViewerGroupNicks || !mqViewerGroupNicks.length) return;
+            const { grouped } = mqBuildViewerOrder();
+            mqViewerLastGrouped = grouped;
+        }
 
         function mqRenderProgressBars(total, activeIndex, filledRatio) {
             const row = document.getElementById('mqStoryProgressBars');
@@ -7755,8 +7770,9 @@ function returnToRecentPrivateMessages(targetNick) {
             }
         }
 
-        function mqShowViewerStory() {
+            function mqShowViewerStory() {
             mqClearViewerTimer();
+            mqRefreshViewerSnapshot();
             const authorStories = mqCurrentViewerAuthorStories();
             if (!authorStories.length) { closeStoryViewer(); return; }
 
