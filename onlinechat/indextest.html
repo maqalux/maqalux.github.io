@@ -7450,7 +7450,72 @@ function returnToRecentPrivateMessages(targetNick) {
             const viewerOpen = document.getElementById('mqStoryViewerModal').classList.contains('active');
             if (viewerOpen) mqShowViewerStory();
         };
+        // ============================================================
+        // STORY MODULU — Silmə (YENİ)
+        // ============================================================
 
+        window.mqConfirmDeleteCurrentStory = function () {
+            const authorStories = mqCurrentViewerAuthorStories();
+            const story = authorStories[mqViewerStoryIndex];
+            if (!story) return;
+
+            const myRole = currentUserData && currentUserData.role;
+            const isOwner = story.authorNick === currentUserData.nick;
+            const isMod = myRole === 'admin' || myRole === 'moderator';
+            if (!isOwner && !isMod) {
+                showToast('Bu story-ni silmək icazən yoxdur.', 'error');
+                return;
+            }
+
+            mqClearViewerTimer(); // təsdiq gözlənilərkən progress dayansın
+
+            const confirmed = window.confirm(
+                isOwner
+                    ? 'Bu Story-ni silmək istədiyinə əminsən?'
+                    : `Moderasiya əməliyyatı: ${story.authorNick}-in Story-sini silmək istədiyinə əminsən?`
+            );
+
+            if (!confirmed) {
+                mqShowViewerStory(); // ləğv olundu, timer-i yenidən başlat
+                return;
+            }
+
+            mqDeleteCurrentStory(story.id);
+        };
+
+        async function mqDeleteCurrentStory(storyId) {
+            try {
+                await mqDeleteStoryRecord(storyId);
+                showToast('Story silindi.', 'success');
+
+                // Viewer-dəki yerli cache-dən də silib, ya növbətiyə keç, ya bağla
+                const authorStories = mqCurrentViewerAuthorStories();
+                const idx = authorStories.findIndex(s => s.id === storyId);
+                if (idx > -1) authorStories.splice(idx, 1);
+                delete mqAllStories[storyId];
+
+                if (authorStories.length === 0) {
+                    // Bu istifadəçinin başqa aktiv story-si qalmadı
+                    mqViewerGroupNicks.splice(mqViewerGroupIndex, 1);
+                    if (mqViewerGroupNicks.length === 0) {
+                        closeStoryViewer();
+                    } else {
+                        if (mqViewerGroupIndex >= mqViewerGroupNicks.length) mqViewerGroupIndex = mqViewerGroupNicks.length - 1;
+                        mqViewerStoryIndex = 0;
+                        mqShowViewerStory();
+                    }
+                } else {
+                    if (mqViewerStoryIndex >= authorStories.length) mqViewerStoryIndex = authorStories.length - 1;
+                    mqShowViewerStory();
+                }
+
+                renderStoryBar(mqAllStories);
+            } catch (err) {
+                console.error('Story silinərkən xəta:', err);
+                showToast('Story silinmədi: ' + err.message, 'error');
+                mqShowViewerStory();
+            }
+        }
             function stopStorySystem() {
             mqStopListenActiveStories(mqStoryListenerRef);
             mqStoryListenerRef = null;
@@ -7461,8 +7526,13 @@ function returnToRecentPrivateMessages(targetNick) {
             if (list) list.innerHTML = '';
         }
         // Bir istifadəçinin BÜTÜN aktiv story-lərinə baxılıbmı — hamısına baxılıbsa "seen"
+        // Diqqət: story.views (Firebase-dəki "views" child-ı) ilə YANAŞI, mqSeenStoryIds
+        // (bizim öz storyViews/{nick} cache-imiz) də yoxlanılır — çünki view yazılan kimi
+        // real-vaxt "views" bəzən 1 tick gec gələ bilər, amma lokal mqSeenStoryIds dərhal yenilənir.
         function mqIsAuthorFullySeen(authorStories) {
-            return authorStories.every(s => s.views && s.views[currentUserData.nick]);
+            return authorStories.every(s =>
+                (s.views && s.views[currentUserData.nick]) || mqSeenStoryIds[s.id]
+            );
         }
 
         function renderStoryBar(activeStoriesObj) {
