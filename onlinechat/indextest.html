@@ -7486,7 +7486,8 @@ function returnToRecentPrivateMessages(targetNick) {
         // STORY MODULU — Baxış siyahısı (YENİ)
         // ============================================================
 
-        window.mqOpenStoryViewersList = async function () {
+            window.mqOpenStoryViewersList = async function () {
+            mqRefreshViewerSnapshot();
             const authorStories = mqCurrentViewerAuthorStories();
             const story = authorStories[mqViewerStoryIndex];
             if (!story || story.authorNick !== currentUserData.nick) return;
@@ -7738,6 +7739,14 @@ function returnToRecentPrivateMessages(targetNick) {
             const nick = mqViewerGroupNicks[mqViewerGroupIndex];
             return (mqViewerLastGrouped && mqViewerLastGrouped[nick]) || [];
         }
+        // mqViewerLastGrouped köhnəlmiş qala bilər (Firebase real-vaxt yeniləməsi
+        // mqAllStories-i yeni obyektlərlə əvəz edir, amma bu snapshot köhnə referansları saxlayır).
+        // Mövcud arxitekturanı (order/index) pozmadan YALNIZ məzmunu təzələyirik.
+        function mqRefreshViewerSnapshot() {
+            if (!mqViewerGroupNicks || !mqViewerGroupNicks.length) return;
+            const { grouped } = mqBuildViewerOrder();
+            mqViewerLastGrouped = grouped;
+        }
 
         function mqRenderProgressBars(total, activeIndex, filledRatio) {
             const row = document.getElementById('mqStoryProgressBars');
@@ -7755,8 +7764,9 @@ function returnToRecentPrivateMessages(targetNick) {
             }
         }
 
-        function mqShowViewerStory() {
+            function mqShowViewerStory() {
             mqClearViewerTimer();
+            mqRefreshViewerSnapshot();
             const authorStories = mqCurrentViewerAuthorStories();
             if (!authorStories.length) { closeStoryViewer(); return; }
 
