@@ -1621,9 +1621,9 @@
             height: 100%;
             object-fit: cover;
         }
-        .mq-story-text-input {
+            .mq-story-text-input {
             width: 100%;
-            height: 100%;
+            max-height: calc(100% - 40px);
             border: none;
             resize: none;
             background: transparent;
@@ -1631,10 +1631,10 @@
             font-size: 22px;
             font-weight: 600;
             text-align: center;
+            line-height: 1.35;
             padding: 20px;
             outline: none;
-            display: flex;
-            align-items: center;
+            overflow: hidden;
         }
         .mq-story-bg-row {
             display: flex;
@@ -1809,7 +1809,7 @@
             gap: 8px;
             margin-bottom: 14px;
         }
-        .mq-story-privacy-select {
+            .mq-story-privacy-select {
             flex: 1;
             padding: 8px 10px;
             border-radius: 8px;
@@ -1817,6 +1817,11 @@
             border: 1px solid var(--border-10);
             color: var(--text-main);
             font-size: 13px;
+            color-scheme: dark;
+        }
+        .mq-story-privacy-select option {
+            background: var(--dropdown-bg);
+            color: var(--text-main);
         }
                 /* ============================================================
            STORY SİSTEMİ — Mobil son tənzimləmələr (320px - 430px)
@@ -3215,11 +3220,12 @@
                 </div>
                 <img id="mqStoryPreviewImg" style="display:none;">
                 <video id="mqStoryPreviewVideo" style="display:none;" muted playsinline></video>
-                <textarea id="mqStoryTextInput"
+                    <textarea id="mqStoryTextInput"
                     class="mq-story-text-input"
                     placeholder="Nə düşünürsən?"
                     style="display:none;"
-                    maxlength="220"></textarea>
+                    maxlength="220"
+                    oninput="mqAutoResizeStoryText(this)"></textarea>
             </div>
 
             <div class="mq-story-bg-row" id="mqStoryBgRow" style="display:none;">
@@ -7271,6 +7277,7 @@ function returnToRecentPrivateMessages(targetNick) {
             document.getElementById('mqStoryPreviewVideo').src = '';
             document.getElementById('mqStoryTextInput').style.display = 'none';
             document.getElementById('mqStoryTextInput').value = '';
+            document.getElementById('mqStoryTextInput').style.height = 'auto';
             document.getElementById('mqStoryPreviewWrap').style.background = 'var(--panel-08)';
             document.getElementById('mqStoryBgRow').style.display = 'none';
         }
@@ -7338,7 +7345,12 @@ function returnToRecentPrivateMessages(targetNick) {
                 imgEl.style.display = 'block';
             }
         };
-
+        // Textarea-nı yazılan mətnin uzunluğuna görə avtomatik hündürləşdirir,
+        // beləliklə valideynin flex-centering-i mətni WhatsApp kimi ortalaya bilir.
+        window.mqAutoResizeStoryText = function (el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 300) + 'px';
+        };
         // "✍️ Mətn" düyməsi — text-story rejiminə keçid
         window.toggleStoryTextMode = function () {
             mqStoryComposerMode = 'text';
@@ -7350,7 +7362,8 @@ function returnToRecentPrivateMessages(targetNick) {
             document.getElementById('mqStoryPreviewVideo').style.display = 'none';
 
             const textEl = document.getElementById('mqStoryTextInput');
-            textEl.style.display = 'flex';
+            textEl.style.display = 'block';
+            textEl.style.height = 'auto';
             document.getElementById('mqStoryBgRow').style.display = 'flex';
             document.getElementById('mqStoryPreviewWrap').style.background = mqStoryComposerBg;
             textEl.focus();
