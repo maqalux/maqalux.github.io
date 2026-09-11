@@ -1494,7 +1494,368 @@
             z-index: 5999;
             display: none;
         }
+        /* ============================================================
+           STORY SİSTEMİ — CSS (YENİ)
+           ============================================================ */
+        .mq-story-bar {
+            display: flex;
+            gap: 14px;
+            padding: 14px 16px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            border-bottom: 1px solid var(--border-10);
+            scrollbar-width: none;
+        }
+        .mq-story-bar::-webkit-scrollbar { display: none; }
 
+        .mq-story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 0 0 auto;
+            width: 68px;
+            cursor: pointer;
+        }
+
+        .mq-story-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            padding: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel-08);
+            border: 2px solid var(--border-10);
+        }
+        /* baxılmamış story olan halqa */
+        .mq-story-ring.mq-unseen {
+            background: linear-gradient(45deg, #ffaa00, #ff3ba0, #6a3bff);
+            border: none;
+        }
+        /* bütün story-lərə baxılıb */
+        .mq-story-ring.mq-seen {
+            background: var(--panel-08);
+            border: 2px solid var(--border-12);
+            opacity: 0.65;
+        }
+        /* öz story-m üçün */
+        .mq-story-ring.mq-own {
+            background: var(--panel-08);
+            border: 2px dashed var(--border-20, var(--border-12));
+        }
+
+        .mq-story-avatar-wrap {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--dropdown-bg);
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mq-story-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .mq-story-add-icon {
+            position: relative;
+        }
+        .mq-story-plus {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffaa00;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            border: 2px solid var(--dropdown-bg);
+        }
+
+        .mq-story-label {
+            font-size: 11.5px;
+            color: var(--text-main);
+            opacity: 0.85;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 68px;
+        }
+
+        @media (max-width: 480px) {
+            .mq-story-item { width: 60px; }
+            .mq-story-ring { width: 54px; height: 54px; }
+        }
+                .mq-story-composer-box {
+            max-width: 380px;
+        }
+        .mq-story-preview-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            max-height: 420px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+        .mq-story-preview-wrap img,
+        .mq-story-preview-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+            .mq-story-text-input {
+            width: 100%;
+            max-height: calc(100% - 40px);
+            border: none;
+            resize: none;
+            background: transparent;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.35;
+            padding: 20px;
+            outline: none;
+            overflow: hidden;
+        }
+        .mq-story-bg-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            justify-content: center;
+        }
+        .mq-story-bg-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--border-12);
+        }
+        .mq-story-bg-swatch.mq-active {
+            border: 2px solid var(--text-main);
+        }
+        .mq-story-composer-tools {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .mq-story-tool-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 13.5px;
+        }
+        .mq-story-composer-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+                .mq-story-viewer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+        }
+        .mq-story-viewer.active {
+            display: flex;
+        }
+        .mq-story-viewer-inner {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            max-height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 480px) {
+            .mq-story-viewer-inner {
+                height: 92vh;
+                max-height: 780px;
+                border-radius: 16px;
+                overflow: hidden;
+            }
+        }
+
+        .mq-story-progress-row {
+            display: flex;
+            gap: 4px;
+            padding: 8px 10px 0;
+            z-index: 3;
+        }
+        .mq-story-progress-track {
+            flex: 1;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .mq-story-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #fff;
+        }
+
+        .mq-story-viewer-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            z-index: 3;
+        }
+        .mq-story-viewer-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .mq-story-viewer-meta { flex: 1; min-width: 0; }
+        .mq-story-viewer-nick { color: #fff; font-size: 13.5px; font-weight: 600; }
+        .mq-story-viewer-time { color: rgba(255,255,255,0.65); font-size: 11.5px; }
+        .mq-story-viewer-icon-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .mq-story-viewer-media {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #000;
+        }
+        .mq-story-viewer-media img,
+        .mq-story-viewer-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .mq-story-viewer-textbox {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+        }
+        .mq-story-tap-zone {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 35%;
+            z-index: 2;
+        }
+        .mq-tap-left { left: 0; }
+        .mq-tap-right { right: 0; }
+
+        .mq-story-viewer-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            z-index: 3;
+        }
+        .mq-story-viewer-views-btn,
+        .mq-story-viewer-delete-btn {
+            background: rgba(255,255,255,0.12);
+            border: none;
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .mq-story-viewer-delete-btn { background: rgba(255,60,60,0.25); } 
+            .mq-story-privacy-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+            .mq-story-privacy-select {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            color: var(--text-main);
+            font-size: 13px;
+            color-scheme: dark;
+        }
+        .mq-story-privacy-select option {
+            background: var(--dropdown-bg);
+            color: var(--text-main);
+        }
+                /* ============================================================
+           STORY SİSTEMİ — Mobil son tənzimləmələr (320px - 430px)
+           ============================================================ */
+        @media (max-width: 430px) {
+            .mq-story-viewer-inner {
+                max-width: 100%;
+            }
+            .mq-story-viewer-header {
+                padding: 12px 10px 6px;
+            }
+            .mq-story-viewer-nick { font-size: 13px; }
+            .mq-story-viewer-textbox { font-size: 22px; padding: 22px; }
+            .mq-story-composer-box { max-width: 100%; }
+            .mq-story-preview-wrap { max-height: 340px; }
+        }
+
+        @media (max-width: 375px) {
+            .mq-story-item { width: 56px; }
+            .mq-story-ring { width: 50px; height: 50px; }
+            .mq-story-label { font-size: 10.5px; max-width: 56px; }
+            .mq-story-viewer-textbox { font-size: 19px; padding: 18px; }
+        }
+
+        @media (max-width: 320px) {
+            .mq-story-item { width: 50px; }
+            .mq-story-ring { width: 46px; height: 46px; }
+            .mq-story-bar { gap: 10px; padding: 10px 12px; }
+        }
+
+        /* Tablet və desktopda viewer daha da səliqəli görünsün */
+        @media (min-width: 600px) {
+            .mq-story-viewer-inner { max-width: 460px; }
+        }
         /* Modallar */
         .modal-overlay {
             position: fixed;
@@ -2672,7 +3033,22 @@
                         ✏️ Yeni söhbət
                     </button>
                 </div>
+                               <!-- ============================================================
+                     STORY BAR — YENİ ƏLAVƏ
+                     ============================================================ -->
+                <div class="mq-story-bar" id="mqStoryBar">
+                    <div class="mq-story-item" onclick="handleMyStoryClick()">
+                        <div class="mq-story-ring mq-own" id="mqMyStoryRing">
+                            <div class="mq-story-avatar-wrap mq-story-add-icon">
+                                <img id="mqMyStoryAvatarImg" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+                                <span class="mq-story-plus">+</span>
+                            </div>
+                        </div>
+                        <div class="mq-story-label">Mənim Story-m</div>
+                    </div>
 
+                    <div id="mqStoryBarList"></div>
+                </div>
                 <div class="friends-list-view" id="friendsListView">
                     <div id="friendsListContainer"></div>
                 </div>
@@ -2828,12 +3204,110 @@
         <span class="image-viewer-close" onclick="closeImageViewer()">✕</span>
         <img id="imageViewerImg" src="" alt="Şəkil">
     </div>
+        <!-- ============================================================
+         STORY COMPOSER MODAL — YENİ
+         ============================================================ -->
+    <div class="modal-overlay" id="mqStoryComposerModal">
+        <div class="modal-box mq-story-composer-box">
+            <button class="modal-close" onclick="closeStoryComposerModal()">✕</button>
+            <h3 style="color: var(--text-main); margin-bottom: 14px;">Story yarat</h3>
 
+            <div class="mq-story-preview-wrap" id="mqStoryPreviewWrap">
+                <div class="mq-story-preview-empty" id="mqStoryPreviewEmpty">
+                    <p style="color: var(--text-main); opacity:0.7; text-align:center;">
+                        Şəkil/video seç və ya mətn yaz
+                    </p>
+                </div>
+                <img id="mqStoryPreviewImg" style="display:none;">
+                <video id="mqStoryPreviewVideo" style="display:none;" muted playsinline></video>
+                    <textarea id="mqStoryTextInput"
+                    class="mq-story-text-input"
+                    placeholder="Nə düşünürsən?"
+                    style="display:none;"
+                    maxlength="220"
+                    oninput="mqAutoResizeStoryText(this)"></textarea>
+            </div>
+
+            <div class="mq-story-bg-row" id="mqStoryBgRow" style="display:none;">
+                <div class="mq-story-bg-swatch" style="background:#ffaa00" onclick="setStoryBackground('#ffaa00')"></div>
+                <div class="mq-story-bg-swatch" style="background:#3b5bff" onclick="setStoryBackground('#3b5bff')"></div>
+                <div class="mq-story-bg-swatch" style="background:#ff3ba0" onclick="setStoryBackground('#ff3ba0')"></div>
+                <div class="mq-story-bg-swatch" style="background:linear-gradient(135deg,#6a3bff,#ff3ba0)" onclick="setStoryBackground('linear-gradient(135deg,#6a3bff,#ff3ba0)')"></div>
+                <div class="mq-story-bg-swatch" style="background:#16213e" onclick="setStoryBackground('#16213e')"></div>
+            </div>
+
+             <div class="mq-story-composer-tools">
+                <label class="mq-story-tool-btn" title="Şəkil / Video seç">
+                    📷 Media
+                    <input type="file" id="mqStoryMediaInput" accept="image/*,video/*" style="display:none;" onchange="handleStoryMediaSelect(event)">
+                </label>
+                <button type="button" class="mq-story-tool-btn" onclick="toggleStoryTextMode()">✍️ Mətn</button>
+            </div>
+
+            <div class="mq-story-privacy-row">
+                <label style="color:var(--text-main); font-size:12.5px; opacity:0.75;">Kim görə bilər:</label>
+                <select id="mqStoryPrivacySelect" class="mq-story-privacy-select">
+                    <option value="public">🌍 Hamı</option>
+                    <option value="friends">👥 Dostlar</option>
+                    <option value="private">🔒 Yalnız mən</option>
+                </select>
+            </div>
+
+            <div class="mq-story-composer-actions">
+                <button type="button" class="ctx-item" onclick="closeStoryComposerModal()">Ləğv et</button>
+                <button type="button" class="login-btn" style="width:auto; margin:0; padding:10px 22px;" id="mqStoryPublishBtn" onclick="publishStory()">Paylaş</button>
+            </div>
+        </div>
+    </div>
+        <!-- ============================================================
+         STORY VIEWER — YENİ
+         ============================================================ -->
+    <div class="mq-story-viewer" id="mqStoryViewerModal">
+        <div class="mq-story-viewer-inner">
+            <div class="mq-story-progress-row" id="mqStoryProgressBars"></div>
+
+            <div class="mq-story-viewer-header">
+                <img class="mq-story-viewer-avatar" id="mqViewerAvatar" src="" alt="">
+                <div class="mq-story-viewer-meta">
+                    <div class="mq-story-viewer-nick" id="mqViewerNick"></div>
+                    <div class="mq-story-viewer-time" id="mqViewerTime"></div>
+                </div>
+                <button type="button" class="mq-story-viewer-icon-btn" id="mqViewerMuteBtn" onclick="mqToggleViewerMute()" style="display:none;">🔇</button>
+                <button type="button" class="mq-story-viewer-icon-btn" onclick="closeStoryViewer()">✕</button>
+            </div>
+
+            <div class="mq-story-viewer-media" id="mqViewerMediaArea">
+                <img id="mqViewerImg" style="display:none;" alt="">
+                <video id="mqViewerVideo" style="display:none;" playsinline></video>
+                <div id="mqViewerTextBox" class="mq-story-viewer-textbox" style="display:none;"></div>
+
+                <div class="mq-story-tap-zone mq-tap-left" onclick="mqViewerTapLeft()"></div>
+                <div class="mq-story-tap-zone mq-tap-right" onclick="mqViewerTapRight()"></div>
+            </div>
+
+            <div class="mq-story-viewer-footer" id="mqViewerFooter" style="display:none;">
+                <button type="button" class="mq-story-viewer-views-btn" onclick="mqOpenStoryViewersList()">
+                    👁 <span id="mqViewerViewCount">0</span> baxış
+                </button>
+                <button type="button" class="mq-story-viewer-delete-btn" id="mqViewerDeleteBtn" onclick="mqConfirmDeleteCurrentStory()">🗑 Sil</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Profile Settings Modal -->
     <div class="modal-overlay" id="profileSettingsModal">
         <div class="modal-box settings-modal-box">
             <button class="modal-close" onclick="closeProfileSettingsModal()">✕</button>
-            <h3>Profil ayarları</h3>
+            <h3>Profil ayarları</h3>    <!-- ============================================================
+         STORY BAXIŞLARI SİYAHISI — YENİ
+         ============================================================ -->
+    <div class="modal-overlay" id="mqStoryViewersListModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="mqCloseStoryViewersList()">✕</button>
+            <h3 style="color: var(--text-main); margin-bottom: 12px;">👁 Story baxışları</h3>
+            <div id="mqStoryViewersListBody" style="max-height:340px; overflow-y:auto;"></div>
+        </div>
+    </div>
             <p class="modal-desc">Şifrənizi və ya e-poçt ünvanınızı buradan yeniləyə bilərsiniz.</p>
             <div class="settings-section">
                 <h4>🔑 Şifrəni yenilə</h4>
@@ -2931,7 +3405,28 @@
         let activeStickerTarget = null;
         let lastKnownDateKey = null;
         let isMessagesLoaded = false;
+        // ============================================================
+        // STORY SİSTEMİ — QLOBAL DƏYİŞƏNLƏR (YENİ)
+        // ============================================================
+        const STORY_DURATION_MS = 24 * 60 * 60 * 1000; // 24 saat
+        let mqAllStories = {};            // { storyId: {...} } — bütün aktiv story-lər (cache)
+        let mqStoryListenerAttached = false;
+        let mqViewerLastGrouped = {}; // viewer açıq olduğu müddətdə author -> story[] cache-i
+        let mqSeenStoryIds = {};          // { storyId: true } — bu istifadəçinin baxdığı story-lər (Firebase-dən)
 
+        // Composer vəziyyəti
+        let mqStoryComposerMode = null;   // "image" | "video" | "text"
+        let mqStoryComposerFile = null;   // seçilmiş şəkil/video file
+        let mqStoryComposerBg = '#16213e';
+        let mqStoryComposerPrivacy = 'public'; // "public" | "friends" | "private"
+
+        // Viewer vəziyyəti
+        let mqViewerGroupNicks = [];      // hazırkı viewer-də gəzdiyimiz istifadəçi sırası
+        let mqViewerGroupIndex = 0;       // hansı istifadəçinin story qrupundayıq
+        let mqViewerStoryIndex = 0;       // o istifadəçinin hansı story-sindəyik
+        let mqViewerTimer = null;         // progress bar interval/timeout
+        let mqViewerPaused = false;
+        let mqStoryListenerRef = null;    // aktiv story dinləyicisinin referansı (logout-da .off() üçün)
         const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
         const STICKER_LIST = [
@@ -3989,6 +4484,7 @@ connectedRef.on('value', (snap) => {
                        initHeaderMessageInbox();
                        switchMainView('friends');
                        initFriendSystem();
+                       initStorySystem();
 
                        // YENİ: Refresh-dən sonra #feed hash-i varsa, birbaşa Feed-i aç
                        if (window.location.hash === '#feed') {
@@ -4043,6 +4539,7 @@ connectedRef.on('value', (snap) => {
                 db.ref('privateMessages').off();
                 stopHeaderMessageInbox();
                 stopFriendSystem();
+                stopStorySystem();
                 // close all private windows
                 Object.keys(openPCWs).forEach(nick => {
                     const win = document.getElementById('pcw-' + nick);
@@ -4651,20 +5148,18 @@ connectedRef.on('value', (snap) => {
                 return;
             }
 
-            const payload = {
-                sender: currentUserData.nick,
-                senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
-                text: text || '',
-                mediaType: mediaData ? mediaType : 'text',
-                mediaUrl: mediaData || '',
-                replyTo: replyContext ? { sender: replyContext.sender, text: replyContext.text, mediaType: replyContext.mediaType, mediaUrl: replyContext.mediaUrl } : null,
-                forwardedFrom: null,
-                mentions: extractMentions(text),
+                        const payload = {
+                authorNick: currentUserData.nick,
+                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                type: data.type,                 // "image" | "video" | "text"
+                mediaUrl: data.mediaUrl || null,
+                text: data.text || null,
+                background: data.background || null,
+                privacy: data.privacy || 'public', // "public" | "friends" | "private"
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
-                isDeleted: false,
-                reactions: {},
-                deliveredTo: [],
-                readBy: []
+                createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
+                expiresAt: now + STORY_DURATION_MS,
+                views: {}
             };
             const newRef = db.ref('messages').push();
             newRef.set(payload).then(() => {
@@ -6649,7 +7144,758 @@ function returnToRecentPrivateMessages(targetNick) {
                 xhr.send(formData);
             });
         }
+                // ============================================================
+        // STORY MODULU — Firebase funksiyaları (YENİ)
+        // Firebase yolları:
+        //   stories/{storyId}                -> story məlumatları
+        //   stories/{storyId}/views/{nick}   -> baxan istifadəçilər (dəyər = timestamp)
+        //   storyViews/{nick}/{storyId}      -> istifadəçinin öz "baxdım" qeydi (seen/unseen üçün)
+        // ============================================================
 
+                function mqIsStoryActive(story) {
+            return !!story && typeof story.expiresAt === 'number' && Date.now() < story.expiresAt;
+        }
+
+        // Privacy yoxlaması: story-ni HAZIRKI istifadəçi görə bilərmi?
+        function mqCanViewStory(story) {
+            if (!currentUserData) return false;
+            if (story.authorNick === currentUserData.nick) return true; // öz story-mi həmişə görürəm
+            const privacy = story.privacy || 'public';
+            if (privacy === 'public') return true;
+            if (privacy === 'friends') return isFriend(story.authorNick);
+            if (privacy === 'private') return false;
+            return false;
+        }
+
+        // Yeni Story-ni Firebase-ə yazır. data = { type, mediaUrl, text, background }
+        async function mqCreateStoryRecord(data) {
+            if (!currentUserData) throw new Error('İstifadəçi tapılmadı');
+            const now = Date.now();
+            const storyRef = db.ref('stories').push();
+            const payload = {
+                authorNick: currentUserData.nick,
+                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                type: data.type,                 // "image" | "video" | "text"
+                mediaUrl: data.mediaUrl || null,
+                text: data.text || null,
+                background: data.background || null,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
+                expiresAt: now + STORY_DURATION_MS,
+                views: {}
+            };
+            await storyRef.set(payload);
+            return storyRef.key;
+        }
+
+        // Bütün story-lərə real-vaxt dinləyici qoyur, callback-ə YALNIZ aktiv olanları ötürür.
+        // Performans üçün son 24-48 saatlıq story-lərlə məhdudlaşdırırıq (limitToLast əvəzinə
+        // timestamp-a görə orderByChild + startAt istifadə edirik ki, köhnə data çəkilməsin).
+        function mqListenActiveStories(callback) {
+            const cutoff = Date.now() - (STORY_DURATION_MS + 60 * 60 * 1000); // 25 saat marja
+            const storiesRef = db.ref('stories').orderByChild('timestamp').startAt(cutoff);
+
+            storiesRef.on('value', (snap) => {
+                const raw = snap.val() || {};
+                const active = {};
+                 Object.keys(raw).forEach((id) => {
+                    const story = raw[id];
+                    story.id = id;
+                    if (mqIsStoryActive(story) && mqCanViewStory(story)) {
+                        active[id] = story;
+                    }
+                });
+                mqAllStories = active;
+                callback(active);
+            });
+
+            return storiesRef; // sonra .off() etmək üçün referansı qaytarırıq
+        }
+
+        function mqStopListenActiveStories(ref) {
+            if (ref) ref.off('value');
+        }
+
+        // Story-ni Firebase-dən silir. Yalnız sahibi, admin və ya moderator silə bilər
+        // (bu icazə həm burada, həm də ADDIM 14-də Rules-da təkrar yoxlanacaq).
+        async function mqDeleteStoryRecord(storyId) {
+            const story = mqAllStories[storyId];
+            if (!story) throw new Error('Story tapılmadı');
+            const myRole = currentUserData && currentUserData.role;
+            const isOwner = story.authorNick === currentUserData.nick;
+            const isMod = myRole === 'admin' || myRole === 'moderator';
+            if (!isOwner && !isMod) throw new Error('İcazə yoxdur');
+            await db.ref(`stories/${storyId}`).remove();
+        }
+
+        // Story-yə baxışı qeyd edir: həm story-nin öz "views" siyahısına,
+        // həm də istifadəçinin şəxsi "storyViews" qovluğuna yazır (cross-device seen/unseen üçün).
+        async function mqRegisterStoryView(storyId) {
+            if (!currentUserData) return;
+            const nick = currentUserData.nick;
+            const story = mqAllStories[storyId];
+            if (!story) return;
+            if (story.views && story.views[nick]) return; // artıq baxılıb, təkrar yazma
+
+            const now = firebase.database.ServerValue.TIMESTAMP;
+            const updates = {};
+            updates[`stories/${storyId}/views/${nick}`] = now;
+            updates[`storyViews/${nick}/${storyId}`] = now;
+            await db.ref().update(updates);
+
+            // Lokal cache-i də yeniləyək ki, UI dərhal "seen" göstərsin
+            if (mqAllStories[storyId]) {
+                if (!mqAllStories[storyId].views) mqAllStories[storyId].views = {};
+                mqAllStories[storyId].views[nick] = Date.now();
+            }
+            mqSeenStoryIds[storyId] = true;
+        }
+
+        // İstifadəçinin bütün "baxdım" qeydlərini Firebase-dən bir dəfə çəkir
+        // (story bar-ı ilk dəfə render edərkən lazım olacaq — ADDIM 11-də istifadə ediləcək).
+        async function mqLoadSeenStoryIds() {
+            if (!currentUserData) return {};
+            const snap = await db.ref(`storyViews/${currentUserData.nick}`).once('value');
+            mqSeenStoryIds = snap.val() || {};
+            return mqSeenStoryIds;
+        }
+                // ============================================================
+        // STORY MODULU — Composer UI funksiyaları (YENİ)
+        // ============================================================
+
+        function mqResetStoryComposer() {
+            mqStoryComposerMode = null;
+            mqStoryComposerFile = null;
+            mqStoryComposerBg = '#16213e';
+            mqStoryComposerPrivacy = 'public';
+            document.getElementById('mqStoryPrivacySelect').value = 'public';
+            document.getElementById('mqStoryMediaInput').value = '';
+            document.getElementById('mqStoryPreviewEmpty').style.display = 'flex';
+            document.getElementById('mqStoryPreviewImg').style.display = 'none';
+            document.getElementById('mqStoryPreviewImg').src = '';
+            document.getElementById('mqStoryPreviewVideo').style.display = 'none';
+            document.getElementById('mqStoryPreviewVideo').src = '';
+            document.getElementById('mqStoryTextInput').style.display = 'none';
+            document.getElementById('mqStoryTextInput').value = '';
+            document.getElementById('mqStoryTextInput').style.height = 'auto';
+            document.getElementById('mqStoryPreviewWrap').style.background = 'var(--panel-08)';
+            document.getElementById('mqStoryBgRow').style.display = 'none';
+        }
+
+        // Story bar-dakı öz avatarına klik ediləndə: aktiv story-n varsa özünə bax,
+        // yoxdursa Composer aç. (mqAllStories ADDIM 7-də real-vaxt dolduracaq)
+        window.handleMyStoryClick = function () {
+            if (!currentUserData) return;
+            const myActiveStories = Object.values(mqAllStories)
+                .filter(s => s.authorNick === currentUserData.nick)
+                .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+            if (myActiveStories.length > 0) {
+                // ADDIM 8-də yazılacaq: öz story qrupunu viewer-də aç
+                if (typeof openStoryViewer === 'function') {
+                    openStoryViewer(currentUserData.nick);
+                }
+            } else {
+                openStoryComposerModal();
+            }
+        };
+
+        window.openStoryComposerModal = function () {
+            mqResetStoryComposer();
+            document.getElementById('mqStoryComposerModal').classList.add('active');
+        };
+
+        window.closeStoryComposerModal = function () {
+            document.getElementById('mqStoryComposerModal').classList.remove('active');
+            mqResetStoryComposer();
+        };
+
+        // Şəkil/video seçiləndə preview göstərir
+        window.handleStoryMediaSelect = async function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const isVideo = file.type.startsWith('video/');
+            mqStoryComposerFile = file;
+            mqStoryComposerMode = isVideo ? 'video' : 'image';
+
+            document.getElementById('mqStoryPreviewEmpty').style.display = 'none';
+            document.getElementById('mqStoryTextInput').style.display = 'none';
+            document.getElementById('mqStoryBgRow').style.display = 'none';
+            document.getElementById('mqStoryPreviewWrap').style.background = 'transparent';
+
+            if (isVideo) {
+                if (file.size > MAX_VIDEO_BYTES) {
+                    showToast(`Video həddindən artıq böyükdür. Maksimum 150MB icazəlidir.`, 'error', 6000);
+                    return;
+                }
+                const duration = await getVideoDurationSeconds(file);
+                if (duration > 0 && duration > MAX_VIDEO_DURATION_SECONDS) {
+                    showToast(`Video həddindən artıq uzundur. Maksimum ${MAX_VIDEO_DURATION_SECONDS} saniyə icazəlidir.`, 'error', 6000);
+                    return;
+                }
+                const videoEl = document.getElementById('mqStoryPreviewVideo');
+                videoEl.src = URL.createObjectURL(file);
+                videoEl.style.display = 'block';
+                videoEl.muted = true;
+                videoEl.play().catch(() => {});
+            } else {
+                const imgEl = document.getElementById('mqStoryPreviewImg');
+                imgEl.src = URL.createObjectURL(file);
+                imgEl.style.display = 'block';
+            }
+        };
+        // Textarea-nı yazılan mətnin uzunluğuna görə avtomatik hündürləşdirir,
+        // beləliklə valideynin flex-centering-i mətni WhatsApp kimi ortalaya bilir.
+        window.mqAutoResizeStoryText = function (el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 300) + 'px';
+        };
+        // "✍️ Mətn" düyməsi — text-story rejiminə keçid
+        window.toggleStoryTextMode = function () {
+            mqStoryComposerMode = 'text';
+            mqStoryComposerFile = null;
+            document.getElementById('mqStoryMediaInput').value = '';
+
+            document.getElementById('mqStoryPreviewEmpty').style.display = 'none';
+            document.getElementById('mqStoryPreviewImg').style.display = 'none';
+            document.getElementById('mqStoryPreviewVideo').style.display = 'none';
+
+            const textEl = document.getElementById('mqStoryTextInput');
+            textEl.style.display = 'block';
+            textEl.style.height = 'auto';
+            document.getElementById('mqStoryBgRow').style.display = 'flex';
+            document.getElementById('mqStoryPreviewWrap').style.background = mqStoryComposerBg;
+            textEl.focus();
+        };
+
+        window.setStoryBackground = function (bg) {
+            mqStoryComposerBg = bg;
+            document.getElementById('mqStoryPreviewWrap').style.background = bg;
+            document.querySelectorAll('.mq-story-bg-swatch').forEach(el => el.classList.remove('mq-active'));
+            const swatches = document.querySelectorAll('.mq-story-bg-swatch');
+            swatches.forEach(el => {
+                if (el.getAttribute('style').includes(bg)) el.classList.add('mq-active');
+            });
+        };
+
+        // Composer-dəki "Paylaş" düyməsi
+        window.publishStory = async function () {
+            if (!currentUserData) return;
+
+            const textVal = document.getElementById('mqStoryTextInput').value.trim();
+            if (!mqStoryComposerMode || (mqStoryComposerMode === 'text' && !textVal)) {
+                showToast('Əvvəlcə şəkil/video seç və ya mətn yaz.', 'info');
+                return;
+            }
+
+            const btn = document.getElementById('mqStoryPublishBtn');
+            btn.disabled = true;
+            btn.textContent = 'Paylaşılır...';
+
+            try {
+                let mediaUrl = null;
+
+                if (mqStoryComposerMode === 'image') {
+                    showToast('Şəkil yüklənir...', 'info');
+                    const compressed = await compressImageFile(mqStoryComposerFile);
+                    const formData = new FormData();
+                    formData.append('image', compressed, 'story.jpg');
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if (!data.success) throw new Error('Şəkil yüklənmədi');
+                    mediaUrl = data.data.url;
+                } else if (mqStoryComposerMode === 'video') {
+                    showToast('Video yüklənir...', 'info');
+                    mediaUrl = await uploadVideoWithFallback(mqStoryComposerFile, null);
+                }
+
+                 await mqCreateStoryRecord({
+                    type: mqStoryComposerMode,
+                    mediaUrl: mediaUrl,
+                    text: mqStoryComposerMode === 'text' ? textVal : null,
+                    background: mqStoryComposerMode === 'text' ? mqStoryComposerBg : null,
+                    privacy: document.getElementById('mqStoryPrivacySelect').value
+                });
+
+                showToast('Story paylaşıldı!', 'success');
+                closeStoryComposerModal();
+            } catch (err) {
+                console.error('Story paylaşılarkən xəta:', err);
+                showToast('Story paylaşılmadı: ' + err.message, 'error', 6000);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Paylaş';
+            }
+        };
+                // ============================================================
+        // STORY MODULU — Yükləmə və Bar render (YENİ)
+        // ============================================================
+
+        function initStorySystem() {
+            if (!currentUserData) return;
+            document.getElementById('mqMyStoryAvatarImg').src =
+                currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+
+            mqLoadSeenStoryIds().finally(() => {
+                mqStoryListenerRef = mqListenActiveStories(renderStoryBar);
+                mqStartExpiryWatcher();
+            });
+        }
+        // Firebase yalnız yeni data gələndə "value" hadisəsini atəşləyir — əgər saatlarla
+        // heç bir yeni story yaradılmasa, expired olanlar bar-da "asılı" qala bilər.
+        // Bunun qarşısını almaq üçün hər 60 saniyədə lokal olaraq yenidən süzürük.
+        let mqExpiryCheckInterval = null;
+
+        function mqStartExpiryWatcher() {
+            if (mqExpiryCheckInterval) clearInterval(mqExpiryCheckInterval);
+            mqExpiryCheckInterval = setInterval(() => {
+                const stillActive = {};
+                let changed = false;
+                Object.keys(mqAllStories).forEach(id => {
+                    if (mqIsStoryActive(mqAllStories[id])) {
+                        stillActive[id] = mqAllStories[id];
+                    } else {
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    mqAllStories = stillActive;
+                    renderStoryBar(mqAllStories);
+                    // Viewer açıqdırsa və indi baxdığımız story expired olubsa, bağla
+                    const viewerOpen = document.getElementById('mqStoryViewerModal').classList.contains('active');
+                    if (viewerOpen) {
+                        const authorStories = mqCurrentViewerAuthorStories();
+                        const current = authorStories[mqViewerStoryIndex];
+                        if (!current || !mqIsStoryActive(current)) {
+                            closeStoryViewer();
+                            showToast('Story müddəti bitdi.', 'info');
+                        }
+                    }
+                }
+            }, 60 * 1000);
+        }
+
+        function mqStopExpiryWatcher() {
+            if (mqExpiryCheckInterval) {
+                clearInterval(mqExpiryCheckInterval);
+                mqExpiryCheckInterval = null;
+            }
+        }
+                // ============================================================
+        // STORY MODULU — Baxış siyahısı (YENİ)
+        // ============================================================
+
+        window.mqOpenStoryViewersList = async function () {
+            const authorStories = mqCurrentViewerAuthorStories();
+            const story = authorStories[mqViewerStoryIndex];
+            if (!story || story.authorNick !== currentUserData.nick) return;
+
+            mqClearViewerTimer(); // baxış siyahısı açıqkən progress dayansın
+
+            const body = document.getElementById('mqStoryViewersListBody');
+            body.innerHTML = '<p style="color:var(--text-main); opacity:0.6; text-align:center;">Yüklənir...</p>';
+            document.getElementById('mqStoryViewersListModal').classList.add('active');
+
+            const views = story.views || {};
+            const nicks = Object.keys(views).sort((a, b) => (views[a] || 0) - (views[b] || 0));
+
+            if (nicks.length === 0) {
+                body.innerHTML = '<p style="color:var(--text-main); opacity:0.6; text-align:center;">Hələ heç kim baxmayıb.</p>';
+                return;
+            }
+
+            // Avatarları users/ node-undan çəkirik (nick -> avatarUrl axtarışı üçün usernameToEmail deyil,
+            // users node-unda birbaşa uid-lə saxlanılır, ona görə nick üzərindən axtarış edirik)
+            try {
+                const usersSnap = await db.ref('users').once('value');
+                const usersData = usersSnap.val() || {};
+                const nickToAvatar = {};
+                Object.values(usersData).forEach(u => {
+                    if (u && u.nick) nickToAvatar[u.nick] = u.avatarUrl;
+                });
+
+                body.innerHTML = nicks.map(nick => `
+                    <div class="friend-req-item">
+                        <img src="${nickToAvatar[nick] || 'https://www.w3schools.com/howto/img_avatar.png'}"
+                             style="width:38px;height:38px;border-radius:50%;object-fit:cover;">
+                        <div class="friend-req-info">${escapeHtml(nick)}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                body.innerHTML = '<p style="color:var(--text-main); opacity:0.6; text-align:center;">Siyahı yüklənmədi.</p>';
+            }
+        };
+
+        window.mqCloseStoryViewersList = function () {
+            document.getElementById('mqStoryViewersListModal').classList.remove('active');
+            // Viewer hələ açıqdırsa, progress-i davam etdir
+            const viewerOpen = document.getElementById('mqStoryViewerModal').classList.contains('active');
+            if (viewerOpen) mqShowViewerStory();
+        };
+        // ============================================================
+        // STORY MODULU — Silmə (YENİ)
+        // ============================================================
+
+        window.mqConfirmDeleteCurrentStory = function () {
+            const authorStories = mqCurrentViewerAuthorStories();
+            const story = authorStories[mqViewerStoryIndex];
+            if (!story) return;
+
+            const myRole = currentUserData && currentUserData.role;
+            const isOwner = story.authorNick === currentUserData.nick;
+            const isMod = myRole === 'admin' || myRole === 'moderator';
+            if (!isOwner && !isMod) {
+                showToast('Bu story-ni silmək icazən yoxdur.', 'error');
+                return;
+            }
+
+            mqClearViewerTimer(); // təsdiq gözlənilərkən progress dayansın
+
+            const confirmed = window.confirm(
+                isOwner
+                    ? 'Bu Story-ni silmək istədiyinə əminsən?'
+                    : `Moderasiya əməliyyatı: ${story.authorNick}-in Story-sini silmək istədiyinə əminsən?`
+            );
+
+            if (!confirmed) {
+                mqShowViewerStory(); // ləğv olundu, timer-i yenidən başlat
+                return;
+            }
+
+            mqDeleteCurrentStory(story.id);
+        };
+
+        async function mqDeleteCurrentStory(storyId) {
+            try {
+                await mqDeleteStoryRecord(storyId);
+                showToast('Story silindi.', 'success');
+
+                // Viewer-dəki yerli cache-dən də silib, ya növbətiyə keç, ya bağla
+                const authorStories = mqCurrentViewerAuthorStories();
+                const idx = authorStories.findIndex(s => s.id === storyId);
+                if (idx > -1) authorStories.splice(idx, 1);
+                delete mqAllStories[storyId];
+
+                if (authorStories.length === 0) {
+                    // Bu istifadəçinin başqa aktiv story-si qalmadı
+                    mqViewerGroupNicks.splice(mqViewerGroupIndex, 1);
+                    if (mqViewerGroupNicks.length === 0) {
+                        closeStoryViewer();
+                    } else {
+                        if (mqViewerGroupIndex >= mqViewerGroupNicks.length) mqViewerGroupIndex = mqViewerGroupNicks.length - 1;
+                        mqViewerStoryIndex = 0;
+                        mqShowViewerStory();
+                    }
+                } else {
+                    if (mqViewerStoryIndex >= authorStories.length) mqViewerStoryIndex = authorStories.length - 1;
+                    mqShowViewerStory();
+                }
+
+                renderStoryBar(mqAllStories);
+            } catch (err) {
+                console.error('Story silinərkən xəta:', err);
+                showToast('Story silinmədi: ' + err.message, 'error');
+                mqShowViewerStory();
+            }
+        }
+            function stopStorySystem() {
+            mqStopListenActiveStories(mqStoryListenerRef);
+            mqStoryListenerRef = null;
+            mqStopExpiryWatcher();
+            mqAllStories = {};
+            mqSeenStoryIds = {};
+            const list = document.getElementById('mqStoryBarList');
+            if (list) list.innerHTML = '';
+        }
+        // Bir istifadəçinin BÜTÜN aktiv story-lərinə baxılıbmı — hamısına baxılıbsa "seen"
+        // Diqqət: story.views (Firebase-dəki "views" child-ı) ilə YANAŞI, mqSeenStoryIds
+        // (bizim öz storyViews/{nick} cache-imiz) də yoxlanılır — çünki view yazılan kimi
+        // real-vaxt "views" bəzən 1 tick gec gələ bilər, amma lokal mqSeenStoryIds dərhal yenilənir.
+        function mqIsAuthorFullySeen(authorStories) {
+            return authorStories.every(s =>
+                (s.views && s.views[currentUserData.nick]) || mqSeenStoryIds[s.id]
+            );
+        }
+
+        function renderStoryBar(activeStoriesObj) {
+            if (!currentUserData) return;
+
+            // Öz story qrupumu ayırırıq, öz ring vəziyyətimi yeniləyirik
+            const myNick = currentUserData.nick;
+            const grouped = {}; // { nick: [story, story, ...] }
+            Object.values(activeStoriesObj).forEach(s => {
+                if (!grouped[s.authorNick]) grouped[s.authorNick] = [];
+                grouped[s.authorNick].push(s);
+            });
+            Object.keys(grouped).forEach(nick => {
+                grouped[nick].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+            });
+
+            // --- Öz ring-imi yenilə ---
+            const myRing = document.getElementById('mqMyStoryRing');
+            const myPlus = myRing.querySelector('.mq-story-plus');
+            if (grouped[myNick] && grouped[myNick].length > 0) {
+                myRing.classList.remove('mq-own');
+                myRing.classList.add(mqIsAuthorFullySeen(grouped[myNick]) ? 'mq-seen' : 'mq-unseen');
+                if (myPlus) myPlus.style.display = 'none';
+            } else {
+                myRing.classList.remove('mq-seen', 'mq-unseen');
+                myRing.classList.add('mq-own');
+                if (myPlus) myPlus.style.display = 'flex';
+            }
+
+            // --- Başqa istifadəçilərin ring-lərini qur ---
+            const otherNicks = Object.keys(grouped).filter(nick => nick !== myNick);
+            // Baxılmamışlar əvvəldə görünsün
+            otherNicks.sort((a, b) => {
+                const aSeen = mqIsAuthorFullySeen(grouped[a]) ? 1 : 0;
+                const bSeen = mqIsAuthorFullySeen(grouped[b]) ? 1 : 0;
+                return aSeen - bSeen;
+            });
+
+            const listEl = document.getElementById('mqStoryBarList');
+            listEl.innerHTML = otherNicks.map(nick => {
+                const stories = grouped[nick];
+                const avatar = stories[0].authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+                const seenClass = mqIsAuthorFullySeen(stories) ? 'mq-seen' : 'mq-unseen';
+                return `
+                    <div class="mq-story-item" onclick="openStoryViewer('${escapeHtml(nick)}')">
+                        <div class="mq-story-ring ${seenClass}">
+                            <div class="mq-story-avatar-wrap">
+                                <img src="${avatar}" alt="">
+                            </div>
+                        </div>
+                        <div class="mq-story-label">${escapeHtml(nick)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+                // ============================================================
+        // STORY MODULU — Viewer (YENİ)
+        // ============================================================
+
+        // Bar-dakı sıra ilə eyni məntiqlə istifadəçi qruplarını qurur
+        function mqBuildViewerOrder() {
+            const myNick = currentUserData.nick;
+            const grouped = {};
+            Object.values(mqAllStories).forEach(s => {
+                if (!grouped[s.authorNick]) grouped[s.authorNick] = [];
+                grouped[s.authorNick].push(s);
+            });
+            Object.keys(grouped).forEach(nick => {
+                grouped[nick].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+            });
+            const order = [];
+            if (grouped[myNick]) order.push(myNick);
+            Object.keys(grouped)
+                .filter(n => n !== myNick)
+                .sort((a, b) => (mqIsAuthorFullySeen(grouped[a]) ? 1 : 0) - (mqIsAuthorFullySeen(grouped[b]) ? 1 : 0))
+                .forEach(n => order.push(n));
+            return { order, grouped };
+        }
+
+                let mqViewerSwipeInitialized = false;
+
+        window.openStoryViewer = function (nick) {
+            const { order, grouped } = mqBuildViewerOrder();
+            if (!grouped[nick] || grouped[nick].length === 0) return;
+
+            mqViewerGroupNicks = order;
+            mqViewerGroupIndex = order.indexOf(nick);
+            mqViewerStoryIndex = 0;
+            mqViewerLastGrouped = grouped; // hər açılışda təzə snapshot saxlayırıq
+
+            document.getElementById('mqStoryViewerModal').classList.add('active');
+            if (!mqViewerSwipeInitialized) {
+                mqInitViewerSwipe();
+                mqViewerSwipeInitialized = true;
+            }
+            mqShowViewerStory();
+        };
+
+        window.closeStoryViewer = function () {
+            mqClearViewerTimer();
+            const video = document.getElementById('mqViewerVideo');
+            video.pause();
+            video.src = '';
+            document.getElementById('mqStoryViewerModal').classList.remove('active');
+        };
+
+        function mqClearViewerTimer() {
+            if (mqViewerTimer) {
+                clearInterval(mqViewerTimer);
+                clearTimeout(mqViewerTimer);
+                mqViewerTimer = null;
+            }
+            const video = document.getElementById('mqViewerVideo');
+            video.onended = null;
+            video.ontimeupdate = null;
+            video.pause();
+        }
+
+        function mqCurrentViewerAuthorStories() {
+            const nick = mqViewerGroupNicks[mqViewerGroupIndex];
+            return (mqViewerLastGrouped && mqViewerLastGrouped[nick]) || [];
+        }
+
+        function mqRenderProgressBars(total, activeIndex, filledRatio) {
+            const row = document.getElementById('mqStoryProgressBars');
+            row.innerHTML = '';
+            for (let i = 0; i < total; i++) {
+                const track = document.createElement('div');
+                track.className = 'mq-story-progress-track';
+                const fill = document.createElement('div');
+                fill.className = 'mq-story-progress-fill';
+                if (i < activeIndex) fill.style.width = '100%';
+                else if (i === activeIndex) fill.style.width = (filledRatio || 0) + '%';
+                else fill.style.width = '0%';
+                track.appendChild(fill);
+                row.appendChild(track);
+            }
+        }
+
+        function mqShowViewerStory() {
+            mqClearViewerTimer();
+            const authorStories = mqCurrentViewerAuthorStories();
+            if (!authorStories.length) { closeStoryViewer(); return; }
+
+            const story = authorStories[mqViewerStoryIndex];
+            if (!story) return;
+
+            // Header
+            document.getElementById('mqViewerAvatar').src = story.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+            document.getElementById('mqViewerNick').textContent = story.authorNick;
+            document.getElementById('mqViewerTime').textContent = formatFeedTime(story.timestamp);
+
+            // Footer — yalnız öz story-mdə görünür
+            const isOwn = story.authorNick === currentUserData.nick;
+            const footer = document.getElementById('mqViewerFooter');
+            footer.style.display = isOwn ? 'flex' : 'none';
+            document.getElementById('mqViewerViewCount').textContent = story.views ? Object.keys(story.views).length : 0;
+
+            // Media sahələrini sıfırla
+            const imgEl = document.getElementById('mqViewerImg');
+            const videoEl = document.getElementById('mqViewerVideo');
+            const textEl = document.getElementById('mqViewerTextBox');
+            const muteBtn = document.getElementById('mqViewerMuteBtn');
+            imgEl.style.display = 'none';
+            videoEl.style.display = 'none';
+            textEl.style.display = 'none';
+            muteBtn.style.display = 'none';
+
+            mqRegisterStoryView(story.id);
+
+            if (story.type === 'image') {
+                imgEl.src = story.mediaUrl;
+                imgEl.style.display = 'block';
+                const DURATION_MS = 5000;
+                const startedAt = Date.now();
+                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
+                mqViewerTimer = setInterval(() => {
+                    const pct = Math.min(100, ((Date.now() - startedAt) / DURATION_MS) * 100);
+                    mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
+                    if (pct >= 100) mqGoNextStory();
+                }, 50);
+            } else if (story.type === 'video') {
+                videoEl.src = story.mediaUrl;
+                videoEl.style.display = 'block';
+                videoEl.muted = true;
+                muteBtn.style.display = 'inline-block';
+                muteBtn.textContent = '🔇';
+                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
+                videoEl.ontimeupdate = () => {
+                    if (videoEl.duration) {
+                        const pct = (videoEl.currentTime / videoEl.duration) * 100;
+                        mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
+                    }
+                };
+                videoEl.onended = () => mqGoNextStory();
+                videoEl.play().catch(() => {});
+            } else {
+                // text
+                textEl.textContent = story.text || '';
+                textEl.style.display = 'flex';
+                document.getElementById('mqViewerMediaArea').style.background = story.background || '#16213e';
+                const DURATION_MS = 5000;
+                const startedAt = Date.now();
+                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
+                mqViewerTimer = setInterval(() => {
+                    const pct = Math.min(100, ((Date.now() - startedAt) / DURATION_MS) * 100);
+                    mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
+                    if (pct >= 100) mqGoNextStory();
+                }, 50);
+            }
+
+            if (story.type !== 'text') {
+                document.getElementById('mqViewerMediaArea').style.background = '#000';
+            }
+        }
+
+        window.mqToggleViewerMute = function () {
+            const videoEl = document.getElementById('mqViewerVideo');
+            videoEl.muted = !videoEl.muted;
+            document.getElementById('mqViewerMuteBtn').textContent = videoEl.muted ? '🔇' : '🔊';
+        };
+
+        function mqGoNextStory() {
+            const authorStories = mqCurrentViewerAuthorStories();
+            if (mqViewerStoryIndex < authorStories.length - 1) {
+                mqViewerStoryIndex++;
+                mqShowViewerStory();
+            } else if (mqViewerGroupIndex < mqViewerGroupNicks.length - 1) {
+                mqViewerGroupIndex++;
+                mqViewerStoryIndex = 0;
+                mqShowViewerStory();
+            } else {
+                closeStoryViewer();
+            }
+        }
+
+        function mqGoPrevStory() {
+            if (mqViewerStoryIndex > 0) {
+                mqViewerStoryIndex--;
+                mqShowViewerStory();
+            } else if (mqViewerGroupIndex > 0) {
+                mqViewerGroupIndex--;
+                const prevStories = mqCurrentViewerAuthorStories();
+                mqViewerStoryIndex = Math.max(0, prevStories.length - 1);
+                mqShowViewerStory();
+            } else {
+                closeStoryViewer();
+            }
+        }
+
+         window.mqViewerTapLeft = function () { mqGoPrevStory(); };
+        window.mqViewerTapRight = function () { mqGoNextStory(); };
+
+        // --- Mobil swipe dəstəyi ---
+        let mqTouchStartX = 0;
+        let mqTouchStartY = 0;
+
+        function mqInitViewerSwipe() {
+            const mediaArea = document.getElementById('mqViewerMediaArea');
+            mediaArea.addEventListener('touchstart', (e) => {
+                mqTouchStartX = e.touches[0].clientX;
+                mqTouchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            mediaArea.addEventListener('touchend', (e) => {
+                const dx = e.changedTouches[0].clientX - mqTouchStartX;
+                const dy = e.changedTouches[0].clientY - mqTouchStartY;
+
+                // Şaquli sürüşmə (aşağı-yuxarı) daha böyükdürsə, bunu bağlama jesti sayırıq
+                if (Math.abs(dy) > Math.abs(dx) && dy > 80) {
+                    closeStoryViewer();
+                    return;
+                }
+                // Üfüqi sürüşmə — story keçidi
+                if (Math.abs(dx) > 50) {
+                    if (dx > 0) mqGoPrevStory();   // sağa sürüşdürmə → əvvəlki
+                    else mqGoNextStory();          // sola sürüşdürmə → növbəti
+                }
+            }, { passive: true });
+        }
         // ============================================================
         // FEED MODULU — YENİ ƏLAVƏ
         // Firebase yolları:
