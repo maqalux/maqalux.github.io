@@ -1802,7 +1802,22 @@
             font-size: 13px;
             cursor: pointer;
         }
-        .mq-story-viewer-delete-btn { background: rgba(255,60,60,0.25); }
+        .mq-story-viewer-delete-btn { background: rgba(255,60,60,0.25); } 
+            .mq-story-privacy-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .mq-story-privacy-select {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: var(--panel-08);
+            border: 1px solid var(--border-10);
+            color: var(--text-main);
+            font-size: 13px;
+        }
         /* Modallar */
         .modal-overlay {
             position: fixed;
@@ -3182,12 +3197,21 @@
                 <div class="mq-story-bg-swatch" style="background:#16213e" onclick="setStoryBackground('#16213e')"></div>
             </div>
 
-            <div class="mq-story-composer-tools">
+             <div class="mq-story-composer-tools">
                 <label class="mq-story-tool-btn" title="Şəkil / Video seç">
                     📷 Media
                     <input type="file" id="mqStoryMediaInput" accept="image/*,video/*" style="display:none;" onchange="handleStoryMediaSelect(event)">
                 </label>
                 <button type="button" class="mq-story-tool-btn" onclick="toggleStoryTextMode()">✍️ Mətn</button>
+            </div>
+
+            <div class="mq-story-privacy-row">
+                <label style="color:var(--text-main); font-size:12.5px; opacity:0.75;">Kim görə bilər:</label>
+                <select id="mqStoryPrivacySelect" class="mq-story-privacy-select">
+                    <option value="public">🌍 Hamı</option>
+                    <option value="friends">👥 Dostlar</option>
+                    <option value="private">🔒 Yalnız mən</option>
+                </select>
             </div>
 
             <div class="mq-story-composer-actions">
@@ -3355,6 +3379,7 @@
         let mqStoryComposerMode = null;   // "image" | "video" | "text"
         let mqStoryComposerFile = null;   // seçilmiş şəkil/video file
         let mqStoryComposerBg = '#16213e';
+        let mqStoryComposerPrivacy = 'public'; // "public" | "friends" | "private"
 
         // Viewer vəziyyəti
         let mqViewerGroupNicks = [];      // hazırkı viewer-də gəzdiyimiz istifadəçi sırası
@@ -5084,20 +5109,18 @@ connectedRef.on('value', (snap) => {
                 return;
             }
 
-            const payload = {
-                sender: currentUserData.nick,
-                senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
-                text: text || '',
-                mediaType: mediaData ? mediaType : 'text',
-                mediaUrl: mediaData || '',
-                replyTo: replyContext ? { sender: replyContext.sender, text: replyContext.text, mediaType: replyContext.mediaType, mediaUrl: replyContext.mediaUrl } : null,
-                forwardedFrom: null,
-                mentions: extractMentions(text),
+                        const payload = {
+                authorNick: currentUserData.nick,
+                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                type: data.type,                 // "image" | "video" | "text"
+                mediaUrl: data.mediaUrl || null,
+                text: data.text || null,
+                background: data.background || null,
+                privacy: data.privacy || 'public', // "public" | "friends" | "private"
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
-                isDeleted: false,
-                reactions: {},
-                deliveredTo: [],
-                readBy: []
+                createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
+                expiresAt: now + STORY_DURATION_MS,
+                views: {}
             };
             const newRef = db.ref('messages').push();
             newRef.set(payload).then(() => {
@@ -7090,8 +7113,19 @@ function returnToRecentPrivateMessages(targetNick) {
         //   storyViews/{nick}/{storyId}      -> istifadəçinin öz "baxdım" qeydi (seen/unseen üçün)
         // ============================================================
 
-        function mqIsStoryActive(story) {
+                function mqIsStoryActive(story) {
             return !!story && typeof story.expiresAt === 'number' && Date.now() < story.expiresAt;
+        }
+
+        // Privacy yoxlaması: story-ni HAZIRKI istifadəçi görə bilərmi?
+        function mqCanViewStory(story) {
+            if (!currentUserData) return false;
+            if (story.authorNick === currentUserData.nick) return true; // öz story-mi həmişə görürəm
+            const privacy = story.privacy || 'public';
+            if (privacy === 'public') return true;
+            if (privacy === 'friends') return isFriend(story.authorNick);
+            if (privacy === 'private') return false;
+            return false;
         }
 
         // Yeni Story-ni Firebase-ə yazır. data = { type, mediaUrl, text, background }
@@ -7125,10 +7159,10 @@ function returnToRecentPrivateMessages(targetNick) {
             storiesRef.on('value', (snap) => {
                 const raw = snap.val() || {};
                 const active = {};
-                Object.keys(raw).forEach((id) => {
+                 Object.keys(raw).forEach((id) => {
                     const story = raw[id];
                     story.id = id;
-                    if (mqIsStoryActive(story)) {
+                    if (mqIsStoryActive(story) && mqCanViewStory(story)) {
                         active[id] = story;
                     }
                 });
@@ -7194,6 +7228,8 @@ function returnToRecentPrivateMessages(targetNick) {
             mqStoryComposerMode = null;
             mqStoryComposerFile = null;
             mqStoryComposerBg = '#16213e';
+            mqStoryComposerPrivacy = 'public';
+            document.getElementById('mqStoryPrivacySelect').value = 'public';
             document.getElementById('mqStoryMediaInput').value = '';
             document.getElementById('mqStoryPreviewEmpty').style.display = 'flex';
             document.getElementById('mqStoryPreviewImg').style.display = 'none';
@@ -7328,11 +7364,12 @@ function returnToRecentPrivateMessages(targetNick) {
                     mediaUrl = await uploadVideoWithFallback(mqStoryComposerFile, null);
                 }
 
-                await mqCreateStoryRecord({
+                 await mqCreateStoryRecord({
                     type: mqStoryComposerMode,
                     mediaUrl: mediaUrl,
                     text: mqStoryComposerMode === 'text' ? textVal : null,
-                    background: mqStoryComposerMode === 'text' ? mqStoryComposerBg : null
+                    background: mqStoryComposerMode === 'text' ? mqStoryComposerBg : null,
+                    privacy: document.getElementById('mqStoryPrivacySelect').value
                 });
 
                 showToast('Story paylaşıldı!', 'success');
