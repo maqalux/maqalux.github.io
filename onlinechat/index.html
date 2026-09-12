@@ -3050,7 +3050,7 @@
                         <div class="mq-story-ring mq-own" id="mqMyStoryRing">
                             <div class="mq-story-avatar-wrap mq-story-add-icon">
                                 <img id="mqMyStoryAvatarImg" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
-                                <span class="mq-story-plus">+</span>
+                                <span class="mq-story-plus" onclick="event.stopPropagation(); openStoryComposerModal();">+</span>
                             </div>
                         </div>
                         <div class="mq-story-label">Mənim Story-m</div>
@@ -7719,7 +7719,8 @@ function returnToRecentPrivateMessages(targetNick) {
             if (grouped[myNick] && grouped[myNick].length > 0) {
                 myRing.classList.remove('mq-own');
                 myRing.classList.add(mqIsAuthorFullySeen(grouped[myNick]) ? 'mq-seen' : 'mq-unseen');
-                if (myPlus) myPlus.style.display = 'none';
+                // YENİ: status olsa belə "+" görünür qalır ki, ikinci status əlavə etmək mümkün olsun
+                if (myPlus) myPlus.style.display = 'flex';
             } else {
                 myRing.classList.remove('mq-seen', 'mq-unseen');
                 myRing.classList.add('mq-own');
@@ -7875,7 +7876,48 @@ function returnToRecentPrivateMessages(targetNick) {
             });
         };
 
-        // YENİ: Statusa baxarkən sahibinə birbaşa mesaj — mövcud openPrivateChatWindow() istifadə olunur
+                // YENİ: Story-dən mesaj yazarkən, mövcud replyContext/.pcw-reply-preview sistemini
+        // istifadə edərək "Story-yə cavab" preview-i qurur. startReply()-i EYNİ NÜMUNƏDƏ təkrarlayır.
+        function mqStartStoryReply(story, targetNick) {
+            cancelEdit(); // mövcud redaktə vəziyyəti varsa təmizlə (startReply-dəki kimi)
+
+            let previewText, mediaUrl, mediaType;
+            if (story.type === 'image') {
+                previewText = '📷 Status';
+                mediaUrl = story.mediaUrl;
+                mediaType = 'image';
+            } else if (story.type === 'video') {
+                previewText = '🎬 Video status';
+                mediaUrl = getVideoPosterUrl(story.mediaUrl) || null;
+                mediaType = 'video';
+            } else {
+                const raw = story.text || '';
+                previewText = raw.length > 60 ? raw.slice(0, 60) + '…' : raw;
+                mediaUrl = null;
+                mediaType = null;
+            }
+
+            replyContext = {
+                id: null,               // mesaja yox, Story-yə cavabdır
+                sender: story.authorNick,
+                text: previewText,
+                mediaType: mediaType,
+                mediaUrl: mediaUrl
+            };
+
+            const thumbHtml = replyContext.mediaUrl ? `<img src="${replyContext.mediaUrl}" class="reply-thumb" alt="">` : '';
+            const win = document.getElementById('pcw-' + targetNick);
+            if (win) {
+                let bar = win.querySelector('.pcw-reply-preview');
+                if (!bar) {
+                    bar = document.createElement('div');
+                    bar.className = 'pcw-reply-preview';
+                    win.querySelector('.pcw-input-bar').insertAdjacentElement('beforebegin', bar);
+                }
+                bar.innerHTML = `${thumbHtml}<div style="flex:1;border-left:2px solid #ffaa00;padding-left:8px;overflow:hidden;"><b style="color:#ffc107;display:block;">📷 Status-a cavab</b><span style="opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">${escapeHtml(previewText)}</span></div><span style="cursor:pointer;opacity:0.6;" onclick="this.closest('.pcw-reply-preview').remove(); replyContext=null;">✕</span>`;
+            }
+        }
+
         window.mqMessageStoryAuthor = function () {
             if (!currentUserData) return;
             const authorStories = mqCurrentViewerAuthorStories();
@@ -7887,13 +7929,10 @@ function returnToRecentPrivateMessages(targetNick) {
             openPrivateChatWindow(targetNick);
 
             setTimeout(() => {
+                mqStartStoryReply(story, targetNick);
                 const win = document.getElementById('pcw-' + targetNick);
                 const inp = win ? win.querySelector('.pcw-text-input') : null;
-                if (inp && !inp.value) {
-                    inp.value = '📸 Statusa cavab: ';
-                    inp.focus();
-                    inp.setSelectionRange(inp.value.length, inp.value.length);
-                }
+                if (inp) inp.focus();
             }, 50);
         };
         // YENİ: şəkil/mətn story-lər üçün pause-aware progress başlatma.
@@ -8495,17 +8534,17 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         window.togglePostLike = function(postId) {
-            if (!currentUserData) return;
+            console.log('[LIKE DEBUG] togglePostLike çağırıldı, postId =', postId); // MÜVƏQQƏTİ
+            if (!currentUserData) { console.warn('[LIKE DEBUG] currentUserData yoxdur'); return; } // MÜVƏQQƏTİ
 
             // DOUBLE-CLICK QORUNMASI: eyni post üçün əməliyyat davam edirsə, yenisini gözləmə
             window.mqPostLikeInFlight = window.mqPostLikeInFlight || {};
-            if (window.mqPostLikeInFlight[postId]) return;
+            if (window.mqPostLikeInFlight[postId]) { console.warn('[LIKE DEBUG] hələ öncəki əməliyyat davam edir'); return; } // MÜVƏQQƏTİ
             window.mqPostLikeInFlight[postId] = true;
 
             const nick = currentUserData.nick;
             const post = feedPostsCache[postId];
-            if (!post) { window.mqPostLikeInFlight[postId] = false; return; }
-
+            if (!post) { console.warn('[LIKE DEBUG] post feedPostsCache-də tapılmadı, postId =', postId, 'cache açarları:', Object.keys(feedPostsCache)); window.mqPostLikeInFlight[postId] = false; return; } // MÜVƏQQƏTİ
             const wasLiked = !!(post.likedBy && post.likedBy[nick]);
             const prevCount = post.likesCount || 0;
             const newLiked = !wasLiked;
