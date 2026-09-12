@@ -3050,7 +3050,7 @@
                         <div class="mq-story-ring mq-own" id="mqMyStoryRing">
                             <div class="mq-story-avatar-wrap mq-story-add-icon">
                                 <img id="mqMyStoryAvatarImg" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
-                                <span class="mq-story-plus">+</span>
+                                <span class="mq-story-plus" onclick="event.stopPropagation(); openStoryComposerModal();">+</span>
                             </div>
                         </div>
                         <div class="mq-story-label">Mənim Story-m</div>
@@ -7719,7 +7719,8 @@ function returnToRecentPrivateMessages(targetNick) {
             if (grouped[myNick] && grouped[myNick].length > 0) {
                 myRing.classList.remove('mq-own');
                 myRing.classList.add(mqIsAuthorFullySeen(grouped[myNick]) ? 'mq-seen' : 'mq-unseen');
-                if (myPlus) myPlus.style.display = 'none';
+                // YENİ: status olsa belə "+" görünür qalır ki, ikinci status əlavə etmək mümkün olsun
+                if (myPlus) myPlus.style.display = 'flex';
             } else {
                 myRing.classList.remove('mq-seen', 'mq-unseen');
                 myRing.classList.add('mq-own');
@@ -8533,17 +8534,17 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         window.togglePostLike = function(postId) {
-            if (!currentUserData) return;
+            console.log('[LIKE DEBUG] togglePostLike çağırıldı, postId =', postId); // MÜVƏQQƏTİ
+            if (!currentUserData) { console.warn('[LIKE DEBUG] currentUserData yoxdur'); return; } // MÜVƏQQƏTİ
 
             // DOUBLE-CLICK QORUNMASI: eyni post üçün əməliyyat davam edirsə, yenisini gözləmə
             window.mqPostLikeInFlight = window.mqPostLikeInFlight || {};
-            if (window.mqPostLikeInFlight[postId]) return;
+            if (window.mqPostLikeInFlight[postId]) { console.warn('[LIKE DEBUG] hələ öncəki əməliyyat davam edir'); return; } // MÜVƏQQƏTİ
             window.mqPostLikeInFlight[postId] = true;
 
             const nick = currentUserData.nick;
             const post = feedPostsCache[postId];
-            if (!post) { window.mqPostLikeInFlight[postId] = false; return; }
-
+            if (!post) { console.warn('[LIKE DEBUG] post feedPostsCache-də tapılmadı, postId =', postId, 'cache açarları:', Object.keys(feedPostsCache)); window.mqPostLikeInFlight[postId] = false; return; } // MÜVƏQQƏTİ
             const wasLiked = !!(post.likedBy && post.likedBy[nick]);
             const prevCount = post.likesCount || 0;
             const newLiked = !wasLiked;
