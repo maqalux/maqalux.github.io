@@ -3453,6 +3453,9 @@
         let mqViewerStoryIndex = 0;       // o istifadəçinin hansı story-sindəyik
         let mqViewerTimer = null;         // progress bar interval/timeout
         let mqViewerPaused = false;
+        let mqViewerElapsedMs = 0;        // pauza anına qədər toplanmış müddət (şəkil/mətn story üçün)
+        let mqViewerSegmentStart = 0;     // hazırkı (pauzasız) seqmentin başlama vaxtı
+        let mqViewerDurationMs = 5000;    // hazırkı story-nin ümumi göstərilmə müddəti
         let mqStoryListenerRef = null;    // aktiv story dinləyicisinin referansı (logout-da .off() üçün)
         const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
@@ -7805,19 +7808,19 @@ function returnToRecentPrivateMessages(targetNick) {
             document.getElementById('mqStoryViewerModal').classList.remove('active');
         };
 
-        function mqClearViewerTimer() {
+               function mqClearViewerTimer() {
             if (mqViewerTimer) {
                 clearInterval(mqViewerTimer);
                 clearTimeout(mqViewerTimer);
                 mqViewerTimer = null;
             }
+            mqViewerPaused = false; // hər yeni story ilə pause vəziyyəti sıfırlanır
             const video = document.getElementById('mqViewerVideo');
             video.onended = null;
             video.ontimeupdate = null;
             video.pause();
         }
-
-        function mqCurrentViewerAuthorStories() {
+               function mqCurrentViewerAuthorStories() {
             const nick = mqViewerGroupNicks[mqViewerGroupIndex];
             return (mqViewerLastGrouped && mqViewerLastGrouped[nick]) || [];
         }
@@ -7829,34 +7832,29 @@ function returnToRecentPrivateMessages(targetNick) {
             const { grouped } = mqBuildViewerOrder();
             mqViewerLastGrouped = grouped;
         }
-                function mqRefreshViewerSnapshot() {
-            if (!mqViewerGroupNicks || !mqViewerGroupNicks.length) return;
-            const { grouped } = mqBuildViewerOrder();
-            mqViewerLastGrouped = grouped;
+
+        // YENİ: Story pause/resume — WhatsApp Status davranışı.
+        // "Elapsed + segment" modeli: real progress FAİZİ yadda saxlanılır,
+        // clearInterval/yenidən başlatma ilə sıfırlanmır.
+        function mqPauseViewerProgress() {
+            if (mqViewerPaused) return;
+            mqViewerPaused = true;
+            mqViewerElapsedMs += Date.now() - mqViewerSegmentStart;
+            const videoEl = document.getElementById('mqViewerVideo');
+            if (videoEl && videoEl.style.display !== 'none') videoEl.pause();
         }
 
+        function mqResumeViewerProgress() {
+            if (!mqViewerPaused) return;
+            mqViewerPaused = false;
+            mqViewerSegmentStart = Date.now();
+            const videoEl = document.getElementById('mqViewerVideo');
+            if (videoEl && videoEl.style.display !== 'none' && !videoEl.ended) {
+                videoEl.play().catch(() => {});
+            }
+        }
         // YENİ: Story Like sistemi — postLikes/togglePostLike ilə eyni nümunə
         window.mqToggleStoryLike = function () {
-            if (!currentUserData) return;
-            const authorStories = mqCurrentViewerAuthorStories();
-            const story = authorStories[mqViewerStoryIndex];
-            if (!story) return;
-            const nick = currentUserData.nick;
-            const likeRef = db.ref(`stories/${story.id}/likes/${nick}`);
-            const storyRef = db.ref(`stories/${story.id}`);
-            likeRef.once('value').then(snap => {
-                if (snap.exists()) {
-                    likeRef.remove();
-                    storyRef.child('likedBy').child(nick).remove();
-                    storyRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1));
-                } else {
-                    likeRef.set(true);
-                    storyRef.child('likedBy').child(nick).set(true);
-                    storyRef.child('likesCount').transaction(c => (c || 0) + 1);
-                }
-            });
-        };
-                window.mqToggleStoryLike = function () {
             if (!currentUserData) return;
             const authorStories = mqCurrentViewerAuthorStories();
             const story = authorStories[mqViewerStoryIndex];
@@ -7898,6 +7896,22 @@ function returnToRecentPrivateMessages(targetNick) {
                 }
             }, 50);
         };
+        // YENİ: şəkil/mətn story-lər üçün pause-aware progress başlatma.
+        // Kod təkrarını aradan qaldırmaq üçün (əvvəllər eyni interval kodu 2 yerdə eyni idi).
+        function mqStartTimedProgress(durationMs) {
+            mqViewerDurationMs = durationMs;
+            mqViewerElapsedMs = 0;
+            mqViewerSegmentStart = Date.now();
+            const authorStories = mqCurrentViewerAuthorStories();
+            mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
+            mqViewerTimer = setInterval(() => {
+                if (mqViewerPaused) return; // BASILI SAXLANARKƏN heç bir hesablama getmir
+                const elapsed = mqViewerElapsedMs + (Date.now() - mqViewerSegmentStart);
+                const pct = Math.min(100, (elapsed / mqViewerDurationMs) * 100);
+                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
+                if (pct >= 100) mqGoNextStory();
+            }, 50);
+        }
         function mqRenderProgressBars(total, activeIndex, filledRatio) {
             const row = document.getElementById('mqStoryProgressBars');
             row.innerHTML = '';
@@ -7953,17 +7967,10 @@ function returnToRecentPrivateMessages(targetNick) {
 
             mqRegisterStoryView(story.id);
 
-            if (story.type === 'image') {
+                        if (story.type === 'image') {
                 imgEl.src = story.mediaUrl;
                 imgEl.style.display = 'block';
-                const DURATION_MS = 5000;
-                const startedAt = Date.now();
-                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
-                mqViewerTimer = setInterval(() => {
-                    const pct = Math.min(100, ((Date.now() - startedAt) / DURATION_MS) * 100);
-                    mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
-                    if (pct >= 100) mqGoNextStory();
-                }, 50);
+                mqStartTimedProgress(5000);
             } else if (story.type === 'video') {
                 videoEl.src = story.mediaUrl;
                 videoEl.style.display = 'block';
@@ -7984,14 +7991,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 textEl.textContent = story.text || '';
                 textEl.style.display = 'flex';
                 document.getElementById('mqViewerMediaArea').style.background = story.background || '#16213e';
-                const DURATION_MS = 5000;
-                const startedAt = Date.now();
-                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
-                mqViewerTimer = setInterval(() => {
-                    const pct = Math.min(100, ((Date.now() - startedAt) / DURATION_MS) * 100);
-                    mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
-                    if (pct >= 100) mqGoNextStory();
-                }, 50);
+                mqStartTimedProgress(5000);
             }
 
             if (story.type !== 'text') {
@@ -8040,14 +8040,16 @@ function returnToRecentPrivateMessages(targetNick) {
         let mqTouchStartX = 0;
         let mqTouchStartY = 0;
 
-        function mqInitViewerSwipe() {
+               function mqInitViewerSwipe() {
             const mediaArea = document.getElementById('mqViewerMediaArea');
             mediaArea.addEventListener('touchstart', (e) => {
                 mqTouchStartX = e.touches[0].clientX;
                 mqTouchStartY = e.touches[0].clientY;
+                mqPauseViewerProgress(); // YENİ: barmaq toxunan kimi dayan
             }, { passive: true });
 
             mediaArea.addEventListener('touchend', (e) => {
+                mqResumeViewerProgress(); // YENİ: barmaq çəkiləndə davam et
                 const dx = e.changedTouches[0].clientX - mqTouchStartX;
                 const dy = e.changedTouches[0].clientY - mqTouchStartY;
 
@@ -8062,6 +8064,22 @@ function returnToRecentPrivateMessages(targetNick) {
                     else mqGoNextStory();          // sola sürüşdürmə → növbəti
                 }
             }, { passive: true });
+
+            // YENİ: toxunma naqolay şəkildə kəsilərsə (bildiriş çubuğu s.) təhlükəsiz davam et
+            mediaArea.addEventListener('touchcancel', () => {
+                mqResumeViewerProgress();
+            }, { passive: true });
+
+            // YENİ: Desktop (siçan) üçün eyni pause/resume davranışı
+            mediaArea.addEventListener('mousedown', () => {
+                mqPauseViewerProgress();
+            });
+            mediaArea.addEventListener('mouseup', () => {
+                mqResumeViewerProgress();
+            });
+            mediaArea.addEventListener('mouseleave', () => {
+                mqResumeViewerProgress();
+            });
         }
         // ============================================================
         // FEED MODULU — YENİ ƏLAVƏ
@@ -8296,8 +8314,8 @@ function returnToRecentPrivateMessages(targetNick) {
                 <div class="feed-post-text" id="feedPostText-${postId}">${originalMissing ? '' : escapeHtml(displayText)}</div>
                 ${mediaHtml}
                 <div class="feed-post-actions">
-                    <button type="button" class="feed-action-btn ${likedByMe ? 'liked' : ''}" onclick="togglePostLike('${postId}')">
-                        ${likedByMe ? '❤️' : '🤍'} <span id="feedLikeCount-${postId}">${likesCount}</span>
+                    <button type="button" class="feed-action-btn ${likedByMe ? 'liked' : ''}" data-like-btn onclick="togglePostLike('${postId}')">
+                    <span id="feedLikeIcon-${postId}">${likedByMe ? '❤️' : '🤍'}</span> <span id="feedLikeCount-${postId}">${likesCount}</span>
                     </button>
                     <button type="button" class="feed-action-btn" onclick="toggleFeedComments('${postId}')">
                         💬 <span id="feedCommentCount-${postId}">${commentsCount}</span>
@@ -8466,21 +8484,64 @@ function returnToRecentPrivateMessages(targetNick) {
         };
 
         // ---- LIKE SİSTEMİ ----
+        // YENİ: DOM-u dərhal yeniləyən köməkçi funksiya (heç bir mövcud funksiyanı əvəz etmir)
+        function mqApplyPostLikeUI(postId, liked, count) {
+            const btn = document.querySelector(`#feedPost-${postId} [data-like-btn]`);
+            const icon = document.getElementById(`feedLikeIcon-${postId}`);
+            const countEl = document.getElementById(`feedLikeCount-${postId}`);
+            if (btn) btn.classList.toggle('liked', liked);
+            if (icon) icon.textContent = liked ? '❤️' : '🤍';
+            if (countEl) countEl.textContent = count;
+        }
+
         window.togglePostLike = function(postId) {
             if (!currentUserData) return;
+
+            // DOUBLE-CLICK QORUNMASI: eyni post üçün əməliyyat davam edirsə, yenisini gözləmə
+            window.mqPostLikeInFlight = window.mqPostLikeInFlight || {};
+            if (window.mqPostLikeInFlight[postId]) return;
+            window.mqPostLikeInFlight[postId] = true;
+
             const nick = currentUserData.nick;
+            const post = feedPostsCache[postId];
+            if (!post) { window.mqPostLikeInFlight[postId] = false; return; }
+
+            const wasLiked = !!(post.likedBy && post.likedBy[nick]);
+            const prevCount = post.likesCount || 0;
+            const newLiked = !wasLiked;
+            const newCount = Math.max(0, prevCount + (newLiked ? 1 : -1));
+
+            // 1) LOKAL OPTIMISTİK YENİLƏMƏ — dərhal, Firebase cavabını gözləmədən
+            post.likedBy = post.likedBy || {};
+            if (newLiked) post.likedBy[nick] = true; else delete post.likedBy[nick];
+            post.likesCount = newCount;
+            mqApplyPostLikeUI(postId, newLiked, newCount);
+
+            // 2) FIREBASE ƏMƏLİYYATI arxa planda (mövcud path və struktur DƏYİŞMİR)
             const likeRef = db.ref(`postLikes/${postId}/${nick}`);
             const postRef = db.ref(`posts/${postId}`);
-            likeRef.once('value').then(snap => {
-                if (snap.exists()) {
-                    likeRef.remove();
-                    postRef.child('likedBy').child(nick).remove();
-                    postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1));
-                } else {
-                    likeRef.set(true);
-                    postRef.child('likedBy').child(nick).set(true);
-                    postRef.child('likesCount').transaction(c => (c || 0) + 1);
-                }
+
+            const op = newLiked
+                ? Promise.all([
+                    likeRef.set(true),
+                    postRef.child('likedBy').child(nick).set(true),
+                    postRef.child('likesCount').transaction(c => (c || 0) + 1)
+                  ])
+                : Promise.all([
+                    likeRef.remove(),
+                    postRef.child('likedBy').child(nick).remove(),
+                    postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
+                  ]);
+
+            op.catch(() => {
+                // 3) XƏTA OLARSA — geri qaytar
+                post.likedBy = post.likedBy || {};
+                if (wasLiked) post.likedBy[nick] = true; else delete post.likedBy[nick];
+                post.likesCount = prevCount;
+                mqApplyPostLikeUI(postId, wasLiked, prevCount);
+                showToast('Bəyənmə əməliyyatı uğursuz oldu.', 'error');
+            }).finally(() => {
+                window.mqPostLikeInFlight[postId] = false;
             });
         };
 
