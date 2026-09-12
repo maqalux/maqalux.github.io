@@ -1785,15 +1785,19 @@
         .mq-tap-left { left: 0; }
         .mq-tap-right { right: 0; }
 
-        .mq-story-viewer-footer {
+              .mq-story-viewer-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
             padding: 12px 16px;
             z-index: 3;
         }
         .mq-story-viewer-views-btn,
-        .mq-story-viewer-delete-btn {
+        .mq-story-viewer-delete-btn,
+        .mq-story-viewer-like-btn,
+        .mq-story-viewer-msg-btn {
             background: rgba(255,255,255,0.12);
             border: none;
             color: #fff;
@@ -1802,7 +1806,8 @@
             font-size: 13px;
             cursor: pointer;
         }
-        .mq-story-viewer-delete-btn { background: rgba(255,60,60,0.25); } 
+        .mq-story-viewer-delete-btn { background: rgba(255,60,60,0.25); }
+        .mq-story-viewer-like-btn.mq-liked { background: rgba(255,60,140,0.35); } 
         /* Story baxışları modalı Story Viewer-in (z-index:9000) ÜSTÜNDƏ görünsün */
         #mqStoryViewersListModal {
             z-index: 9500;
@@ -3289,9 +3294,15 @@
                 <div class="mq-story-tap-zone mq-tap-right" onclick="mqViewerTapRight()"></div>
             </div>
 
-            <div class="mq-story-viewer-footer" id="mqViewerFooter" style="display:none;">
-                <button type="button" class="mq-story-viewer-views-btn" onclick="mqOpenStoryViewersList()">
+                      <div class="mq-story-viewer-footer" id="mqViewerFooter">
+                <button type="button" class="mq-story-viewer-views-btn" id="mqViewerViewsBtn" onclick="mqOpenStoryViewersList()">
                     👁 <span id="mqViewerViewCount">0</span> baxış
+                </button>
+                <button type="button" class="mq-story-viewer-like-btn" id="mqViewerLikeBtn" onclick="mqToggleStoryLike()">
+                    <span id="mqViewerLikeIcon">🤍</span> <span id="mqViewerLikeCount">0</span>
+                </button>
+                <button type="button" class="mq-story-viewer-msg-btn" id="mqViewerMsgBtn" onclick="mqMessageStoryAuthor()">
+                    💬 Mesaj yaz
                 </button>
                 <button type="button" class="mq-story-viewer-delete-btn" id="mqViewerDeleteBtn" onclick="mqConfirmDeleteCurrentStory()">🗑 Sil</button>
             </div>
@@ -3319,11 +3330,21 @@
                 </div>
             </div>
             <div class="settings-divider"></div>
-            <div class="settings-section">
+                     <div class="settings-section">
                 <h4>✉️ E-poçtu yenilə</h4>
                 <div class="input-group">
                     <input type="email" id="newEmailInput" class="custom-input" placeholder="Yeni e-poçt ünvanınız">
                     <button class="login-btn" onclick="submitUpdateEmail()">E-poçtu yenilə</button>
+                </div>
+            </div>
+            <div class="settings-divider"></div>
+            <div class="settings-section">
+                <h4>📢 Statusları kimlərdən görmək istəyirsən?</h4>
+                <div class="input-group">
+                    <select id="statusFeedVisibilitySelect" class="custom-input" onchange="saveStatusFeedVisibility(this.value)">
+                        <option value="public">🌍 Hamı</option>
+                        <option value="friends">👥 Yalnız dostlarım</option>
+                    </select>
                 </div>
             </div>
                </div>
@@ -3432,6 +3453,9 @@
         let mqViewerStoryIndex = 0;       // o istifadəçinin hansı story-sindəyik
         let mqViewerTimer = null;         // progress bar interval/timeout
         let mqViewerPaused = false;
+        let mqViewerElapsedMs = 0;        // pauza anına qədər toplanmış müddət (şəkil/mətn story üçün)
+        let mqViewerSegmentStart = 0;     // hazırkı (pauzasız) seqmentin başlama vaxtı
+        let mqViewerDurationMs = 5000;    // hazırkı story-nin ümumi göstərilmə müddəti
         let mqStoryListenerRef = null;    // aktiv story dinləyicisinin referansı (logout-da .off() üçün)
         const ROLE_ORDER = { admin: 3, moderator: 2, user: 1 };
 
@@ -3582,6 +3606,20 @@
         let friendModalQueue = [];
         let friendsLoaded = false;
 
+        // YENİ: Status (Story) lentinin görünürlük seçimi — hesaba bağlı (users/{uid} altında)
+        window.saveStatusFeedVisibility = async function (value) {
+            if (!currentUserData) return;
+            try {
+                await db.ref(`users/${currentUserData.uid}/statusFeedVisibility`).set(value);
+                currentUserData.statusFeedVisibility = value;
+                // Seçim dəyişəndə lentin dərhal yenidən filtrlənməsi üçün dinləyicini yenidən qururuq
+                if (mqStoryListenerRef) mqStopListenActiveStories(mqStoryListenerRef);
+                mqStoryListenerRef = mqListenActiveStories(renderStoryBar);
+                showToast('Status görünürlüyü yeniləndi.', 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
         function isFriend(nick) {
             return !!myFriends[nick];
         }
@@ -4657,7 +4695,11 @@ connectedRef.on('value', (snap) => {
         // ============================================================
         // 6. PROFİL AYARLARI
         // ============================================================
-        window.openProfileSettingsModal = function() {
+             window.openProfileSettingsModal = function() {
+            const statusVisSelect = document.getElementById('statusFeedVisibilitySelect');
+            if (statusVisSelect && currentUserData) {
+                statusVisSelect.value = currentUserData.statusFeedVisibility || 'public';
+            }
             document.getElementById('oldPasswordInput').value = '';
             document.getElementById('newPasswordInput').value = '';
             document.getElementById('newEmailInput').value = '';
@@ -5165,7 +5207,10 @@ connectedRef.on('value', (snap) => {
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
                 expiresAt: now + STORY_DURATION_MS,
-                views: {}
+                views: {},
+                likes: {},
+                likedBy: {},
+                likesCount: 0
             };
             const newRef = db.ref('messages').push();
             newRef.set(payload).then(() => {
@@ -7163,14 +7208,17 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // Privacy yoxlaması: story-ni HAZIRKI istifadəçi görə bilərmi?
-        function mqCanViewStory(story) {
+               function mqCanViewStory(story) {
             if (!currentUserData) return false;
             if (story.authorNick === currentUserData.nick) return true; // öz story-mi həmişə görürəm
             const privacy = story.privacy || 'public';
-            if (privacy === 'public') return true;
-            if (privacy === 'friends') return isFriend(story.authorNick);
             if (privacy === 'private') return false;
-            return false;
+            if (privacy === 'friends' && !isFriend(story.authorNick)) return false;
+            // YENİ: istifadəçinin öz Ayarlarındakı "Statusları kimlərdən görmək istəyirsən?" seçimi.
+            // Bu, story-nin ÖZ privacy qaydasına ƏLAVƏ tətbiq olunur, onu əvəz etmir.
+            const feedVisibility = currentUserData.statusFeedVisibility || 'public';
+            if (feedVisibility === 'friends' && !isFriend(story.authorNick)) return false;
+            return true;
         }
 
         // Yeni Story-ni Firebase-ə yazır. data = { type, mediaUrl, text, background }
@@ -7619,11 +7667,37 @@ function returnToRecentPrivateMessages(targetNick) {
         // Diqqət: story.views (Firebase-dəki "views" child-ı) ilə YANAŞI, mqSeenStoryIds
         // (bizim öz storyViews/{nick} cache-imiz) də yoxlanılır — çünki view yazılan kimi
         // real-vaxt "views" bəzən 1 tick gec gələ bilər, amma lokal mqSeenStoryIds dərhal yenilənir.
-        function mqIsAuthorFullySeen(authorStories) {
+                function mqIsAuthorFullySeen(authorStories) {
             return authorStories.every(s =>
                 (s.views && s.views[currentUserData.nick]) || mqSeenStoryIds[s.id]
             );
         }
+
+        // YENİ: Basıb-saxlama (long-press) — sadə klikin davranışını POZMUR.
+        // Qısa toxunuş: adi onclick işə düşür (heç nə dəyişmir).
+        // Uzun basma (450ms+): eyni funksiyanı (openStoryViewer) özü çağırır və
+        // sonradan gələn "click" hadisəsini bir dəfəliyə ötürür (ikiqat açılmanın qarşısını alır).
+        let mqStoryPressTimer = null;
+        let mqStorySkipClick = false;
+        const MQ_STORY_LONGPRESS_MS = 450;
+
+        window.mqStoryPressStart = function (nick) {
+            clearTimeout(mqStoryPressTimer);
+            mqStorySkipClick = false;
+            mqStoryPressTimer = setTimeout(() => {
+                mqStorySkipClick = true;
+                openStoryViewer(nick);
+            }, MQ_STORY_LONGPRESS_MS);
+        };
+
+        window.mqStoryPressEnd = function () {
+            clearTimeout(mqStoryPressTimer);
+        };
+
+        window.mqStoryPressCancel = function () {
+            clearTimeout(mqStoryPressTimer);
+            mqStorySkipClick = false;
+        };
 
         function renderStoryBar(activeStoriesObj) {
             if (!currentUserData) return;
@@ -7666,8 +7740,13 @@ function returnToRecentPrivateMessages(targetNick) {
                 const stories = grouped[nick];
                 const avatar = stories[0].authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
                 const seenClass = mqIsAuthorFullySeen(stories) ? 'mq-seen' : 'mq-unseen';
-                return `
-                    <div class="mq-story-item" onclick="openStoryViewer('${escapeHtml(nick)}')">
+                               return `
+                    <div class="mq-story-item"
+                         onclick="if (mqStorySkipClick) { mqStorySkipClick = false; return; } openStoryViewer('${escapeHtml(nick)}')"
+                         onpointerdown="mqStoryPressStart('${escapeHtml(nick)}')"
+                         onpointerup="mqStoryPressEnd()"
+                         onpointerleave="mqStoryPressCancel()"
+                         onpointercancel="mqStoryPressCancel()">
                         <div class="mq-story-ring ${seenClass}">
                             <div class="mq-story-avatar-wrap">
                                 <img src="${avatar}" alt="">
@@ -7729,19 +7808,19 @@ function returnToRecentPrivateMessages(targetNick) {
             document.getElementById('mqStoryViewerModal').classList.remove('active');
         };
 
-        function mqClearViewerTimer() {
+               function mqClearViewerTimer() {
             if (mqViewerTimer) {
                 clearInterval(mqViewerTimer);
                 clearTimeout(mqViewerTimer);
                 mqViewerTimer = null;
             }
+            mqViewerPaused = false; // hər yeni story ilə pause vəziyyəti sıfırlanır
             const video = document.getElementById('mqViewerVideo');
             video.onended = null;
             video.ontimeupdate = null;
             video.pause();
         }
-
-        function mqCurrentViewerAuthorStories() {
+               function mqCurrentViewerAuthorStories() {
             const nick = mqViewerGroupNicks[mqViewerGroupIndex];
             return (mqViewerLastGrouped && mqViewerLastGrouped[nick]) || [];
         }
@@ -7754,6 +7833,85 @@ function returnToRecentPrivateMessages(targetNick) {
             mqViewerLastGrouped = grouped;
         }
 
+        // YENİ: Story pause/resume — WhatsApp Status davranışı.
+        // "Elapsed + segment" modeli: real progress FAİZİ yadda saxlanılır,
+        // clearInterval/yenidən başlatma ilə sıfırlanmır.
+        function mqPauseViewerProgress() {
+            if (mqViewerPaused) return;
+            mqViewerPaused = true;
+            mqViewerElapsedMs += Date.now() - mqViewerSegmentStart;
+            const videoEl = document.getElementById('mqViewerVideo');
+            if (videoEl && videoEl.style.display !== 'none') videoEl.pause();
+        }
+
+        function mqResumeViewerProgress() {
+            if (!mqViewerPaused) return;
+            mqViewerPaused = false;
+            mqViewerSegmentStart = Date.now();
+            const videoEl = document.getElementById('mqViewerVideo');
+            if (videoEl && videoEl.style.display !== 'none' && !videoEl.ended) {
+                videoEl.play().catch(() => {});
+            }
+        }
+        // YENİ: Story Like sistemi — postLikes/togglePostLike ilə eyni nümunə
+        window.mqToggleStoryLike = function () {
+            if (!currentUserData) return;
+            const authorStories = mqCurrentViewerAuthorStories();
+            const story = authorStories[mqViewerStoryIndex];
+            if (!story) return;
+            const nick = currentUserData.nick;
+            const likeRef = db.ref(`stories/${story.id}/likes/${nick}`);
+            const storyRef = db.ref(`stories/${story.id}`);
+            likeRef.once('value').then(snap => {
+                if (snap.exists()) {
+                    likeRef.remove();
+                    storyRef.child('likedBy').child(nick).remove();
+                    storyRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1));
+                } else {
+                    likeRef.set(true);
+                    storyRef.child('likedBy').child(nick).set(true);
+                    storyRef.child('likesCount').transaction(c => (c || 0) + 1);
+                }
+            });
+        };
+
+        // YENİ: Statusa baxarkən sahibinə birbaşa mesaj — mövcud openPrivateChatWindow() istifadə olunur
+        window.mqMessageStoryAuthor = function () {
+            if (!currentUserData) return;
+            const authorStories = mqCurrentViewerAuthorStories();
+            const story = authorStories[mqViewerStoryIndex];
+            if (!story || story.authorNick === currentUserData.nick) return; // özünə mesaj bloklanır
+            const targetNick = story.authorNick;
+
+            closeStoryViewer(); // z-index qatlaşmasının qarşısını almaq üçün əvvəlcə bağlayırıq
+            openPrivateChatWindow(targetNick);
+
+            setTimeout(() => {
+                const win = document.getElementById('pcw-' + targetNick);
+                const inp = win ? win.querySelector('.pcw-text-input') : null;
+                if (inp && !inp.value) {
+                    inp.value = '📸 Statusa cavab: ';
+                    inp.focus();
+                    inp.setSelectionRange(inp.value.length, inp.value.length);
+                }
+            }, 50);
+        };
+        // YENİ: şəkil/mətn story-lər üçün pause-aware progress başlatma.
+        // Kod təkrarını aradan qaldırmaq üçün (əvvəllər eyni interval kodu 2 yerdə eyni idi).
+        function mqStartTimedProgress(durationMs) {
+            mqViewerDurationMs = durationMs;
+            mqViewerElapsedMs = 0;
+            mqViewerSegmentStart = Date.now();
+            const authorStories = mqCurrentViewerAuthorStories();
+            mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
+            mqViewerTimer = setInterval(() => {
+                if (mqViewerPaused) return; // BASILI SAXLANARKƏN heç bir hesablama getmir
+                const elapsed = mqViewerElapsedMs + (Date.now() - mqViewerSegmentStart);
+                const pct = Math.min(100, (elapsed / mqViewerDurationMs) * 100);
+                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
+                if (pct >= 100) mqGoNextStory();
+            }, 50);
+        }
         function mqRenderProgressBars(total, activeIndex, filledRatio) {
             const row = document.getElementById('mqStoryProgressBars');
             row.innerHTML = '';
@@ -7782,13 +7940,20 @@ function returnToRecentPrivateMessages(targetNick) {
             // Header
             document.getElementById('mqViewerAvatar').src = story.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             document.getElementById('mqViewerNick').textContent = story.authorNick;
-            document.getElementById('mqViewerTime').textContent = formatFeedTime(story.timestamp);
+            document.getElementById('mqViewerTime').textContent = formatStatusTime(story.timestamp);
 
-            // Footer — yalnız öz story-mdə görünür
+            // Footer — həmişə görünür, amma bəzi düymələr isOwn-a görə fərqlənir
             const isOwn = story.authorNick === currentUserData.nick;
-            const footer = document.getElementById('mqViewerFooter');
-            footer.style.display = isOwn ? 'flex' : 'none';
+            document.getElementById('mqViewerViewsBtn').style.display = isOwn ? 'inline-flex' : 'none';
+            document.getElementById('mqViewerDeleteBtn').style.display = isOwn ? 'inline-flex' : 'none';
+            document.getElementById('mqViewerMsgBtn').style.display = isOwn ? 'none' : 'inline-flex';
             document.getElementById('mqViewerViewCount').textContent = story.views ? Object.keys(story.views).length : 0;
+
+            // YENİ: Like düyməsinin vəziyyəti
+            const likedByMe = !!(story.likedBy && currentUserData && story.likedBy[currentUserData.nick]);
+            document.getElementById('mqViewerLikeIcon').textContent = likedByMe ? '❤️' : '🤍';
+            document.getElementById('mqViewerLikeBtn').classList.toggle('mq-liked', likedByMe);
+            document.getElementById('mqViewerLikeCount').textContent = story.likesCount || 0;
 
             // Media sahələrini sıfırla
             const imgEl = document.getElementById('mqViewerImg');
@@ -7802,17 +7967,10 @@ function returnToRecentPrivateMessages(targetNick) {
 
             mqRegisterStoryView(story.id);
 
-            if (story.type === 'image') {
+                        if (story.type === 'image') {
                 imgEl.src = story.mediaUrl;
                 imgEl.style.display = 'block';
-                const DURATION_MS = 5000;
-                const startedAt = Date.now();
-                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
-                mqViewerTimer = setInterval(() => {
-                    const pct = Math.min(100, ((Date.now() - startedAt) / DURATION_MS) * 100);
-                    mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
-                    if (pct >= 100) mqGoNextStory();
-                }, 50);
+                mqStartTimedProgress(5000);
             } else if (story.type === 'video') {
                 videoEl.src = story.mediaUrl;
                 videoEl.style.display = 'block';
@@ -7833,14 +7991,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 textEl.textContent = story.text || '';
                 textEl.style.display = 'flex';
                 document.getElementById('mqViewerMediaArea').style.background = story.background || '#16213e';
-                const DURATION_MS = 5000;
-                const startedAt = Date.now();
-                mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, 0);
-                mqViewerTimer = setInterval(() => {
-                    const pct = Math.min(100, ((Date.now() - startedAt) / DURATION_MS) * 100);
-                    mqRenderProgressBars(authorStories.length, mqViewerStoryIndex, pct);
-                    if (pct >= 100) mqGoNextStory();
-                }, 50);
+                mqStartTimedProgress(5000);
             }
 
             if (story.type !== 'text') {
@@ -7889,14 +8040,16 @@ function returnToRecentPrivateMessages(targetNick) {
         let mqTouchStartX = 0;
         let mqTouchStartY = 0;
 
-        function mqInitViewerSwipe() {
+               function mqInitViewerSwipe() {
             const mediaArea = document.getElementById('mqViewerMediaArea');
             mediaArea.addEventListener('touchstart', (e) => {
                 mqTouchStartX = e.touches[0].clientX;
                 mqTouchStartY = e.touches[0].clientY;
+                mqPauseViewerProgress(); // YENİ: barmaq toxunan kimi dayan
             }, { passive: true });
 
             mediaArea.addEventListener('touchend', (e) => {
+                mqResumeViewerProgress(); // YENİ: barmaq çəkiləndə davam et
                 const dx = e.changedTouches[0].clientX - mqTouchStartX;
                 const dy = e.changedTouches[0].clientY - mqTouchStartY;
 
@@ -7911,6 +8064,22 @@ function returnToRecentPrivateMessages(targetNick) {
                     else mqGoNextStory();          // sola sürüşdürmə → növbəti
                 }
             }, { passive: true });
+
+            // YENİ: toxunma naqolay şəkildə kəsilərsə (bildiriş çubuğu s.) təhlükəsiz davam et
+            mediaArea.addEventListener('touchcancel', () => {
+                mqResumeViewerProgress();
+            }, { passive: true });
+
+            // YENİ: Desktop (siçan) üçün eyni pause/resume davranışı
+            mediaArea.addEventListener('mousedown', () => {
+                mqPauseViewerProgress();
+            });
+            mediaArea.addEventListener('mouseup', () => {
+                mqResumeViewerProgress();
+            });
+            mediaArea.addEventListener('mouseleave', () => {
+                mqResumeViewerProgress();
+            });
         }
         // ============================================================
         // FEED MODULU — YENİ ƏLAVƏ
@@ -7964,7 +8133,34 @@ function returnToRecentPrivateMessages(targetNick) {
             const d = new Date(ts);
             return d.toLocaleDateString('az-AZ') + ' ' + d.toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
         }
+                // YENİ: Status (Story) üçün AYRICA vaxt formatı — formatFeedTime()-a toxunulmur,
+        // çünki o, feed post və şərhlərində fərqli formatla istifadə olunur.
+        function formatStatusTime(ts) {
+            if (!ts) return '';
+            const now = new Date();
+            const d = new Date(ts);
+            const diffMin = Math.floor((Date.now() - ts) / 60000);
 
+            if (diffMin < 1) return 'İndi';
+            if (diffMin < 60) return diffMin + ' dəqiqə əvvəl';
+
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+
+            const sameDay = d.getFullYear() === now.getFullYear() &&
+                            d.getMonth() === now.getMonth() &&
+                            d.getDate() === now.getDate();
+            if (sameDay) return `Bu gün, ${hh}:${mm}`;
+
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            const isYesterday = d.getFullYear() === yesterday.getFullYear() &&
+                                 d.getMonth() === yesterday.getMonth() &&
+                                 d.getDate() === yesterday.getDate();
+            if (isYesterday) return `Dünən, ${hh}:${mm}`;
+
+            return d.toLocaleDateString('az-AZ') + `, ${hh}:${mm}`;
+        }
         // ---- FEED YÜKLƏMƏ (səhifələnmiş, real-time) ----
         function loadFeed() {
             subscribeFeed();
@@ -8118,8 +8314,8 @@ function returnToRecentPrivateMessages(targetNick) {
                 <div class="feed-post-text" id="feedPostText-${postId}">${originalMissing ? '' : escapeHtml(displayText)}</div>
                 ${mediaHtml}
                 <div class="feed-post-actions">
-                    <button type="button" class="feed-action-btn ${likedByMe ? 'liked' : ''}" onclick="togglePostLike('${postId}')">
-                        ${likedByMe ? '❤️' : '🤍'} <span id="feedLikeCount-${postId}">${likesCount}</span>
+                    <button type="button" class="feed-action-btn ${likedByMe ? 'liked' : ''}" data-like-btn onclick="togglePostLike('${postId}')">
+                    <span id="feedLikeIcon-${postId}">${likedByMe ? '❤️' : '🤍'}</span> <span id="feedLikeCount-${postId}">${likesCount}</span>
                     </button>
                     <button type="button" class="feed-action-btn" onclick="toggleFeedComments('${postId}')">
                         💬 <span id="feedCommentCount-${postId}">${commentsCount}</span>
@@ -8288,21 +8484,64 @@ function returnToRecentPrivateMessages(targetNick) {
         };
 
         // ---- LIKE SİSTEMİ ----
+        // YENİ: DOM-u dərhal yeniləyən köməkçi funksiya (heç bir mövcud funksiyanı əvəz etmir)
+        function mqApplyPostLikeUI(postId, liked, count) {
+            const btn = document.querySelector(`#feedPost-${postId} [data-like-btn]`);
+            const icon = document.getElementById(`feedLikeIcon-${postId}`);
+            const countEl = document.getElementById(`feedLikeCount-${postId}`);
+            if (btn) btn.classList.toggle('liked', liked);
+            if (icon) icon.textContent = liked ? '❤️' : '🤍';
+            if (countEl) countEl.textContent = count;
+        }
+
         window.togglePostLike = function(postId) {
             if (!currentUserData) return;
+
+            // DOUBLE-CLICK QORUNMASI: eyni post üçün əməliyyat davam edirsə, yenisini gözləmə
+            window.mqPostLikeInFlight = window.mqPostLikeInFlight || {};
+            if (window.mqPostLikeInFlight[postId]) return;
+            window.mqPostLikeInFlight[postId] = true;
+
             const nick = currentUserData.nick;
+            const post = feedPostsCache[postId];
+            if (!post) { window.mqPostLikeInFlight[postId] = false; return; }
+
+            const wasLiked = !!(post.likedBy && post.likedBy[nick]);
+            const prevCount = post.likesCount || 0;
+            const newLiked = !wasLiked;
+            const newCount = Math.max(0, prevCount + (newLiked ? 1 : -1));
+
+            // 1) LOKAL OPTIMISTİK YENİLƏMƏ — dərhal, Firebase cavabını gözləmədən
+            post.likedBy = post.likedBy || {};
+            if (newLiked) post.likedBy[nick] = true; else delete post.likedBy[nick];
+            post.likesCount = newCount;
+            mqApplyPostLikeUI(postId, newLiked, newCount);
+
+            // 2) FIREBASE ƏMƏLİYYATI arxa planda (mövcud path və struktur DƏYİŞMİR)
             const likeRef = db.ref(`postLikes/${postId}/${nick}`);
             const postRef = db.ref(`posts/${postId}`);
-            likeRef.once('value').then(snap => {
-                if (snap.exists()) {
-                    likeRef.remove();
-                    postRef.child('likedBy').child(nick).remove();
-                    postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1));
-                } else {
-                    likeRef.set(true);
-                    postRef.child('likedBy').child(nick).set(true);
-                    postRef.child('likesCount').transaction(c => (c || 0) + 1);
-                }
+
+            const op = newLiked
+                ? Promise.all([
+                    likeRef.set(true),
+                    postRef.child('likedBy').child(nick).set(true),
+                    postRef.child('likesCount').transaction(c => (c || 0) + 1)
+                  ])
+                : Promise.all([
+                    likeRef.remove(),
+                    postRef.child('likedBy').child(nick).remove(),
+                    postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
+                  ]);
+
+            op.catch(() => {
+                // 3) XƏTA OLARSA — geri qaytar
+                post.likedBy = post.likedBy || {};
+                if (wasLiked) post.likedBy[nick] = true; else delete post.likedBy[nick];
+                post.likesCount = prevCount;
+                mqApplyPostLikeUI(postId, wasLiked, prevCount);
+                showToast('Bəyənmə əməliyyatı uğursuz oldu.', 'error');
+            }).finally(() => {
+                window.mqPostLikeInFlight[postId] = false;
             });
         };
 
