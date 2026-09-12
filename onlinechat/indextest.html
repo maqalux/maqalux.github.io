@@ -7875,7 +7875,48 @@ function returnToRecentPrivateMessages(targetNick) {
             });
         };
 
-        // YENİ: Statusa baxarkən sahibinə birbaşa mesaj — mövcud openPrivateChatWindow() istifadə olunur
+                // YENİ: Story-dən mesaj yazarkən, mövcud replyContext/.pcw-reply-preview sistemini
+        // istifadə edərək "Story-yə cavab" preview-i qurur. startReply()-i EYNİ NÜMUNƏDƏ təkrarlayır.
+        function mqStartStoryReply(story, targetNick) {
+            cancelEdit(); // mövcud redaktə vəziyyəti varsa təmizlə (startReply-dəki kimi)
+
+            let previewText, mediaUrl, mediaType;
+            if (story.type === 'image') {
+                previewText = '📷 Status';
+                mediaUrl = story.mediaUrl;
+                mediaType = 'image';
+            } else if (story.type === 'video') {
+                previewText = '🎬 Video status';
+                mediaUrl = getVideoPosterUrl(story.mediaUrl) || null;
+                mediaType = 'video';
+            } else {
+                const raw = story.text || '';
+                previewText = raw.length > 60 ? raw.slice(0, 60) + '…' : raw;
+                mediaUrl = null;
+                mediaType = null;
+            }
+
+            replyContext = {
+                id: null,               // mesaja yox, Story-yə cavabdır
+                sender: story.authorNick,
+                text: previewText,
+                mediaType: mediaType,
+                mediaUrl: mediaUrl
+            };
+
+            const thumbHtml = replyContext.mediaUrl ? `<img src="${replyContext.mediaUrl}" class="reply-thumb" alt="">` : '';
+            const win = document.getElementById('pcw-' + targetNick);
+            if (win) {
+                let bar = win.querySelector('.pcw-reply-preview');
+                if (!bar) {
+                    bar = document.createElement('div');
+                    bar.className = 'pcw-reply-preview';
+                    win.querySelector('.pcw-input-bar').insertAdjacentElement('beforebegin', bar);
+                }
+                bar.innerHTML = `${thumbHtml}<div style="flex:1;border-left:2px solid #ffaa00;padding-left:8px;overflow:hidden;"><b style="color:#ffc107;display:block;">📷 Status-a cavab</b><span style="opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">${escapeHtml(previewText)}</span></div><span style="cursor:pointer;opacity:0.6;" onclick="this.closest('.pcw-reply-preview').remove(); replyContext=null;">✕</span>`;
+            }
+        }
+
         window.mqMessageStoryAuthor = function () {
             if (!currentUserData) return;
             const authorStories = mqCurrentViewerAuthorStories();
@@ -7887,13 +7928,10 @@ function returnToRecentPrivateMessages(targetNick) {
             openPrivateChatWindow(targetNick);
 
             setTimeout(() => {
+                mqStartStoryReply(story, targetNick);
                 const win = document.getElementById('pcw-' + targetNick);
                 const inp = win ? win.querySelector('.pcw-text-input') : null;
-                if (inp && !inp.value) {
-                    inp.value = '📸 Statusa cavab: ';
-                    inp.focus();
-                    inp.setSelectionRange(inp.value.length, inp.value.length);
-                }
+                if (inp) inp.focus();
             }, 50);
         };
         // YENİ: şəkil/mətn story-lər üçün pause-aware progress başlatma.
