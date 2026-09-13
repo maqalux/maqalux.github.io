@@ -8524,10 +8524,11 @@ function returnToRecentPrivateMessages(targetNick) {
 
         // ---- LIKE SİSTEMİ ----
         // YENİ: DOM-u dərhal yeniləyən köməkçi funksiya (heç bir mövcud funksiyanı əvəz etmir)
-        function mqApplyPostLikeUI(postId, liked, count) {
+            function mqApplyPostLikeUI(postId, liked, count) {
             const btn = document.querySelector(`#feedPost-${postId} [data-like-btn]`);
             const icon = document.getElementById(`feedLikeIcon-${postId}`);
             const countEl = document.getElementById(`feedLikeCount-${postId}`);
+            console.log('[LIKE DEBUG] mqApplyPostLikeUI:', { postId, liked, count, btnTapildi: !!btn, iconTapildi: !!icon, countElTapildi: !!countEl }); // MÜVƏQQƏTİ
             if (btn) btn.classList.toggle('liked', liked);
             if (icon) icon.textContent = liked ? '❤️' : '🤍';
             if (countEl) countEl.textContent = count;
@@ -8572,7 +8573,10 @@ function returnToRecentPrivateMessages(targetNick) {
                     postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
                   ]);
 
-            op.catch(() => {
+                        op.then(() => {
+                console.log('[LIKE DEBUG] Firebase yazması UĞURLA tamamlandı, postId =', postId); // MÜVƏQQƏTİ
+            }).catch((err) => {
+                console.error('[LIKE DEBUG] Firebase yazması XƏTA verdi:', err); // MÜVƏQQƏTİ
                 // 3) XƏTA OLARSA — geri qaytar
                 post.likedBy = post.likedBy || {};
                 if (wasLiked) post.likedBy[nick] = true; else delete post.likedBy[nick];
