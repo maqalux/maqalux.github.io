@@ -13,7 +13,7 @@
     <link rel="icon" href="/icon-192.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
- 
+
     <style>
         :root {
             --bg-page: linear-gradient(135deg, #090d22 0%, #082962 45%, #0151b1 100%);
@@ -7854,25 +7854,87 @@ function returnToRecentPrivateMessages(targetNick) {
                 videoEl.play().catch(() => {});
             }
         }
-        // YENİ: Story Like sistemi — postLikes/togglePostLike ilə eyni nümunə
+        // Story Like sistemi — optimistik/local UI yenilənməsi ilə.
+        // Firebase-də istifadə olunan path və data strukturu dəyişdirilmir.
+        const mqStoryLikeInFlight = {};
+
+        function mqApplyStoryLikeUI(story, liked, count) {
+            if (!story) return;
+
+            // Cari viewer snapshot-ı
+            story.likedBy = story.likedBy || {};
+            if (liked) story.likedBy[currentUserData.nick] = true;
+            else delete story.likedBy[currentUserData.nick];
+            story.likesCount = count;
+
+            // Qlobal story cache-i də dərhal yenilə.
+            if (mqAllStories[story.id]) {
+                mqAllStories[story.id].likedBy = mqAllStories[story.id].likedBy || {};
+                if (liked) mqAllStories[story.id].likedBy[currentUserData.nick] = true;
+                else delete mqAllStories[story.id].likedBy[currentUserData.nick];
+                mqAllStories[story.id].likesCount = count;
+            }
+
+            // Ekrandakı Like düyməsini Firebase cavabını gözləmədən dəyiş.
+            const iconEl = document.getElementById('mqViewerLikeIcon');
+            const countEl = document.getElementById('mqViewerLikeCount');
+            const btnEl = document.getElementById('mqViewerLikeBtn');
+
+            if (iconEl) iconEl.textContent = liked ? '❤️' : '🤍';
+            if (countEl) countEl.textContent = count;
+            if (btnEl) btnEl.classList.toggle('mq-liked', liked);
+        }
+
         window.mqToggleStoryLike = function () {
             if (!currentUserData) return;
+
             const authorStories = mqCurrentViewerAuthorStories();
             const story = authorStories[mqViewerStoryIndex];
             if (!story) return;
+
             const nick = currentUserData.nick;
+
+            // Eyni story üçün ardıcıl kliklər Firebase əməliyyatı bitənə qədər
+            // bir-birinin üstünə yazılmasın.
+            if (mqStoryLikeInFlight[story.id]) return;
+            mqStoryLikeInFlight[story.id] = true;
+
             const likeRef = db.ref(`stories/${story.id}/likes/${nick}`);
             const storyRef = db.ref(`stories/${story.id}`);
-            likeRef.once('value').then(snap => {
-                if (snap.exists()) {
-                    likeRef.remove();
-                    storyRef.child('likedBy').child(nick).remove();
-                    storyRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1));
-                } else {
-                    likeRef.set(true);
-                    storyRef.child('likedBy').child(nick).set(true);
-                    storyRef.child('likesCount').transaction(c => (c || 0) + 1);
+
+            // Mövcud UI/cache vəziyyətindən istifadə edirik.
+            // Firebase-dən "once" cavabını gözləmədiyimiz üçün Like dərhal görünür.
+            const wasLiked = !!(story.likedBy && story.likedBy[nick]);
+            const prevCount = Number(story.likesCount) || 0;
+            const newLiked = !wasLiked;
+            const newCount = Math.max(0, prevCount + (newLiked ? 1 : -1));
+
+            // 1) OPTİMİSTİK YERLİ YENİLƏMƏ — dərhal.
+            mqApplyStoryLikeUI(story, newLiked, newCount);
+
+            // 2) FIREBASE — mövcud path-lər və Rules ilə uyğun şəkildə.
+            const operation = newLiked
+                ? Promise.all([
+                    likeRef.set(true),
+                    storyRef.child('likedBy').child(nick).set(true),
+                    storyRef.child('likesCount').transaction(c => (c || 0) + 1)
+                  ])
+                : Promise.all([
+                    likeRef.remove(),
+                    storyRef.child('likedBy').child(nick).remove(),
+                    storyRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
+                  ]);
+
+            operation.catch(err => {
+                console.error('Story Like əməliyyatı uğursuz oldu:', err);
+
+                // Firebase xətası olarsa optimistik dəyişikliyi geri qaytar.
+                mqApplyStoryLikeUI(story, wasLiked, prevCount);
+                if (typeof showToast === 'function') {
+                    showToast('Bəyənmə əməliyyatı uğursuz oldu.', 'error');
                 }
+            }).finally(() => {
+                mqStoryLikeInFlight[story.id] = false;
             });
         };
 
@@ -8524,10 +8586,11 @@ function returnToRecentPrivateMessages(targetNick) {
 
         // ---- LIKE SİSTEMİ ----
         // YENİ: DOM-u dərhal yeniləyən köməkçi funksiya (heç bir mövcud funksiyanı əvəz etmir)
-        function mqApplyPostLikeUI(postId, liked, count) {
+            function mqApplyPostLikeUI(postId, liked, count) {
             const btn = document.querySelector(`#feedPost-${postId} [data-like-btn]`);
             const icon = document.getElementById(`feedLikeIcon-${postId}`);
             const countEl = document.getElementById(`feedLikeCount-${postId}`);
+            console.log('[LIKE DEBUG] mqApplyPostLikeUI:', { postId, liked, count, btnTapildi: !!btn, iconTapildi: !!icon, countElTapildi: !!countEl }); // MÜVƏQQƏTİ
             if (btn) btn.classList.toggle('liked', liked);
             if (icon) icon.textContent = liked ? '❤️' : '🤍';
             if (countEl) countEl.textContent = count;
@@ -8572,7 +8635,10 @@ function returnToRecentPrivateMessages(targetNick) {
                     postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
                   ]);
 
-            op.catch(() => {
+                        op.then(() => {
+                console.log('[LIKE DEBUG] Firebase yazması UĞURLA tamamlandı, postId =', postId); // MÜVƏQQƏTİ
+            }).catch((err) => {
+                console.error('[LIKE DEBUG] Firebase yazması XƏTA verdi:', err); // MÜVƏQQƏTİ
                 // 3) XƏTA OLARSA — geri qaytar
                 post.likedBy = post.likedBy || {};
                 if (wasLiked) post.likedBy[nick] = true; else delete post.likedBy[nick];
