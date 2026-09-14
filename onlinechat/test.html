@@ -7767,6 +7767,217 @@ function returnToRecentPrivateMessages(targetNick) {
         };
 
                 const LIMIT_REACHED_MESSAGE_CLIENT = '🚀 Reels yükləmələri bu ay üçün dayandırılıb. Bu sayt heç bir sponsor dəstəyi olmadan, tamamilə pulsuz əsasda hazırlanıb və inkişaf etdirilir. Bu ayın limitinə çatdıq — Reels sistemi gələn ay yenidən aktiv olacaq. Saytın daha da yaxşı inkişaf etməsinə dəstək olmaq istəyirsinizsə, bizə sponsorluq edə bilərsiniz. ❤️';
+                // ============================================================
+        // REELS MODULU — Lentin yüklənməsi, render, autoplay (YENİ)
+        // ============================================================
+        let reelsListenerAttached = false;
+        let mqReelsCache = {};
+        const REELS_PAGE_SIZE = 5;
+        let reelsPageSize = REELS_PAGE_SIZE;
+        let reelsOldestTimestamp = null;
+        let reelsHasMoreOlder = true;
+        let reelsLoadingMore = false;
+        let reelsObserver = null;
+        let mqReelsMuted = true;
+        let mqReelViewedIds = {};
+
+        function initReelsIfNeeded() {
+            if (reelsListenerAttached) return;
+            reelsListenerAttached = true;
+            loadReels();
+        }
+
+        function renderReelItem(id, reel) {
+            const nick = currentUserData ? currentUserData.nick : null;
+            const liked = !!(reel.likedBy && nick && reel.likedBy[nick]);
+            const avatar = reel.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
+            const caption = reel.caption || '';
+            return `
+            <div class="mq-reel-item" id="mqReel-${id}" data-reel-id="${id}">
+                <video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="toggleReelPlayPause('${id}')"></video>
+                <button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>
+                <div class="mq-reel-side-actions">
+                    <button type="button" class="mq-reel-side-btn ${liked ? 'mq-liked' : ''}" id="mqReelLikeBtn-${id}" onclick="event.stopPropagation(); toggleReelLike('${id}')">
+                        <span id="mqReelLikeIcon-${id}">${liked ? '❤️' : '🤍'}</span>
+                        <span class="mq-reel-count" id="mqReelLikeCount-${id}">${reel.likesCount || 0}</span>
+                    </button>
+                    <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); showToast('Şərh bölməsi tezliklə əlavə olunacaq.', 'info')">
+                        💬 <span class="mq-reel-count">${reel.commentsCount || 0}</span>
+                    </button>
+                    <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); showToast('Repost tezliklə əlavə olunacaq.', 'info')">
+                        🔁 <span class="mq-reel-count">${reel.repostsCount || 0}</span>
+                    </button>
+                    <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); showToast('Paylaşma tezliklə əlavə olunacaq.', 'info')">
+                        ↗️
+                    </button>
+                </div>
+                <div class="mq-reel-info">
+                    <div class="mq-reel-author" onclick="event.stopPropagation(); openPrivateChatWindow('${reel.authorNick.replace(/'/g, "\\'")}')">
+                        <img src="${avatar}" alt="">
+                        <span>@${escapeHtml(reel.authorNick)}</span>
+                    </div>
+                    ${caption ? `<div class="mq-reel-caption">${escapeHtml(caption)}</div>` : ''}
+                </div>
+            </div>`;
+        }
+
+        function loadReels() {
+            const container = document.getElementById('mqReelsFeed');
+            const emptyState = document.getElementById('mqReelsEmpty');
+            container.innerHTML = '';
+            mqReelsCache = {};
+            reelsOldestTimestamp = null;
+            reelsHasMoreOlder = true;
+            reelsLoadingMore = false;
+
+            db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).once('value', (snap) => {
+                const val = snap.val() || {};
+                const ids = Object.keys(val).sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
+
+                if (!ids.length) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                emptyState.style.display = 'none';
+                ids.forEach(id => { mqReelsCache[id] = val[id]; });
+                container.innerHTML = ids.map(id => renderReelItem(id, val[id])).join('');
+
+                reelsOldestTimestamp = Math.min(...ids.map(id => val[id].timestamp || Date.now()));
+                reelsHasMoreOlder = ids.length >= reelsPageSize;
+
+                setupReelsAutoplayObserver();
+            }).catch(err => {
+                console.error('Reels yüklənərkən xəta:', err);
+            });
+
+            // Yeni əlavə olunan Reels-ləri canlı dinləyirik (səhifə açıq ikən)
+            db.ref('reels').orderByChild('timestamp').startAt(Date.now()).on('child_added', (snap) => {
+                const reel = snap.val();
+                const id = snap.key;
+                if (mqReelsCache[id]) return;
+                mqReelsCache[id] = reel;
+                container.insertAdjacentHTML('afterbegin', renderReelItem(id, reel));
+                emptyState.style.display = 'none';
+                setupReelsAutoplayObserver();
+            });
+
+            // Mövcud Reels-in like/comment/repost sayı dəyişəndə YALNIZ ədədi yenilə (video dayanmasın)
+            db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).on('child_changed', (snap) => {
+                const reel = snap.val();
+                const id = snap.key;
+                mqReelsCache[id] = reel;
+                const likeCountEl = document.getElementById(`mqReelLikeCount-${id}`);
+                const likeIconEl = document.getElementById(`mqReelLikeIcon-${id}`);
+                const likeBtnEl = document.getElementById(`mqReelLikeBtn-${id}`);
+                if (likeCountEl) likeCountEl.textContent = reel.likesCount || 0;
+                const nick = currentUserData ? currentUserData.nick : null;
+                const liked = !!(reel.likedBy && nick && reel.likedBy[nick]);
+                if (likeIconEl) likeIconEl.textContent = liked ? '❤️' : '🤍';
+                if (likeBtnEl) likeBtnEl.classList.toggle('mq-liked', liked);
+            });
+        }
+
+        function setupReelsAutoplayObserver() {
+            if (reelsObserver) reelsObserver.disconnect();
+            const items = document.querySelectorAll('.mq-reel-item');
+            reelsObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const reelId = entry.target.dataset.reelId;
+                    const video = document.getElementById(`mqReelVideo-${reelId}`);
+                    if (!video) return;
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+                        document.querySelectorAll('.mq-reel-video').forEach(v => {
+                            if (v !== video && !v.paused) v.pause();
+                        });
+                        if (video.preload !== 'auto') video.preload = 'auto';
+                        video.muted = mqReelsMuted;
+                        updateReelMuteIcon(reelId);
+                        video.play().catch(() => {});
+                        mqRegisterReelView(reelId);
+                    } else {
+                        video.pause();
+                    }
+                });
+            }, { threshold: [0, 0.6, 1] });
+            items.forEach(item => reelsObserver.observe(item));
+        }
+
+        window.toggleReelPlayPause = function (reelId) {
+            const video = document.getElementById(`mqReelVideo-${reelId}`);
+            if (!video) return;
+            if (video.paused) video.play().catch(() => {});
+            else video.pause();
+        };
+
+        function updateReelMuteIcon(reelId) {
+            const btn = document.getElementById(`mqReelMuteBtn-${reelId}`);
+            const video = document.getElementById(`mqReelVideo-${reelId}`);
+            if (btn && video) btn.textContent = video.muted ? '🔇' : '🔊';
+        }
+
+        window.toggleReelMute = function (reelId) {
+            const video = document.getElementById(`mqReelVideo-${reelId}`);
+            if (!video) return;
+            video.muted = !video.muted;
+            mqReelsMuted = video.muted; // sessiya ərzində seçim yadda saxlanır
+            updateReelMuteIcon(reelId);
+        };
+
+        function mqRegisterReelView(reelId) {
+            if (!currentUserData || mqReelViewedIds[reelId]) return;
+            mqReelViewedIds[reelId] = true;
+            const nick = currentUserData.nick;
+            db.ref(`reels/${reelId}/views/${nick}`).once('value', (snap) => {
+                if (snap.exists()) return; // artıq baxılıb (başqa sessiyada)
+                const updates = {};
+                updates[`reels/${reelId}/views/${nick}`] = firebase.database.ServerValue.TIMESTAMP;
+                db.ref().update(updates);
+                db.ref(`reels/${reelId}/viewsCount`).transaction(c => (c || 0) + 1);
+            });
+        }
+
+        window.toggleReelLike = function (reelId) {
+            if (!currentUserData) return;
+            const nick = currentUserData.nick;
+            const reel = mqReelsCache[reelId];
+            if (!reel) return;
+            const wasLiked = !!(reel.likedBy && reel.likedBy[nick]);
+            const prevCount = reel.likesCount || 0;
+            const newLiked = !wasLiked;
+            const newCount = Math.max(0, prevCount + (newLiked ? 1 : -1));
+
+            reel.likedBy = reel.likedBy || {};
+            if (newLiked) reel.likedBy[nick] = true; else delete reel.likedBy[nick];
+            reel.likesCount = newCount;
+
+            const iconEl = document.getElementById(`mqReelLikeIcon-${reelId}`);
+            const countEl = document.getElementById(`mqReelLikeCount-${reelId}`);
+            const btnEl = document.getElementById(`mqReelLikeBtn-${reelId}`);
+            if (iconEl) iconEl.textContent = newLiked ? '❤️' : '🤍';
+            if (countEl) countEl.textContent = newCount;
+            if (btnEl) btnEl.classList.toggle('mq-liked', newLiked);
+
+            const reelRef = db.ref(`reels/${reelId}`);
+            const op = newLiked
+                ? Promise.all([
+                    reelRef.child('likedBy').child(nick).set(true),
+                    reelRef.child('likesCount').transaction(c => (c || 0) + 1)
+                  ])
+                : Promise.all([
+                    reelRef.child('likedBy').child(nick).remove(),
+                    reelRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
+                  ]);
+
+            op.catch(err => {
+                reel.likedBy = reel.likedBy || {};
+                if (wasLiked) reel.likedBy[nick] = true; else delete reel.likedBy[nick];
+                reel.likesCount = prevCount;
+                if (iconEl) iconEl.textContent = wasLiked ? '❤️' : '🤍';
+                if (countEl) countEl.textContent = prevCount;
+                if (btnEl) btnEl.classList.toggle('mq-liked', wasLiked);
+                showToast('Bəyənmə əməliyyatı uğursuz oldu.', 'error');
+            });
+        };
         // ============================================================
         // STORY MODULU — Yükləmə və Bar render (YENİ)
         // ============================================================
