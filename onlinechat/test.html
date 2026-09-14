@@ -4510,7 +4510,29 @@ function initHeaderMessageInbox() {
                 setTimeout(() => toast.remove(), 400);
             }, duration);
         }
-
+        // ============================================================
+        // REELS MODULU — Aylıq limit / Sponsorluq bildirişi (YENİ)
+        // ============================================================
+        const SPONSOR_WHATSAPP_NUMBER = '994515032100'; // beynəlxalq format, '+' və boşluqsuz
+        function showSponsorToast() {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-error';
+            const waText = encodeURIComponent('Salam, Maqalux saytına sponsor olmaq istəyirəm.');
+            toast.innerHTML = `
+                <div>${escapeHtml(LIMIT_REACHED_MESSAGE_CLIENT)}</div>
+                <a href="https://wa.me/${SPONSOR_WHATSAPP_NUMBER}?text=${waText}" target="_blank" rel="noopener noreferrer"
+                   style="display:inline-block; margin-top:10px; background: linear-gradient(90deg, #25D366, #1ebe57); color:#fff; text-decoration:none; padding:8px 16px; border-radius:18px; font-weight:700; font-size:13px;">
+                   💚 Sponsor ol
+                </a>
+            `;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 15000);
+        }
         function togglePasswordVisibility(inputId, iconEl) {
             const inp = document.getElementById(inputId);
             if (!inp) return;
@@ -7618,7 +7640,135 @@ function returnToRecentPrivateMessages(targetNick) {
                 btn.textContent = 'Paylaş';
             }
         };
-                // ============================================================
+        // ============================================================
+        // REELS MODULU — Composer funksiyaları (YENİ)
+        // ============================================================
+        function mqResetReelComposer() {
+            mqReelComposerFile = null;
+            mqReelComposerReelId = null;
+            document.getElementById('mqReelVideoInput').value = '';
+            document.getElementById('mqReelCaptionInput').value = '';
+            document.getElementById('mqReelPreviewEmpty').style.display = 'block';
+            const videoEl = document.getElementById('mqReelPreviewVideo');
+            videoEl.style.display = 'none';
+            videoEl.src = '';
+            const btn = document.getElementById('mqReelPublishBtn');
+            btn.disabled = false;
+            btn.textContent = 'Paylaş';
+        }
+
+        window.openReelComposerModal = function () {
+            if (!currentUserData) return;
+            mqResetReelComposer();
+            document.getElementById('mqReelComposerModal').classList.add('active');
+        };
+
+        window.closeReelComposerModal = function () {
+            document.getElementById('mqReelComposerModal').classList.remove('active');
+            mqResetReelComposer();
+        };
+
+        window.handleReelVideoSelect = async function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > MAX_REEL_VIDEO_BYTES) {
+                showToast(`Video həddindən artıq böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 100MB icazəlidir.`, 'error', 6000);
+                event.target.value = '';
+                return;
+            }
+            const duration = await getVideoDurationSeconds(file);
+            if (duration > 0 && duration > MAX_REEL_DURATION_SECONDS) {
+                showToast(`Video həddindən artıq uzundur (${Math.round(duration)} saniyə). Maksimum ${MAX_REEL_DURATION_SECONDS} saniyə icazəlidir.`, 'error', 6000);
+                event.target.value = '';
+                return;
+            }
+
+            mqReelComposerFile = file;
+            const videoEl = document.getElementById('mqReelPreviewVideo');
+            videoEl.src = URL.createObjectURL(file);
+            videoEl.style.display = 'block';
+            document.getElementById('mqReelPreviewEmpty').style.display = 'none';
+        };
+
+        window.publishReel = async function () {
+            if (!currentUserData || !currentUser) return;
+            if (!mqReelComposerFile) {
+                showToast('Əvvəlcə bir video seç.', 'info');
+                return;
+            }
+
+            const btn = document.getElementById('mqReelPublishBtn');
+            btn.disabled = true;
+            btn.textContent = 'Yüklənir... 0%';
+
+            try {
+                const idToken = await currentUser.getIdToken();
+                const reelId = crypto.randomUUID ? crypto.randomUUID() : ('r' + Date.now() + Math.random().toString(36).slice(2));
+                mqReelComposerReelId = reelId;
+
+                const videoResult = await uploadToReelsWorker(
+                    '/upload/video',
+                    mqReelComposerFile,
+                    idToken,
+                    reelId,
+                    (percent) => { btn.textContent = `Video yüklənir... ${percent}%`; }
+                );
+
+                let thumbnailUrl = null;
+                btn.textContent = 'Üz qapağı hazırlanır...';
+                const thumbBlob = await generateReelThumbnail(mqReelComposerFile);
+                if (thumbBlob) {
+                    try {
+                        const thumbResult = await uploadToReelsWorker(
+                            '/upload/thumbnail',
+                            thumbBlob,
+                            idToken,
+                            reelId,
+                            null
+                        );
+                        thumbnailUrl = thumbResult.thumbnailUrl;
+                    } catch (thumbErr) {
+                        console.warn('Thumbnail yüklənmədi, video thumbnailsız davam edir:', thumbErr.message);
+                    }
+                }
+
+                btn.textContent = 'Paylaşılır...';
+                const captionRaw = document.getElementById('mqReelCaptionInput').value.trim();
+                await db.ref(`reels/${reelId}`).set({
+                    authorNick: currentUserData.nick,
+                    authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                    caption: captionRaw,
+                    videoKey: videoResult.videoKey,
+                    videoUrl: videoResult.videoUrl,
+                    thumbnailUrl: thumbnailUrl,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    likesCount: 0,
+                    commentsCount: 0,
+                    repostsCount: 0,
+                    viewsCount: 0,
+                    likedBy: {},
+                    isRepost: false
+                });
+
+                showToast('Reels paylaşıldı!', 'success');
+                closeReelComposerModal();
+            } catch (err) {
+                console.error('Reels paylaşılarkən xəta:', err);
+                 if (err.message && err.message.includes('monthly_limit_reached')) {
+                    showSponsorToast();
+                } else {
+                    showToast('Reels paylaşılmadı: ' + err.message, 'error', 7000);
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Paylaş';
+            }
+        };
+
+        const LIMIT_REACHED_MESSAGE_CLIENT = '🚀 Reels yükləmələri bu ay üçün dayandırılıb. Bu sayt heç bir sponsor dəstəyi olmadan, tamamilə pulsuz əsasda hazırlanıb və inkişaf etdirilir. Bu ayın limitinə çatdıq — Reels sistemi gələn ay yenidən aktiv olacaq.
+Saytın daha da yaxşı inkişaf etməsinə dəstək olmaq istəyirsinizsə, bizə sponsorluq edə bilərsiniz. ❤️';
+        // ============================================================
         // STORY MODULU — Yükləmə və Bar render (YENİ)
         // ============================================================
 
