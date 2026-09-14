@@ -3037,6 +3037,7 @@
                     <div style="display:flex; gap:8px; align-items:center;">
                         <button type="button" class="feed-tab-btn active" id="chatsTabBtn" onclick="switchMainView('friends')">💬 Söhbətlər</button>
                         <button type="button" class="feed-tab-btn" id="feedTabBtn" onclick="switchMainView('feed')">🏠 Lent</button>
+                        <button type="button" class="feed-tab-btn" id="reelsTabBtn" onclick="switchMainView('reels')">🎬 Reels</button>
                     </div>
                     <button class="login-btn" style="width:auto; margin:0; padding:8px 16px; font-size:13px;" onclick="openNewChatModal()">
                         ✏️ Yeni söhbət
@@ -3099,6 +3100,17 @@
                     <!-- YENİ: sürüşdürmə ilə "daha çox yüklə" üçün görünməz nişan (sentinel) -->
                     <div id="feedScrollSentinel" style="height:1px;"></div>
                 </div>
+                     <!-- ============================================================
+                     REELS EKRANI — YENİ ƏLAVƏ
+                     ============================================================ -->
+                    <div class="mq-reels-view" id="reelsView">
+                    <div class="mq-reels-topbar">
+                    <span>🎬 Reels</span>
+                    <button type="button" class="mq-reels-create-btn" onclick="openReelComposerModal()">+ Reels yarat</button>
+                    </div>
+                    <div class="mq-reels-feed" id="mqReelsFeed"></div>
+                    <div class="mq-reels-empty" id="mqReelsEmpty" style="display:none;">Hələ heç bir Reels yoxdur. İlk Reels-i sən paylaş!</div>
+                    </div>
 
                 <!-- Reply Preview Bar -->
                 <div id="replyPreviewBar" style="display:none;">
@@ -3799,43 +3811,54 @@
             renderFriendReqDropdown();
         }
 
-                window.switchMainView = function(view) {
+            window.switchMainView = function(view) {
             const friendsView = document.getElementById('friendsListView');
             const generalBody = document.getElementById('generalChatBody');
             const generalInputBar = document.getElementById('generalInputBar');
             const feedView = document.getElementById('feedView');
+            const reelsView = document.getElementById('reelsView');
             const chatsTabBtn = document.getElementById('chatsTabBtn');
             const feedTabBtn = document.getElementById('feedTabBtn');
+            const reelsTabBtn = document.getElementById('reelsTabBtn');
 
-            // YENİ: Feed tabları arasında aktiv/passiv görünüş
-            if (chatsTabBtn && feedTabBtn) {
-                chatsTabBtn.classList.toggle('active', view !== 'feed');
+            // Üç tab arasında aktiv/passiv görünüş
+            if (chatsTabBtn && feedTabBtn && reelsTabBtn) {
+                chatsTabBtn.classList.toggle('active', view === 'friends' || view === 'chat');
                 feedTabBtn.classList.toggle('active', view === 'feed');
+                reelsTabBtn.classList.toggle('active', view === 'reels');
             }
 
+            // Əvvəlcə bütün əsas görünüşləri gizlət
+            if (feedView) feedView.style.display = 'none';
+            if (reelsView) reelsView.style.display = 'none';
+            friendsView.style.display = 'none';
+            generalBody.style.display = 'none';
+            generalInputBar.style.display = 'none';
+
             if (view === 'feed') {
-                // YENİ: Feed görünüşünü aç, çat hissəsini gizlət
-                friendsView.style.display = 'none';
-                generalBody.style.display = 'none';
-                generalInputBar.style.display = 'none';
                 if (feedView) feedView.style.display = 'flex';
                 if (window.location.hash !== '#feed') history.replaceState(null, '', '#feed');
                 initFeedIfNeeded();
                 return;
             }
-            if (feedView) feedView.style.display = 'none';
+
+            if (view === 'reels') {
+                if (reelsView) reelsView.style.display = 'flex';
+                if (window.location.hash !== '#reels') history.replaceState(null, '', '#reels');
+                initReelsIfNeeded();
+                return;
+            }
+
+            if (window.location.hash === '#feed' || window.location.hash === '#reels') {
+                history.replaceState(null, '', ' ');
+            }
 
             if (view === 'friends') {
                 friendsView.style.display = 'flex';
-                generalBody.style.display = 'none';
-                generalInputBar.style.display = 'none';
-                if (window.location.hash === '#feed') history.replaceState(null, '', ' ');
                 renderFriendsList();
             } else {
-                friendsView.style.display = 'none';
                 generalBody.style.display = 'flex';
                 generalInputBar.style.display = 'flex';
-                if (window.location.hash === '#feed') history.replaceState(null, '', ' ');
             }
         };
 
@@ -4530,11 +4553,13 @@ connectedRef.on('value', (snap) => {
                        initFriendSystem();
                        initStorySystem();
 
-                       // YENİ: Refresh-dən sonra #feed hash-i varsa, birbaşa Feed-i aç
+                       // YENİ: Refresh-dən sonra #feed və ya #reels hash-i varsa, uyğun görünüşü aç
                        if (window.location.hash === '#feed') {
                            switchMainView('feed');
+                       } else if (window.location.hash === '#reels') {
+                           switchMainView('reels');
                        }
-
+                        
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
                         // yönləndirməsi zamanı ?query parametrini itirə bilir, #hash isə qalır.
