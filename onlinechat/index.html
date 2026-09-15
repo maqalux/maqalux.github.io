@@ -3116,12 +3116,21 @@
         }
 
         /* Masaüstündə telefon-ekranı effekti — Instagram-ın veb versiyasına bənzər dar sütun */
+        /* Masaüstündə Instagram-ın veb versiyasına bənzər böyük, tam-hündürlüklü görünüş */
         @media (min-width: 769px) {
             .mq-reels-feed {
-                max-width: 420px;
+                max-width: 480px;
                 margin: 0 auto;
                 border-left: 1px solid var(--border-10);
                 border-right: 1px solid var(--border-10);
+            }
+            /* Reels tabı aktivdirsə, pəncərəni Instagram kimi demək olar tam-hündürlüklü göstəririk */
+            body.mq-reels-mode .chat-container {
+                height: min(860px, 90vh);
+            }
+            /* Instagramda Reels üzərində Story zolağı görünmür — biz də gizlədirik, videoya daha çox yer qalsın */
+            body.mq-reels-mode .mq-story-bar {
+                display: none !important;
             }
         }
     </style>
@@ -4031,6 +4040,7 @@
         }
 
             window.switchMainView = function(view) {
+            document.body.classList.toggle('mq-reels-mode', view === 'reels');
             const friendsView = document.getElementById('friendsListView');
             const generalBody = document.getElementById('generalChatBody');
             const generalInputBar = document.getElementById('generalInputBar');
