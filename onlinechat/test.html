@@ -3115,6 +3115,143 @@
             padding: 40px 20px;
         }
 
+        /* ============================================================
+           REELS — COMMENT PANELİ (mobil: bottom sheet, masaüstü: sağ panel)
+           ============================================================ */
+        .mq-reel-comments-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 4000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .mq-reel-comments-overlay.active { display: flex; }
+
+        .mq-reel-comments-panel {
+            background: var(--panel-08);
+            width: 100%;
+            max-height: 70vh;
+            border-radius: 18px 18px 0 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: mqCommentsSlideUp 0.25s ease;
+        }
+        @keyframes mqCommentsSlideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .mq-reel-comments-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-10);
+            flex-shrink: 0;
+        }
+        .mq-reel-comments-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+        .mq-reel-comments-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 14px;
+        }
+        .mq-reel-comment-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .mq-reel-comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .mq-reel-comment-bubble { flex: 1; }
+        .mq-reel-comment-author {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+        .mq-reel-comment-text {
+            font-size: 13.5px;
+            color: var(--text-main);
+            word-break: break-word;
+        }
+        .mq-reel-comment-meta {
+            font-size: 11px;
+            color: var(--text-50, rgba(255,255,255,0.5));
+            display: flex;
+            gap: 12px;
+            margin-top: 2px;
+        }
+        .mq-reel-comment-meta span { cursor: pointer; }
+        .mq-reel-comment-meta span:hover { text-decoration: underline; }
+
+        .mq-reel-comments-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-top: 1px solid var(--border-10);
+            flex-shrink: 0;
+        }
+        .mq-reel-comments-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .mq-reel-comments-input {
+            flex: 1;
+            background: var(--panel-06);
+            border: 1px solid var(--border-10);
+            border-radius: 20px;
+            padding: 8px 14px;
+            color: var(--text-main);
+            font-size: 13.5px;
+            outline: none;
+        }
+        .mq-reel-comments-send {
+            background: none;
+            border: none;
+            color: #4fc3f7;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Masaüstündə: bottom sheet yox, tam-hündürlüklü sağ paneldir */
+        @media (min-width: 769px) {
+            .mq-reel-comments-overlay {
+                align-items: stretch;
+                justify-content: flex-end;
+                background: rgba(0, 0, 0, 0.35);
+            }
+            .mq-reel-comments-panel {
+                width: 380px;
+                max-width: 380px;
+                max-height: none;
+                height: 100%;
+                border-radius: 0;
+                animation: mqCommentsSlideLeft 0.25s ease;
+            }
+            @keyframes mqCommentsSlideLeft {
+                from { transform: translateX(100%); }
+                to { transform: translateX(0); }
+            }
+        }
+
         /* Reels tam-ekran rejimi — mobil VƏ masaüstündə TikTok/Instagram/YouTube Shorts kimi bütün ekranı tutur */
         body.mq-reels-mode {
             overflow: hidden;
@@ -3350,6 +3487,22 @@
                     <div class="mq-reels-nav-arrows">
                     <button type="button" class="mq-reels-nav-btn" onclick="mqReelsScrollBy(-1)" aria-label="Əvvəlki Reel">▲</button>
                     <button type="button" class="mq-reels-nav-btn" onclick="mqReelsScrollBy(1)" aria-label="Növbəti Reel">▼</button>
+                    </div>
+
+                    <!-- Reels Comment paneli (mobil: bottom sheet, masaüstü: sağ panel) -->
+                    <div class="mq-reel-comments-overlay" id="mqReelCommentsOverlay" onclick="closeReelComments()">
+                        <div class="mq-reel-comments-panel" onclick="event.stopPropagation()">
+                            <div class="mq-reel-comments-header">
+                                <span>Şərhlər</span>
+                                <button type="button" class="mq-reel-comments-close" onclick="closeReelComments()">✕</button>
+                            </div>
+                            <div class="mq-reel-comments-list" id="mqReelCommentsList"></div>
+                            <div class="mq-reel-comments-input-row">
+                                <img class="mq-reel-comments-avatar" id="mqReelCommentsMyAvatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+                                <input type="text" class="mq-reel-comments-input" id="mqReelCommentsInput" placeholder="Şərh yaz..." onkeydown="if(event.key==='Enter'){addReelComment();}">
+                                <button type="button" class="mq-reel-comments-send" onclick="addReelComment()">➤</button>
+                            </div>
+                        </div>
                     </div>
                     </div>
 
@@ -8022,6 +8175,8 @@ function returnToRecentPrivateMessages(targetNick) {
         let reelsObserver = null;
         let mqReelsMuted = true;
         let mqReelViewedIds = {};
+        let mqReelCommentsCurrentReelId = null;
+        const mqReelCommentsListeners = {};
 
         function initReelsIfNeeded() {
             if (reelsListenerAttached) return;
@@ -8043,8 +8198,8 @@ function returnToRecentPrivateMessages(targetNick) {
                         <span id="mqReelLikeIcon-${id}">${liked ? '❤️' : '🤍'}</span>
                         <span class="mq-reel-count" id="mqReelLikeCount-${id}">${reel.likesCount || 0}</span>
                     </button>
-                    <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); showToast('Şərh bölməsi tezliklə əlavə olunacaq.', 'info')">
-                        💬 <span class="mq-reel-count">${reel.commentsCount || 0}</span>
+                    <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); openReelComments('${id}')">
+                        💬 <span class="mq-reel-count" id="mqReelCommentCount-${id}">${reel.commentsCount || 0}</span>
                     </button>
                     <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); showToast('Repost tezliklə əlavə olunacaq.', 'info')">
                         🔁 <span class="mq-reel-count">${reel.repostsCount || 0}</span>
@@ -8230,6 +8385,117 @@ function returnToRecentPrivateMessages(targetNick) {
                 showToast('Bəyənmə əməliyyatı uğursuz oldu.', 'error');
             });
         };
+
+        // ============================================================
+        // REELS — COMMENT SİSTEMİ (YENİ)
+        // ============================================================
+        window.openReelComments = function (reelId) {
+            if (!currentUserData) return;
+            mqReelCommentsCurrentReelId = reelId;
+            const overlay = document.getElementById('mqReelCommentsOverlay');
+            const avatarImg = document.getElementById('mqReelCommentsMyAvatar');
+            if (avatarImg) avatarImg.src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            overlay.classList.add('active');
+            attachReelCommentsListener(reelId);
+        };
+
+        window.closeReelComments = function () {
+            const overlay = document.getElementById('mqReelCommentsOverlay');
+            overlay.classList.remove('active');
+            if (mqReelCommentsCurrentReelId && mqReelCommentsListeners[mqReelCommentsCurrentReelId]) {
+                db.ref(`reelComments/${mqReelCommentsCurrentReelId}`).off('value', mqReelCommentsListeners[mqReelCommentsCurrentReelId]);
+                delete mqReelCommentsListeners[mqReelCommentsCurrentReelId];
+            }
+            mqReelCommentsCurrentReelId = null;
+            const input = document.getElementById('mqReelCommentsInput');
+            if (input) input.value = '';
+        };
+
+        function attachReelCommentsListener(reelId) {
+            if (mqReelCommentsListeners[reelId]) return;
+            const handler = (snap) => {
+                renderReelComments(reelId, snap.val() || {});
+            };
+            db.ref(`reelComments/${reelId}`).orderByChild('timestamp').on('value', handler);
+            mqReelCommentsListeners[reelId] = handler;
+        }
+
+        function renderReelComments(reelId, commentsObj) {
+            if (mqReelCommentsCurrentReelId !== reelId) return; // panel artıq bağlanıb / başqa Reel açılıb
+            const list = document.getElementById('mqReelCommentsList');
+            if (!list) return;
+            const ids = Object.keys(commentsObj).sort((a, b) => (commentsObj[a].timestamp || 0) - (commentsObj[b].timestamp || 0));
+            if (!ids.length) {
+                list.innerHTML = `<div style="color:var(--text-50); font-size:12.5px; padding:6px 0; text-align:center;">Hələ şərh yoxdur. İlk şərhi sən yaz!</div>`;
+                return;
+            }
+            const isMod = currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator');
+            const reel = mqReelsCache[reelId];
+            const isOwner = currentUserData && reel && reel.authorNick === currentUserData.nick;
+
+            list.innerHTML = ids.map(id => {
+                const c = commentsObj[id];
+                const isMine = currentUserData && c.authorNick === currentUserData.nick;
+                return `
+                <div class="mq-reel-comment-item" id="mqReelComment-${id}">
+                    <img class="mq-reel-comment-avatar" src="${c.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png'}" alt="">
+                    <div class="mq-reel-comment-bubble">
+                        <div class="mq-reel-comment-author">${escapeHtml(c.authorNick)}</div>
+                        <div class="mq-reel-comment-text" id="mqReelCommentText-${id}">${escapeHtml(c.text)}</div>
+                        <div class="mq-reel-comment-meta">
+                            <span>${formatFeedTime(c.timestamp)}${c.editedAt ? ' · redaktə edilib' : ''}</span>
+                            ${isMine ? `<span onclick="startEditReelComment('${reelId}','${id}')">Redaktə et</span>` : ''}
+                            ${(isMine || isOwner || isMod) ? `<span onclick="deleteReelComment('${reelId}','${id}')">Sil</span>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.addReelComment = function () {
+            if (!currentUserData || !mqReelCommentsCurrentReelId) return;
+            const reelId = mqReelCommentsCurrentReelId;
+            const input = document.getElementById('mqReelCommentsInput');
+            const text = input.value.trim();
+            if (!text) return;
+            const commentData = {
+                authorNick: currentUserData.nick,
+                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                text: text,
+                timestamp: Date.now(),
+                editedAt: null
+            };
+            input.value = '';
+            db.ref(`reelComments/${reelId}`).push(commentData)
+                .then(() => {
+                    db.ref(`reels/${reelId}/commentsCount`).transaction(c => (c || 0) + 1);
+                    const countEl = document.getElementById(`mqReelCommentCount-${reelId}`);
+                    if (countEl) countEl.textContent = (parseInt(countEl.textContent, 10) || 0) + 1;
+                })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.startEditReelComment = function (reelId, commentId) {
+            const textEl = document.getElementById(`mqReelCommentText-${commentId}`);
+            if (!textEl) return;
+            const current = textEl.innerText;
+            const updated = prompt('Şərhi redaktə et:', current);
+            if (updated === null || !updated.trim()) return;
+            db.ref(`reelComments/${reelId}/${commentId}`).update({ text: updated.trim(), editedAt: Date.now() })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.deleteReelComment = function (reelId, commentId) {
+            if (!confirm('Şərhi silmək istədiyinizə əminsiniz?')) return;
+            db.ref(`reelComments/${reelId}/${commentId}`).remove()
+                .then(() => {
+                    db.ref(`reels/${reelId}/commentsCount`).transaction(c => Math.max(0, (c || 0) - 1));
+                    const countEl = document.getElementById(`mqReelCommentCount-${reelId}`);
+                    if (countEl) countEl.textContent = Math.max(0, (parseInt(countEl.textContent, 10) || 1) - 1);
+                })
+                .catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
         // ============================================================
         // STORY MODULU — Yükləmə və Bar render (YENİ)
         // ============================================================
