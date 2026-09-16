@@ -8128,13 +8128,18 @@ function returnToRecentPrivateMessages(targetNick) {
                     const video = document.getElementById(`mqReelVideo-${reelId}`);
                     if (!video) return;
                     if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-                        document.querySelectorAll('.mq-reel-video').forEach(v => {
-                            if (v !== video && !v.paused) v.pause();
-                        });
+                    document.querySelectorAll('.mq-reel-video').forEach(v => {
+                    if (v !== video && !v.paused) v.pause();
+                       });
                         if (video.preload !== 'auto') video.preload = 'auto';
-                        video.muted = mqReelsMuted;
+                        if (video.paused) {
+                            // Mute vəziyyətini YALNIZ video ilk dəfə başlayanda təyin edirik.
+                            // Əgər video artıq oynayırsa, buraya yenidən toxunmuruq —
+                            // əks halda istifadəçinin əl ilə açdığı səs observer tərəfindən yenidən bağlanırdı.
+                            video.muted = mqReelsMuted;
+                            video.play().catch(() => {});
+                        }
                         updateReelMuteIcon(reelId);
-                        video.play().catch(() => {});
                         mqRegisterReelView(reelId);
                     } else {
                         video.pause();
