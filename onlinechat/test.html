@@ -8132,9 +8132,13 @@ function returnToRecentPrivateMessages(targetNick) {
                             if (v !== video && !v.paused) v.pause();
                         });
                         if (video.preload !== 'auto') video.preload = 'auto';
+                        if (video.paused) {
+                        // Mute vəziyyətini YALNIZ video ilk dəfə başlayanda təyin edirik ki,
+                        // artıq oynayan videoda istifadəçinin əl ilə etdiyi səs seçimi pozulmasın.
                         video.muted = mqReelsMuted;
-                        updateReelMuteIcon(reelId);
                         video.play().catch(() => {});
+                        }
+                        updateReelMuteIcon(reelId);
                         mqRegisterReelView(reelId);
                     } else {
                         video.pause();
@@ -8156,6 +8160,14 @@ function returnToRecentPrivateMessages(targetNick) {
             const video = document.getElementById(`mqReelVideo-${reelId}`);
             if (btn && video) btn.textContent = video.muted ? '🔇' : '🔊';
         }
+
+        window.toggleReelMute = function (reelId) {
+            const video = document.getElementById(`mqReelVideo-${reelId}`);
+            if (!video) return;
+            video.muted = !video.muted;
+            mqReelsMuted = video.muted; // sessiya ərzində seçim yadda saxlanır
+            updateReelMuteIcon(reelId);
+        };
 
         window.mqReelsScrollBy = function (direction) {
             const feed = document.getElementById('mqReelsFeed');
