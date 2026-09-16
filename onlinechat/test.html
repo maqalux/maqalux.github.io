@@ -3119,6 +3119,12 @@
         body.mq-reels-mode {
             overflow: hidden;
         }
+        /* backdrop-filter olan valideyn fixed-mövqeli övladlar üçün öz "containing block"-unu yaradır —
+           məhz buna görə #reelsView bütün ekranı yox, yalnız chat-container-i tuturdu.
+           Reels rejimində bunu müvəqqəti söndürürük (görünməz olduğu üçün heç bir vizual itki yoxdur). */
+        body.mq-reels-mode .chat-container {
+            backdrop-filter: none;
+        }
         body.mq-reels-mode #reelsView {
             position: fixed;
             inset: 0;
