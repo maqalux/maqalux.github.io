@@ -5110,7 +5110,10 @@ connectedRef.on('value', (snap) => {
                             window.history.replaceState({}, document.title, cleanUrl);
                         }
                     } else {
+                        // Profil Firebase-də yoxdursa — admin tərəfindən silinib deməkdir.
                         await auth.signOut();
+                        alert('Saytın qaydalarını pozduğunuz üçün hesabınız Maqalux tərəfindən silindi.');
+                        window.location.reload();
                     }
                 } catch (err) {
                     showToast('Xəta baş verdi: ' + err.message, 'error', 5000);
