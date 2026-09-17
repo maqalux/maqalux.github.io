@@ -4103,45 +4103,7 @@
                 showToast('Xəta: ' + err.message, 'error');
             }
         };
-                window.removeFriend = async function (nick) {
-            if (!confirm(`${nick} istifadəçisini dostluqdan çıxarmaq istədiyinizə əminsiniz?`)) return;
-            try {
-                const updates = {};
-                updates[`friends/${currentUserData.nick}/${nick}`] = null;
-                updates[`friends/${nick}/${currentUserData.nick}`] = null;
-                await db.ref().update(updates);
-                showToast(`${nick} dostluqdan çıxarıldı.`, 'success');
-            } catch (err) {
-                showToast('Xəta: ' + err.message, 'error');
-            }
-        };
-
-        window.blockUser = async function (nick) {
-            if (!confirm(`${nick} istifadəçisini blok etmək istədiyinizə əminsiniz?\n\nBlok etsəniz: dostluq əlaqəniz silinəcək, bir-birinizə yeni mesaj və dostluq sorğusu göndərə bilməyəcəksiniz, siz onu istifadəçi siyahınızda görməyəcəksiniz.`)) return;
-            try {
-                const updates = {};
-                updates[`friends/${currentUserData.nick}/${nick}`] = null;
-                updates[`friends/${nick}/${currentUserData.nick}`] = null;
-                updates[`friendRequests/${currentUserData.nick}/${nick}`] = null;
-                updates[`friendRequests/${nick}/${currentUserData.nick}`] = null;
-                updates[`blockedUsers/${currentUserData.nick}/${nick}`] = true;
-                await db.ref().update(updates);
-                showToast(`${nick} blok edildi.`, 'success');
-            } catch (err) {
-                showToast('Xəta: ' + err.message, 'error');
-            }
-        };
-
-        window.unblockUser = async function (nick) {
-            try {
-                await db.ref(`blockedUsers/${currentUserData.nick}/${nick}`).remove();
-                showToast(`${nick} blokdan çıxarıldı.`, 'success');
-            } catch (err) {
-                showToast('Xəta: ' + err.message, 'error');
-            }
-        };
-
-        window.acceptFriendRequest = async function(fromNick) {
+        
         window.acceptFriendRequest = async function(fromNick) {
             if (!currentUserData) return;
             try {
