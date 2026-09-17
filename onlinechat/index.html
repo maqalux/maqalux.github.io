@@ -4103,7 +4103,45 @@
                 showToast('Xəta: ' + err.message, 'error');
             }
         };
-        
+
+        window.removeFriend = async function (nick) {
+            if (!confirm(`${nick} istifadəçisini dostluqdan çıxarmaq istədiyinizə əminsiniz?`)) return;
+            try {
+                const updates = {};
+                updates[`friends/${currentUserData.nick}/${nick}`] = null;
+                updates[`friends/${nick}/${currentUserData.nick}`] = null;
+                await db.ref().update(updates);
+                showToast(`${nick} dostluqdan çıxarıldı.`, 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+
+        window.blockUser = async function (nick) {
+            if (!confirm(`${nick} istifadəçisini blok etmək istədiyinizə əminsiniz?\n\nBlok etsəniz: dostluq əlaqəniz silinəcək, bir-birinizə yeni mesaj və dostluq sorğusu göndərə bilməyəcəksiniz, siz onu istifadəçi siyahınızda görməyəcəksiniz.`)) return;
+            try {
+                const updates = {};
+                updates[`friends/${currentUserData.nick}/${nick}`] = null;
+                updates[`friends/${nick}/${currentUserData.nick}`] = null;
+                updates[`friendRequests/${currentUserData.nick}/${nick}`] = null;
+                updates[`friendRequests/${nick}/${currentUserData.nick}`] = null;
+                updates[`blockedUsers/${currentUserData.nick}/${nick}`] = true;
+                await db.ref().update(updates);
+                showToast(`${nick} blok edildi.`, 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+
+        window.unblockUser = async function (nick) {
+            try {
+                await db.ref(`blockedUsers/${currentUserData.nick}/${nick}`).remove();
+                showToast(`${nick} blokdan çıxarıldı.`, 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+
         window.acceptFriendRequest = async function(fromNick) {
             if (!currentUserData) return;
             try {
@@ -7204,29 +7242,86 @@ function returnToRecentPrivateMessages(targetNick) {
                 showToast(`${targetNick} adi istifadəçi oldu.`, 'success');
             });
         };
-        window.adminDeleteAccount = function(targetNick) {
-            if (!confirm(`${targetNick} istifadəçisinin hesabını həmişəlik silmək istədiyinizdən əminsiniz?`)) return;
+        window.adminDeleteAccount = async function(targetNick) {
+            if (!confirm(`${targetNick} istifadəçisinin hesabını və ona aid BÜTÜN məlumatları (dostlar, mesajlar, postlar, story-lər, reels) həmişəlik silmək istədiyinizdən əminsiniz? Bu geri qaytarıla bilməz.`)) return;
             const u = lastActiveUsersList.find(u => u.nick === targetNick);
             if (!u) return showToast('İstifadəçi tapılmadı.', 'error');
-            db.ref(`users/${u.uid}`).remove().then(() => {
-                showToast(`${targetNick} hesabı silindi.`, 'success');
-            });
+
+            try {
+                const updates = {};
+
+                // 1) Əsas profil + nick rezervasiyasını sərbəst burax
+                updates[`users/${u.uid}`] = null;
+                updates[`usernameToEmail/${targetNick}`] = null;
+
+                // 2) Dostluq əlaqələri — hər iki tərəfdən
+                const friendsSnap = await db.ref(`friends/${targetNick}`).once('value');
+                const friendsObj = friendsSnap.val() || {};
+                updates[`friends/${targetNick}`] = null;
+                Object.keys(friendsObj).forEach(friendNick => {
+                    updates[`friends/${friendNick}/${targetNick}`] = null;
+                });
+
+                // 3) Gözləyən dostluq sorğuları və blok siyahısı
+                updates[`friendRequests/${targetNick}`] = null;
+                updates[`blockedUsers/${targetNick}`] = null;
+
+                // 4) Ümumi çat mesajları (göndərdiyi)
+                const msgSnap = await db.ref('messages').orderByChild('sender').equalTo(targetNick).once('value');
+                msgSnap.forEach(child => { updates[`messages/${child.key}`] = null; });
+
+                // 5) Şəxsi mesajlar (göndərdiyi VƏ aldığı)
+                const sentSnap = await db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value');
+                sentSnap.forEach(child => { updates[`privateMessages/${child.key}`] = null; });
+                const receivedSnap = await db.ref('privateMessages').orderByChild('recipient').equalTo(targetNick).once('value');
+                receivedSnap.forEach(child => { updates[`privateMessages/${child.key}`] = null; });
+
+                // 6) Feed postları + onlara aid comment/like/repost
+                const postsSnap = await db.ref('posts').orderByChild('authorNick').equalTo(targetNick).once('value');
+                postsSnap.forEach(child => {
+                    updates[`posts/${child.key}`] = null;
+                    updates[`postComments/${child.key}`] = null;
+                    updates[`postLikes/${child.key}`] = null;
+                    updates[`postReposts/${child.key}`] = null;
+                });
+
+                // 7) Story-lər
+                const storiesSnap = await db.ref('stories').orderByChild('authorNick').equalTo(targetNick).once('value');
+                storiesSnap.forEach(child => { updates[`stories/${child.key}`] = null; });
+
+                // 8) Reels + onlara aid comment/repost
+                const reelsSnap = await db.ref('reels').orderByChild('authorNick').equalTo(targetNick).once('value');
+                reelsSnap.forEach(child => {
+                    updates[`reels/${child.key}`] = null;
+                    updates[`reelComments/${child.key}`] = null;
+                    updates[`reelReposts/${child.key}`] = null;
+                });
+
+                await db.ref().update(updates);
+                showToast(`${targetNick} hesabı və əlaqəli bütün məlumatlar silindi.`, 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
         };
-        window.adminDeleteAllMessages = function(targetNick) {
-            if (!confirm(`${targetNick} istifadəçisinin bütün mesajlarını silmək istədiyinizdən əminsiniz?`)) return;
-            db.ref('messages').orderByChild('sender').equalTo(targetNick).once('value').then(snap => {
+
+        window.adminDeleteAllMessages = async function(targetNick) {
+            if (!confirm(`${targetNick} istifadəçisinin bütün mesajlarını (göndərdiyi VƏ aldığı) silmək istədiyinizdən əminsiniz?`)) return;
+            try {
                 const updates = {};
-                snap.forEach(child => { updates[child.key] = null; });
-                return db.ref('messages').update(updates);
-            }).then(() => {
-                return db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value');
-            }).then(snap => {
-                const updates = {};
-                snap.forEach(child => { updates[child.key] = null; });
-                return db.ref('privateMessages').update(updates);
-            }).then(() => {
-                showToast(`${targetNick} bütün mesajları silindi.`, 'success');
-            }).catch(err => showToast('Xəta: ' + err.message, 'error'));
+                const msgSnap = await db.ref('messages').orderByChild('sender').equalTo(targetNick).once('value');
+                msgSnap.forEach(child => { updates[`messages/${child.key}`] = null; });
+
+                const sentSnap = await db.ref('privateMessages').orderByChild('sender').equalTo(targetNick).once('value');
+                sentSnap.forEach(child => { updates[`privateMessages/${child.key}`] = null; });
+
+                const receivedSnap = await db.ref('privateMessages').orderByChild('recipient').equalTo(targetNick).once('value');
+                receivedSnap.forEach(child => { updates[`privateMessages/${child.key}`] = null; });
+
+                await db.ref().update(updates);
+                showToast(`${targetNick} bütün mesajları (göndərdiyi və aldığı) silindi.`, 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
         };
 
         // ============================================================
@@ -7823,6 +7918,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 mediaUrl: data.mediaUrl || null,
                 text: data.text || null,
                 background: data.background || null,
+                privacy: data.privacy || 'public', // "public" | "friends" | "private" — BUG: əvvəllər bura yazılmırdı
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
                 expiresAt: now + STORY_DURATION_MS,
