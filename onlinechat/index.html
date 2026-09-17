@@ -4046,6 +4046,7 @@
 
         // === DOSTLUQ SİSTEMİ ===
         let myFriends = {};
+        let myBlockedUsers = {};
         let incomingFriendRequests = {};
         let friendReqListenersAttached = false;
         let friendReqFirstLoad = true;
@@ -4076,6 +4077,17 @@
                 showToast('Artıq dostsunuz.', 'info');
                 return;
             }
+            if (myBlockedUsers[targetNick]) {
+                showToast('Bu istifadəçini blok etmisiniz. Əvvəlcə blokdan çıxarın.', 'error');
+                return;
+            }
+            try {
+                const theirBlockSnap = await db.ref(`blockedUsers/${targetNick}/${currentUserData.nick}`).once('value');
+                if (theirBlockSnap.val()) {
+                    showToast('Bu istifadəçiyə dostluq sorğusu göndərə bilməzsiniz.', 'error');
+                    return;
+                }
+            } catch (e) { /* oxuma icazəsi yoxdursa (blok yoxdursa), sadəcə davam edirik */ }
             try {
                 const existing = await db.ref(`friendRequests/${targetNick}/${currentUserData.nick}`).once('value');
                 if (existing.exists()) {
@@ -4091,7 +4103,7 @@
                 showToast('Xəta: ' + err.message, 'error');
             }
         };
-
+        
         window.acceptFriendRequest = async function(fromNick) {
             if (!currentUserData) return;
             try {
@@ -4219,6 +4231,14 @@
         if (typeof renderFriendsList === 'function') renderFriendsList();
     });
 
+    db.ref(`blockedUsers/${currentUserData.nick}`).on('value', (snap) => {
+        myBlockedUsers = snap.val() || {};
+        if (typeof renderFriendsList === 'function') renderFriendsList();
+        if (typeof renderActiveUsers === 'function' && typeof lastActiveUsersList !== 'undefined') {
+            renderActiveUsers(lastActiveUsersList);
+        }
+    });
+
     db.ref(`friendRequests/${currentUserData.nick}`).on('value', (snap) => {
         const newRequests = snap.val() || {};
         if (!friendReqFirstLoad) {
@@ -4235,12 +4255,14 @@
     });
 }
 
-        function stopFriendSystem() {
+            function stopFriendSystem() {
             if (currentUserData) {
                 db.ref(`friends/${currentUserData.nick}`).off();
                 db.ref(`friendRequests/${currentUserData.nick}`).off();
+                db.ref(`blockedUsers/${currentUserData.nick}`).off();
             }
             myFriends = {};
+            myBlockedUsers = {};
             incomingFriendRequests = {};
             renderFriendReqDropdown();
         }
@@ -4361,6 +4383,7 @@
                     </div>
                     <div class="friend-row-meta">
                         <span class="friend-row-time">${r.timeStr}</span>
+                        <button type="button" onclick="event.stopPropagation(); showFriendRowMenu(event, '${r.nick.replace(/'/g, "\\'")}')" style="background:none;border:none;color:var(--text-main);opacity:0.6;font-size:16px;cursor:pointer;padding:2px 6px;">⋮</button>
                     </div>
                 </div>
             `).join('');
@@ -4368,6 +4391,13 @@
             container.innerHTML = html;
         }
         window.renderFriendsList = renderFriendsList;
+        window.showFriendRowMenu = function (e, nick) {
+            const userInfo = (typeof lastActiveUsersList !== 'undefined' ? lastActiveUsersList : []).find(u => u.nick === nick)
+                || { nick, role: 'user', isBanned: false };
+            const avatar = userInfo.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
+            showUserActionPopup(e, userInfo, avatar);
+        };
+            
         // === YENİ SÖHBƏT MODAL FUNKSİYALARI ===
         window.openNewChatModal = function() {
             const modal = document.getElementById('newChatModal');
@@ -5852,17 +5882,24 @@ connectedRef.on('value', (snap) => {
             ];
             if (isFriend(user.nick)) {
                 items.push({ label: '💬 Mesaj göndər', action: `openPrivateChatWindow('${safeNick}')` });
+                items.push({ label: '🚫 Dostluqdan çıxar', action: `removeFriend('${safeNick}')` });
             } else if (incomingFriendRequests[user.nick]) {
                 items.push({ label: '✅ Dostluq sorğusunu qəbul et', action: `acceptFriendRequest('${safeNick}')` });
             } else {
                 items.push({ label: '🤝 Dostluq göndər', action: `sendFriendRequest('${safeNick}', '${safeAvatar}')` });
             }
 
+            if (myBlockedUsers[user.nick]) {
+                items.push({ label: '✅ Blokdan çıxar', action: `unblockUser('${safeNick}')` });
+            } else {
+                items.push({ label: '🚫 İstifadəçini blok et', action: `blockUser('${safeNick}')` });
+            }
+
             const myRole = currentUserData.role;
             let canBan = false, canUnban = false;
             if (myRole === 'admin') { canBan = user.role !== 'admin';
                 canUnban = user.role !== 'admin'; } else if (myRole === 'moderator') { canBan = user.role === 'user';
-                canUnban = user.role === 'user'; } else { canBan = user.role === 'user'; }
+                canUnban = user.role === 'user'; } else { canBan = false; canUnban = false; }
 
             if (user.isBanned) {
                 if (canUnban) items.push({ label: '♻️ Qara siyahıdan çıxar', action: `adminUnbanUser('${safeNick}')` });
@@ -7069,7 +7106,7 @@ function returnToRecentPrivateMessages(targetNick) {
             container.innerHTML = '';
             const canSeeBanned = currentUserData && (currentUserData.role === 'admin' || currentUserData.role ===
             'moderator');
-            const visible = users.filter(u => !u.isBanned || canSeeBanned);
+            const visible = users.filter(u => !u.isBanned || canSeeBanned).filter(u => !myBlockedUsers[u.nick]);
             const ranked = visible.filter(u => !u.isBanned && (u.role === 'admin' || u.role === 'moderator'));
             const onlineUsers = visible.filter(u => !u.isBanned && u.role === 'user' && u.online);
             const offlineUsers = visible.filter(u => !u.isBanned && u.role === 'user' && !u.online);
