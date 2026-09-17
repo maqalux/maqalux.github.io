@@ -7823,6 +7823,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 mediaUrl: data.mediaUrl || null,
                 text: data.text || null,
                 background: data.background || null,
+                privacy: data.privacy || 'public', // "public" | "friends" | "private" — BUG: əvvəllər bura yazılmırdı
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
                 expiresAt: now + STORY_DURATION_MS,
