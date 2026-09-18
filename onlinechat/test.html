@@ -5044,10 +5044,8 @@ function initHeaderMessageInbox() {
                 try {
                     currentUser = user;
                     const snap = await db.ref(`users/${user.uid}`).once('value');
-                    if (snap.exists()) {
+                    if (snap.exists() && snap.val() && snap.val().nick) {
                         currentUserData = snap.val();
-                        currentUserData.uid = user.uid;
-                        if (currentUserData.nick && currentUserData.email) {
                             db.ref(`usernameToEmail/${currentUserData.nick}`).set(currentUserData.email);
                         }
                         const connectedRef = db.ref('.info/connected');
@@ -5115,6 +5113,11 @@ connectedRef.on('value', (snap) => {
                         alert('Saytın qaydalarını pozduğunuz üçün hesabınız Maqalux tərəfindən silindi.');
                         try {
                             if (deletedAuthUser) {
+                                try {
+                                    // Köhnə onDisconnect qeydini ləğv et ki, hesab yenidən "canlanmasın"
+                                    await db.ref(`users/${deletedAuthUser.uid}`).onDisconnect().cancel();
+                                    await db.ref(`users/${deletedAuthUser.uid}`).remove();
+                                } catch (cleanupErr) { /* profil onsuz da silinib ola bilər, önəmli deyil */ }
                                 await deletedAuthUser.delete(); // Firebase Authentication-dan da HƏMİŞƏLİK sil
                             } else {
                                 await auth.signOut();
