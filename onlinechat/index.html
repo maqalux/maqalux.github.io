@@ -5044,7 +5044,7 @@ function initHeaderMessageInbox() {
                 try {
                     currentUser = user;
                     const snap = await db.ref(`users/${user.uid}`).once('value');
-                    if (snap.exists()) {
+                    if (snap.exists() && snap.val() && snap.val().nick) {
                         currentUserData = snap.val();
                         currentUserData.uid = user.uid;
                         if (currentUserData.nick && currentUserData.email) {
@@ -5110,7 +5110,25 @@ connectedRef.on('value', (snap) => {
                             window.history.replaceState({}, document.title, cleanUrl);
                         }
                     } else {
-                        await auth.signOut();
+                        // Profil Firebase-də yoxdursa — admin tərəfindən silinib deməkdir.
+                        const deletedAuthUser = auth.currentUser;
+                        alert('Saytın qaydalarını pozduğunuz üçün hesabınız Maqalux tərəfindən silindi.');
+                        try {
+                            if (deletedAuthUser) {
+                                try {
+                                    // Köhnə onDisconnect qeydini ləğv et ki, hesab yenidən "canlanmasın"
+                                    await db.ref(`users/${deletedAuthUser.uid}`).onDisconnect().cancel();
+                                    await db.ref(`users/${deletedAuthUser.uid}`).remove();
+                                } catch (cleanupErr) { /* profil onsuz da silinib ola bilər, önəmli deyil */ }
+                                await deletedAuthUser.delete(); // Firebase Authentication-dan da HƏMİŞƏLİK sil
+                            } else {
+                                await auth.signOut();
+                            }
+                        } catch (delErr) {
+                            console.error('Auth hesabı silinərkən xəta:', delErr);
+                            await auth.signOut();
+                        }
+                        window.location.reload();
                     }
                 } catch (err) {
                     showToast('Xəta baş verdi: ' + err.message, 'error', 5000);
