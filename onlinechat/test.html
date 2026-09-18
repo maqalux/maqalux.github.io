@@ -5111,8 +5111,18 @@ connectedRef.on('value', (snap) => {
                         }
                     } else {
                         // Profil Firebase-də yoxdursa — admin tərəfindən silinib deməkdir.
-                        await auth.signOut();
+                        const deletedAuthUser = auth.currentUser;
                         alert('Saytın qaydalarını pozduğunuz üçün hesabınız Maqalux tərəfindən silindi.');
+                        try {
+                            if (deletedAuthUser) {
+                                await deletedAuthUser.delete(); // Firebase Authentication-dan da HƏMİŞƏLİK sil
+                            } else {
+                                await auth.signOut();
+                            }
+                        } catch (delErr) {
+                            console.error('Auth hesabı silinərkən xəta:', delErr);
+                            await auth.signOut();
+                        }
                         window.location.reload();
                     }
                 } catch (err) {
