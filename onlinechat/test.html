@@ -5046,6 +5046,8 @@ function initHeaderMessageInbox() {
                     const snap = await db.ref(`users/${user.uid}`).once('value');
                     if (snap.exists() && snap.val() && snap.val().nick) {
                         currentUserData = snap.val();
+                        currentUserData.uid = user.uid;
+                        if (currentUserData.nick && currentUserData.email) {
                             db.ref(`usernameToEmail/${currentUserData.nick}`).set(currentUserData.email);
                         }
                         const connectedRef = db.ref('.info/connected');
