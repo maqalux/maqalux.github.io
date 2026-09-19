@@ -3072,11 +3072,40 @@
         }
         .mq-reel-side-btn.mq-liked { filter: drop-shadow(0 0 2px rgba(255,77,103,0.6)); }
         .mq-reel-side-btn.mq-reposted { color: #2ecc71; filter: drop-shadow(0 0 2px rgba(46,204,113,0.6)); }
-        .mq-reel-repost-badge {
+           .mq-reel-repost-badge {
             font-size: 12px;
             font-weight: 600;
             color: #2ecc71;
             margin-bottom: 4px;
+        }
+
+        .mq-reel-mode-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .mq-reel-mode-btn {
+            flex: 1;
+            padding: 9px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-10);
+            background: var(--panel-06);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .mq-reel-mode-btn.active {
+            background: linear-gradient(135deg, #ffa200, #ff5722);
+            color: #fff;
+            border-color: transparent;
+        }
+        .mq-reel-embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #000;
         }
 
         .mq-reel-doubletap-heart {
@@ -3702,23 +3731,39 @@
     <!-- ============================================================
          REELS COMPOSER MODAL — YENİ
          ============================================================ -->
-    <div class="modal-overlay" id="mqReelComposerModal">
+     <div class="modal-overlay" id="mqReelComposerModal">
         <div class="modal-box mq-story-composer-box">
             <button class="modal-close" onclick="closeReelComposerModal()">✕</button>
             <h3 style="color: var(--text-main); margin-bottom: 14px;">Reels yarat</h3>
 
-            <div class="mq-story-preview-wrap" id="mqReelPreviewWrap">
-                <div id="mqReelPreviewEmpty" style="color:var(--text-main); opacity:0.7; text-align:center; padding:20px;">
-                    Video seç (maks. 100MB, 60 saniyə)
-                </div>
-                <video id="mqReelPreviewVideo" style="display:none;" muted playsinline controls></video>
+            <div class="mq-reel-mode-toggle">
+                <button type="button" class="mq-reel-mode-btn active" id="mqReelModeUploadBtn" onclick="switchReelComposerMode('upload')">🎬 Video yüklə</button>
+                <button type="button" class="mq-reel-mode-btn" id="mqReelModeExternalBtn" onclick="switchReelComposerMode('external')">🔗 Video linki əlavə et</button>
             </div>
 
-            <div class="mq-story-composer-tools">
-                <label class="mq-story-tool-btn" title="Video seç">
-                    🎬 Video seç
-                    <input type="file" id="mqReelVideoInput" accept="video/*" style="display:none;" onchange="handleReelVideoSelect(event)">
-                </label>
+            <div id="mqReelUploadModeBox">
+                <div class="mq-story-preview-wrap" id="mqReelPreviewWrap">
+                    <div id="mqReelPreviewEmpty" style="color:var(--text-main); opacity:0.7; text-align:center; padding:20px;">
+                        Video seç (maks. 100MB, 60 saniyə)
+                    </div>
+                    <video id="mqReelPreviewVideo" style="display:none;" muted playsinline controls></video>
+                </div>
+
+                <div class="mq-story-composer-tools">
+                    <label class="mq-story-tool-btn" title="Video seç">
+                        🎬 Video seç
+                        <input type="file" id="mqReelVideoInput" accept="video/*" style="display:none;" onchange="handleReelVideoSelect(event)">
+                    </label>
+                </div>
+            </div>
+
+            <div id="mqReelExternalModeBox" style="display:none;">
+                <input type="url" id="mqReelExternalUrlInput" class="feed-composer-input" placeholder="YouTube və ya Vimeo video linki..." style="width:100%; box-sizing:border-box; margin-bottom:10px;" oninput="mqPreviewExternalUrl()">
+                <div id="mqReelExternalPreview" style="display:none; margin-bottom:10px; text-align:center;">
+                    <img id="mqReelExternalThumb" style="max-width:100%; max-height:160px; border-radius:8px;" alt="">
+                    <div id="mqReelExternalProviderLabel" style="color:var(--text-main); font-size:12px; margin-top:6px;"></div>
+                </div>
+                <div id="mqReelExternalError" style="display:none; color:#ff6b6b; font-size:12.5px; margin-bottom:10px;"></div>
             </div>
 
             <textarea id="mqReelCaptionInput" class="feed-composer-input" placeholder="Açıqlama... #hashtag" rows="3" style="width:100%; box-sizing:border-box; margin-bottom:14px;" oninput="autoGrowTextarea(this)"></textarea>
@@ -8213,15 +8258,134 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         // REELS MODULU — Composer funksiyaları (YENİ)
         // ============================================================
+        let mqReelComposerMode = 'upload';
+        let mqReelExternalParsed = null;
+
+        // Yalnız bu hostname-lərdən embed iframe qurmağa icazə verilir.
+        const MQ_ALLOWED_EMBED_HOSTS = ['www.youtube-nocookie.com', 'player.vimeo.com'];
+
+        window.switchReelComposerMode = function (mode) {
+            mqReelComposerMode = mode;
+            document.getElementById('mqReelModeUploadBtn').classList.toggle('active', mode === 'upload');
+            document.getElementById('mqReelModeExternalBtn').classList.toggle('active', mode === 'external');
+            document.getElementById('mqReelUploadModeBox').style.display = mode === 'upload' ? 'block' : 'none';
+            document.getElementById('mqReelExternalModeBox').style.display = mode === 'external' ? 'block' : 'none';
+        };
+
+        // ADDIM 1: parse et, 2: hostname yoxla, 3: provider müəyyən et, 4: təhlükəsiz embed URL qur
+        function mqParseExternalVideoUrl(rawUrl) {
+            let u;
+            try {
+                u = new URL((rawUrl || '').trim());
+            } catch (e) {
+                return null;
+            }
+            if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+            const host = u.hostname.toLowerCase().replace(/^www\./, '');
+
+            const youtubeHosts = ['youtube.com', 'm.youtube.com', 'youtube-nocookie.com', 'youtu.be'];
+            if (youtubeHosts.includes(host)) {
+                let videoId = null;
+                if (host === 'youtu.be') {
+                    videoId = u.pathname.split('/').filter(Boolean)[0] || null;
+                } else if (u.pathname.startsWith('/watch')) {
+                    videoId = u.searchParams.get('v');
+                } else if (u.pathname.startsWith('/embed/')) {
+                    videoId = (u.pathname.split('/embed/')[1] || '').split('/')[0] || null;
+                } else if (u.pathname.startsWith('/shorts/')) {
+                    videoId = (u.pathname.split('/shorts/')[1] || '').split('/')[0] || null;
+                }
+                if (videoId && /^[a-zA-Z0-9_-]{6,20}$/.test(videoId)) {
+                    return {
+                        provider: 'youtube',
+                        videoId: videoId,
+                        embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0`,
+                        thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                    };
+                }
+                return null;
+            }
+
+            const vimeoHosts = ['vimeo.com', 'player.vimeo.com'];
+            if (vimeoHosts.includes(host)) {
+                const match = u.pathname.match(/(\d{6,12})/);
+                const videoId = match ? match[1] : null;
+                if (videoId) {
+                    return {
+                        provider: 'vimeo',
+                        videoId: videoId,
+                        embedUrl: `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&loop=1&controls=1`,
+                        thumbnailUrl: null
+                    };
+                }
+                return null;
+            }
+
+            return null; // dəstəklənməyən platform
+        }
+
+        // ADDIM 5: YALNIZ bundan sonra (render zamanı) iframe yaradılır — həm burada, həm renderReelItem-də təkrar yoxlanılır
+        function mqBuildSafeEmbedHtml(reel) {
+            try {
+                const embedUrl = new URL(reel.embedUrl);
+                if (!MQ_ALLOWED_EMBED_HOSTS.includes(embedUrl.hostname)) {
+                    return `<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px;">Bu platformadan video əlavə etmək mümkün deyil.</div>`;
+                }
+                return `<iframe class="mq-reel-embed" src="${embedUrl.href}" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>`;
+            } catch (e) {
+                return `<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px;">Video yüklənə bilmədi.</div>`;
+            }
+        }
+
+        window.mqPreviewExternalUrl = function () {
+            const raw = document.getElementById('mqReelExternalUrlInput').value.trim();
+            const preview = document.getElementById('mqReelExternalPreview');
+            const errorBox = document.getElementById('mqReelExternalError');
+            const thumbImg = document.getElementById('mqReelExternalThumb');
+            const labelEl = document.getElementById('mqReelExternalProviderLabel');
+
+            if (!raw) {
+                preview.style.display = 'none';
+                errorBox.style.display = 'none';
+                mqReelExternalParsed = null;
+                return;
+            }
+
+            const parsed = mqParseExternalVideoUrl(raw);
+            if (!parsed) {
+                preview.style.display = 'none';
+                errorBox.textContent = 'Bu platformadan video əlavə etmək mümkün deyil.';
+                errorBox.style.display = 'block';
+                mqReelExternalParsed = null;
+                return;
+            }
+
+            errorBox.style.display = 'none';
+            mqReelExternalParsed = parsed;
+            if (parsed.thumbnailUrl) {
+                thumbImg.src = parsed.thumbnailUrl;
+                thumbImg.style.display = 'block';
+            } else {
+                thumbImg.style.display = 'none';
+            }
+            labelEl.textContent = parsed.provider === 'youtube' ? '✅ YouTube video tanındı' : '✅ Vimeo video tanındı';
+            preview.style.display = 'block';
+        };
+
         function mqResetReelComposer() {
             mqReelComposerFile = null;
             mqReelComposerReelId = null;
+            mqReelExternalParsed = null;
             document.getElementById('mqReelVideoInput').value = '';
             document.getElementById('mqReelCaptionInput').value = '';
             document.getElementById('mqReelPreviewEmpty').style.display = 'block';
             const videoEl = document.getElementById('mqReelPreviewVideo');
             videoEl.style.display = 'none';
             videoEl.src = '';
+            document.getElementById('mqReelExternalUrlInput').value = '';
+            document.getElementById('mqReelExternalPreview').style.display = 'none';
+            document.getElementById('mqReelExternalError').style.display = 'none';
+            switchReelComposerMode('upload');
             const btn = document.getElementById('mqReelPublishBtn');
             btn.disabled = false;
             btn.textContent = 'Paylaş';
@@ -8263,6 +8427,47 @@ function returnToRecentPrivateMessages(targetNick) {
 
         window.publishReel = async function () {
             if (!currentUserData || !currentUser) return;
+
+            if (mqReelComposerMode === 'external') {
+                if (!mqReelExternalParsed) {
+                    showToast('Düzgün YouTube və ya Vimeo linki daxil edin.', 'info');
+                    return;
+                }
+                const extBtn = document.getElementById('mqReelPublishBtn');
+                extBtn.disabled = true;
+                extBtn.textContent = 'Paylaşılır...';
+                try {
+                    const reelId = crypto.randomUUID ? crypto.randomUUID() : ('r' + Date.now() + Math.random().toString(36).slice(2));
+                    const captionRaw = document.getElementById('mqReelCaptionInput').value.trim();
+                    await db.ref(`reels/${reelId}`).set({
+                        authorNick: currentUserData.nick,
+                        authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                        caption: captionRaw,
+                        videoType: 'external',
+                        provider: mqReelExternalParsed.provider,
+                        externalUrl: document.getElementById('mqReelExternalUrlInput').value.trim(),
+                        embedUrl: mqReelExternalParsed.embedUrl,
+                        thumbnailUrl: mqReelExternalParsed.thumbnailUrl,
+                        videoUrl: null,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        likesCount: 0,
+                        commentsCount: 0,
+                        repostsCount: 0,
+                        viewsCount: 0,
+                        likedBy: {},
+                        isRepost: false
+                    });
+                    showToast('Reels paylaşıldı!', 'success');
+                    closeReelComposerModal();
+                } catch (err) {
+                    showToast('Reels paylaşılmadı: ' + err.message, 'error', 7000);
+                } finally {
+                    extBtn.disabled = false;
+                    extBtn.textContent = 'Paylaş';
+                }
+                return;
+            }
+
             if (!mqReelComposerFile) {
                 showToast('Əvvəlcə bir video seç.', 'info');
                 return;
@@ -8305,10 +8510,11 @@ function returnToRecentPrivateMessages(targetNick) {
 
                 btn.textContent = 'Paylaşılır...';
                 const captionRaw = document.getElementById('mqReelCaptionInput').value.trim();
-                await db.ref(`reels/${reelId}`).set({
+                  await db.ref(`reels/${reelId}`).set({
                     authorNick: currentUserData.nick,
                     authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
                     caption: captionRaw,
+                    videoType: 'upload',
                     videoKey: videoResult.videoKey,
                     videoUrl: videoResult.videoUrl,
                     thumbnailUrl: thumbnailUrl,
@@ -8371,8 +8577,10 @@ function returnToRecentPrivateMessages(targetNick) {
             const caption = reel.caption || '';
             return `
             <div class="mq-reel-item" id="mqReel-${id}" data-reel-id="${id}">
-                <video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="handleReelTap('${id}')"></video>
-                <button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>
+                ${reel.videoType === 'external'
+                    ? mqBuildSafeEmbedHtml(reel)
+                    : `<video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="handleReelTap('${id}')"></video>`}
+                ${reel.videoType !== 'external' ? `<button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>` : ''}
                 <div class="mq-reel-side-actions">
                     <button type="button" class="mq-reel-side-btn ${liked ? 'mq-liked' : ''}" id="mqReelLikeBtn-${id}" onclick="event.stopPropagation(); toggleReelLike('${id}')">
                         <span id="mqReelLikeIcon-${id}">${liked ? '❤️' : '🤍'}</span>
