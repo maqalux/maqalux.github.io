@@ -8486,12 +8486,54 @@ function returnToRecentPrivateMessages(targetNick) {
                         }
                         updateReelMuteIcon(reelId);
                         mqRegisterReelView(reelId);
+                        mqMaybeLoadMoreReels(entry.target);
                     } else {
                         video.pause();
                     }
                 });
             }, { threshold: [0, 0.6, 1] });
             items.forEach(item => reelsObserver.observe(item));
+        }
+
+        // ============================================================
+        // REELS — PAGINATION / LAZY LOADING (YENİ)
+        // ============================================================
+        function mqMaybeLoadMoreReels(activeItemEl) {
+            if (reelsLoadingMore || !reelsHasMoreOlder) return;
+            const allItems = document.querySelectorAll('.mq-reel-item');
+            const idx = Array.prototype.indexOf.call(allItems, activeItemEl);
+            // Sona 2 Reel qalanda növbəti köhnə səhifəni yüklə
+            if (idx !== -1 && idx >= allItems.length - 2) {
+                loadMoreReels();
+            }
+        }
+
+        function loadMoreReels() {
+            if (reelsLoadingMore || !reelsHasMoreOlder || !reelsOldestTimestamp) return;
+            reelsLoadingMore = true;
+            const container = document.getElementById('mqReelsFeed');
+
+            db.ref('reels').orderByChild('timestamp').endAt(reelsOldestTimestamp - 1).limitToLast(reelsPageSize)
+                .once('value', (snap) => {
+                    const val = snap.val() || {};
+                    const ids = Object.keys(val)
+                        .filter(id => val[id] && val[id].authorNick && val[id].videoUrl && !mqReelsCache[id])
+                        .sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
+
+                    reelsHasMoreOlder = ids.length >= reelsPageSize;
+                    reelsLoadingMore = false;
+
+                    if (!ids.length) return;
+
+                    ids.forEach(id => { mqReelsCache[id] = val[id]; });
+                    reelsOldestTimestamp = Math.min(...ids.map(id => val[id].timestamp || reelsOldestTimestamp));
+                    container.insertAdjacentHTML('beforeend', ids.map(id => renderReelItem(id, val[id])).join(''));
+                    setupReelsAutoplayObserver(); // yeni əlavə olunan Reel-lərə də observer qoşulsun
+                })
+                .catch(err => {
+                    reelsLoadingMore = false;
+                    console.error('Növbəti Reels yüklənərkən xəta:', err);
+                });
         }
 
         window.toggleReelPlayPause = function (reelId) {
