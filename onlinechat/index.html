@@ -3071,6 +3071,13 @@
             padding: 0;
         }
         .mq-reel-side-btn.mq-liked { filter: drop-shadow(0 0 2px rgba(255,77,103,0.6)); }
+        .mq-reel-side-btn.mq-reposted { color: #2ecc71; filter: drop-shadow(0 0 2px rgba(46,204,113,0.6)); }
+        .mq-reel-repost-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2ecc71;
+            margin-bottom: 4px;
+        }
         .mq-reel-count {
             font-size: 12px;
             font-weight: 600;
@@ -8335,13 +8342,14 @@ function returnToRecentPrivateMessages(targetNick) {
             loadReels();
         }
 
-                function renderReelItem(id, reel) {
+            function renderReelItem(id, reel) {
             if (!reel || !reel.authorNick || !reel.videoUrl) {
                 console.warn('Zədəli Reel qeydi keçildi (authorNick/videoUrl yoxdur):', id, reel);
                 return '';
             }
             const nick = currentUserData ? currentUserData.nick : null;
             const liked = !!(reel.likedBy && nick && reel.likedBy[nick]);
+            const reposted = !!(reel.repostedBy && nick && reel.repostedBy[nick]);
             const avatar = reel.authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
             const caption = reel.caption || '';
             return `
@@ -8356,8 +8364,8 @@ function returnToRecentPrivateMessages(targetNick) {
                     <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); openReelComments('${id}')">
                         💬 <span class="mq-reel-count" id="mqReelCommentCount-${id}">${reel.commentsCount || 0}</span>
                     </button>
-                    <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); showToast('Repost tezliklə əlavə olunacaq.', 'info')">
-                        🔁 <span class="mq-reel-count">${reel.repostsCount || 0}</span>
+                    <button type="button" class="mq-reel-side-btn ${reposted ? 'mq-reposted' : ''}" id="mqReelRepostBtn-${id}" onclick="event.stopPropagation(); toggleReelRepost('${id}')">
+                        🔁 <span class="mq-reel-count" id="mqReelRepostCount-${id}">${reel.repostsCount || 0}</span>
                     </button>
                     <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); showToast('Paylaşma tezliklə əlavə olunacaq.', 'info')">
                         ↗️
@@ -8368,6 +8376,7 @@ function returnToRecentPrivateMessages(targetNick) {
                         <img src="${avatar}" alt="">
                         <span>@${escapeHtml(reel.authorNick)}</span>
                     </div>
+                    ${reel.isRepost ? `<div class="mq-reel-repost-badge">🔁 Repost · orijinal: @${escapeHtml(reel.originalAuthorNick || '')}</div>` : ''}
                     ${caption ? `<div class="mq-reel-caption">${escapeHtml(caption)}</div>` : ''}
                 </div>
             </div>`;
@@ -8382,7 +8391,7 @@ function returnToRecentPrivateMessages(targetNick) {
             reelsHasMoreOlder = true;
             reelsLoadingMore = false;
 
-            db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).once('value', (snap) => {
+             db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).once('value', (snap) => {
                 const val = snap.val() || {};
                 const ids = Object.keys(val)
                     .filter(id => val[id] && val[id].authorNick && val[id].videoUrl)
@@ -8404,7 +8413,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 console.error('Reels yüklənərkən xəta:', err);
             });
 
-               // Reel silinəndə (məs. repost geri götürüləndə) kartı canlı şəkildə DOM-dan da sil
+            // Reel silinəndə (məs. repost geri götürüləndə) kartı canlı şəkildə DOM-dan da sil
             db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).on('child_removed', (snap) => {
                 const id = snap.key;
                 delete mqReelsCache[id];
@@ -8661,6 +8670,69 @@ function returnToRecentPrivateMessages(targetNick) {
                 .catch(err => showToast('Xəta: ' + err.message, 'error'));
         };
 
+        // ============================================================
+        // REELS — REPOST SİSTEMİ (YENİ)
+        // ============================================================
+        window.toggleReelRepost = async function (reelId) {
+            if (!currentUserData) return;
+            const reel = mqReelsCache[reelId];
+            if (!reel) return;
+            if (reel.isRepost) {
+                showToast('Repostu repost edə bilməzsiniz.', 'info');
+                return;
+            }
+            const nick = currentUserData.nick;
+            const btnEl = document.getElementById(`mqReelRepostBtn-${reelId}`);
+            const countEl = document.getElementById(`mqReelRepostCount-${reelId}`);
+            if (btnEl && btnEl.disabled) return; // əməliyyat artıq gedir, təkrar klikin qarşısını al
+            if (btnEl) btnEl.disabled = true;
+            try {
+                const existingSnap = await db.ref(`reelReposts/${reelId}/${nick}`).once('value');
+                if (existingSnap.exists()) {
+                    // Repostu geri götür
+                    const repostReelId = existingSnap.val();
+                    const updates = {};
+                    updates[`reels/${repostReelId}`] = null;
+                    updates[`reelReposts/${reelId}/${nick}`] = null;
+                    updates[`reels/${reelId}/repostedBy/${nick}`] = null;
+                    await db.ref().update(updates);
+                    await db.ref(`reels/${reelId}/repostsCount`).transaction(c => Math.max(0, (c || 0) - 1));
+                    if (btnEl) btnEl.classList.remove('mq-reposted');
+                    if (countEl) countEl.textContent = Math.max(0, (parseInt(countEl.textContent, 10) || 1) - 1);
+                    showToast('Repost geri götürüldü.', 'success');
+                } else {
+                    const newReelRef = db.ref('reels').push();
+                    await newReelRef.set({
+                        authorNick: nick,
+                        authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                        videoType: reel.videoType || 'upload',
+                        videoUrl: reel.videoUrl || null,
+                        thumbnailUrl: reel.thumbnailUrl || null,
+                        externalUrl: reel.externalUrl || null,
+                        embedUrl: reel.embedUrl || null,
+                        provider: reel.provider || null,
+                        caption: '',
+                        timestamp: Date.now(),
+                        likesCount: 0,
+                        commentsCount: 0,
+                        repostsCount: 0,
+                        isRepost: true,
+                        originalReelId: reelId,
+                        originalAuthorNick: reel.authorNick
+                    });
+                    await db.ref(`reelReposts/${reelId}/${nick}`).set(newReelRef.key);
+                    await db.ref(`reels/${reelId}/repostedBy/${nick}`).set(true);
+                    await db.ref(`reels/${reelId}/repostsCount`).transaction(c => (c || 0) + 1);
+                    if (btnEl) btnEl.classList.add('mq-reposted');
+                    if (countEl) countEl.textContent = (parseInt(countEl.textContent, 10) || 0) + 1;
+                      showToast('Repost edildi!', 'success');
+                }
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            } finally {
+                if (btnEl) btnEl.disabled = false;
+            }
+        };
         // ============================================================
         // STORY MODULU — Yükləmə və Bar render (YENİ)
         // ============================================================
