@@ -8296,10 +8296,10 @@ function returnToRecentPrivateMessages(targetNick) {
                     videoId = (u.pathname.split('/shorts/')[1] || '').split('/')[0] || null;
                 }
                 if (videoId && /^[a-zA-Z0-9_-]{6,20}$/.test(videoId)) {
-                    return {
+                       return {
                         provider: 'youtube',
                         videoId: videoId,
-                        embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0`,
+                        embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`,
                         thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
                     };
                 }
@@ -8325,16 +8325,29 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // ADDIM 5: YALNIZ bundan sonra (render zamanı) iframe yaradılır — həm burada, həm renderReelItem-də təkrar yoxlanılır
-        function mqBuildSafeEmbedHtml(reel) {
+           function mqBuildSafeEmbedHtml(id, reel) {
             try {
                 const embedUrl = new URL(reel.embedUrl);
                 if (!MQ_ALLOWED_EMBED_HOSTS.includes(embedUrl.hostname)) {
                     return `<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px;">Bu platformadan video əlavə etmək mümkün deyil.</div>`;
                 }
-                return `<iframe class="mq-reel-embed" src="${embedUrl.href}" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>`;
+                return `<iframe class="mq-reel-embed" id="mqReelEmbed-${id}" src="${embedUrl.href}" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>`;
             } catch (e) {
                 return `<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px;">Video yüklənə bilmədi.</div>`;
             }
+        }
+
+        function mqSendExternalReelCommand(reelId, provider, command) {
+            const iframe = document.getElementById(`mqReelEmbed-${reelId}`);
+            if (!iframe || !iframe.contentWindow) return;
+            try {
+                if (provider === 'youtube') {
+                    const func = command === 'play' ? 'playVideo' : 'pauseVideo';
+                    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*');
+                } else if (provider === 'vimeo') {
+                    iframe.contentWindow.postMessage(JSON.stringify({ method: command }), '*');
+                }
+            } catch (e) { /* postMessage xətası əhəmiyyətsizdir */ }
         }
 
         window.mqPreviewExternalUrl = function () {
@@ -8577,8 +8590,8 @@ function returnToRecentPrivateMessages(targetNick) {
             const caption = reel.caption || '';
             return `
             <div class="mq-reel-item" id="mqReel-${id}" data-reel-id="${id}">
-                ${reel.videoType === 'external'
-                    ? mqBuildSafeEmbedHtml(reel)
+                    ${reel.videoType === 'external'
+                    ? mqBuildSafeEmbedHtml(id, reel)
                     : `<video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="handleReelTap('${id}')"></video>`}
                 ${reel.videoType !== 'external' ? `<button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>` : ''}
                 <div class="mq-reel-side-actions">
