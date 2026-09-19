@@ -8566,8 +8566,8 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
             function renderReelItem(id, reel) {
-            if (!reel || !reel.authorNick || !reel.videoUrl) {
-                console.warn('Zədəli Reel qeydi keçildi (authorNick/videoUrl yoxdur):', id, reel);
+            if (!reel || !reel.authorNick || (!reel.videoUrl && !reel.embedUrl)) {
+                console.warn('Zədəli Reel qeydi keçildi (authorNick/videoUrl/embedUrl yoxdur):', id, reel);
                 return '';
             }
             const nick = currentUserData ? currentUserData.nick : null;
@@ -8619,8 +8619,8 @@ function returnToRecentPrivateMessages(targetNick) {
              db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).once('value', (snap) => {
                 const val = snap.val() || {};
                 const ids = Object.keys(val)
-                    .filter(id => val[id] && val[id].authorNick && val[id].videoUrl)
-                    .sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
+                .filter(id => val[id] && val[id].authorNick && (val[id].videoUrl || val[id].embedUrl) && !mqReelsCache[id])
+                .sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
 
                 if (!ids.length) {
                     emptyState.style.display = 'block';
