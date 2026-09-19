@@ -3078,6 +3078,23 @@
             color: #2ecc71;
             margin-bottom: 4px;
         }
+
+        .mq-reel-doubletap-heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            font-size: 90px;
+            z-index: 5;
+            pointer-events: none;
+            animation: mqHeartPop 0.8s ease forwards;
+        }
+        @keyframes mqHeartPop {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+            30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
         .mq-reel-count {
             font-size: 12px;
             font-weight: 600;
@@ -8354,7 +8371,7 @@ function returnToRecentPrivateMessages(targetNick) {
             const caption = reel.caption || '';
             return `
             <div class="mq-reel-item" id="mqReel-${id}" data-reel-id="${id}">
-                <video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="toggleReelPlayPause('${id}')"></video>
+                <video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="handleReelTap('${id}')"></video>
                 <button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>
                 <div class="mq-reel-side-actions">
                     <button type="button" class="mq-reel-side-btn ${liked ? 'mq-liked' : ''}" id="mqReelLikeBtn-${id}" onclick="event.stopPropagation(); toggleReelLike('${id}')">
@@ -8659,7 +8676,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 .catch(err => showToast('Xəta: ' + err.message, 'error'));
         };
 
-        window.deleteReelComment = function (reelId, commentId) {
+             window.deleteReelComment = function (reelId, commentId) {
             if (!confirm('Şərhi silmək istədiyinizə əminsiniz?')) return;
             db.ref(`reelComments/${reelId}/${commentId}`).remove()
                 .then(() => {
@@ -8669,6 +8686,47 @@ function returnToRecentPrivateMessages(targetNick) {
                 })
                 .catch(err => showToast('Xəta: ' + err.message, 'error'));
         };
+
+        // ============================================================
+        // REELS — DOUBLE-TAP LIKE (YENİ)
+        // ============================================================
+        const mqReelTapTimers = {};
+
+        window.handleReelTap = function (reelId) {
+            if (mqReelTapTimers[reelId]) {
+                // Bu, QISA MÜDDƏTDƏ gələn İKİNCİ klikdir -> double tap
+                clearTimeout(mqReelTapTimers[reelId]);
+                mqReelTapTimers[reelId] = null;
+                mqReelDoubleTapLike(reelId);
+            } else {
+                // İlk klik — bir az gözləyirik, ikincisi gəlməsə tək klik kimi qəbul edirik
+                mqReelTapTimers[reelId] = setTimeout(() => {
+                    mqReelTapTimers[reelId] = null;
+                    toggleReelPlayPause(reelId);
+                }, 280);
+            }
+        };
+
+        function mqReelDoubleTapLike(reelId) {
+            const reel = mqReelsCache[reelId];
+            const nick = currentUserData ? currentUserData.nick : null;
+            if (!reel || !nick) return;
+            mqShowReelHeartAnim(reelId);
+            const alreadyLiked = !!(reel.likedBy && reel.likedBy[nick]);
+            if (!alreadyLiked) {
+                toggleReelLike(reelId); // mövcud Like funksiyasını reuse edirik — yalnız bəyənmirsə çağırırıq
+            }
+        }
+
+        function mqShowReelHeartAnim(reelId) {
+            const item = document.getElementById(`mqReel-${reelId}`);
+            if (!item) return;
+            const heart = document.createElement('div');
+            heart.className = 'mq-reel-doubletap-heart';
+            heart.textContent = '❤️';
+            item.appendChild(heart);
+            setTimeout(() => heart.remove(), 800);
+        }
 
         // ============================================================
         // REELS — REPOST SİSTEMİ (YENİ)
