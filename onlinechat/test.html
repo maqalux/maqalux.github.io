@@ -8342,7 +8342,11 @@ function returnToRecentPrivateMessages(targetNick) {
             loadReels();
         }
 
-        function renderReelItem(id, reel) {
+            function renderReelItem(id, reel) {
+            if (!reel || !reel.authorNick || !reel.videoUrl) {
+                console.warn('Zədəli Reel qeydi keçildi (authorNick/videoUrl yoxdur):', id, reel);
+                return '';
+            }
             const nick = currentUserData ? currentUserData.nick : null;
             const liked = !!(reel.likedBy && nick && reel.likedBy[nick]);
             const reposted = !!(reel.repostedBy && nick && reel.repostedBy[nick]);
@@ -8387,9 +8391,11 @@ function returnToRecentPrivateMessages(targetNick) {
             reelsHasMoreOlder = true;
             reelsLoadingMore = false;
 
-            db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).once('value', (snap) => {
+             db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).once('value', (snap) => {
                 const val = snap.val() || {};
-                const ids = Object.keys(val).sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
+                const ids = Object.keys(val)
+                    .filter(id => val[id] && val[id].authorNick && val[id].videoUrl)
+                    .sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
 
                 if (!ids.length) {
                     emptyState.style.display = 'block';
@@ -8405,6 +8411,14 @@ function returnToRecentPrivateMessages(targetNick) {
                 setupReelsAutoplayObserver();
             }).catch(err => {
                 console.error('Reels yüklənərkən xəta:', err);
+            });
+
+            // Reel silinəndə (məs. repost geri götürüləndə) kartı canlı şəkildə DOM-dan da sil
+            db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).on('child_removed', (snap) => {
+                const id = snap.key;
+                delete mqReelsCache[id];
+                const el = document.getElementById(`mqReel-${id}`);
+                if (el) el.remove();
             });
 
             // Yeni əlavə olunan Reels-ləri canlı dinləyirik (səhifə açıq ikən)
@@ -8670,6 +8684,8 @@ function returnToRecentPrivateMessages(targetNick) {
             const nick = currentUserData.nick;
             const btnEl = document.getElementById(`mqReelRepostBtn-${reelId}`);
             const countEl = document.getElementById(`mqReelRepostCount-${reelId}`);
+            if (btnEl && btnEl.disabled) return; // əməliyyat artıq gedir, təkrar klikin qarşısını al
+            if (btnEl) btnEl.disabled = true;
             try {
                 const existingSnap = await db.ref(`reelReposts/${reelId}/${nick}`).once('value');
                 if (existingSnap.exists()) {
@@ -8709,10 +8725,12 @@ function returnToRecentPrivateMessages(targetNick) {
                     await db.ref(`reels/${reelId}/repostsCount`).transaction(c => (c || 0) + 1);
                     if (btnEl) btnEl.classList.add('mq-reposted');
                     if (countEl) countEl.textContent = (parseInt(countEl.textContent, 10) || 0) + 1;
-                    showToast('Repost edildi!', 'success');
+                      showToast('Repost edildi!', 'success');
                 }
             } catch (err) {
                 showToast('Xəta: ' + err.message, 'error');
+            } finally {
+                if (btnEl) btnEl.disabled = false;
             }
         };
         // ============================================================
