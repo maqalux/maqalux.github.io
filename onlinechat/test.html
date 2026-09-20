@@ -8329,11 +8329,16 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // ADDIM 5: YALNIZ bundan sonra (render zamanı) iframe yaradılır — həm burada, həm renderReelItem-də təkrar yoxlanılır
-           function mqBuildSafeEmbedHtml(id, reel) {
+              function mqBuildSafeEmbedHtml(id, reel) {
             try {
                 const embedUrl = new URL(reel.embedUrl);
                 if (!MQ_ALLOWED_EMBED_HOSTS.includes(embedUrl.hostname)) {
                     return `<div style="color:#fff;display:flex;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px;">Bu platformadan video əlavə etmək mümkün deyil.</div>`;
+                }
+                if (reel.provider === 'youtube') {
+                    // YouTube-un öz Player API-si iframe-i ÖZÜ yaratsın — boş "qab" veririk.
+                    // (Artıq hazır iframe-i "ələ almaq" postMessage origin xətasına səbəb olurdu.)
+                    return `<div class="mq-reel-embed" id="mqReelEmbed-${id}"></div>`;
                 }
                 return `<iframe class="mq-reel-embed" id="mqReelEmbed-${id}" src="${embedUrl.href}" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>`;
             } catch (e) {
@@ -8345,15 +8350,31 @@ function returnToRecentPrivateMessages(targetNick) {
         const mqYtPlayers = {};
         const mqVimeoPlayers = {};
 
-        function mqInitExternalPlayer(id, reel, attempt) {
+         function mqInitExternalPlayer(id, reel, attempt) {
             attempt = attempt || 0;
             if (attempt > 40) return; // ~10 saniyə cəhd edib dayanır
             if (reel.provider === 'youtube') {
                 if (mqYtPlayers[id]) return;
+                if (!reel.videoId) return; // köhnə (videoId-siz) yazılar üçün heç nə etmə
                 if (window.YT && window.YT.Player) {
+                    const target = document.getElementById(`mqReelEmbed-${id}`);
+                    if (!target) return;
                     try {
-                        mqYtPlayers[id] = new YT.Player(`mqReelEmbed-${id}`, { events: { onReady: function () {} } });
-                    } catch (e) { /* iframe hələ tam hazır olmaya bilər, sakitcə keç */ }
+                        mqYtPlayers[id] = new YT.Player(target, {
+                            videoId: reel.videoId,
+                            playerVars: {
+                                autoplay: 1,
+                                mute: 1,
+                                loop: 1,
+                                playlist: reel.videoId,
+                                controls: 1,
+                                modestbranding: 1,
+                                rel: 0,
+                                origin: location.origin
+                            },
+                            events: { onReady: function () {} }
+                        });
+                    } catch (e) { /* sakitcə keç */ }
                 } else {
                     setTimeout(() => mqInitExternalPlayer(id, reel, attempt + 1), 250);
                 }
@@ -8490,12 +8511,13 @@ function returnToRecentPrivateMessages(targetNick) {
                 try {
                     const reelId = crypto.randomUUID ? crypto.randomUUID() : ('r' + Date.now() + Math.random().toString(36).slice(2));
                     const captionRaw = document.getElementById('mqReelCaptionInput').value.trim();
-                    await db.ref(`reels/${reelId}`).set({
+                      await db.ref(`reels/${reelId}`).set({
                         authorNick: currentUserData.nick,
                         authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
                         caption: captionRaw,
                         videoType: 'external',
                         provider: mqReelExternalParsed.provider,
+                        videoId: mqReelExternalParsed.videoId,
                         externalUrl: document.getElementById('mqReelExternalUrlInput').value.trim(),
                         embedUrl: mqReelExternalParsed.embedUrl,
                         thumbnailUrl: mqReelExternalParsed.thumbnailUrl,
