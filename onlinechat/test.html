@@ -8359,12 +8359,12 @@ function returnToRecentPrivateMessages(targetNick) {
                 if (window.YT && window.YT.Player) {
                     const target = document.getElementById(`mqReelEmbed-${id}`);
                     if (!target) return;
-                    try {
+                     try {
                         mqYtPlayers[id] = new YT.Player(target, {
                             videoId: reel.videoId,
                             playerVars: {
                                 autoplay: 1,
-                                mute: 1,
+                                mute: mqReelsMuted ? 1 : 0,
                                 loop: 1,
                                 playlist: reel.videoId,
                                 controls: 1,
@@ -8372,7 +8372,7 @@ function returnToRecentPrivateMessages(targetNick) {
                                 rel: 0,
                                 origin: location.origin
                             },
-                            events: { onReady: function () {} }
+                            events: { onReady: function () { mqSyncExternalReelMute(id, 'youtube'); } }
                         });
                     } catch (e) { /* sakitcə keç */ }
                 } else {
@@ -8382,9 +8382,10 @@ function returnToRecentPrivateMessages(targetNick) {
                 if (mqVimeoPlayers[id]) return;
                 if (window.Vimeo && window.Vimeo.Player) {
                     const iframeEl = document.getElementById(`mqReelEmbed-${id}`);
-                    if (iframeEl) {
+                     if (iframeEl) {
                         try {
                             mqVimeoPlayers[id] = new Vimeo.Player(iframeEl);
+                            mqVimeoPlayers[id].ready().then(() => mqSyncExternalReelMute(id, 'vimeo')).catch(() => {});
                         } catch (e) { /* sakitcə keç */ }
                     }
                 } else {
@@ -8653,7 +8654,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     ${reel.videoType === 'external'
                     ? mqBuildSafeEmbedHtml(id, reel)
                     : `<video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="handleReelTap('${id}')"></video>`}
-                ${reel.videoType !== 'external' ? `<button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>` : ''}
+             <button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>
                 <div class="mq-reel-side-actions">
                     <button type="button" class="mq-reel-side-btn ${liked ? 'mq-liked' : ''}" id="mqReelLikeBtn-${id}" onclick="event.stopPropagation(); toggleReelLike('${id}')">
                         <span id="mqReelLikeIcon-${id}">${liked ? '❤️' : '🤍'}</span>
@@ -8763,9 +8764,10 @@ function returnToRecentPrivateMessages(targetNick) {
                     if (!video) {
                         // Xarici (iframe) Reel — postMessage ilə play/pause idarə edilir
                         const reel = mqReelsCache[reelId];
-                        if (reel && reel.videoType === 'external') {
+                            if (reel && reel.videoType === 'external') {
                             if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
                                 mqSendExternalReelCommand(reelId, reel.provider, 'play');
+                                mqSyncExternalReelMute(reelId, reel.provider);
                                 mqRegisterReelView(reelId);
                                 mqMaybeLoadMoreReels(entry.target);
                             } else {
@@ -8850,16 +8852,42 @@ function returnToRecentPrivateMessages(targetNick) {
 
         function updateReelMuteIcon(reelId) {
             const btn = document.getElementById(`mqReelMuteBtn-${reelId}`);
+            if (!btn) return;
             const video = document.getElementById(`mqReelVideo-${reelId}`);
-            if (btn && video) btn.textContent = video.muted ? '🔇' : '🔊';
+            const muted = video ? video.muted : mqReelsMuted;
+            btn.textContent = muted ? '🔇' : '🔊';
+        }
+
+        function mqSyncExternalReelMute(reelId, provider) {
+            try {
+                if (provider === 'youtube') {
+                    const player = mqYtPlayers[reelId];
+                    if (player && typeof player.mute === 'function') {
+                        mqReelsMuted ? player.mute() : player.unMute();
+                    }
+                } else if (provider === 'vimeo') {
+                    const player = mqVimeoPlayers[reelId];
+                    if (player && typeof player.setMuted === 'function') {
+                        player.setMuted(mqReelsMuted).catch(() => {});
+                    }
+                }
+            } catch (e) { /* sakitcə keç */ }
+            updateReelMuteIcon(reelId);
         }
 
         window.toggleReelMute = function (reelId) {
             const video = document.getElementById(`mqReelVideo-${reelId}`);
-            if (!video) return;
-            video.muted = !video.muted;
-            mqReelsMuted = video.muted; // sessiya ərzində seçim yadda saxlanır
-            updateReelMuteIcon(reelId);
+            if (video) {
+                video.muted = !video.muted;
+                mqReelsMuted = video.muted; // sessiya ərzində seçim BÜTÜN Reels növləri üçün yadda saxlanır
+                updateReelMuteIcon(reelId);
+                return;
+            }
+            // Xarici (YouTube/Vimeo) Reel
+            const reel = mqReelsCache[reelId];
+            if (!reel) return;
+            mqReelsMuted = !mqReelsMuted;
+            mqSyncExternalReelMute(reelId, reel.provider);
         };
 
         window.mqReelsScrollBy = function (direction) {
