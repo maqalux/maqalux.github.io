@@ -3897,6 +3897,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js">
     </script>
 
+    <!-- Reels xarici video oynadıcıları (YouTube/Vimeo) üçün rəsmi Player API-lar -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://player.vimeo.com/api/player.js"></script>
+
     <script>
         // ============================================================
         // 1. FIREBASE KONFİQURASİYA
@@ -8337,17 +8341,51 @@ function returnToRecentPrivateMessages(targetNick) {
             }
         }
 
+        // Real YouTube/Vimeo Player obyektləri (postMessage əvəzinə rəsmi API)
+        const mqYtPlayers = {};
+        const mqVimeoPlayers = {};
+
+        function mqInitExternalPlayer(id, reel, attempt) {
+            attempt = attempt || 0;
+            if (attempt > 40) return; // ~10 saniyə cəhd edib dayanır
+            if (reel.provider === 'youtube') {
+                if (mqYtPlayers[id]) return;
+                if (window.YT && window.YT.Player) {
+                    try {
+                        mqYtPlayers[id] = new YT.Player(`mqReelEmbed-${id}`, { events: { onReady: function () {} } });
+                    } catch (e) { /* iframe hələ tam hazır olmaya bilər, sakitcə keç */ }
+                } else {
+                    setTimeout(() => mqInitExternalPlayer(id, reel, attempt + 1), 250);
+                }
+            } else if (reel.provider === 'vimeo') {
+                if (mqVimeoPlayers[id]) return;
+                if (window.Vimeo && window.Vimeo.Player) {
+                    const iframeEl = document.getElementById(`mqReelEmbed-${id}`);
+                    if (iframeEl) {
+                        try {
+                            mqVimeoPlayers[id] = new Vimeo.Player(iframeEl);
+                        } catch (e) { /* sakitcə keç */ }
+                    }
+                } else {
+                    setTimeout(() => mqInitExternalPlayer(id, reel, attempt + 1), 250);
+                }
+            }
+        }
+
         function mqSendExternalReelCommand(reelId, provider, command) {
-            const iframe = document.getElementById(`mqReelEmbed-${reelId}`);
-            if (!iframe || !iframe.contentWindow) return;
             try {
                 if (provider === 'youtube') {
-                    const func = command === 'play' ? 'playVideo' : 'pauseVideo';
-                    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*');
+                    const player = mqYtPlayers[reelId];
+                    if (player && typeof player.playVideo === 'function') {
+                        command === 'play' ? player.playVideo() : player.pauseVideo();
+                    }
                 } else if (provider === 'vimeo') {
-                    iframe.contentWindow.postMessage(JSON.stringify({ method: command }), '*');
+                    const player = mqVimeoPlayers[reelId];
+                    if (player && typeof player[command] === 'function') {
+                        player[command]().catch(() => {});
+                    }
                 }
-            } catch (e) { /* postMessage xətası əhəmiyyətsizdir */ }
+            } catch (e) { /* player hələ hazır olmaya bilər, sakitcə keç */ }
         }
 
         window.mqPreviewExternalUrl = function () {
@@ -8639,9 +8677,12 @@ function returnToRecentPrivateMessages(targetNick) {
                     emptyState.style.display = 'block';
                     return;
                 }
-                emptyState.style.display = 'none';
+                  emptyState.style.display = 'none';
                 ids.forEach(id => { mqReelsCache[id] = val[id]; });
                 container.innerHTML = ids.map(id => renderReelItem(id, val[id])).join('');
+                ids.forEach(id => {
+                    if (val[id].videoType === 'external') mqInitExternalPlayer(id, val[id]);
+                });
 
                 reelsOldestTimestamp = Math.min(...ids.map(id => val[id].timestamp || Date.now()));
                 reelsHasMoreOlder = ids.length >= reelsPageSize;
@@ -8651,21 +8692,24 @@ function returnToRecentPrivateMessages(targetNick) {
                 console.error('Reels yüklənərkən xəta:', err);
             });
 
-            // Reel silinəndə (məs. repost geri götürüləndə) kartı canlı şəkildə DOM-dan da sil
+               // Reel silinəndə (məs. repost geri götürüləndə) kartı canlı şəkildə DOM-dan da sil
             db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).on('child_removed', (snap) => {
                 const id = snap.key;
                 delete mqReelsCache[id];
+                if (mqYtPlayers[id]) { try { mqYtPlayers[id].destroy(); } catch (e) {} delete mqYtPlayers[id]; }
+                if (mqVimeoPlayers[id]) { delete mqVimeoPlayers[id]; }
                 const el = document.getElementById(`mqReel-${id}`);
                 if (el) el.remove();
             });
 
-            // Yeni əlavə olunan Reels-ləri canlı dinləyirik (səhifə açıq ikən)
+             // Yeni əlavə olunan Reels-ləri canlı dinləyirik (səhifə açıq ikən)
             db.ref('reels').orderByChild('timestamp').startAt(Date.now()).on('child_added', (snap) => {
                 const reel = snap.val();
                 const id = snap.key;
                 if (mqReelsCache[id]) return;
                 mqReelsCache[id] = reel;
                 container.insertAdjacentHTML('afterbegin', renderReelItem(id, reel));
+                if (reel.videoType === 'external') mqInitExternalPlayer(id, reel);
                 emptyState.style.display = 'none';
                 setupReelsAutoplayObserver();
             });
@@ -8753,7 +8797,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 .once('value', (snap) => {
                     const val = snap.val() || {};
                     const ids = Object.keys(val)
-                        .filter(id => val[id] && val[id].authorNick && val[id].videoUrl && !mqReelsCache[id])
+                        .filter(id => val[id] && val[id].authorNick && (val[id].videoUrl || val[id].embedUrl) && !mqReelsCache[id])
                         .sort((a, b) => (val[b].timestamp || 0) - (val[a].timestamp || 0));
 
                     reelsHasMoreOlder = ids.length >= reelsPageSize;
@@ -8764,6 +8808,9 @@ function returnToRecentPrivateMessages(targetNick) {
                     ids.forEach(id => { mqReelsCache[id] = val[id]; });
                     reelsOldestTimestamp = Math.min(...ids.map(id => val[id].timestamp || reelsOldestTimestamp));
                     container.insertAdjacentHTML('beforeend', ids.map(id => renderReelItem(id, val[id])).join(''));
+                    ids.forEach(id => {
+                        if (val[id].videoType === 'external') mqInitExternalPlayer(id, val[id]);
+                    });
                     setupReelsAutoplayObserver(); // yeni əlavə olunan Reel-lərə də observer qoşulsun
                 })
                 .catch(err => {
