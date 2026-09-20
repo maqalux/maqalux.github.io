@@ -8686,14 +8686,29 @@ function returnToRecentPrivateMessages(targetNick) {
             });
         }
 
-        function setupReelsAutoplayObserver() {
+         function setupReelsAutoplayObserver() {
             if (reelsObserver) reelsObserver.disconnect();
             const items = document.querySelectorAll('.mq-reel-item');
             reelsObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     const reelId = entry.target.dataset.reelId;
                     const video = document.getElementById(`mqReelVideo-${reelId}`);
-                    if (!video) return;
+
+                    if (!video) {
+                        // Xarici (iframe) Reel — postMessage ilə play/pause idarə edilir
+                        const reel = mqReelsCache[reelId];
+                        if (reel && reel.videoType === 'external') {
+                            if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+                                mqSendExternalReelCommand(reelId, reel.provider, 'play');
+                                mqRegisterReelView(reelId);
+                                mqMaybeLoadMoreReels(entry.target);
+                            } else {
+                                mqSendExternalReelCommand(reelId, reel.provider, 'pause');
+                            }
+                        }
+                        return;
+                    }
+
                     if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
                         document.querySelectorAll('.mq-reel-video').forEach(v => {
                             if (v !== video && !v.paused) v.pause();
