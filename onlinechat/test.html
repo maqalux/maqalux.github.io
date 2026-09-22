@@ -5837,21 +5837,20 @@ connectedRef.on('value', (snap) => {
                 return;
             }
 
-                        const payload = {
-                authorNick: currentUserData.nick,
-                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
-                type: data.type,                 // "image" | "video" | "text"
-                mediaUrl: data.mediaUrl || null,
-                text: data.text || null,
-                background: data.background || null,
-                privacy: data.privacy || 'public', // "public" | "friends" | "private"
+            const payload = {
+                sender: currentUserData.nick,
+                senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                text: text || '',
+                mediaType: mediaData ? mediaType : 'text',
+                mediaUrl: mediaData || '',
+                replyTo: replyContext ? { sender: replyContext.sender, text: replyContext.text, mediaType: replyContext.mediaType, mediaUrl: replyContext.mediaUrl } : null,
+                forwardedFrom: null,
+                mentions: extractMentions(text),
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
-                createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
-                expiresAt: now + STORY_DURATION_MS,
-                views: {},
-                likes: {},
-                likedBy: {},
-                likesCount: 0
+                isDeleted: false,
+                reactions: {},
+                deliveredTo: [],
+                readBy: []
             };
             const newRef = db.ref('messages').push();
             newRef.set(payload).then(() => {
