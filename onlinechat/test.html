@@ -7655,7 +7655,20 @@ function returnToRecentPrivateMessages(targetNick) {
                     }
                 }, 1000);
             } catch (err) {
-                showToast('Mikrofona icazə verilmədi.', 'error');
+                console.error('Mikrofon xətası:', err.name, err.message, err);
+                let msg = 'Mikrofona icazə verilmədi.';
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    msg = 'Mikrofona icazə verilmədi. Brauzerin sayt ayarlarından mikrofona icazə verin.';
+                } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                    msg = 'Mikrofon tapılmadı. Cihazınızda mikrofon olduğundan əmin olun.';
+                } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                    msg = 'Mikrofona başqa bir tətbiq/tab tərəfindən artıq istifadə olunur.';
+                } else if (err.name === 'SecurityError' || !window.isSecureContext) {
+                    msg = 'Mikrofon yalnız HTTPS (təhlükəsiz) ünvanda işləyir. Saytın HTTPS ilə açıldığından əmin olun.';
+                } else if (err.message) {
+                    msg = 'Mikrofon xətası: ' + err.message;
+                }
+                showToast(msg, 'error', 6000);
             }
         };
 
