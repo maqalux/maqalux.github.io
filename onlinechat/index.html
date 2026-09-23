@@ -3371,6 +3371,82 @@
             }
             .mq-reels-nav-btn:hover { background: #fff; }
         }
+
+        /* Voice message waveform player */
+        .mq-vp {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+            min-width: 190px;
+            max-width: 240px;
+        }
+        .mq-vp-btn {
+            flex-shrink: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: #ffc107;
+            color: #1a1a1a;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .mq-vp-btn:active { transform: scale(0.9); }
+        .msg-me .mq-vp-btn { background: #fff; color: #024397; }
+        .mq-vp-mid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .mq-vp-wave {
+            position: relative;
+            height: 22px;
+            width: 100%;
+        }
+        .mq-vp-wave-bg, .mq-vp-wave-fg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .mq-vp-wave-bg { width: 100%; color: rgba(255, 255, 255, 0.35); }
+        .msg-other .mq-vp-wave-bg { color: rgba(255, 255, 255, 0.25); }
+        .mq-vp-wave-fg { width: 0%; color: #ffc107; }
+        .mq-vp-bar {
+            width: 3px;
+            min-width: 3px;
+            border-radius: 2px;
+            background: currentColor;
+            flex-shrink: 0;
+            transform-origin: center;
+            transition: transform 0.15s ease;
+        }
+        .mq-vp.playing .mq-vp-bar { animation: mqVpPulse 0.9s ease-in-out infinite; }
+        .mq-vp.playing .mq-vp-bar:nth-child(2n) { animation-delay: 0.12s; }
+        .mq-vp.playing .mq-vp-bar:nth-child(3n) { animation-delay: 0.24s; }
+        .mq-vp.playing .mq-vp-bar:nth-child(4n) { animation-delay: 0.36s; }
+        .mq-vp.playing .mq-vp-bar:nth-child(5n) { animation-delay: 0.48s; }
+        @keyframes mqVpPulse {
+            0%, 100% { transform: scaleY(0.55); }
+            50% { transform: scaleY(1); }
+        }
+        .mq-vp-time {
+            font-size: 11px;
+            opacity: 0.75;
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -5604,7 +5680,7 @@ connectedRef.on('value', (snap) => {
                 content += `<br><img src="${msg.mediaUrl}" alt="Stiker" loading="lazy" style="max-width:140px; max-height:140px; background:none;">`;
             }
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<br><audio controls src="${msg.mediaUrl}" style="max-width:220px; height:34px;"></audio>`;
+                content += '<br>' + mqRenderVoicePlayer(msg.mediaUrl);
             }
             if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
                 content += `<br>` + buildVideoEmbedHtml(msg.mediaUrl, 220);
@@ -6585,7 +6661,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 content += `<img src="${msg.mediaUrl}" alt="Stiker" loading="lazy" style="max-width:100px;max-height:100px;background:none;">`;
             }
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<audio controls src="${msg.mediaUrl}" style="max-width:200px; height:32px;"></audio>`;
+                content += mqRenderVoicePlayer(msg.mediaUrl);
             }
             if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
                 content += buildVideoEmbedHtml(msg.mediaUrl, 200);
@@ -7939,6 +8015,116 @@ function returnToRecentPrivateMessages(targetNick) {
                     return false;
                 });
         }
+
+        // ============================================================
+        // SƏSLİ MESAJ PLEYERİ (Telegram-tipli waveform)
+        // ============================================================
+        let mqVpCounter = 0;
+        function mqVpHashSeed(str) {
+            let h = 0;
+            for (let i = 0; i < str.length; i++) {
+                h = (h << 5) - h + str.charCodeAt(i);
+                h |= 0;
+            }
+            return h || 1;
+        }
+        function mqVpBarsHtml(seed, count) {
+            count = count || 26;
+            let s = mqVpHashSeed(String(seed));
+            const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+            let html = '';
+            for (let i = 0; i < count; i++) {
+                const h = Math.round(25 + rand() * 75);
+                html += `<span class="mq-vp-bar" style="height:${h}%"></span>`;
+            }
+            return html;
+        }
+        function mqVpFormatTime(s) {
+            if (!isFinite(s) || isNaN(s) || s < 0) return '0:00';
+            s = Math.floor(s);
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return m + ':' + (sec < 10 ? '0' : '') + sec;
+        }
+        function mqRenderVoicePlayer(url) {
+            const id = 'mqvp_' + (mqVpCounter++) + '_' + Math.random().toString(36).slice(2, 7);
+            const barsHtml = mqVpBarsHtml(url);
+            return `<div class="mq-vp" id="${id}">
+                <button type="button" class="mq-vp-btn" onclick="event.stopPropagation(); toggleMqVoicePlay('${id}')">▶</button>
+                <div class="mq-vp-mid">
+                    <div class="mq-vp-wave">
+                        <div class="mq-vp-wave-bg">${barsHtml}</div>
+                        <div class="mq-vp-wave-fg">${barsHtml}</div>
+                    </div>
+                    <span class="mq-vp-time">0:00</span>
+                </div>
+                <audio class="mq-vp-audio" src="${url}" preload="metadata" style="display:none"></audio>
+            </div>`;
+        }
+        window.toggleMqVoicePlay = function (id) {
+            const wrap = document.getElementById(id);
+            if (!wrap) return;
+            const audio = wrap.querySelector('.mq-vp-audio');
+            if (!audio) return;
+            document.querySelectorAll('.mq-vp.playing').forEach((el) => {
+                if (el.id !== id) {
+                    const a = el.querySelector('.mq-vp-audio');
+                    if (a) a.pause();
+                }
+            });
+            if (audio.paused) {
+                audio.play().catch(() => { showToast('Səs mesajı oxudula bilmədi.', 'error', 4000); });
+            } else {
+                audio.pause();
+            }
+        };
+        (function initMqVoicePlayerEvents() {
+            const isVp = (el) => el && el.classList && el.classList.contains('mq-vp-audio');
+            document.addEventListener('play', (e) => {
+                if (!isVp(e.target)) return;
+                const wrap = e.target.closest('.mq-vp');
+                if (!wrap) return;
+                wrap.classList.add('playing');
+                const btn = wrap.querySelector('.mq-vp-btn');
+                if (btn) btn.textContent = '⏸';
+            }, true);
+            document.addEventListener('pause', (e) => {
+                if (!isVp(e.target)) return;
+                const wrap = e.target.closest('.mq-vp');
+                if (!wrap) return;
+                wrap.classList.remove('playing');
+                const btn = wrap.querySelector('.mq-vp-btn');
+                if (btn) btn.textContent = '▶';
+            }, true);
+            document.addEventListener('ended', (e) => {
+                if (!isVp(e.target)) return;
+                const wrap = e.target.closest('.mq-vp');
+                if (!wrap) return;
+                const fg = wrap.querySelector('.mq-vp-wave-fg');
+                if (fg) fg.style.width = '0%';
+                const timeEl = wrap.querySelector('.mq-vp-time');
+                if (timeEl && isFinite(e.target.duration)) timeEl.textContent = mqVpFormatTime(e.target.duration);
+            }, true);
+            document.addEventListener('loadedmetadata', (e) => {
+                if (!isVp(e.target)) return;
+                const wrap = e.target.closest('.mq-vp');
+                if (!wrap) return;
+                const timeEl = wrap.querySelector('.mq-vp-time');
+                if (timeEl && isFinite(e.target.duration)) timeEl.textContent = mqVpFormatTime(e.target.duration);
+            }, true);
+            document.addEventListener('timeupdate', (e) => {
+                if (!isVp(e.target)) return;
+                const wrap = e.target.closest('.mq-vp');
+                if (!wrap) return;
+                const audio = e.target;
+                const fg = wrap.querySelector('.mq-vp-wave-fg');
+                const timeEl = wrap.querySelector('.mq-vp-time');
+                if (fg && audio.duration && isFinite(audio.duration)) {
+                    fg.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+                }
+                if (timeEl) timeEl.textContent = mqVpFormatTime(audio.currentTime);
+            }, true);
+        })();
 
         function uploadAudioToCloudinaryAccount(blob, account, onProgress) {
             return new Promise((resolve, reject) => {
