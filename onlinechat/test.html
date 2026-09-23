@@ -7949,9 +7949,10 @@ function returnToRecentPrivateMessages(targetNick) {
                 const formData = new FormData();
                 formData.append('file', blob, 'voice.webm');
                 formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                formData.append('resource_type', 'video');
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, true);
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`, true);
 
                 xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable && onProgress) {
@@ -7972,12 +7973,18 @@ function returnToRecentPrivateMessages(targetNick) {
                         }
                     } else {
                         console.error('Cloudinary səs yükləmə xətası:', xhr.status, xhr.responseText);
-                        showToast('Səs mesajı yüklənə bilmədi.', 'error', 6000);
+                        let detail = '';
+                        try {
+                            const errData = JSON.parse(xhr.responseText);
+                            detail = (errData && errData.error && errData.error.message) ? errData.error.message : '';
+                        } catch (e) {}
+                        showToast('Səs mesajı yüklənə bilmədi (kod ' + xhr.status + ')' + (detail ? ': ' + detail : ''), 'error', 9000);
                         resolve(false);
                     }
                 };
                 xhr.onerror = () => {
-                    showToast('Səs mesajı yüklənərkən şəbəkə xətası.', 'error', 6000);
+                    console.error('Səs yükləmə şəbəkə xətası:', xhr.status, xhr.readyState);
+                    showToast('Səs mesajı yüklənərkən şəbəkə xətası (internet bağlantısını yoxlayın).', 'error', 6000);
                     resolve(false);
                 };
                 xhr.send(formData);
