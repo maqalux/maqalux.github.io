@@ -5838,20 +5838,19 @@ connectedRef.on('value', (snap) => {
             }
 
                         const payload = {
-                authorNick: currentUserData.nick,
-                authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
-                type: data.type,                 // "image" | "video" | "text"
-                mediaUrl: data.mediaUrl || null,
-                text: data.text || null,
-                background: data.background || null,
-                privacy: data.privacy || 'public', // "public" | "friends" | "private"
+                sender: currentUserData.nick,
+                senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                text: text || '',
+                mediaType: mediaData ? mediaType : 'text',
+                mediaUrl: mediaData || '',
+                replyTo: replyContext ? { sender: replyContext.sender, text: replyContext.text, mediaType: replyContext.mediaType, mediaUrl: replyContext.mediaUrl } : null,
+                forwardedFrom: null,
+                mentions: extractMentions(text),
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
-                createdAtClient: now,             // expiresAt hesablamaq üçün müştəri vaxtı
-                expiresAt: now + STORY_DURATION_MS,
-                views: {},
-                likes: {},
-                likedBy: {},
-                likesCount: 0
+                isDeleted: false,
+                reactions: {},
+                deliveredTo: [],
+                readBy: []
             };
             const newRef = db.ref('messages').push();
             newRef.set(payload).then(() => {
@@ -7656,7 +7655,20 @@ function returnToRecentPrivateMessages(targetNick) {
                     }
                 }, 1000);
             } catch (err) {
-                showToast('Mikrofona icazə verilmədi.', 'error');
+                console.error('Mikrofon xətası:', err.name, err.message, err);
+                let msg = 'Mikrofona icazə verilmədi.';
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    msg = 'Mikrofona icazə verilmədi. Brauzerin sayt ayarlarından mikrofona icazə verin.';
+                } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                    msg = 'Mikrofon tapılmadı. Cihazınızda mikrofon olduğundan əmin olun.';
+                } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                    msg = 'Mikrofona başqa bir tətbiq/tab tərəfindən artıq istifadə olunur.';
+                } else if (err.name === 'SecurityError' || !window.isSecureContext) {
+                    msg = 'Mikrofon yalnız HTTPS (təhlükəsiz) ünvanda işləyir. Saytın HTTPS ilə açıldığından əmin olun.';
+                } else if (err.message) {
+                    msg = 'Mikrofon xətası: ' + err.message;
+                }
+                showToast(msg, 'error', 6000);
             }
         };
 
@@ -7928,18 +7940,15 @@ function returnToRecentPrivateMessages(targetNick) {
                 });
         }
 
-        function uploadAudioToStorage(blob, sendFn, onProgress) {
-            if (CLOUDINARY_CLOUD_NAME === "BURAYA_CLOUD_NAME_YAZ") {
-                showToast('Yükləmə xidməti hələ qurulmayıb.', 'error', 7000);
-                return Promise.resolve(false);
-            }
-            return new Promise((resolve) => {
+        function uploadAudioToCloudinaryAccount(blob, account, onProgress) {
+            return new Promise((resolve, reject) => {
                 const formData = new FormData();
                 formData.append('file', blob, 'voice.webm');
-                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                formData.append('upload_preset', account.preset);
+                formData.append('resource_type', 'video');
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, true);
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${account.cloudName}/video/upload`, true);
 
                 xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable && onProgress) {
@@ -7951,25 +7960,49 @@ function returnToRecentPrivateMessages(targetNick) {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try {
                             const data = JSON.parse(xhr.responseText);
-                            if (onProgress) onProgress(100, true);
-                            sendFn(data.secure_url, 'audio');
-                            resolve(true);
+                            resolve(data.secure_url);
                         } catch (err) {
-                            showToast('Səs cavabı oxuna bilmədi: ' + err.message, 'error', 6000);
-                            resolve(false);
+                            reject(new Error('Cavab oxuna bilmədi: ' + err.message));
                         }
                     } else {
-                        console.error('Cloudinary səs yükləmə xətası:', xhr.status, xhr.responseText);
-                        showToast('Səs mesajı yüklənə bilmədi.', 'error', 6000);
-                        resolve(false);
+                        let detail = xhr.responseText || '';
+                        try {
+                            const errJson = JSON.parse(xhr.responseText);
+                            if (errJson.error && errJson.error.message) detail = errJson.error.message;
+                        } catch (e) {}
+                        console.warn(`Cloudinary hesabı "${account.cloudName}" səsi rədd etdi (${xhr.status}): ${detail}`);
+                        reject(new Error(`cloudinary_error_${xhr.status}: ${detail}`));
                     }
                 };
-                xhr.onerror = () => {
-                    showToast('Səs mesajı yüklənərkən şəbəkə xətası.', 'error', 6000);
-                    resolve(false);
-                };
+                xhr.onerror = () => reject(new Error('network_error'));
                 xhr.send(formData);
             });
+        }
+
+        function uploadAudioToStorage(blob, sendFn, onProgress) {
+            if (VIDEO_CLOUDINARY_ACCOUNTS.length === 0 || VIDEO_CLOUDINARY_ACCOUNTS[0].cloudName === "BURAYA_CLOUD_NAME_YAZ") {
+                showToast('Yükləmə xidməti hələ qurulmayıb.', 'error', 7000);
+                return Promise.resolve(false);
+            }
+            return (async () => {
+                let lastErr = null;
+                for (let i = 0; i < VIDEO_CLOUDINARY_ACCOUNTS.length; i++) {
+                    const account = VIDEO_CLOUDINARY_ACCOUNTS[i];
+                    try {
+                        if (i > 0) console.log(`Səs: "${VIDEO_CLOUDINARY_ACCOUNTS[i - 1].cloudName}" xətası səbəbindən "${account.cloudName}" hesabına keçilir...`);
+                        const url = await uploadAudioToCloudinaryAccount(blob, account, onProgress);
+                        if (onProgress) onProgress(100, true);
+                        sendFn(url, 'audio');
+                        return true;
+                    } catch (err) {
+                        lastErr = err;
+                        continue;
+                    }
+                }
+                console.error('Cloudinary səs yükləmə xətası (bütün hesablar):', lastErr && lastErr.message);
+                showToast('Səs mesajı yüklənə bilmədi: ' + (lastErr ? lastErr.message : 'naməlum xəta'), 'error', 9000);
+                return false;
+            })();
         }
                 // ============================================================
         // STORY MODULU — Firebase funksiyaları (YENİ)
