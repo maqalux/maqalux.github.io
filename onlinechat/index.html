@@ -8131,10 +8131,10 @@ function returnToRecentPrivateMessages(targetNick) {
                 const formData = new FormData();
                 formData.append('file', blob, 'voice.webm');
                 formData.append('upload_preset', account.preset);
-                formData.append('resource_type', 'video');
+                formData.append('resource_type', 'raw');
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `https://api.cloudinary.com/v1_1/${account.cloudName}/video/upload`, true);
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${account.cloudName}/raw/upload`, true);
 
                 xhr.upload.onprogress = (e) => {
                     if (e.lengthComputable && onProgress) {
