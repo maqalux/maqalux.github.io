@@ -933,7 +933,7 @@
             -webkit-tap-highlight-color: rgba(255, 170, 0, 0.25);
         }
         /* Ardıcıl mesaj qruplaşdırması: eyni göndərəndən gələn ardıcıl mesajlarda
-           ad/avatar təkrarlanmır, aralıq daha sıx olur */
+            ad/avatar təkrarlanmır, aralıq daha sıx olur */
         .msg-bubble.msg-grouped {
             margin-top: -11px;
         }
@@ -1495,8 +1495,8 @@
             display: none;
         }
         /* ============================================================
-           STORY SİSTEMİ — CSS (YENİ)
-           ============================================================ */
+            STORY SİSTEMİ — CSS (YENİ)
+            ============================================================ */
         .mq-story-bar {
             display: flex;
             gap: 14px;
@@ -1785,7 +1785,7 @@
         .mq-tap-left { left: 0; }
         .mq-tap-right { right: 0; }
 
-              .mq-story-viewer-footer {
+                .mq-story-viewer-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1833,8 +1833,8 @@
             color: var(--text-main);
         }
                 /* ============================================================
-           STORY SİSTEMİ — Mobil son tənzimləmələr (320px - 430px)
-           ============================================================ */
+            STORY SİSTEMİ — Mobil son tənzimləmələr (320px - 430px)
+            ============================================================ */
         @media (max-width: 430px) {
             .mq-story-viewer-inner {
                 max-width: 100%;
@@ -2253,7 +2253,7 @@
     display: block;
     box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
 }
-       /* === ŞƏXSİ MESAJ AXTARIŞI === */
+        /* === ŞƏXSİ MESAJ AXTARIŞI === */
 .pcw-search-bar {
     display: none;
     align-items: center;
@@ -2335,7 +2335,7 @@
         }
 
         /* Mobil */
-       @media (max-width: 700px) {
+        @media (max-width: 700px) {
     /* Mövcud input bar kodlarına bunu əlavə edin */
     .input-bar, .pcw-input-bar {
         flex-wrap: wrap;
@@ -2609,8 +2609,8 @@
         }
 
         /* ============================================================
-           FEED MODULU — YENİ ƏLAVƏ (post, like, şərh, repost)
-           ============================================================ */
+            FEED MODULU — YENİ ƏLAVƏ (post, like, şərh, repost)
+            ============================================================ */
         .feed-view {
             display: none;
             flex: 1;
@@ -2619,7 +2619,7 @@
             padding: 14px;
             gap: 14px;
             /* DÜZƏLİŞ: masaüstündə lent sütununu normal post genişliyində saxlayırıq,
-               əks halda geniş konteynerdə şəkillər həddindən artıq nəhəng görünürdü. */
+                əks halda geniş konteynerdə şəkillər həddindən artıq nəhəng görünürdü. */
             max-width: 600px;
             width: 100%;
             margin: 0 auto;
@@ -2639,7 +2639,7 @@
         }
         .feed-load-more-btn:disabled { opacity: 0.5; cursor: default; }
         /* YENİ: lentin scroll zolağını saytın ümumi dizaynına uyğunlaşdırırıq
-           (mesaj sahəsində istifadə olunanla eyni üslub) */
+            (mesaj sahəsində istifadə olunanla eyni üslub) */
         .feed-view {
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 162, 0, 0.3) transparent;
@@ -2940,15 +2940,15 @@
             padding: 40px 20px;
             color: var(--text-50);
         }
-               @media (max-width: 768px) {
+                @media (max-width: 768px) {
             .feed-view { padding: 8px; }
             .feed-post-card { padding: 10px; border-radius: 10px; }
             .feed-comment-item.is-reply { margin-left: 20px; }
         }
 
         /* ============================================================
-           REELS MODULU — CSS (YENİ, Instagram/TikTok tipli tam-ekran görünüş)
-           ============================================================ */
+            REELS MODULU — CSS (YENİ, Instagram/TikTok tipli tam-ekran görünüş)
+            ============================================================ */
         .mq-reels-view {
             display: none;
             flex: 1;
@@ -3072,12 +3072,52 @@
         }
         .mq-reel-side-btn.mq-liked { filter: drop-shadow(0 0 2px rgba(255,77,103,0.6)); }
         .mq-reel-side-btn.mq-reposted { color: #2ecc71; filter: drop-shadow(0 0 2px rgba(46,204,113,0.6)); }
-           .mq-reel-repost-badge {
+        .mq-reel-repost-badge {
             font-size: 12px;
             font-weight: 600;
             color: #2ecc71;
             margin-bottom: 4px;
         }
+        .mq-reel-delete-btn {
+            position: absolute;
+            top: 58px;
+            right: 14px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.45);
+            color: #fff;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 4;
+            backdrop-filter: blur(4px);
+        }
+        .mq-reel-share-card {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 8px;
+            margin-top: 6px;
+            cursor: pointer;
+        }
+        .mq-reel-share-thumb {
+            width: 48px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #000;
+            flex-shrink: 0;
+        }
+        .mq-reel-share-info { flex: 1; min-width: 0; }
+        .mq-reel-share-title { font-weight: 700; font-size: 12.5px; }
+        .mq-reel-share-author { font-size: 11.5px; opacity: 0.8; }
+        .mq-reel-share-caption { font-size: 11.5px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
 
         .mq-reel-mode-toggle {
             display: flex;
@@ -3169,8 +3209,8 @@
         }
 
         /* ============================================================
-           REELS — COMMENT PANELİ (mobil: bottom sheet, masaüstü: sağ panel)
-           ============================================================ */
+            REELS — COMMENT PANELİ (mobil: bottom sheet, masaüstü: sağ panel)
+            ============================================================ */
         .mq-reel-comments-overlay {
             display: none;
             position: fixed;
@@ -3310,8 +3350,8 @@
             overflow: hidden;
         }
         /* backdrop-filter olan valideyn fixed-mövqeli övladlar üçün öz "containing block"-unu yaradır —
-           məhz buna görə #reelsView bütün ekranı yox, yalnız chat-container-i tuturdu.
-           Reels rejimində bunu müvəqqəti söndürürük (görünməz olduğu üçün heç bir vizual itki yoxdur). */
+            məhz buna görə #reelsView bütün ekranı yox, yalnız chat-container-i tuturdu.
+            Reels rejimində bunu müvəqqəti söndürürük (görünməz olduğu üçün heç bir vizual itki yoxdur). */
         body.mq-reels-mode .chat-container {
             backdrop-filter: none;
         }
@@ -3535,7 +3575,7 @@
                     <button class="logout-btn" onclick="handleLogout()">Çıxış</button>
                 </div>
 
-                  <div class="main-view-tabs" style="display:flex; justify-content:space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid var(--border-10); gap:10px; flex-wrap:wrap;">
+                    <div class="main-view-tabs" style="display:flex; justify-content:space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid var(--border-10); gap:10px; flex-wrap:wrap;">
                     <div style="display:flex; gap:8px; align-items:center;">
                         <button type="button" class="feed-tab-btn active" id="chatsTabBtn" onclick="switchMainView('friends')">💬 Söhbətlər</button>
                         <button type="button" class="feed-tab-btn" id="feedTabBtn" onclick="switchMainView('feed')">🏠 Lent</button>
@@ -3545,9 +3585,9 @@
                         ✏️ Yeni söhbət
                     </button>
                 </div>
-                               <!-- ============================================================
-                     STORY BAR — YENİ ƏLAVƏ
-                     ============================================================ -->
+                                <!-- ============================================================
+                    STORY BAR — YENİ ƏLAVƏ
+                    ============================================================ -->
                 <div class="mq-story-bar" id="mqStoryBar">
                     <div class="mq-story-item" onclick="handleMyStoryClick()">
                         <div class="mq-story-ring mq-own" id="mqMyStoryRing">
@@ -3574,8 +3614,8 @@
                 </div>
 
                 <!-- ============================================================
-                     FEED EKRANI — YENİ ƏLAVƏ
-                     ============================================================ -->
+                    FEED EKRANI — YENİ ƏLAVƏ
+                    ============================================================ -->
                 <div class="feed-view" id="feedView">
                     <div class="feed-composer" id="feedComposer">
                         <div class="feed-composer-top">
@@ -3602,9 +3642,9 @@
                     <!-- YENİ: sürüşdürmə ilə "daha çox yüklə" üçün görünməz nişan (sentinel) -->
                     <div id="feedScrollSentinel" style="height:1px;"></div>
                 </div>
-                     <!-- ============================================================
-                     REELS EKRANI — YENİ ƏLAVƏ
-                     ============================================================ -->
+                    <!-- ============================================================
+                    REELS EKRANI — YENİ ƏLAVƏ
+                    ============================================================ -->
                     <div class="mq-reels-view" id="reelsView">
                     <div class="mq-reels-topbar">
                     <button type="button" class="mq-reels-back-btn" onclick="switchMainView('friends')" aria-label="Geri">←</button>
@@ -3718,7 +3758,7 @@
         </div>
     </div>
         
-       <!-- Yeni Söhbət Modalı -->
+        <!-- Yeni Söhbət Modalı -->
     <div class="modal-overlay" id="newChatModal">
         <div class="modal-box">
             <button class="modal-close" onclick="closeNewChatModal()">✕</button>
@@ -3749,8 +3789,8 @@
         <img id="imageViewerImg" src="" alt="Şəkil">
     </div>
         <!-- ============================================================
-         STORY COMPOSER MODAL — YENİ
-         ============================================================ -->
+        STORY COMPOSER MODAL — YENİ
+        ============================================================ -->
     <div class="modal-overlay" id="mqStoryComposerModal">
         <div class="modal-box mq-story-composer-box">
             <button class="modal-close" onclick="closeStoryComposerModal()">✕</button>
@@ -3780,7 +3820,7 @@
                 <div class="mq-story-bg-swatch" style="background:#16213e" onclick="setStoryBackground('#16213e')"></div>
             </div>
 
-             <div class="mq-story-composer-tools">
+            <div class="mq-story-composer-tools">
                 <label class="mq-story-tool-btn" title="Şəkil / Video seç">
                     📷 Media
                     <input type="file" id="mqStoryMediaInput" accept="image/*,video/*" style="display:none;" onchange="handleStoryMediaSelect(event)">
@@ -3805,9 +3845,9 @@
     </div>
 
     <!-- ============================================================
-         REELS COMPOSER MODAL — YENİ
-         ============================================================ -->
-     <div class="modal-overlay" id="mqReelComposerModal">
+        REELS COMPOSER MODAL — YENİ
+        ============================================================ -->
+    <div class="modal-overlay" id="mqReelComposerModal">
         <div class="modal-box mq-story-composer-box">
             <button class="modal-close" onclick="closeReelComposerModal()">✕</button>
             <h3 style="color: var(--text-main); margin-bottom: 14px;">Reels yarat</h3>
@@ -3850,9 +3890,20 @@
             </div>
         </div>
     </div>
+
+    <!-- Reels Share modalı (YENİ) -->
+    <div class="modal-overlay" id="mqReelShareModal">
+        <div class="modal-box" style="max-width:360px;">
+            <button class="modal-close" onclick="closeReelShareModal()">✕</button>
+            <h3 style="color: var(--text-main); margin-bottom: 14px;">Paylaş</h3>
+            <div id="mqReelShareFriendsList" style="max-height:240px; overflow-y:auto; margin-bottom:14px;"></div>
+            <button type="button" class="ctx-item" style="width:100%; margin-bottom:8px;" onclick="mqShareReelNative()">📤 Paylaş...</button>
+            <button type="button" class="ctx-item" style="width:100%;" onclick="mqCopyReelLink()">🔗 Linki kopyala</button>
+        </div>
+    </div>
         <!-- ============================================================
-         STORY VIEWER — YENİ
-         ============================================================ -->
+        STORY VIEWER — YENİ
+        ============================================================ -->
     <div class="mq-story-viewer" id="mqStoryViewerModal">
         <div class="mq-story-viewer-inner">
             <div class="mq-story-progress-row" id="mqStoryProgressBars"></div>
@@ -3876,7 +3927,7 @@
                 <div class="mq-story-tap-zone mq-tap-right" onclick="mqViewerTapRight()"></div>
             </div>
 
-                      <div class="mq-story-viewer-footer" id="mqViewerFooter">
+                        <div class="mq-story-viewer-footer" id="mqViewerFooter">
                 <button type="button" class="mq-story-viewer-views-btn" id="mqViewerViewsBtn" onclick="mqOpenStoryViewersList()">
                     👁 <span id="mqViewerViewCount">0</span> baxış
                 </button>
@@ -3912,7 +3963,7 @@
                 </div>
             </div>
             <div class="settings-divider"></div>
-                     <div class="settings-section">
+                    <div class="settings-section">
                 <h4>✉️ E-poçtu yenilə</h4>
                 <div class="input-group">
                     <input type="email" id="newEmailInput" class="custom-input" placeholder="Yeni e-poçt ünvanınız">
@@ -3929,12 +3980,12 @@
                     </select>
                 </div>
             </div>
-               </div>
+                </div>
     </div>
 
     <!-- ============================================================
-         STORY BAXIŞLARI SİYAHISI — YENİ
-         ============================================================ -->
+        STORY BAXIŞLARI SİYAHISI — YENİ
+        ============================================================ -->
     <div class="modal-overlay" id="mqStoryViewersListModal">
         <div class="modal-box">
             <button class="modal-close" onclick="mqCloseStoryViewersList()">✕</button>
@@ -5134,8 +5185,8 @@ function initHeaderMessageInbox() {
             toast.innerHTML = `
                 <div>${escapeHtml(LIMIT_REACHED_MESSAGE_CLIENT)}</div>
                 <a href="https://wa.me/${SPONSOR_WHATSAPP_NUMBER}?text=${waText}" target="_blank" rel="noopener noreferrer"
-                   style="display:inline-block; margin-top:10px; background: linear-gradient(90deg, #25D366, #1ebe57); color:#fff; text-decoration:none; padding:8px 16px; border-radius:18px; font-weight:700; font-size:13px;">
-                   💚 Sponsor ol
+                    style="display:inline-block; margin-top:10px; background: linear-gradient(90deg, #25D366, #1ebe57); color:#fff; text-decoration:none; padding:8px 16px; border-radius:18px; font-weight:700; font-size:13px;">
+                    💚 Sponsor ol
                 </a>
             `;
             container.appendChild(toast);
@@ -5201,15 +5252,15 @@ function initHeaderMessageInbox() {
                         }
                         const connectedRef = db.ref('.info/connected');
 connectedRef.on('value', (snap) => {
-  if (snap.val() === true && currentUserData) {
+    if (snap.val() === true && currentUserData) {
     const userRef = db.ref(`users/${currentUserData.uid}`);
     userRef.onDisconnect().update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP }).then(() => {
-      userRef.update({ online: true });
+        userRef.update({ online: true });
     });
     db.ref('typing/' + currentUserData.nick).onDisconnect().remove();
-  }
+    }
 });
-                       
+                        
 
                         document.getElementById('myAvatarImg').src = currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png';
                         document.getElementById('myDisplayNick').innerHTML = `🟢 ${currentUserData.nick} (${currentUserData.role || 'user'})`;
@@ -5219,20 +5270,20 @@ connectedRef.on('value', (snap) => {
                         document.getElementById('loginScreen').classList.remove('active');
                         document.getElementById('mainChatScreen').classList.add('active');
 
-                       loadMessages();
-                       loadActiveUsers();
-                       loadPrivateMessages();
-                       initHeaderMessageInbox();
-                       switchMainView('friends');
-                       initFriendSystem();
-                       initStorySystem();
+                        loadMessages();
+                        loadActiveUsers();
+                        loadPrivateMessages();
+                        initHeaderMessageInbox();
+                        switchMainView('friends');
+                        initFriendSystem();
+                        initStorySystem();
 
-                       // YENİ: Refresh-dən sonra #feed və ya #reels hash-i varsa, uyğun görünüşü aç
-                       if (window.location.hash === '#feed') {
-                           switchMainView('feed');
-                       } else if (window.location.hash === '#reels') {
-                           switchMainView('reels');
-                       }
+                        // YENİ: Refresh-dən sonra #feed və ya #reels hash-i varsa, uyğun görünüşü aç
+                        if (window.location.hash === '#feed') {
+                            switchMainView('feed');
+                        } else if (window.location.hash === '#reels') {
+                            switchMainView('reels');
+                        }
                         
                         // "Mesaj qutusu" bildirişindən gələn açılış (#open=nick)
                         // Hash istifadə olunur çünki GitHub Pages "/onlinechat" -> "/onlinechat/"
@@ -5240,7 +5291,7 @@ connectedRef.on('value', (snap) => {
                         const hashMatch = window.location.hash.match(/^#open=(.+)$/);
                         const openParam = hashMatch ? decodeURIComponent(hashMatch[1]) : null;
                         if (openParam) {
-                               // Ana səhifədəki mesaj qutusundan gələndə dost siyahısı hələ
+                                // Ana səhifədəki mesaj qutusundan gələndə dost siyahısı hələ
                             // real-vaxt dinləyicisindən yüklənməmiş ola bilər. Pəncərəni
                             // yaratmazdan əvvəl statusu birbaşa yoxlayırıq ki, dost üçün
                             // səhvən "Dostluq göndər" düyməsi göstərilməsin.
@@ -5371,7 +5422,7 @@ connectedRef.on('value', (snap) => {
             }
         };
 
-               window.handleLogout = async function() {
+                window.handleLogout = async function() {
             if (currentUser) {
                 try {
                     const updatePromise = db.ref(`users/${currentUser.uid}`).update({
@@ -5412,7 +5463,7 @@ connectedRef.on('value', (snap) => {
         // ============================================================
         // 6. PROFİL AYARLARI
         // ============================================================
-             window.openProfileSettingsModal = function() {
+            window.openProfileSettingsModal = function() {
             const statusVisSelect = document.getElementById('statusFeedVisibilitySelect');
             if (statusVisSelect && currentUserData) {
                 statusVisSelect.value = currentUserData.statusFeedVisibility || 'public';
@@ -5682,8 +5733,19 @@ connectedRef.on('value', (snap) => {
             if (msg.mediaType === 'audio' && msg.mediaUrl && !msg.isDeleted) {
                 content += '<br>' + mqRenderVoicePlayer(msg.mediaUrl);
             }
-            if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
-                content += `<br>` + buildVideoEmbedHtml(msg.mediaUrl, 220);
+                       if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
+                content += buildVideoEmbedHtml(msg.mediaUrl, 200);
+            }
+            if (msg.mediaType === 'reel_share' && !msg.isDeleted) {
+                content += `
+                <div class="mq-reel-share-card" onclick="event.stopPropagation(); openReelFromShare('${msg.sharedReelId}')">
+                    <img src="${msg.mediaUrl || ''}" alt="" class="mq-reel-share-thumb">
+                    <div class="mq-reel-share-info">
+                        <div class="mq-reel-share-title">🎬 Reel</div>
+                        <div class="mq-reel-share-author">@${escapeHtml(msg.sharedReelAuthor || '')}</div>
+                        <div class="mq-reel-share-caption">${escapeHtml(msg.sharedReelCaption || '')}</div>
+                    </div>
+                </div>`;
             }
             if (!msg.isDeleted) {
                 const ytId = extractYouTubeId(msg.text);
@@ -6270,7 +6332,7 @@ connectedRef.on('value', (snap) => {
                 if (input) { input.value = ''; input.style.height = 'auto'; }
             }
         };
-   let forwardMsgContext = null;
+    let forwardMsgContext = null;
 
 // === ŞƏXSİ MESAJ AXTARIŞI STATE VƏ FUNKSİYALAR ===
 let privateSearchState = {}; 
@@ -6896,11 +6958,11 @@ function returnToRecentPrivateMessages(targetNick) {
                         </div>
                         <div class="pcw-lastseen" id="pcw-lastseen-${winId}">${online ? 'onlayn' : 'son görülmə məlum deyil'}</div>
                     </div>
-                   <div class="pcw-actions">
-                       <span onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true)" title="Axtar"><i class="fas fa-search"></i></span>
-                       <span onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true)" title="Tarixə keç"><i class="far fa-calendar"></i></span>
-                       <span onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')">✕</span>
-                   </div>
+                    <div class="pcw-actions">
+                        <span onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true)" title="Axtar"><i class="fas fa-search"></i></span>
+                        <span onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true)" title="Tarixə keç"><i class="far fa-calendar"></i></span>
+                        <span onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')">✕</span>
+                    </div>
                 </div>
                 <div class="pcw-search-bar" id="pcw-date-jump-bar-${winId}" style="display: none;">
                     <input type="date" class="pcw-search-input" id="pcw-date-input-${winId}" style="cursor:pointer;" max="${new Date().toISOString().split('T')[0]}" onchange="handlePrivateDateJump('${winId}', this.value)">
@@ -7045,7 +7107,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 deliveredTo: [],
                 readBy: []
             };
-           const newRef = db.ref('privateMessages').push();
+            const newRef = db.ref('privateMessages').push();
 
             newRef.set(payload).then(() => {
 
@@ -7245,7 +7307,7 @@ function returnToRecentPrivateMessages(targetNick) {
             }
         }
 
-               window.sendStickerOrGif = function(target, url, tab) {
+                window.sendStickerOrGif = function(target, url, tab) {
             const type = tab === 'gif' ? 'gif' : 'sticker';
             if (target === 'main' || target === '__GENERAL__') {
                 triggerMessageSend(url, type);
@@ -7266,7 +7328,7 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         // 12. AKTİV İSTİFADƏÇİLƏR
         // ============================================================
-       function loadActiveUsers() {
+        function loadActiveUsers() {
     // 1) İlk açılışda tam siyahını bir dəfə çək
     db.ref('users').once('value', (snap) => {
         const list = [];
@@ -7692,7 +7754,7 @@ function returnToRecentPrivateMessages(targetNick) {
                             inputEl.disabled = true;
                             inputEl.placeholder = '🎤 Səs mesajı yüklənir... 0%';
                         }
-                          uploadAudioToStorage(blob, (url, type) => {
+                            uploadAudioToStorage(blob, (url, type) => {
                             if (target === 'main' || target === '__GENERAL__') {
                                 triggerMessageSend(url, type);
                             } else {
@@ -8203,7 +8265,7 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // Privacy yoxlaması: story-ni HAZIRKI istifadəçi görə bilərmi?
-               function mqCanViewStory(story) {
+                function mqCanViewStory(story) {
             if (!currentUserData) return false;
             if (story.authorNick === currentUserData.nick) return true; // öz story-mi həmişə görürəm
             const privacy = story.privacy || 'public';
@@ -8248,7 +8310,7 @@ function returnToRecentPrivateMessages(targetNick) {
             storiesRef.on('value', (snap) => {
                 const raw = snap.val() || {};
                 const active = {};
-                 Object.keys(raw).forEach((id) => {
+                Object.keys(raw).forEach((id) => {
                     const story = raw[id];
                     story.id = id;
                     if (mqIsStoryActive(story) && mqCanViewStory(story)) {
@@ -8460,7 +8522,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     mediaUrl = await uploadVideoWithFallback(mqStoryComposerFile, null);
                 }
 
-                 await mqCreateStoryRecord({
+                await mqCreateStoryRecord({
                     type: mqStoryComposerMode,
                     mediaUrl: mediaUrl,
                     text: mqStoryComposerMode === 'text' ? textVal : null,
@@ -8519,7 +8581,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     videoId = (u.pathname.split('/shorts/')[1] || '').split('/')[0] || null;
                 }
                 if (videoId && /^[a-zA-Z0-9_-]{6,20}$/.test(videoId)) {
-                       return {
+                        return {
                         provider: 'youtube',
                         videoId: videoId,
                         embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`,
@@ -8548,7 +8610,7 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // ADDIM 5: YALNIZ bundan sonra (render zamanı) iframe yaradılır — həm burada, həm renderReelItem-də təkrar yoxlanılır
-              function mqBuildSafeEmbedHtml(id, reel) {
+                function mqBuildSafeEmbedHtml(id, reel) {
             try {
                 const embedUrl = new URL(reel.embedUrl);
                 if (!MQ_ALLOWED_EMBED_HOSTS.includes(embedUrl.hostname)) {
@@ -8569,7 +8631,7 @@ function returnToRecentPrivateMessages(targetNick) {
         const mqYtPlayers = {};
         const mqVimeoPlayers = {};
 
-         function mqInitExternalPlayer(id, reel, attempt) {
+        function mqInitExternalPlayer(id, reel, attempt) {
             attempt = attempt || 0;
             if (attempt > 40) return; // ~10 saniyə cəhd edib dayanır
             if (reel.provider === 'youtube') {
@@ -8578,7 +8640,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 if (window.YT && window.YT.Player) {
                     const target = document.getElementById(`mqReelEmbed-${id}`);
                     if (!target) return;
-                     try {
+                    try {
                         mqYtPlayers[id] = new YT.Player(target, {
                             videoId: reel.videoId,
                             playerVars: {
@@ -8601,7 +8663,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 if (mqVimeoPlayers[id]) return;
                 if (window.Vimeo && window.Vimeo.Player) {
                     const iframeEl = document.getElementById(`mqReelEmbed-${id}`);
-                     if (iframeEl) {
+                    if (iframeEl) {
                         try {
                             mqVimeoPlayers[id] = new Vimeo.Player(iframeEl);
                             mqVimeoPlayers[id].ready().then(() => mqSyncExternalReelMute(id, 'vimeo')).catch(() => {});
@@ -8731,7 +8793,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 try {
                     const reelId = crypto.randomUUID ? crypto.randomUUID() : ('r' + Date.now() + Math.random().toString(36).slice(2));
                     const captionRaw = document.getElementById('mqReelCaptionInput').value.trim();
-                      await db.ref(`reels/${reelId}`).set({
+                        await db.ref(`reels/${reelId}`).set({
                         authorNick: currentUserData.nick,
                         authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
                         caption: captionRaw,
@@ -8803,7 +8865,7 @@ function returnToRecentPrivateMessages(targetNick) {
 
                 btn.textContent = 'Paylaşılır...';
                 const captionRaw = document.getElementById('mqReelCaptionInput').value.trim();
-                  await db.ref(`reels/${reelId}`).set({
+                    await db.ref(`reels/${reelId}`).set({
                     authorNick: currentUserData.nick,
                     authorAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
                     caption: captionRaw,
@@ -8824,7 +8886,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 closeReelComposerModal();
             } catch (err) {
                 console.error('Reels paylaşılarkən xəta:', err);
-                 if (err.message && err.message.includes('monthly_limit_reached')) {
+                if (err.message && err.message.includes('monthly_limit_reached')) {
                     showSponsorToast();
                 } else {
                     showToast('Reels paylaşılmadı: ' + err.message, 'error', 7000);
@@ -8870,11 +8932,12 @@ function returnToRecentPrivateMessages(targetNick) {
             const caption = reel.caption || '';
             return `
             <div class="mq-reel-item" id="mqReel-${id}" data-reel-id="${id}">
-                    ${reel.videoType === 'external'
-                    ? mqBuildSafeEmbedHtml(id, reel)
-                    : `<video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="handleReelTap('${id}')"></video>`}
-             <button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>
-                <div class="mq-reel-side-actions">
+            ${reel.videoType === 'external'
+            ? mqBuildSafeEmbedHtml(id, reel)
+            : `<video class="mq-reel-video" id="mqReelVideo-${id}" src="${reel.videoUrl}" playsinline loop preload="none" poster="${reel.thumbnailUrl || ''}" muted onclick="handleReelTap('${id}')"></video>`}
+            <button type="button" class="mq-reel-mute-btn" id="mqReelMuteBtn-${id}" onclick="event.stopPropagation(); toggleReelMute('${id}')">🔇</button>
+            ${(nick && (nick === reel.authorNick || (currentUserData && (currentUserData.role === 'admin' || currentUserData.role === 'moderator')))) ? `<button type="button" class="mq-reel-delete-btn" onclick="event.stopPropagation(); deleteReel('${id}')">🗑️</button>` : ''}
+            <div class="mq-reel-side-actions">
                     <button type="button" class="mq-reel-side-btn ${liked ? 'mq-liked' : ''}" id="mqReelLikeBtn-${id}" onclick="event.stopPropagation(); toggleReelLike('${id}')">
                         <span id="mqReelLikeIcon-${id}">${liked ? '❤️' : '🤍'}</span>
                         <span class="mq-reel-count" id="mqReelLikeCount-${id}">${reel.likesCount || 0}</span>
@@ -8885,7 +8948,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     <button type="button" class="mq-reel-side-btn ${reposted ? 'mq-reposted' : ''}" id="mqReelRepostBtn-${id}" onclick="event.stopPropagation(); toggleReelRepost('${id}')">
                         🔁 <span class="mq-reel-count" id="mqReelRepostCount-${id}">${reel.repostsCount || 0}</span>
                     </button>
-                    <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); showToast('Paylaşma tezliklə əlavə olunacaq.', 'info')">
+                    <button type="button" class="mq-reel-side-btn" onclick="event.stopPropagation(); openReelShareModal('${id}')">
                         ↗️
                     </button>
                 </div>
@@ -8909,7 +8972,7 @@ function returnToRecentPrivateMessages(targetNick) {
             reelsHasMoreOlder = true;
             reelsLoadingMore = false;
 
-             db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).once('value', (snap) => {
+            db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).once('value', (snap) => {
                 const val = snap.val() || {};
                 const ids = Object.keys(val)
                 .filter(id => val[id] && val[id].authorNick && (val[id].videoUrl || val[id].embedUrl) && !mqReelsCache[id])
@@ -8919,7 +8982,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     emptyState.style.display = 'block';
                     return;
                 }
-                  emptyState.style.display = 'none';
+                    emptyState.style.display = 'none';
                 ids.forEach(id => { mqReelsCache[id] = val[id]; });
                 container.innerHTML = ids.map(id => renderReelItem(id, val[id])).join('');
                 ids.forEach(id => {
@@ -8934,7 +8997,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 console.error('Reels yüklənərkən xəta:', err);
             });
 
-               // Reel silinəndə (məs. repost geri götürüləndə) kartı canlı şəkildə DOM-dan da sil
+                // Reel silinəndə (məs. repost geri götürüləndə) kartı canlı şəkildə DOM-dan da sil
             db.ref('reels').orderByChild('timestamp').limitToLast(reelsPageSize).on('child_removed', (snap) => {
                 const id = snap.key;
                 delete mqReelsCache[id];
@@ -8944,7 +9007,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 if (el) el.remove();
             });
 
-             // Yeni əlavə olunan Reels-ləri canlı dinləyirik (səhifə açıq ikən)
+            // Yeni əlavə olunan Reels-ləri canlı dinləyirik (səhifə açıq ikən)
             db.ref('reels').orderByChild('timestamp').startAt(Date.now()).on('child_added', (snap) => {
                 const reel = snap.val();
                 const id = snap.key;
@@ -8972,7 +9035,7 @@ function returnToRecentPrivateMessages(targetNick) {
             });
         }
 
-         function setupReelsAutoplayObserver() {
+        function setupReelsAutoplayObserver() {
             if (reelsObserver) reelsObserver.disconnect();
             const items = document.querySelectorAll('.mq-reel-item');
             reelsObserver = new IntersectionObserver((entries) => {
@@ -9154,11 +9217,11 @@ function returnToRecentPrivateMessages(targetNick) {
                 ? Promise.all([
                     reelRef.child('likedBy').child(nick).set(true),
                     reelRef.child('likesCount').transaction(c => (c || 0) + 1)
-                  ])
+                    ])
                 : Promise.all([
                     reelRef.child('likedBy').child(nick).remove(),
                     reelRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
-                  ]);
+                    ]);
 
             op.catch(err => {
                 reel.likedBy = reel.likedBy || {};
@@ -9270,7 +9333,93 @@ function returnToRecentPrivateMessages(targetNick) {
                 .catch(err => showToast('Xəta: ' + err.message, 'error'));
         };
 
-             window.deleteReelComment = function (reelId, commentId) {
+        // ============================================================
+        // REELS — SHARE SİSTEMİ (YENİ)
+        // ============================================================
+        let mqReelShareCurrentId = null;
+
+        window.openReelShareModal = function (reelId) {
+            mqReelShareCurrentId = reelId;
+            const list = document.getElementById('mqReelShareFriendsList');
+            const friends = Object.keys(myFriends || {});
+            if (!friends.length) {
+                list.innerHTML = `<div style="color:var(--text-main); opacity:0.7; text-align:center; padding:10px;">Dostunuz yoxdur.</div>`;
+            } else {
+                list.innerHTML = friends.map(fn => `
+                    <div class="friend-row" style="cursor:pointer;" onclick="mqShareReelToFriend('${fn.replace(/'/g, "\\'")}')">
+                        <div class="friend-row-info"><div class="friend-row-name">${escapeHtml(fn)}</div></div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('mqReelShareModal').classList.add('active');
+        };
+
+        window.closeReelShareModal = function () {
+            document.getElementById('mqReelShareModal').classList.remove('active');
+            mqReelShareCurrentId = null;
+        };
+
+        window.mqShareReelToFriend = function (targetNick) {
+            const reel = mqReelsCache[mqReelShareCurrentId];
+            if (!reel || !currentUserData) return;
+            const payload = {
+                sender: currentUserData.nick,
+                senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                recipient: targetNick,
+                text: '',
+                mediaType: 'reel_share',
+                mediaUrl: reel.thumbnailUrl || '',
+                sharedReelId: mqReelShareCurrentId,
+                sharedReelAuthor: reel.authorNick,
+                sharedReelCaption: reel.caption || '',
+                replyTo: null,
+                forwardedFrom: null,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                isDeleted: false,
+                reactions: {},
+                deliveredTo: [],
+                readBy: []
+            };
+            const newRef = db.ref('privateMessages').push();
+            newRef.set(payload).then(() => {
+                updateInboxForPrivateMessage(targetNick, payload).catch(() => {});
+                showToast(`Reel ${targetNick}-ə göndərildi.`, 'success');
+                closeReelShareModal();
+            }).catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
+
+        window.mqShareReelNative = function () {
+            const reel = mqReelsCache[mqReelShareCurrentId];
+            if (!reel) return;
+            const url = `${location.origin}${location.pathname}#reels?open=${mqReelShareCurrentId}`;
+            if (navigator.share) {
+                navigator.share({ title: 'Maqalux Reels', text: reel.caption || 'Bu Reel-ə bax!', url: url }).catch(() => {});
+            } else {
+                mqCopyReelLink();
+            }
+        };
+
+        window.mqCopyReelLink = function () {
+            const url = `${location.origin}${location.pathname}#reels?open=${mqReelShareCurrentId}`;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('Link kopyalandı!', 'success');
+                closeReelShareModal();
+            }).catch(() => showToast('Kopyalama uğursuz oldu.', 'error'));
+        };
+
+        window.openReelFromShare = function (reelId) {
+            switchMainView('reels');
+            setTimeout(() => {
+                const el = document.getElementById(`mqReel-${reelId}`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'instant', block: 'start' });
+                } else {
+                    showToast('Bu Reel artıq lentdə deyil (silinmiş və ya köhnə ola bilər).', 'info');
+                }
+            }, 400);
+        };
+
+        window.deleteReelComment = function (reelId, commentId) {
             if (!confirm('Şərhi silmək istədiyinizə əminsiniz?')) return;
             db.ref(`reelComments/${reelId}/${commentId}`).remove()
                 .then(() => {
@@ -9321,7 +9470,44 @@ function returnToRecentPrivateMessages(targetNick) {
             item.appendChild(heart);
             setTimeout(() => heart.remove(), 800);
         }
+        // ============================================================
+        // REELS — SİLMƏ (YENİ)
+        // ============================================================
+        window.deleteReel = async function (reelId) {
+            const reel = mqReelsCache[reelId];
+            if (!reel || !currentUserData) return;
+            const isOwner = reel.authorNick === currentUserData.nick;
+            const isMod = currentUserData.role === 'admin' || currentUserData.role === 'moderator';
+            if (!isOwner && !isMod) return;
+            if (!confirm('Bu Reel-i silmək istədiyinizə əminsiniz? Bu geri qaytarıla bilməz.')) return;
 
+            // Yalnız YÜKLƏNMİŞ (upload) VƏ repost OLMAYAN Reels üçün Worker-dən video/thumbnail-i də sil.
+            // (Repost-un öz video faylı yoxdur — orijinal müəllifin faylına istinad edir, ona toxunmuruq.)
+            if (reel.videoType !== 'external' && !reel.isRepost) {
+                try {
+                    const idToken = await currentUser.getIdToken();
+                    await fetch(`${REELS_WORKER_URL}/video/${reel.authorNick}/${reelId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${idToken}` }
+                    });
+                } catch (workerErr) {
+                    console.warn('Worker-dən silinərkən xəta (Firebase yazısı yenə də silinəcək):', workerErr);
+                }
+            }
+
+            // ƏVVƏLCƏ comment/repost-ları sil (Rules-un authorNick yoxlaması hələ Reel mövcudkən işləsin deyə),
+            // SONRA əsas Reel yazısını sil.
+            await db.ref(`reelComments/${reelId}`).remove().catch(() => {});
+            await db.ref(`reelReposts/${reelId}`).remove().catch(() => {});
+
+            try {
+                await db.ref(`reels/${reelId}`).remove();
+                showToast('Reel silindi.', 'success');
+            } catch (err) {
+                showToast('Xəta: ' + err.message, 'error');
+            }
+        };
+        
         // ============================================================
         // REELS — REPOST SİSTEMİ (YENİ)
         // ============================================================
@@ -9377,7 +9563,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     await db.ref(`reels/${reelId}/repostsCount`).transaction(c => (c || 0) + 1);
                     if (btnEl) btnEl.classList.add('mq-reposted');
                     if (countEl) countEl.textContent = (parseInt(countEl.textContent, 10) || 0) + 1;
-                      showToast('Repost edildi!', 'success');
+                        showToast('Repost edildi!', 'success');
                 }
             } catch (err) {
                 showToast('Xəta: ' + err.message, 'error');
@@ -9476,7 +9662,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 body.innerHTML = nicks.map(nick => `
                     <div class="friend-req-item">
                         <img src="${nickToAvatar[nick] || 'https://www.w3schools.com/howto/img_avatar.png'}"
-                             style="width:38px;height:38px;border-radius:50%;object-fit:cover;">
+                            style="width:38px;height:38px;border-radius:50%;object-fit:cover;">
                         <div class="friend-req-info">${escapeHtml(nick)}</div>
                     </div>
                 `).join('');
@@ -9644,13 +9830,13 @@ function returnToRecentPrivateMessages(targetNick) {
                 const stories = grouped[nick];
                 const avatar = stories[0].authorAvatar || 'https://www.w3schools.com/howto/img_avatar.png';
                 const seenClass = mqIsAuthorFullySeen(stories) ? 'mq-seen' : 'mq-unseen';
-                               return `
+                                return `
                     <div class="mq-story-item"
-                         onclick="if (mqStorySkipClick) { mqStorySkipClick = false; return; } openStoryViewer('${escapeHtml(nick)}')"
-                         onpointerdown="mqStoryPressStart('${escapeHtml(nick)}')"
-                         onpointerup="mqStoryPressEnd()"
-                         onpointerleave="mqStoryPressCancel()"
-                         onpointercancel="mqStoryPressCancel()">
+                        onclick="if (mqStorySkipClick) { mqStorySkipClick = false; return; } openStoryViewer('${escapeHtml(nick)}')"
+                        onpointerdown="mqStoryPressStart('${escapeHtml(nick)}')"
+                        onpointerup="mqStoryPressEnd()"
+                        onpointerleave="mqStoryPressCancel()"
+                        onpointercancel="mqStoryPressCancel()">
                         <div class="mq-story-ring ${seenClass}">
                             <div class="mq-story-avatar-wrap">
                                 <img src="${avatar}" alt="">
@@ -9712,7 +9898,7 @@ function returnToRecentPrivateMessages(targetNick) {
             document.getElementById('mqStoryViewerModal').classList.remove('active');
         };
 
-               function mqClearViewerTimer() {
+                function mqClearViewerTimer() {
             if (mqViewerTimer) {
                 clearInterval(mqViewerTimer);
                 clearTimeout(mqViewerTimer);
@@ -9724,7 +9910,7 @@ function returnToRecentPrivateMessages(targetNick) {
             video.ontimeupdate = null;
             video.pause();
         }
-               function mqCurrentViewerAuthorStories() {
+                function mqCurrentViewerAuthorStories() {
             const nick = mqViewerGroupNicks[mqViewerGroupIndex];
             return (mqViewerLastGrouped && mqViewerLastGrouped[nick]) || [];
         }
@@ -9821,12 +10007,12 @@ function returnToRecentPrivateMessages(targetNick) {
                     likeRef.set(true),
                     storyRef.child('likedBy').child(nick).set(true),
                     storyRef.child('likesCount').transaction(c => (c || 0) + 1)
-                  ])
+                    ])
                 : Promise.all([
                     likeRef.remove(),
                     storyRef.child('likedBy').child(nick).remove(),
                     storyRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
-                  ]);
+                    ]);
 
             operation.catch(err => {
                 console.error('Story Like əməliyyatı uğursuz oldu:', err);
@@ -10037,14 +10223,14 @@ function returnToRecentPrivateMessages(targetNick) {
             }
         }
 
-         window.mqViewerTapLeft = function () { mqGoPrevStory(); };
+        window.mqViewerTapLeft = function () { mqGoPrevStory(); };
         window.mqViewerTapRight = function () { mqGoNextStory(); };
 
         // --- Mobil swipe dəstəyi ---
         let mqTouchStartX = 0;
         let mqTouchStartY = 0;
 
-               function mqInitViewerSwipe() {
+                function mqInitViewerSwipe() {
             const mediaArea = document.getElementById('mqViewerMediaArea');
             mediaArea.addEventListener('touchstart', (e) => {
                 mqTouchStartX = e.touches[0].clientX;
@@ -10159,8 +10345,8 @@ function returnToRecentPrivateMessages(targetNick) {
             const yesterday = new Date(now);
             yesterday.setDate(now.getDate() - 1);
             const isYesterday = d.getFullYear() === yesterday.getFullYear() &&
-                                 d.getMonth() === yesterday.getMonth() &&
-                                 d.getDate() === yesterday.getDate();
+                                d.getMonth() === yesterday.getMonth() &&
+                                d.getDate() === yesterday.getDate();
             if (isYesterday) return `Dünən, ${hh}:${mm}`;
 
             return d.toLocaleDateString('az-AZ') + `, ${hh}:${mm}`;
@@ -10292,7 +10478,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     displayMediaType === 'video'
                         ? `<video src="${displayMediaUrl}" controls preload="none" poster="${getVideoPosterUrl(displayMediaUrl)}"></video>`
                         : `<img src="${thumbSrc}" data-full="${displayMediaUrl}" loading="lazy" decoding="async" onclick="openImageViewer('${displayMediaUrl}')" alt="">`
-                  }</div>` : '');
+                    }</div>` : '');
 
             const menuBtn = (isMine || isMod) ? `<button type="button" class="feed-post-menu-btn" onclick="toggleFeedPostMenu(event,'${postId}')">⋮</button>` : '';
             let menuItems = '';
@@ -10531,12 +10717,12 @@ function returnToRecentPrivateMessages(targetNick) {
                     likeRef.set(true),
                     postRef.child('likedBy').child(nick).set(true),
                     postRef.child('likesCount').transaction(c => (c || 0) + 1)
-                  ])
+                    ])
                 : Promise.all([
                     likeRef.remove(),
                     postRef.child('likedBy').child(nick).remove(),
                     postRef.child('likesCount').transaction(c => Math.max(0, (c || 0) - 1))
-                  ]);
+                    ]);
 
                         op.then(() => {
                 console.log('[LIKE DEBUG] Firebase yazması UĞURLA tamamlandı, postId =', postId); // MÜVƏQQƏTİ
@@ -10802,7 +10988,7 @@ function returnToRecentPrivateMessages(targetNick) {
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 resetTabTitle();
-                 // Arxa planda listener qopmuş ola bilər — serverdən son mesajları yoxla
+                // Arxa planda listener qopmuş ola bilər — serverdən son mesajları yoxla
                 if (currentUserData) {
                     db.ref('messages').orderByChild('timestamp').limitToLast(30).once('value', (snap) => {
                         snap.forEach(childSnap => {
