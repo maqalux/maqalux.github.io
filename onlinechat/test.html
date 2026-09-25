@@ -6726,7 +6726,18 @@ function returnToRecentPrivateMessages(targetNick) {
                 content += mqRenderVoicePlayer(msg.mediaUrl);
             }
             if (msg.mediaType === 'video' && msg.mediaUrl && !msg.isDeleted) {
-                content += buildVideoEmbedHtml(msg.mediaUrl, 200);
+            content += buildVideoEmbedHtml(msg.mediaUrl, 200);
+            }
+            if (msg.mediaType === 'reel_share' && !msg.isDeleted) {
+                content += `
+                <div class="mq-reel-share-card" onclick="event.stopPropagation(); openReelFromShare('${msg.sharedReelId}')">
+                    <img src="${msg.mediaUrl || ''}" alt="" class="mq-reel-share-thumb">
+                    <div class="mq-reel-share-info">
+                        <div class="mq-reel-share-title">🎬 Reel</div>
+                        <div class="mq-reel-share-author">@${escapeHtml(msg.sharedReelAuthor || '')}</div>
+                        <div class="mq-reel-share-caption">${escapeHtml(msg.sharedReelCaption || '')}</div>
+                    </div>
+                </div>`;
             }
             if (!msg.isDeleted) {
                 const ytId = extractYouTubeId(msg.text);
