@@ -9350,14 +9350,19 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         let mqReelShareCurrentId = null;
 
-        window.openReelShareModal = function (reelId) {
+            window.openReelShareModal = function (reelId) {
             mqReelShareCurrentId = reelId;
             const list = document.getElementById('mqReelShareFriendsList');
             const friends = Object.keys(myFriends || {});
+            const generalRow = `
+                <div class="friend-row" style="cursor:pointer;" onclick="mqShareReelToGeneralChat()">
+                    <div class="friend-row-info"><div class="friend-row-name">🌐 Ümumi çat</div></div>
+                </div>
+            `;
             if (!friends.length) {
-                list.innerHTML = `<div style="color:var(--text-main); opacity:0.7; text-align:center; padding:10px;">Dostunuz yoxdur.</div>`;
+                list.innerHTML = generalRow + `<div style="color:var(--text-main); opacity:0.7; text-align:center; padding:10px;">Dostunuz yoxdur.</div>`;
             } else {
-                list.innerHTML = friends.map(fn => `
+                list.innerHTML = generalRow + friends.map(fn => `
                     <div class="friend-row" style="cursor:pointer;" onclick="mqShareReelToFriend('${fn.replace(/'/g, "\\'")}')">
                         <div class="friend-row-info"><div class="friend-row-name">${escapeHtml(fn)}</div></div>
                     </div>
@@ -9400,6 +9405,33 @@ function returnToRecentPrivateMessages(targetNick) {
             }).catch(err => showToast('Xəta: ' + err.message, 'error'));
         };
 
+        window.mqShareReelToGeneralChat = function () {
+            const reel = mqReelsCache[mqReelShareCurrentId];
+            if (!reel || !currentUserData) return;
+            const payload = {
+                sender: currentUserData.nick,
+                senderAvatar: currentUserData.avatarUrl || 'https://www.w3schools.com/howto/img_avatar.png',
+                text: '',
+                mediaType: 'reel_share',
+                mediaUrl: reel.thumbnailUrl || '',
+                sharedReelId: mqReelShareCurrentId,
+                sharedReelAuthor: reel.authorNick,
+                sharedReelCaption: reel.caption || '',
+                replyTo: null,
+                forwardedFrom: null,
+                mentions: [],
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                isDeleted: false,
+                reactions: {},
+                deliveredTo: [],
+                readBy: []
+            };
+            const newRef = db.ref('messages').push();
+            newRef.set(payload).then(() => {
+                showToast('Reel ümumi çata göndərildi.', 'success');
+                closeReelShareModal();
+            }).catch(err => showToast('Xəta: ' + err.message, 'error'));
+        };
         window.mqShareReelNative = function () {
             const reel = mqReelsCache[mqReelShareCurrentId];
             if (!reel) return;
