@@ -5279,8 +5279,12 @@ connectedRef.on('value', (snap) => {
                         initStorySystem();
 
                         // YENİ: Refresh-dən sonra #feed və ya #reels hash-i varsa, uyğun görünüşü aç
+                        const reelsOpenMatch = window.location.hash.match(/^#reels\?open=(.+)$/);
                         if (window.location.hash === '#feed') {
                             switchMainView('feed');
+                        } else if (reelsOpenMatch) {
+                            const sharedReelIdFromHash = decodeURIComponent(reelsOpenMatch[1]);
+                            openReelFromShare(sharedReelIdFromHash);
                         } else if (window.location.hash === '#reels') {
                             switchMainView('reels');
                         }
