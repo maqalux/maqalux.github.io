@@ -9618,6 +9618,15 @@ function returnToRecentPrivateMessages(targetNick) {
                 }
             }
 
+            // YENİ: Əgər silinən Reel bir REPOST-dursa, orijinal Reel tərəfindəki "repost izi"ni
+            // də təmizlə (əks halda reelReposts/{originalId}/{nick} ölü repostId-ə işarə edərək
+            // qalır və istifadəçi nə yeni repost edə bilir, nə köhnəni geri götürə bilir).
+            if (reel.isRepost && reel.originalReelId) {
+                await db.ref(`reelReposts/${reel.originalReelId}/${reel.authorNick}`).remove().catch(() => {});
+                await db.ref(`reels/${reel.originalReelId}/repostedBy/${reel.authorNick}`).remove().catch(() => {});
+                await db.ref(`reels/${reel.originalReelId}/repostsCount`).transaction(c => Math.max(0, (c || 0) - 1)).catch(() => {});
+            }
+
             // ƏVVƏLCƏ comment/repost-ları sil (Rules-un authorNick yoxlaması hələ Reel mövcudkən işləsin deyə),
             // SONRA əsas Reel yazısını sil.
             await db.ref(`reelComments/${reelId}`).remove().catch(() => {});
@@ -9652,8 +9661,14 @@ function returnToRecentPrivateMessages(targetNick) {
                 if (existingSnap.exists()) {
                     // Repostu geri götür
                     const repostReelId = existingSnap.val();
+                    const repostStillExistsSnap = await db.ref(`reels/${repostReelId}`).once('value');
                     const updates = {};
-                    updates[`reels/${repostReelId}`] = null;
+                    // Yalnız repost REALDA hələ mövcuddursa onu silməyə cəhd et — əks halda
+                    // (artıq başqa yolla silinibsə) mövcud olmayan yola yazmaq Rules tərəfindən
+                    // rədd olunur və BÜTÜN multi-path update uğursuz olur.
+                    if (repostStillExistsSnap.exists()) {
+                        updates[`reels/${repostReelId}`] = null;
+                    }
                     updates[`reelReposts/${reelId}/${nick}`] = null;
                     updates[`reels/${reelId}/repostedBy/${nick}`] = null;
                     await db.ref().update(updates);
@@ -9672,6 +9687,7 @@ function returnToRecentPrivateMessages(targetNick) {
                         externalUrl: reel.externalUrl || null,
                         embedUrl: reel.embedUrl || null,
                         provider: reel.provider || null,
+                        videoId: reel.videoId || null,
                         caption: '',
                         timestamp: Date.now(),
                         likesCount: 0,
