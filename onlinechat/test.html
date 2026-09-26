@@ -3416,10 +3416,10 @@
         .mq-vp {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             margin-top: 6px;
-            min-width: 190px;
-            max-width: 240px;
+            min-width: 200px;
+            max-width: 260px;
         }
         .mq-vp-btn {
             flex-shrink: 0;
@@ -3487,6 +3487,41 @@
             opacity: 0.75;
             white-space: nowrap;
         }
+        .mq-vp-bottom-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .mq-vp-speed {
+            flex-shrink: 0;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: inherit;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            cursor: pointer;
+            opacity: 0.9;
+        }
+        .msg-me .mq-vp-speed { background: rgba(255, 255, 255, 0.3); }
+        .mq-vp-download {
+            flex-shrink: 0;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: inherit;
+            opacity: 0.65;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .mq-vp-download:hover { opacity: 1; }
     </style>
 </head>
 
@@ -8133,11 +8168,51 @@ function returnToRecentPrivateMessages(targetNick) {
                         <div class="mq-vp-wave-bg">${barsHtml}</div>
                         <div class="mq-vp-wave-fg">${barsHtml}</div>
                     </div>
-                    <span class="mq-vp-time">0:00</span>
+                    <div class="mq-vp-bottom-row">
+                        <span class="mq-vp-time">0:00</span>
+                        <button type="button" class="mq-vp-speed" onclick="event.stopPropagation(); mqCycleVoiceSpeed('${id}')">1x</button>
+                    </div>
                 </div>
+                <button type="button" class="mq-vp-download" title="Yüklə" onclick="event.stopPropagation(); mqDownloadVoice('${url}', this)"><i class="fa-solid fa-download"></i></button>
                 <audio class="mq-vp-audio" src="${url}" preload="metadata" style="display:none"></audio>
             </div>`;
         }
+        window.mqCycleVoiceSpeed = function (id) {
+            const wrap = document.getElementById(id);
+            if (!wrap) return;
+            const audio = wrap.querySelector('.mq-vp-audio');
+            const btn = wrap.querySelector('.mq-vp-speed');
+            if (!audio || !btn) return;
+            const speeds = [1, 1.5, 2];
+            let idx = speeds.indexOf(audio.playbackRate);
+            if (idx === -1) idx = 0;
+            idx = (idx + 1) % speeds.length;
+            audio.playbackRate = speeds[idx];
+            btn.textContent = speeds[idx] + 'x';
+        };
+        window.mqDownloadVoice = function (url, btnEl) {
+            const icon = btnEl.querySelector('i');
+            const originalClass = icon ? icon.className : '';
+            if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
+            fetch(url)
+                .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
+                .then((blob) => {
+                    const objUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = objUrl;
+                    a.download = 'ses-mesaji-' + Date.now() + '.webm';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(objUrl), 3000);
+                })
+                .catch((err) => {
+                    console.error('Səs yükləmə xətası:', err);
+                    window.open(url, '_blank');
+                    showToast('Fayl birbaşa yüklənə bilmədi, yeni sekmədə açıldı.', 'info', 5000);
+                })
+                .finally(() => { if (icon) icon.className = originalClass; });
+        };
         window.toggleMqVoicePlay = function (id) {
             const wrap = document.getElementById(id);
             if (!wrap) return;
