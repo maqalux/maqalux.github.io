@@ -7011,6 +7011,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     <div class="pcw-actions">
                         <span onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true)" title="Axtar"><i class="fas fa-search"></i></span>
                         <span onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true)" title="Tarixə keç"><i class="far fa-calendar"></i></span>
+                        ${(!isGeneral && isFriend(targetNick)) ? `<span onclick="event.stopPropagation(); mqStartCall('${targetNick}')" title="Zəng et"><i class="fa-solid fa-phone-volume"></i></span>` : ''}
                         <span onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')">✕</span>
                     </div>
                 </div>
