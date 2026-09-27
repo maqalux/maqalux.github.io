@@ -7875,6 +7875,210 @@ function returnToRecentPrivateMessages(targetNick) {
             stopVoiceRecording(target, false);
         };
 
+        // ============================================================
+        // 16. SƏSLİ ZƏNG (WEBRTC AUDIO CALL) — mövcud səs mesajı sistemindən TAMAMİLƏ AYRIDIR
+        // ============================================================
+
+        // --- Qlobal call state ---
+        let mqActiveCall = null;              // { callId, role: 'caller'|'callee', peerNick, peerUid, status }
+        let mqCallPeerConnection = null;       // RTCPeerConnection
+        let mqCallLocalStream = null;          // local mikrofon MediaStream
+        let mqCallRemoteStream = null;         // qarşı tərəfin audio MediaStream-i
+        let mqCallListenerRefs = [];           // [{ ref, event }] - logout/cleanup zamanı .off() üçün
+        let mqCallTimer = null;                // connected sonrası saniyə sayğacı
+        let mqCallSeconds = 0;
+        let mqCallTimeoutTimer = null;         // "cavab alınmadı" üçün
+        let mqCallListenerAttached = false;    // incoming-call əsas listener ikiqat qoşulmasın
+        let mqCallIncomingListenerRef = null;  // əsas incoming-call query ref-i
+        let mqCallRingtoneCtx = null;          // Web Audio API context
+        let mqCallRingtoneNodes = null;        // { interval } - ringtone dayandırmaq üçün
+
+        // --- ICE server konfiqurasiyası ---
+        // QEYD: yalnız STUN birbaşa (P2P) bağlantıya kömək edir. Simmetrik NAT/bəzi mobil
+        // operator şəbəkələrində/korporativ firewall-larda STUN kifayət etməyəcək və TURN
+        // server tələb olunacaq. Hazırda TURN credential-ları yoxdur — uydurma/hardcoded
+        // secret YAZILMAYIB. TURN lazım olsa, aşağıdakı array-ə bu formatda əlavə et:
+        // { urls: 'turn:TURN_URL', username: 'TURN_USERNAME', credential: 'TURN_CREDENTIAL' }
+        const mqIceServers = [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+        ];
+
+        // --- Status mətnləri (UI üçün, Azərbaycan dilində) ---
+        const mqCallStatusText = {
+            calling:    'Zəng edilir...',
+            ringing:    'Gələn zəng',
+            connecting: 'Qoşulur...',
+            connected:  'Danışıq davam edir',
+            ended:      'Zəng bitdi',
+            rejected:   'Zəng rədd edildi',
+            busy:       'İstifadəçi hazırda başqa zəngdədir',
+            timeout:    'Cavab alınmadı',
+            failed:     'Bağlantı qurulmadı'
+        };
+
+        // --- Unikal call ID generatoru ---
+        function mqGenerateCallId() {
+            return 'call_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+        }
+
+        // --- RTCPeerConnection yaradıcısı + connection event-ləri ---
+        function mqCreatePeerConnection() {
+            const pc = new RTCPeerConnection({ iceServers: mqIceServers });
+
+            pc.onconnectionstatechange = () => {
+                console.log('[MQ CALL] connection state:', pc.connectionState);
+                if (pc.connectionState === 'connected') {
+                    mqOnCallConnected();
+                } else if (pc.connectionState === 'failed') {
+                    mqHandleCallFailure('failed');
+                } else if (pc.connectionState === 'disconnected') {
+                    console.warn('[MQ CALL] connection disconnected — gözlənilir...');
+                }
+            };
+            pc.oniceconnectionstatechange = () => {
+                console.log('[MQ CALL] ICE connection state:', pc.iceConnectionState);
+            };
+            pc.onicegatheringstatechange = () => {
+                console.log('[MQ CALL] ICE gathering state:', pc.iceGatheringState);
+            };
+            pc.ontrack = (event) => {
+                console.log('[MQ CALL] remote track alındı');
+                mqCallRemoteStream = event.streams[0];
+                mqAttachRemoteAudio(mqCallRemoteStream);
+            };
+
+            return pc;
+        }
+
+        // --- Remote audio elementi (tək nüsxə saxlanılır, çoxalmır) ---
+        function mqAttachRemoteAudio(stream) {
+            let audioEl = document.getElementById('mqCallRemoteAudio');
+            if (!audioEl) {
+                audioEl = document.createElement('audio');
+                audioEl.id = 'mqCallRemoteAudio';
+                audioEl.autoplay = true;
+                audioEl.style.display = 'none';
+                document.body.appendChild(audioEl);
+            }
+            audioEl.srcObject = stream;
+            const playPromise = audioEl.play();
+            if (playPromise && playPromise.catch) {
+                playPromise.catch(() => {
+                    showToast('Səs bağlantısı quruldu. Səsi aktiv etmək üçün ekrana toxunun.', 'info', 5000);
+                });
+            }
+        }
+        function mqRemoveRemoteAudio() {
+            const audioEl = document.getElementById('mqCallRemoteAudio');
+            if (audioEl) {
+                audioEl.srcObject = null;
+                audioEl.remove();
+            }
+        }
+
+        // --- Sadə ringtone (Web Audio API — əlavə audio faylı yükləmir) ---
+        function mqStartRingtone() {
+            try {
+                if (mqCallRingtoneCtx) return;
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                mqCallRingtoneCtx = new AudioCtx();
+                const beep = () => {
+                    if (!mqCallRingtoneCtx) return;
+                    const osc = mqCallRingtoneCtx.createOscillator();
+                    const gain = mqCallRingtoneCtx.createGain();
+                    osc.frequency.value = 880;
+                    gain.gain.setValueAtTime(0.0001, mqCallRingtoneCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.15, mqCallRingtoneCtx.currentTime + 0.05);
+                    gain.gain.linearRampToValueAtTime(0.0001, mqCallRingtoneCtx.currentTime + 0.4);
+                    osc.connect(gain);
+                    gain.connect(mqCallRingtoneCtx.destination);
+                    osc.start();
+                    osc.stop(mqCallRingtoneCtx.currentTime + 0.4);
+                };
+                beep();
+                mqCallRingtoneNodes = { interval: setInterval(beep, 1500) };
+            } catch (err) {
+                console.error('[MQ CALL] ringtone xətası:', err);
+            }
+        }
+        function mqStopRingtone() {
+            if (mqCallRingtoneNodes && mqCallRingtoneNodes.interval) {
+                clearInterval(mqCallRingtoneNodes.interval);
+            }
+            mqCallRingtoneNodes = null;
+            if (mqCallRingtoneCtx) {
+                mqCallRingtoneCtx.close().catch(() => {});
+                mqCallRingtoneCtx = null;
+            }
+        }
+
+        // --- Mərkəzi cleanup — bütün call resurslarını təmizləyir ---
+        function mqCleanupCall() {
+            console.log('[MQ CALL] cleanup başladı');
+            if (mqCallTimer) { clearInterval(mqCallTimer); mqCallTimer = null; }
+            if (mqCallTimeoutTimer) { clearTimeout(mqCallTimeoutTimer); mqCallTimeoutTimer = null; }
+            mqCallSeconds = 0;
+            mqStopRingtone();
+
+            if (mqCallLocalStream) {
+                mqCallLocalStream.getTracks().forEach(t => t.stop());
+                mqCallLocalStream = null;
+            }
+            mqCallRemoteStream = null;
+            mqRemoveRemoteAudio();
+
+            if (mqCallPeerConnection) {
+                try { mqCallPeerConnection.close(); } catch (e) {}
+                mqCallPeerConnection = null;
+            }
+
+            mqCallListenerRefs.forEach(({ ref, event }) => {
+                try { ref.off(event); } catch (e) {}
+            });
+            mqCallListenerRefs = [];
+            mqActiveCall = null;
+            console.log('[MQ CALL] cleanup tamamlandı');
+        }
+
+        // --- connectionState === 'connected' olduqda çağırılır ---
+        function mqOnCallConnected() {
+            if (!mqActiveCall || mqActiveCall.status === 'connected') return;
+            mqActiveCall.status = 'connected';
+            mqStopRingtone();
+            if (mqCallTimeoutTimer) { clearTimeout(mqCallTimeoutTimer); mqCallTimeoutTimer = null; }
+            mqCallSeconds = 0;
+            if (mqCallTimer) clearInterval(mqCallTimer);
+            mqCallTimer = setInterval(() => {
+                mqCallSeconds++;
+                mqUpdateCallTimerUI();
+            }, 1000);
+            mqUpdateCallStatusUI('connected');
+            console.log('[MQ CALL] connected — timer başladı');
+        }
+
+        // --- Bağlantı uğursuz olduqda ---
+        function mqHandleCallFailure(reason) {
+            console.error('[MQ CALL] əlaqə xətası:', reason);
+            showToast('Zəng bağlantısı qurulmadı.', 'error');
+            // Firebase status="failed" yazısı və tam UI bağlanması ADDIM 6/9-da inteqrasiya olunacaq
+        }
+
+        // --- UI helper-ləri üçün yer tutucular (ADDIM 4-də real DOM elementləri ilə doldurulacaq) ---
+        function mqUpdateCallTimerUI() {
+            const el = document.getElementById('mqCallTimerLabel');
+            if (el) {
+                const m = Math.floor(mqCallSeconds / 60);
+                const s = mqCallSeconds % 60;
+                el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+            }
+        }
+        function mqUpdateCallStatusUI(status) {
+            const el = document.getElementById('mqCallStatusLabel');
+            if (el) el.textContent = mqCallStatusText[status] || '';
+        }
+
         const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
 
         // ============================================================
@@ -7904,7 +8108,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 }
             });
         }
-                // ============================================================
+        // ============================================================
         // REELS MODULU — Video framindən thumbnail yaratma (canvas)
         // ============================================================
         function generateReelThumbnail(file) {
