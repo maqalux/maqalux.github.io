@@ -8080,6 +8080,177 @@ function returnToRecentPrivateMessages(targetNick) {
             if (el) el.textContent = mqCallStatusText[status] || '';
         }
 
+        // --- OUTGOING CALL ---
+        window.mqStartCall = async function(targetNick) {
+            try {
+                // 1. özünə zəng yoxlaması
+                if (targetNick === currentUserData.nick) {
+                    showToast('Özünüzə zəng edə bilməzsiniz.', 'error');
+                    return;
+                }
+
+                // 2. artıq zəngdəsənmi?
+                if (mqActiveCall) {
+                    showToast('Siz hazırda başqa zəngdəsiniz.', 'error');
+                    return;
+                }
+
+                // 3. dost yoxlaması (mövcud sistemi reuse edir)
+                if (!isFriend(targetNick)) {
+                    showToast('Yalnız dostlarınıza zəng edə bilərsiniz.', 'error');
+                    return;
+                }
+
+                // 4. qarşı tərəfin uid-ni tap (mövcud lastActiveUsersList reuse olunur)
+                const targetUser = lastActiveUsersList.find(u => u.nick === targetNick);
+                if (!targetUser || !targetUser.uid) {
+                    showToast('İstifadəçi tapılmadı.', 'error');
+                    return;
+                }
+
+                // 5. qarşı tərəf məşğuldurmu? (aktiv call-ları yoxla)
+                const busySnap = await db.ref('calls')
+                    .orderByChild('calleeUid')
+                    .equalTo(targetUser.uid)
+                    .once('value');
+                let targetBusy = false;
+                busySnap.forEach(child => {
+                    const c = child.val();
+                    if (c.status === 'calling' || c.status === 'ringing' || c.status === 'connecting' || c.status === 'connected') {
+                        targetBusy = true;
+                    }
+                });
+                if (targetBusy) {
+                    showToast('İstifadəçi hazırda başqa zəngdədir.', 'error');
+                    return;
+                }
+
+                // 6. mikrofon icazəsi
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                } catch (err) {
+                    mqHandleMicError(err);
+                    return;
+                }
+                mqCallLocalStream = stream;
+
+                // 7. call ID və state
+                const callId = mqGenerateCallId();
+                mqActiveCall = {
+                    callId,
+                    role: 'caller',
+                    peerNick: targetNick,
+                    peerUid: targetUser.uid,
+                    status: 'calling'
+                };
+
+                showToast('Zəng edilir...', 'info');
+                console.log('[MQ CALL] create peer connection');
+
+                // 8. RTCPeerConnection + local track
+                mqCallPeerConnection = mqCreatePeerConnection();
+                stream.getTracks().forEach(track => mqCallPeerConnection.addTrack(track, stream));
+
+                const callRef = db.ref('calls/' + callId);
+
+                // 9. ICE candidate-ləri Firebase-ə yaz (caller tərəfi)
+                mqCallPeerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        callRef.child('callerCandidates').push(event.candidate.toJSON());
+                    }
+                };
+
+                // 10. Offer yarat
+                const offer = await mqCallPeerConnection.createOffer();
+                await mqCallPeerConnection.setLocalDescription(offer);
+                console.log('[MQ CALL] offer created');
+
+                // 11. call-ı Firebase-ə yaz
+                await callRef.set({
+                    callerUid: currentUserData.uid,
+                    calleeUid: targetUser.uid,
+                    callerNick: currentUserData.nick,
+                    calleeNick: targetNick,
+                    status: 'calling',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    offer: { type: offer.type, sdp: offer.sdp }
+                });
+                console.log('[MQ CALL] offer written');
+
+                // 12. answer-i gözlə
+                const answerListener = callRef.on('value', async (snap) => {
+                    const data = snap.val();
+                    if (!data || !mqActiveCall || mqActiveCall.callId !== callId) return;
+
+                    if (data.answer && mqCallPeerConnection && !mqCallPeerConnection.currentRemoteDescription) {
+                        console.log('[MQ CALL] answer received');
+                        await mqCallPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                        mqActiveCall.status = 'connecting';
+                        mqUpdateCallStatusUI('connecting');
+                    }
+
+                    if (data.status === 'rejected') {
+                        showToast('Zəng rədd edildi.', 'error');
+                        callRef.off('value', answerListener);
+                        mqCleanupCall();
+                    } else if (data.status === 'busy') {
+                        showToast('İstifadəçi hazırda başqa zəngdədir.', 'error');
+                        callRef.off('value', answerListener);
+                        mqCleanupCall();
+                    } else if (data.status === 'ended') {
+                        showToast('Zəng bitdi.', 'info');
+                        callRef.off('value', answerListener);
+                        mqCleanupCall();
+                    }
+                });
+                mqCallListenerRefs.push({ ref: callRef, event: 'value' });
+
+                // 13. remote (callee) ICE candidate-ləri qəbul et
+                const calleeCandRef = callRef.child('calleeCandidates');
+                const candListener = calleeCandRef.on('child_added', (snap) => {
+                    const cand = snap.val();
+                    if (cand && mqCallPeerConnection) {
+                        mqCallPeerConnection.addIceCandidate(new RTCIceCandidate(cand))
+                            .then(() => console.log('[MQ CALL] ICE candidate added'))
+                            .catch(err => console.error('[MQ CALL] ICE candidate error:', err));
+                    }
+                });
+                mqCallListenerRefs.push({ ref: calleeCandRef, event: 'child_added' });
+
+                // 14. timeout — 40 saniyə ərzində connected olmasa
+                mqCallTimeoutTimer = setTimeout(async () => {
+                    if (mqActiveCall && mqActiveCall.callId === callId && mqActiveCall.status !== 'connected') {
+                        console.log('[MQ CALL] connection timeout');
+                        showToast('Cavab alınmadı.', 'error');
+                        await callRef.update({ status: 'timeout' }).catch(() => {});
+                        mqCleanupCall();
+                    }
+                }, 40000);
+
+            } catch (err) {
+                console.error('[MQ CALL] mqStartCall xətası:', err);
+                showToast('Zəng başladılarkən xəta baş verdi.', 'error');
+                mqCleanupCall();
+            }
+        };
+
+        // --- Mikrofon xətalarını istifadəçi-dostu mesajlara çevirir ---
+        function mqHandleMicError(err) {
+            console.error('[MQ CALL] mikrofon xətası:', err && err.name, err);
+            let msg = 'Mikrofona giriş icazəsi verilmədi. Zəng etmək üçün brauzerin mikrofon icazəsini aktiv edin.';
+            if (err && err.name === 'NotFoundError') {
+                msg = 'Mikrofon tapılmadı. Cihazınızda mikrofon olduğundan əmin olun.';
+            } else if (err && err.name === 'NotReadableError') {
+                msg = 'Mikrofona giriş mümkün olmadı. Başqa proqram onu istifadə edir ola bilər.';
+            } else if (err && err.name === 'SecurityError') {
+                msg = 'Təhlükəsizlik səbəbindən mikrofona giriş bloklandı.';
+            } else if (!navigator.mediaDevices || !window.RTCPeerConnection) {
+                msg = 'Bu brauzerdə səsli zəng dəstəklənmir.';
+            }
+            showToast(msg, 'error', 6000);
+        }
+
         const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
 
         // ============================================================
