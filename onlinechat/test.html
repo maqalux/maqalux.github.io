@@ -8016,8 +8016,11 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // --- Mərkəzi cleanup — bütün call resurslarını təmizləyir ---
-        function mqCleanupCall() {
+            function mqCleanupCall() {
             console.log('[MQ CALL] cleanup başladı');
+            if (currentUserData && currentUserData.uid) {
+                db.ref('activeCalls/' + currentUserData.uid).remove().catch(() => {});
+            }
             if (mqCallTimer) { clearInterval(mqCallTimer); mqCallTimer = null; }
             if (mqCallTimeoutTimer) { clearTimeout(mqCallTimeoutTimer); mqCallTimeoutTimer = null; }
             mqCallSeconds = 0;
@@ -8108,20 +8111,17 @@ function returnToRecentPrivateMessages(targetNick) {
                     return;
                 }
 
-                // 5. qarşı tərəf məşğuldurmu? (aktiv call-ları yoxla)
-                const busySnap = await db.ref('calls')
-                    .orderByChild('calleeUid')
-                    .equalTo(targetUser.uid)
-                    .once('value');
-                let targetBusy = false;
-                busySnap.forEach(child => {
-                    const c = child.val();
-                    if (c.status === 'calling' || c.status === 'ringing' || c.status === 'connecting' || c.status === 'connected') {
-                        targetBusy = true;
-                    }
-                });
-                if (targetBusy) {
+                // 5. qarşı tərəf məşğuldurmu? (aktiv call-ları yoxla — geniş sorğu YOX, sadə uid oxuma)
+                const busySnap = await db.ref('activeCalls/' + targetUser.uid).once('value');
+                if (busySnap.exists() && busySnap.val()) {
                     showToast('İstifadəçi hazırda başqa zəngdədir.', 'error');
+                    return;
+                }
+
+                // 5b. özün artıq activeCalls-da görünürsənmi (təhlükəsizlik üçün əlavə yoxlama)
+                const selfBusySnap = await db.ref('activeCalls/' + currentUserData.uid).once('value');
+                if (selfBusySnap.exists() && selfBusySnap.val()) {
+                    showToast('Siz hazırda başqa zəngdəsiniz.', 'error');
                     return;
                 }
 
@@ -8176,6 +8176,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     timestamp: firebase.database.ServerValue.TIMESTAMP,
                     offer: { type: offer.type, sdp: offer.sdp }
                 });
+                await db.ref('activeCalls/' + currentUserData.uid).set(callId);
                 console.log('[MQ CALL] offer written');
 
                 // 12. answer-i gözlə
