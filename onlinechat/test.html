@@ -2099,6 +2099,39 @@
         .pcw-header .pcw-actions span:hover {
             opacity: 1;
         }
+        .pcw-header .pcw-more-wrap {
+            position: relative;
+        }
+        .pcw-header .pcw-more-menu {
+            position: absolute;
+            top: 24px;
+            right: 0;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--border-15);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            z-index: 30;
+            min-width: 150px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .pcw-header .pcw-more-menu.active { display: block; }
+        .pcw-header .pcw-more-menu button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            text-align: left;
+            padding: 10px 14px;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 13px;
+            opacity: 1;
+            cursor: pointer;
+        }
+        .pcw-header .pcw-more-menu button:hover { background: var(--panel-06); }
+        .pcw-header .pcw-more-menu button i { width: 14px; text-align: center; opacity: 0.75; }
         .pcw-body {
             flex: 1;
             overflow-y: auto;
@@ -7009,10 +7042,15 @@ function returnToRecentPrivateMessages(targetNick) {
                         <div class="pcw-lastseen" id="pcw-lastseen-${winId}">${online ? 'onlayn' : 'son görülmə məlum deyil'}</div>
                     </div>
                     <div class="pcw-actions">
-                        <span onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true)" title="Axtar"><i class="fas fa-search"></i></span>
-                        <span onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true)" title="Tarixə keç"><i class="far fa-calendar"></i></span>
                         ${(!isGeneral && isFriend(targetNick)) ? `<span onclick="event.stopPropagation(); mqStartCall('${targetNick}')" title="Zəng et"><i class="fa-solid fa-phone-volume"></i></span>` : ''}
-                        <span onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')">✕</span>
+                        <div class="pcw-more-wrap">
+                            <span onclick="togglePcwMoreMenu(event, '${winId}')" title="Daha çox"><i class="fas fa-ellipsis-vertical"></i></span>
+                            <div class="pcw-more-menu" id="pcw-more-menu-${winId}">
+                                <button type="button" onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true); closePcwMoreMenu('${winId}')"><i class="fas fa-search"></i> Axtar</button>
+                                <button type="button" onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true); closePcwMoreMenu('${winId}')"><i class="far fa-calendar"></i> Tarixə keç</button>
+                                <button type="button" onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')"><i class="fas fa-xmark"></i> Bağla</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="pcw-search-bar" id="pcw-date-jump-bar-${winId}" style="display: none;">
@@ -7104,6 +7142,22 @@ function returnToRecentPrivateMessages(targetNick) {
             const win = document.getElementById('pcw-' + targetNick);
             if (win) win.remove();
         };
+
+        window.togglePcwMoreMenu = function(e, winId) {
+            e.stopPropagation();
+            document.querySelectorAll('.pcw-more-menu.active').forEach(m => { if (m.id !== `pcw-more-menu-${winId}`) m.classList.remove('active'); });
+            const menu = document.getElementById(`pcw-more-menu-${winId}`);
+            if (menu) menu.classList.toggle('active');
+        };
+        window.closePcwMoreMenu = function(winId) {
+            const menu = document.getElementById(`pcw-more-menu-${winId}`);
+            if (menu) menu.classList.remove('active');
+        };
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.pcw-more-menu') && !e.target.closest('.pcw-more-wrap')) {
+                document.querySelectorAll('.pcw-more-menu.active').forEach(m => m.classList.remove('active'));
+            }
+        });
 
         window.sendPrivateChatMessage = function(targetNick, mediaData = null, mediaType = 'image') {
             if (!currentUserData) {
