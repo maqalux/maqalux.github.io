@@ -3845,6 +3845,17 @@
             </div>
         </div>
     </div>
+
+    <div class="modal-overlay" id="mqOutgoingCallModal">
+        <div class="friend-modal-box">
+            <img id="mqOutgoingCallAvatar" class="friend-modal-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+            <div class="friend-modal-text"><b id="mqOutgoingCallName"></b></div>
+            <div class="friend-modal-text" id="mqOutgoingCallStatus">Zəng edilir...</div>
+            <div class="friend-modal-actions">
+                <button style="background: linear-gradient(90deg, #e74c3c, #c0392b); color: white; flex: none; width: 62px; height: 62px; border-radius: 50%; font-size: 22px; margin: 0 auto;" onclick="mqEndCall()"><i class="fas fa-phone-slash"></i></button>
+            </div>
+        </div>
+    </div>
         
         <!-- Yeni Söhbət Modalı -->
     <div class="modal-overlay" id="newChatModal">
@@ -4066,6 +4077,18 @@
                         <option value="public">🌍 Hamı</option>
                         <option value="friends">👥 Yalnız dostlarım</option>
                     </select>
+                </div>
+            </div>
+            <div class="settings-divider"></div>
+            <div class="settings-section">
+                <h4>🔔 Zəng melodiyası</h4>
+                <div class="input-group">
+                    <select id="mqRingtoneSelect" class="custom-input" onchange="mqSetRingtoneMelody(this.value)">
+                        <option value="classic">🔔 Klassik</option>
+                        <option value="telefon">☎️ Telefon</option>
+                        <option value="melodik">🎵 Melodik</option>
+                    </select>
+                    <button class="login-btn" onclick="mqPreviewRingtone(document.getElementById('mqRingtoneSelect').value)">Sınaq et</button>
                 </div>
             </div>
                 </div>
@@ -5563,6 +5586,8 @@ connectedRef.on('value', (snap) => {
             if (statusVisSelect && currentUserData) {
                 statusVisSelect.value = currentUserData.statusFeedVisibility || 'public';
             }
+            const ringtoneSelect = document.getElementById('mqRingtoneSelect');
+            if (ringtoneSelect) ringtoneSelect.value = mqRingtoneMelodyId;
             document.getElementById('oldPasswordInput').value = '';
             document.getElementById('newPasswordInput').value = '';
             document.getElementById('newEmailInput').value = '';
@@ -8056,31 +8081,71 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // --- Sadə ringtone (Web Audio API — əlavə audio faylı yükləmir) ---
-        function mqStartRingtone() {
+        // --- Hazır ringtone melodiyaları (offset/dur saniyələrlədir) ---
+        const mqRingtoneMelodies = {
+            classic: { cycle: 1800, notes: [
+                { freq: 950, offset: 0,    dur: 0.25 },
+                { freq: 950, offset: 0.28, dur: 0.25 }
+            ]},
+            telefon: { cycle: 2200, notes: [
+                { freq: 480, offset: 0,    dur: 0.35 },
+                { freq: 620, offset: 0.4,  dur: 0.35 },
+                { freq: 480, offset: 0.8,  dur: 0.35 },
+                { freq: 620, offset: 1.2,  dur: 0.35 }
+            ]},
+            melodik: { cycle: 2400, notes: [
+                { freq: 659, offset: 0,    dur: 0.18 },
+                { freq: 784, offset: 0.2,  dur: 0.18 },
+                { freq: 988, offset: 0.4,  dur: 0.30 },
+                { freq: 784, offset: 0.85, dur: 0.18 },
+                { freq: 988, offset: 1.05, dur: 0.35 }
+            ]}
+        };
+        let mqRingtoneMelodyId = localStorage.getItem('mqRingtoneMelodyId') || 'classic';
+
+        function mqStartRingtone(melodyId) {
             try {
                 if (mqCallRingtoneCtx) return;
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
                 if (!AudioCtx) return;
                 mqCallRingtoneCtx = new AudioCtx();
-                const beep = () => {
+                if (mqCallRingtoneCtx.state === 'suspended') {
+                    mqCallRingtoneCtx.resume().catch(() => {});
+                }
+                const melody = mqRingtoneMelodies[melodyId || mqRingtoneMelodyId] || mqRingtoneMelodies.classic;
+                const playCycle = () => {
                     if (!mqCallRingtoneCtx) return;
-                    const osc = mqCallRingtoneCtx.createOscillator();
-                    const gain = mqCallRingtoneCtx.createGain();
-                    osc.frequency.value = 880;
-                    gain.gain.setValueAtTime(0.0001, mqCallRingtoneCtx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.15, mqCallRingtoneCtx.currentTime + 0.05);
-                    gain.gain.linearRampToValueAtTime(0.0001, mqCallRingtoneCtx.currentTime + 0.4);
-                    osc.connect(gain);
-                    gain.connect(mqCallRingtoneCtx.destination);
-                    osc.start();
-                    osc.stop(mqCallRingtoneCtx.currentTime + 0.4);
+                    melody.notes.forEach(note => {
+                        const osc = mqCallRingtoneCtx.createOscillator();
+                        const gain = mqCallRingtoneCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = note.freq;
+                        const t0 = mqCallRingtoneCtx.currentTime + note.offset;
+                        gain.gain.setValueAtTime(0.0001, t0);
+                        gain.gain.linearRampToValueAtTime(0.45, t0 + 0.03);
+                        gain.gain.linearRampToValueAtTime(0.0001, t0 + note.dur);
+                        osc.connect(gain);
+                        gain.connect(mqCallRingtoneCtx.destination);
+                        osc.start(t0);
+                        osc.stop(t0 + note.dur + 0.02);
+                    });
                 };
-                beep();
-                mqCallRingtoneNodes = { interval: setInterval(beep, 1500) };
+                playCycle();
+                mqCallRingtoneNodes = { interval: setInterval(playCycle, melody.cycle) };
             } catch (err) {
                 console.error('[MQ CALL] ringtone xətası:', err);
             }
         }
+
+        window.mqPreviewRingtone = function(melodyId) {
+            mqStopRingtone();
+            mqStartRingtone(melodyId);
+            setTimeout(() => { mqStopRingtone(); }, 3000);
+        };
+        window.mqSetRingtoneMelody = function(value) {
+            mqRingtoneMelodyId = value;
+            localStorage.setItem('mqRingtoneMelodyId', value);
+        };
         function mqStopRingtone() {
             if (mqCallRingtoneNodes && mqCallRingtoneNodes.interval) {
                 clearInterval(mqCallRingtoneNodes.interval);
@@ -8101,6 +8166,8 @@ function returnToRecentPrivateMessages(targetNick) {
             }
             const incomingModal = document.getElementById('mqIncomingCallModal');
             if (incomingModal) incomingModal.classList.remove('active');
+            const outgoingModal = document.getElementById('mqOutgoingCallModal');
+            if (outgoingModal) outgoingModal.classList.remove('active');
             if (mqCallTimer) { clearInterval(mqCallTimer); mqCallTimer = null; }
             if (mqCallTimeoutTimer) { clearTimeout(mqCallTimeoutTimer); mqCallTimeoutTimer = null; }
             mqCallSeconds = 0;
@@ -8225,7 +8292,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     status: 'calling'
                 };
 
-                showToast('Zəng edilir...', 'info');
+                mqShowOutgoingCallUI(targetNick, targetUser);
                 console.log('[MQ CALL] create peer connection');
 
                 // 8. RTCPeerConnection + local track
@@ -8270,10 +8337,16 @@ function returnToRecentPrivateMessages(targetNick) {
                     const data = snap.val();
                     if (!data || !mqActiveCall || mqActiveCall.callId !== callId) return;
 
+                    if (data.status === 'ringing' && mqActiveCall.status === 'calling') {
+                        mqActiveCall.status = 'ringing';
+                        mqUpdateOutgoingCallStatus('ringing');
+                    }
+
                     if (data.answer && mqCallPeerConnection && !mqCallPeerConnection.currentRemoteDescription) {
                         console.log('[MQ CALL] answer received');
                         await mqCallPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                         mqActiveCall.status = 'connecting';
+                        mqUpdateOutgoingCallStatus('connecting');
                         mqUpdateCallStatusUI('connecting');
                     }
 
@@ -8357,6 +8430,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 status: 'ringing'
             };
             db.ref('activeCalls/' + currentUserData.uid).set(data.callId).catch(() => {});
+            db.ref('calls/' + data.callId).update({ status: 'ringing' }).catch(() => {});
 
             const callerUser = lastActiveUsersList.find(u => u.nick === data.callerNick);
             const avatarUrl = (callerUser && callerUser.avatarUrl) ? callerUser.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png';
@@ -8423,6 +8497,42 @@ function returnToRecentPrivateMessages(targetNick) {
             }
             mqCallListenerAttached = false;
         }
+
+        // --- caller üçün status mətnləri (callee-nin "Gələn zəng" mətnindən fərqli) ---
+        const mqCallerStatusText = {
+            calling: 'Zəng edilir...',
+            ringing: 'Zəng çalınır...',
+            connecting: 'Qoşulur...',
+            connected: 'Danışıq davam edir'
+        };
+
+        function mqShowOutgoingCallUI(nick, userObj) {
+            const avatarUrl = (userObj && userObj.avatarUrl) ? userObj.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png';
+            document.getElementById('mqOutgoingCallAvatar').src = avatarUrl;
+            document.getElementById('mqOutgoingCallName').textContent = nick;
+            document.getElementById('mqOutgoingCallStatus').textContent = mqCallerStatusText.calling;
+            document.getElementById('mqOutgoingCallModal').classList.add('active');
+        }
+        function mqUpdateOutgoingCallStatus(status) {
+            const el = document.getElementById('mqOutgoingCallStatus');
+            if (el && mqCallerStatusText[status]) el.textContent = mqCallerStatusText[status];
+        }
+        function mqHideOutgoingCallUI() {
+            const modal = document.getElementById('mqOutgoingCallModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        // --- Zəngi bitirmək (indilik sadə versiya — mütərrəqi hissələr ADDIM 9-da) ---
+        window.mqEndCall = async function() {
+            if (mqActiveCall) {
+                try {
+                    await db.ref('calls/' + mqActiveCall.callId).update({ status: 'ended' });
+                } catch (err) {
+                    console.error('[MQ CALL] mqEndCall xətası:', err);
+                }
+            }
+            mqCleanupCall();
+        };
 
         const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
 
