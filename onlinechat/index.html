@@ -3833,6 +3833,18 @@
             </div>
         </div>
     </div>
+
+    <div class="modal-overlay" id="mqIncomingCallModal">
+        <div class="friend-modal-box">
+            <img id="mqIncomingCallAvatar" class="friend-modal-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+            <div class="friend-modal-text"><i class="fa-solid fa-phone-volume"></i> Gələn zəng</div>
+            <div class="friend-modal-text"><b id="mqIncomingCallName"></b> sizə zəng edir</div>
+            <div class="friend-modal-actions">
+                <button style="background: linear-gradient(90deg, #e74c3c, #c0392b); color: white;" onclick="mqRejectCall()"><i class="fas fa-phone-slash"></i> Rədd et</button>
+                <button style="background: linear-gradient(90deg, #2ecc71, #27ae60); color: white;" onclick="mqAcceptCall()"><i class="fas fa-phone"></i> Qəbul et</button>
+            </div>
+        </div>
+    </div>
         
         <!-- Yeni Söhbət Modalı -->
     <div class="modal-overlay" id="newChatModal">
@@ -5353,6 +5365,7 @@ connectedRef.on('value', (snap) => {
                         switchMainView('friends');
                         initFriendSystem();
                         initStorySystem();
+                        mqAttachIncomingCallListener();
 
                         // YENİ: Refresh-dən sonra #feed və ya #reels hash-i varsa, uyğun görünüşü aç
                         const reelsOpenMatch = window.location.hash.match(/^#reels\?open=(.+)$/);
@@ -5432,6 +5445,8 @@ connectedRef.on('value', (snap) => {
                 stopHeaderMessageInbox();
                 stopFriendSystem();
                 stopStorySystem();
+                mqDetachIncomingCallListener();
+                mqCleanupCall();
                 // close all private windows
                 Object.keys(openPCWs).forEach(nick => {
                     const win = document.getElementById('pcw-' + nick);
@@ -8078,11 +8093,14 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // --- Mərkəzi cleanup — bütün call resurslarını təmizləyir ---
-            function mqCleanupCall() {
+        function mqCleanupCall() {
             console.log('[MQ CALL] cleanup başladı');
             if (currentUserData && currentUserData.uid) {
                 db.ref('activeCalls/' + currentUserData.uid).remove().catch(() => {});
+                db.ref('incomingCalls/' + currentUserData.uid).remove().catch(() => {});
             }
+            const incomingModal = document.getElementById('mqIncomingCallModal');
+            if (incomingModal) incomingModal.classList.remove('active');
             if (mqCallTimer) { clearInterval(mqCallTimer); mqCallTimer = null; }
             if (mqCallTimeoutTimer) { clearTimeout(mqCallTimeoutTimer); mqCallTimeoutTimer = null; }
             mqCallSeconds = 0;
@@ -8239,6 +8257,12 @@ function returnToRecentPrivateMessages(targetNick) {
                     offer: { type: offer.type, sdp: offer.sdp }
                 });
                 await db.ref('activeCalls/' + currentUserData.uid).set(callId);
+                await db.ref('incomingCalls/' + targetUser.uid).set({
+                    callId,
+                    callerUid: currentUserData.uid,
+                    callerNick: currentUserData.nick,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
                 console.log('[MQ CALL] offer written');
 
                 // 12. answer-i gözlə
@@ -8312,6 +8336,92 @@ function returnToRecentPrivateMessages(targetNick) {
                 msg = 'Bu brauzerdə səsli zəng dəstəklənmir.';
             }
             showToast(msg, 'error', 6000);
+        }
+
+        // --- INCOMING CALL: overlay-i gizlədir (ringtone daxil) ---
+        function mqHideIncomingCallOverlay() {
+            mqStopRingtone();
+            const modal = document.getElementById('mqIncomingCallModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        // --- INCOMING CALL: modalı doldurub göstərir ---
+        function mqShowIncomingCall(data) {
+            if (mqActiveCall) return; // əlavə təhlükəsizlik — nəzəri olaraq artıq yuxarıda yoxlanılıb
+
+            mqActiveCall = {
+                callId: data.callId,
+                role: 'callee',
+                peerNick: data.callerNick,
+                peerUid: data.callerUid,
+                status: 'ringing'
+            };
+            db.ref('activeCalls/' + currentUserData.uid).set(data.callId).catch(() => {});
+
+            const callerUser = lastActiveUsersList.find(u => u.nick === data.callerNick);
+            const avatarUrl = (callerUser && callerUser.avatarUrl) ? callerUser.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png';
+            document.getElementById('mqIncomingCallAvatar').src = avatarUrl;
+            document.getElementById('mqIncomingCallName').textContent = data.callerNick;
+            document.getElementById('mqIncomingCallModal').classList.add('active');
+            mqStartRingtone();
+
+            // Caller zəngi ləğv edərsə (timeout/hang up) avtomatik bağlansın
+            const callRef = db.ref('calls/' + data.callId);
+            callRef.on('value', (snap) => {
+                const c = snap.val();
+                if (!c || !mqActiveCall || mqActiveCall.callId !== data.callId) return;
+                if ((c.status === 'ended' || c.status === 'timeout' || c.status === 'failed') && mqActiveCall.status !== 'connected') {
+                    showToast(mqCallStatusText[c.status] || 'Zəng bitdi.', 'info');
+                    mqCleanupCall();
+                }
+            });
+            mqCallListenerRefs.push({ ref: callRef, event: 'value' });
+        }
+
+        // --- INCOMING CALL: əsas dinləyici (logout-a qədər 1 dəfə qoşulur) ---
+        function mqAttachIncomingCallListener() {
+            if (mqCallListenerAttached || !currentUserData || !currentUserData.uid) return;
+            mqCallListenerAttached = true;
+            mqCallIncomingListenerRef = db.ref('incomingCalls/' + currentUserData.uid);
+            mqCallIncomingListenerRef.on('value', async (snap) => {
+                const data = snap.val();
+                if (!data) {
+                    mqHideIncomingCallOverlay();
+                    return;
+                }
+
+                if (mqActiveCall) {
+                    // artıq zəngdəyik — avtomatik "busy" cavabı
+                    db.ref('calls/' + data.callId).update({ status: 'busy' }).catch(() => {});
+                    db.ref('incomingCalls/' + currentUserData.uid).remove().catch(() => {});
+                    return;
+                }
+
+                // köhnə/artıq bitmiş call bildirişi ola bilər — statusu yoxla
+                try {
+                    const statusSnap = await db.ref('calls/' + data.callId + '/status').once('value');
+                    const status = statusSnap.val();
+                    if (status !== 'calling' && status !== 'ringing') {
+                        db.ref('incomingCalls/' + currentUserData.uid).remove().catch(() => {});
+                        return;
+                    }
+                } catch (err) {
+                    console.error('[MQ CALL] incoming status yoxlanışı xətası:', err);
+                    return;
+                }
+
+                console.log('[MQ CALL] incoming call:', data.callerNick);
+                mqShowIncomingCall(data);
+            });
+        }
+
+        // --- INCOMING CALL: dinləyicini dayandırır (logout zamanı) ---
+        function mqDetachIncomingCallListener() {
+            if (mqCallIncomingListenerRef) {
+                mqCallIncomingListenerRef.off('value');
+                mqCallIncomingListenerRef = null;
+            }
+            mqCallListenerAttached = false;
         }
 
         const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
