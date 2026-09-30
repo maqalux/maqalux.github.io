@@ -2099,6 +2099,47 @@
         .pcw-header .pcw-actions span:hover {
             opacity: 1;
         }
+        .pcw-header .pcw-more-wrap {
+            position: relative;
+        }
+        .pcw-header .pcw-more-menu {
+            position: absolute;
+            top: 24px;
+            right: 0;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--border-15);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            z-index: 30;
+            min-width: 150px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .pcw-header .pcw-more-menu.active { display: block; }
+        .pcw-header .pcw-more-menu button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            text-align: left;
+            padding: 10px 14px;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 13px;
+            opacity: 1;
+            cursor: pointer;
+        }
+        .pcw-header .pcw-more-menu button:hover { background: var(--panel-06); }
+        .pcw-header .pcw-more-menu button i { width: 14px; text-align: center; opacity: 0.75; }
+        .pcw-header .pcw-actions .pcw-call-btn {
+            font-size: 18px;
+            margin-right: 8px;
+            opacity: 0.85;
+        }
+        .pcw-header .pcw-actions .pcw-call-btn:hover {
+            opacity: 1;
+        }
         .pcw-body {
             flex: 1;
             overflow-y: auto;
@@ -7008,11 +7049,16 @@ function returnToRecentPrivateMessages(targetNick) {
                         </div>
                         <div class="pcw-lastseen" id="pcw-lastseen-${winId}">${online ? 'onlayn' : 'son görülmə məlum deyil'}</div>
                     </div>
-                    <div class="pcw-actions">
-                        <span onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true)" title="Axtar"><i class="fas fa-search"></i></span>
-                        <span onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true)" title="Tarixə keç"><i class="far fa-calendar"></i></span>
-                        ${(!isGeneral && isFriend(targetNick)) ? `<span onclick="event.stopPropagation(); mqStartCall('${targetNick}')" title="Zəng et"><i class="fa-solid fa-phone-volume"></i></span>` : ''}
-                        <span onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')">✕</span>
+                                   <div class="pcw-actions">
+                        ${(!isGeneral && isFriend(targetNick)) ? `<span class="pcw-call-btn" onclick="event.stopPropagation(); mqStartCall('${targetNick}')" title="Zəng et"><i class="fa-solid fa-phone-volume"></i></span>` : ''}
+                        <div class="pcw-more-wrap">
+                            <span onclick="togglePcwMoreMenu(event, '${winId}')" title="Daha çox"><i class="fas fa-ellipsis-vertical"></i></span>
+                            <div class="pcw-more-menu" id="pcw-more-menu-${winId}">
+                                <button type="button" onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true); closePcwMoreMenu('${winId}')"><i class="fas fa-search"></i> Axtar</button>
+                                <button type="button" onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true); closePcwMoreMenu('${winId}')"><i class="far fa-calendar"></i> Tarixə keç</button>
+                                <button type="button" onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')"><i class="fas fa-xmark"></i> Bağla</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="pcw-search-bar" id="pcw-date-jump-bar-${winId}" style="display: none;">
@@ -7104,6 +7150,22 @@ function returnToRecentPrivateMessages(targetNick) {
             const win = document.getElementById('pcw-' + targetNick);
             if (win) win.remove();
         };
+
+        window.togglePcwMoreMenu = function(e, winId) {
+            e.stopPropagation();
+            document.querySelectorAll('.pcw-more-menu.active').forEach(m => { if (m.id !== `pcw-more-menu-${winId}`) m.classList.remove('active'); });
+            const menu = document.getElementById(`pcw-more-menu-${winId}`);
+            if (menu) menu.classList.toggle('active');
+        };
+        window.closePcwMoreMenu = function(winId) {
+            const menu = document.getElementById(`pcw-more-menu-${winId}`);
+            if (menu) menu.classList.remove('active');
+        };
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.pcw-more-menu') && !e.target.closest('.pcw-more-wrap')) {
+                document.querySelectorAll('.pcw-more-menu.active').forEach(m => m.classList.remove('active'));
+            }
+        });
 
         window.sendPrivateChatMessage = function(targetNick, mediaData = null, mediaType = 'image') {
             if (!currentUserData) {
@@ -8016,8 +8078,11 @@ function returnToRecentPrivateMessages(targetNick) {
         }
 
         // --- Mərkəzi cleanup — bütün call resurslarını təmizləyir ---
-        function mqCleanupCall() {
+            function mqCleanupCall() {
             console.log('[MQ CALL] cleanup başladı');
+            if (currentUserData && currentUserData.uid) {
+                db.ref('activeCalls/' + currentUserData.uid).remove().catch(() => {});
+            }
             if (mqCallTimer) { clearInterval(mqCallTimer); mqCallTimer = null; }
             if (mqCallTimeoutTimer) { clearTimeout(mqCallTimeoutTimer); mqCallTimeoutTimer = null; }
             mqCallSeconds = 0;
@@ -8078,6 +8143,175 @@ function returnToRecentPrivateMessages(targetNick) {
         function mqUpdateCallStatusUI(status) {
             const el = document.getElementById('mqCallStatusLabel');
             if (el) el.textContent = mqCallStatusText[status] || '';
+        }
+
+        // --- OUTGOING CALL ---
+        window.mqStartCall = async function(targetNick) {
+            try {
+                // 1. özünə zəng yoxlaması
+                if (targetNick === currentUserData.nick) {
+                    showToast('Özünüzə zəng edə bilməzsiniz.', 'error');
+                    return;
+                }
+
+                // 2. artıq zəngdəsənmi?
+                if (mqActiveCall) {
+                    showToast('Siz hazırda başqa zəngdəsiniz.', 'error');
+                    return;
+                }
+
+                // 3. dost yoxlaması (mövcud sistemi reuse edir)
+                if (!isFriend(targetNick)) {
+                    showToast('Yalnız dostlarınıza zəng edə bilərsiniz.', 'error');
+                    return;
+                }
+
+                // 4. qarşı tərəfin uid-ni tap (mövcud lastActiveUsersList reuse olunur)
+                const targetUser = lastActiveUsersList.find(u => u.nick === targetNick);
+                if (!targetUser || !targetUser.uid) {
+                    showToast('İstifadəçi tapılmadı.', 'error');
+                    return;
+                }
+
+                // 5. qarşı tərəf məşğuldurmu? (aktiv call-ları yoxla — geniş sorğu YOX, sadə uid oxuma)
+                const busySnap = await db.ref('activeCalls/' + targetUser.uid).once('value');
+                if (busySnap.exists() && busySnap.val()) {
+                    showToast('İstifadəçi hazırda başqa zəngdədir.', 'error');
+                    return;
+                }
+
+                // 5b. özün artıq activeCalls-da görünürsənmi (təhlükəsizlik üçün əlavə yoxlama)
+                const selfBusySnap = await db.ref('activeCalls/' + currentUserData.uid).once('value');
+                if (selfBusySnap.exists() && selfBusySnap.val()) {
+                    showToast('Siz hazırda başqa zəngdəsiniz.', 'error');
+                    return;
+                }
+
+                // 6. mikrofon icazəsi
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                } catch (err) {
+                    mqHandleMicError(err);
+                    return;
+                }
+                mqCallLocalStream = stream;
+
+                // 7. call ID və state
+                const callId = mqGenerateCallId();
+                mqActiveCall = {
+                    callId,
+                    role: 'caller',
+                    peerNick: targetNick,
+                    peerUid: targetUser.uid,
+                    status: 'calling'
+                };
+
+                showToast('Zəng edilir...', 'info');
+                console.log('[MQ CALL] create peer connection');
+
+                // 8. RTCPeerConnection + local track
+                mqCallPeerConnection = mqCreatePeerConnection();
+                stream.getTracks().forEach(track => mqCallPeerConnection.addTrack(track, stream));
+
+                const callRef = db.ref('calls/' + callId);
+
+                // 9. ICE candidate-ləri Firebase-ə yaz (caller tərəfi)
+                mqCallPeerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        callRef.child('callerCandidates').push(event.candidate.toJSON());
+                    }
+                };
+
+                // 10. Offer yarat
+                const offer = await mqCallPeerConnection.createOffer();
+                await mqCallPeerConnection.setLocalDescription(offer);
+                console.log('[MQ CALL] offer created');
+
+                // 11. call-ı Firebase-ə yaz
+                await callRef.set({
+                    callerUid: currentUserData.uid,
+                    calleeUid: targetUser.uid,
+                    callerNick: currentUserData.nick,
+                    calleeNick: targetNick,
+                    status: 'calling',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    offer: { type: offer.type, sdp: offer.sdp }
+                });
+                await db.ref('activeCalls/' + currentUserData.uid).set(callId);
+                console.log('[MQ CALL] offer written');
+
+                // 12. answer-i gözlə
+                const answerListener = callRef.on('value', async (snap) => {
+                    const data = snap.val();
+                    if (!data || !mqActiveCall || mqActiveCall.callId !== callId) return;
+
+                    if (data.answer && mqCallPeerConnection && !mqCallPeerConnection.currentRemoteDescription) {
+                        console.log('[MQ CALL] answer received');
+                        await mqCallPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                        mqActiveCall.status = 'connecting';
+                        mqUpdateCallStatusUI('connecting');
+                    }
+
+                    if (data.status === 'rejected') {
+                        showToast('Zəng rədd edildi.', 'error');
+                        callRef.off('value', answerListener);
+                        mqCleanupCall();
+                    } else if (data.status === 'busy') {
+                        showToast('İstifadəçi hazırda başqa zəngdədir.', 'error');
+                        callRef.off('value', answerListener);
+                        mqCleanupCall();
+                    } else if (data.status === 'ended') {
+                        showToast('Zəng bitdi.', 'info');
+                        callRef.off('value', answerListener);
+                        mqCleanupCall();
+                    }
+                });
+                mqCallListenerRefs.push({ ref: callRef, event: 'value' });
+
+                // 13. remote (callee) ICE candidate-ləri qəbul et
+                const calleeCandRef = callRef.child('calleeCandidates');
+                const candListener = calleeCandRef.on('child_added', (snap) => {
+                    const cand = snap.val();
+                    if (cand && mqCallPeerConnection) {
+                        mqCallPeerConnection.addIceCandidate(new RTCIceCandidate(cand))
+                            .then(() => console.log('[MQ CALL] ICE candidate added'))
+                            .catch(err => console.error('[MQ CALL] ICE candidate error:', err));
+                    }
+                });
+                mqCallListenerRefs.push({ ref: calleeCandRef, event: 'child_added' });
+
+                // 14. timeout — 40 saniyə ərzində connected olmasa
+                mqCallTimeoutTimer = setTimeout(async () => {
+                    if (mqActiveCall && mqActiveCall.callId === callId && mqActiveCall.status !== 'connected') {
+                        console.log('[MQ CALL] connection timeout');
+                        showToast('Cavab alınmadı.', 'error');
+                        await callRef.update({ status: 'timeout' }).catch(() => {});
+                        mqCleanupCall();
+                    }
+                }, 40000);
+
+            } catch (err) {
+                console.error('[MQ CALL] mqStartCall xətası:', err);
+                showToast('Zəng başladılarkən xəta baş verdi.', 'error');
+                mqCleanupCall();
+            }
+        };
+
+        // --- Mikrofon xətalarını istifadəçi-dostu mesajlara çevirir ---
+        function mqHandleMicError(err) {
+            console.error('[MQ CALL] mikrofon xətası:', err && err.name, err);
+            let msg = 'Mikrofona giriş icazəsi verilmədi. Zəng etmək üçün brauzerin mikrofon icazəsini aktiv edin.';
+            if (err && err.name === 'NotFoundError') {
+                msg = 'Mikrofon tapılmadı. Cihazınızda mikrofon olduğundan əmin olun.';
+            } else if (err && err.name === 'NotReadableError') {
+                msg = 'Mikrofona giriş mümkün olmadı. Başqa proqram onu istifadə edir ola bilər.';
+            } else if (err && err.name === 'SecurityError') {
+                msg = 'Təhlükəsizlik səbəbindən mikrofona giriş bloklandı.';
+            } else if (!navigator.mediaDevices || !window.RTCPeerConnection) {
+                msg = 'Bu brauzerdə səsli zəng dəstəklənmir.';
+            }
+            showToast(msg, 'error', 6000);
         }
 
         const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
