@@ -2132,6 +2132,14 @@
         }
         .pcw-header .pcw-more-menu button:hover { background: var(--panel-06); }
         .pcw-header .pcw-more-menu button i { width: 14px; text-align: center; opacity: 0.75; }
+        .pcw-header .pcw-actions .pcw-call-btn {
+            font-size: 18px;
+            margin-right: 8px;
+            opacity: 0.85;
+        }
+        .pcw-header .pcw-actions .pcw-call-btn:hover {
+            opacity: 1;
+        }
         .pcw-body {
             flex: 1;
             overflow-y: auto;
@@ -7041,8 +7049,8 @@ function returnToRecentPrivateMessages(targetNick) {
                         </div>
                         <div class="pcw-lastseen" id="pcw-lastseen-${winId}">${online ? 'onlayn' : 'son görülmə məlum deyil'}</div>
                     </div>
-                    <div class="pcw-actions">
-                        ${(!isGeneral && isFriend(targetNick)) ? `<span onclick="event.stopPropagation(); mqStartCall('${targetNick}')" title="Zəng et"><i class="fa-solid fa-phone-volume"></i></span>` : ''}
+                                   <div class="pcw-actions">
+                        ${(!isGeneral && isFriend(targetNick)) ? `<span class="pcw-call-btn" onclick="event.stopPropagation(); mqStartCall('${targetNick}')" title="Zəng et"><i class="fa-solid fa-phone-volume"></i></span>` : ''}
                         <div class="pcw-more-wrap">
                             <span onclick="togglePcwMoreMenu(event, '${winId}')" title="Daha çox"><i class="fas fa-ellipsis-vertical"></i></span>
                             <div class="pcw-more-menu" id="pcw-more-menu-${winId}">
