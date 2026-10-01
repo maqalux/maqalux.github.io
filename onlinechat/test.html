@@ -2088,7 +2088,9 @@
         }
         .pcw-header .pcw-actions {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 4px;
+            margin: -2px 0; /* 36px düymələr minimize (50px) header-i şişirməsin */
         }
         .pcw-header .pcw-actions span {
             cursor: pointer;
@@ -2104,7 +2106,7 @@
         }
         .pcw-header .pcw-more-menu {
             position: absolute;
-            top: 24px;
+            top: 40px;
             right: 0;
             background: var(--dropdown-bg);
             border: 1px solid var(--border-15);
@@ -2132,14 +2134,47 @@
         }
         .pcw-header .pcw-more-menu button:hover { background: var(--panel-06); }
         .pcw-header .pcw-more-menu button i { width: 14px; text-align: center; opacity: 0.75; }
-        .pcw-header .pcw-actions .pcw-call-btn {
-            font-size: 18px;
-            margin-right: 8px;
+        .pcw-header .pcw-actions .pcw-call-btn,
+        .pcw-header .pcw-actions .pcw-more-trigger {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-sizing: border-box;
+            cursor: pointer;
             opacity: 0.85;
+            -webkit-tap-highlight-color: transparent;
         }
-        .pcw-header .pcw-actions .pcw-call-btn:hover {
+        .pcw-header .pcw-actions .pcw-call-btn { font-size: 18px; }
+        .pcw-header .pcw-actions .pcw-more-trigger { font-size: 17px; }
+        .pcw-header .pcw-actions .pcw-call-btn:hover,
+        .pcw-header .pcw-actions .pcw-more-trigger:hover {
             opacity: 1;
+            background: var(--border-10);
         }
+        /* Mobil geri düyməsi: desktop-da gizli */
+        .pcw-header .pcw-mobile-back-btn {
+            display: none;
+            width: 36px;
+            height: 36px;
+            flex: 0 0 36px;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: none;
+            color: var(--text-main);
+            font-size: 18px;
+            opacity: 0.85;
+            cursor: pointer;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .pcw-header .pcw-mobile-back-btn:active { background: var(--border-10); }
         .pcw-body {
             flex: 1;
             overflow-y: auto;
@@ -2547,8 +2582,13 @@
             .private-chat-window.minimized .pcw-input-bar {
                 display: flex;
             }
-            .pcw-header {
-                padding: 14px 16px;
+            .pcw-header .pcw-mobile-back-btn {
+                display: inline-flex;
+                margin-left: -8px;
+                margin-right: -4px;
+            }
+            .pcw-header .pcw-more-menu button.pcw-desktop-close-item {
+                display: none;
             }
             .sticker-panel {
         position: relative; /* Paneli mesajların üzərinə çıxarmaq əvəzinə öz yerini tutmasını təmin edir */
@@ -7081,6 +7121,7 @@ function returnToRecentPrivateMessages(targetNick) {
             win.id = 'pcw-' + winId;
             win.innerHTML = `
                 <div class="pcw-header" onclick="togglePCWMinimize('${winId}')">
+                    ${!isGeneral ? `<button type="button" class="pcw-mobile-back-btn" onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')" title="Bağla"><i class="fas fa-arrow-left"></i></button>` : ''}
                     <img src="${avatar}" alt="av" style="cursor:zoom-in;" onclick="event.stopPropagation(); openImageViewer('${avatar}')">
                     <div class="pcw-title">
                         <div class="pcw-name-row">
@@ -7092,11 +7133,11 @@ function returnToRecentPrivateMessages(targetNick) {
                                    <div class="pcw-actions">
                         ${(!isGeneral && isFriend(targetNick)) ? `<span class="pcw-call-btn" onclick="event.stopPropagation(); mqStartCall('${targetNick}')" title="Zəng et"><i class="fa-solid fa-phone-volume"></i></span>` : ''}
                         <div class="pcw-more-wrap">
-                            <span onclick="togglePcwMoreMenu(event, '${winId}')" title="Daha çox"><i class="fas fa-ellipsis-vertical"></i></span>
+                            <span class="pcw-more-trigger" onclick="event.stopPropagation(); togglePcwMoreMenu(event, '${winId}')" title="Daha çox"><i class="fas fa-ellipsis-vertical"></i></span>
                             <div class="pcw-more-menu" id="pcw-more-menu-${winId}">
                                 <button type="button" onclick="event.stopPropagation(); togglePrivateSearch('${winId}', true); closePcwMoreMenu('${winId}')"><i class="fas fa-search"></i> Axtar</button>
                                 <button type="button" onclick="event.stopPropagation(); togglePrivateDateJump('${winId}', true); closePcwMoreMenu('${winId}')"><i class="far fa-calendar"></i> Tarixə keç</button>
-                                <button type="button" onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')"><i class="fas fa-xmark"></i> Bağla</button>
+                                <button type="button" class="pcw-desktop-close-item" onclick="event.stopPropagation(); closePrivateChatWindow('${winId}')"><i class="fas fa-xmark"></i> Bağla</button>
                             </div>
                         </div>
                     </div>
