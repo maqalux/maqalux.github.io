@@ -8534,13 +8534,13 @@ function returnToRecentPrivateMessages(targetNick) {
             mqCleanupCall();
         };
 
-        const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
+        const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 500 MB - Firebase Storage-də bu ölçü rahat idarə olunur
 
         // ============================================================
         // VİDEO MƏHDUDİYYƏTLƏRİ — kredit istifadəsini azaltmaq üçün
         // ============================================================
         const DAILY_VIDEO_LIMIT = 5; // Hər istifadəçi üçün gündə maksimum video sayı
-        const MAX_VIDEO_DURATION_SECONDS = 60; // Maksimum video müddəti (saniyə)
+        const MAX_VIDEO_DURATION_SECONDS = 300; // Maksimum video müddəti (saniyə)
 
         // Faylın video müddətini (saniyə) öyrənir — brauzerdə, serverə göndərmədən
         function getVideoDurationSeconds(file) {
