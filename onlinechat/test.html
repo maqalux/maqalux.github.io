@@ -8575,6 +8575,112 @@ function returnToRecentPrivateMessages(targetNick) {
             mqCleanupCall();
         };
 
+        // --- ACCEPT CALL ---
+        window.mqAcceptCall = async function() {
+            if (!mqActiveCall || mqActiveCall.role !== 'callee') return;
+            const callId = mqActiveCall.callId;
+            const callRef = db.ref('calls/' + callId);
+
+            mqStopRingtone();
+            document.getElementById('mqIncomingCallModal').classList.remove('active');
+
+            try {
+                // 1. call datasını (offer daxil) bir dəfəlik oxu
+                const snap = await callRef.once('value');
+                const callData = snap.val();
+                if (!callData || !callData.offer) {
+                    showToast('Zəng artıq mövcud deyil.', 'error');
+                    mqCleanupCall();
+                    return;
+                }
+
+                // 2. mikrofon icazəsi
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                } catch (err) {
+                    mqHandleMicError(err);
+                    await callRef.update({ status: 'rejected' }).catch(() => {});
+                    mqCleanupCall();
+                    return;
+                }
+                mqCallLocalStream = stream;
+                mqActiveCall.status = 'connecting';
+
+                // 3. RTCPeerConnection + local track
+                mqCallPeerConnection = mqCreatePeerConnection();
+                stream.getTracks().forEach(track => mqCallPeerConnection.addTrack(track, stream));
+
+                // 4. callee-nin öz ICE candidate-ləri Firebase-ə yazılsın
+                mqCallPeerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        callRef.child('calleeCandidates').push(event.candidate.toJSON());
+                    }
+                };
+
+                // 5. remote (caller) offer-i qəbul et
+                console.log('[MQ CALL] offer received, creating answer');
+                await mqCallPeerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
+
+                // 6. answer yarat və yaz
+                const answer = await mqCallPeerConnection.createAnswer();
+                await mqCallPeerConnection.setLocalDescription(answer);
+                await callRef.update({
+                    answer: { type: answer.type, sdp: answer.sdp },
+                    status: 'connecting'
+                });
+                console.log('[MQ CALL] answer written');
+
+                // 7. caller-in ICE candidate-lərini dinlə
+                const callerCandRef = callRef.child('callerCandidates');
+                const candListener = callerCandRef.on('child_added', (candSnap) => {
+                    const cand = candSnap.val();
+                    if (cand && mqCallPeerConnection) {
+                        mqCallPeerConnection.addIceCandidate(new RTCIceCandidate(cand))
+                            .then(() => console.log('[MQ CALL] ICE candidate added'))
+                            .catch(err => console.error('[MQ CALL] ICE candidate error:', err));
+                    }
+                });
+                mqCallListenerRefs.push({ ref: callerCandRef, event: 'child_added' });
+
+                // 8. call statusunu izləməyə davam et (hang up / ended halları üçün)
+                const statusListener = callRef.on('value', (statusSnap) => {
+                    const c = statusSnap.val();
+                    if (!c || !mqActiveCall || mqActiveCall.callId !== callId) return;
+                    if (c.status === 'ended' && mqActiveCall.status !== 'ended_by_me') {
+                        showToast('Zəng bitdi.', 'info');
+                        mqCleanupCall();
+                    }
+                });
+                mqCallListenerRefs.push({ ref: callRef, event: 'value' });
+
+                // 9. öz incoming bildirişini təmizlə (qəbul etdik, artıq lazım deyil)
+                db.ref('incomingCalls/' + currentUserData.uid).remove().catch(() => {});
+
+            } catch (err) {
+                console.error('[MQ CALL] mqAcceptCall xətası:', err);
+                showToast('Zəngə qoşularkən xəta baş verdi.', 'error');
+                await callRef.update({ status: 'failed' }).catch(() => {});
+                mqCleanupCall();
+            }
+        };
+
+        // --- REJECT CALL ---
+        window.mqRejectCall = async function() {
+            if (!mqActiveCall || mqActiveCall.role !== 'callee') return;
+            const callId = mqActiveCall.callId;
+
+            mqStopRingtone();
+            document.getElementById('mqIncomingCallModal').classList.remove('active');
+
+            try {
+                await db.ref('calls/' + callId).update({ status: 'rejected' });
+            } catch (err) {
+                console.error('[MQ CALL] mqRejectCall xətası:', err);
+            }
+            mqCleanupCall();
+        };
+
         const MAX_VIDEO_BYTES = 150 * 1024 * 1024; // 150 MB - Firebase Storage-də bu ölçü rahat idarə olunur
 
         // ============================================================
