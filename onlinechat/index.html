@@ -3896,6 +3896,19 @@
             </div>
         </div>
     </div>
+
+    <div class="modal-overlay" id="mqActiveCallModal">
+        <div class="friend-modal-box">
+            <img id="mqActiveCallAvatar" class="friend-modal-avatar" src="https://www.w3schools.com/howto/img_avatar.png" alt="">
+            <div class="friend-modal-text"><b id="mqActiveCallName"></b></div>
+            <div class="friend-modal-text" id="mqCallStatusLabel">Danışıq davam edir</div>
+            <div class="friend-modal-text" id="mqCallTimerLabel" style="font-size:22px; font-weight:700; letter-spacing:1px;">00:00</div>
+            <div class="friend-modal-actions" style="justify-content:center;">
+                <button id="mqMuteBtn" style="background: var(--panel-08); color: var(--text-main); flex: none; width: 56px; height: 56px; border-radius: 50%; font-size: 20px;" onclick="mqToggleCallMute()" title="Mikrofonu susdur"><i class="fas fa-microphone"></i></button>
+                <button style="background: linear-gradient(90deg, #e74c3c, #c0392b); color: white; flex: none; width: 56px; height: 56px; border-radius: 50%; font-size: 20px;" onclick="mqEndCall()"><i class="fas fa-phone-slash"></i></button>
+            </div>
+        </div>
+    </div>
         
         <!-- Yeni Söhbət Modalı -->
     <div class="modal-overlay" id="newChatModal">
@@ -8209,6 +8222,9 @@ function returnToRecentPrivateMessages(targetNick) {
             if (incomingModal) incomingModal.classList.remove('active');
             const outgoingModal = document.getElementById('mqOutgoingCallModal');
             if (outgoingModal) outgoingModal.classList.remove('active');
+            const activeModal = document.getElementById('mqActiveCallModal');
+            if (activeModal) activeModal.classList.remove('active');
+            mqCallMuted = false;
             if (mqCallTimer) { clearInterval(mqCallTimer); mqCallTimer = null; }
             if (mqCallTimeoutTimer) { clearTimeout(mqCallTimeoutTimer); mqCallTimeoutTimer = null; }
             mqCallSeconds = 0;
@@ -8247,6 +8263,7 @@ function returnToRecentPrivateMessages(targetNick) {
                 mqUpdateCallTimerUI();
             }, 1000);
             mqUpdateCallStatusUI('connected');
+            mqShowActiveCallUI();
             console.log('[MQ CALL] connected — timer başladı');
         }
 
@@ -8562,6 +8579,49 @@ function returnToRecentPrivateMessages(targetNick) {
             const modal = document.getElementById('mqOutgoingCallModal');
             if (modal) modal.classList.remove('active');
         }
+
+        // --- AKTİV ZƏNG EKRANI (connected olduqda açılır) ---
+        let mqCallMuted = false;
+
+        function mqShowActiveCallUI() {
+            document.getElementById('mqOutgoingCallModal').classList.remove('active');
+            document.getElementById('mqIncomingCallModal').classList.remove('active');
+
+            const peerNick = mqActiveCall ? mqActiveCall.peerNick : '';
+            const peerUser = lastActiveUsersList.find(u => u.nick === peerNick);
+            const avatarUrl = (peerUser && peerUser.avatarUrl) ? peerUser.avatarUrl : 'https://www.w3schools.com/howto/img_avatar.png';
+
+            document.getElementById('mqActiveCallAvatar').src = avatarUrl;
+            document.getElementById('mqActiveCallName').textContent = peerNick;
+            document.getElementById('mqCallTimerLabel').textContent = '00:00';
+
+            mqCallMuted = false;
+            mqUpdateMuteButtonUI();
+
+            document.getElementById('mqActiveCallModal').classList.add('active');
+        }
+
+        function mqHideActiveCallUI() {
+            const modal = document.getElementById('mqActiveCallModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function mqUpdateMuteButtonUI() {
+            const btn = document.getElementById('mqMuteBtn');
+            if (!btn) return;
+            btn.innerHTML = mqCallMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+            btn.title = mqCallMuted ? 'Səssiz — aktiv etmək üçün bas' : 'Mikrofonu susdur';
+        }
+
+        window.mqToggleCallMute = function() {
+            if (!mqCallLocalStream) return;
+            mqCallMuted = !mqCallMuted;
+            mqCallLocalStream.getAudioTracks().forEach(track => {
+                track.enabled = !mqCallMuted;
+            });
+            mqUpdateMuteButtonUI();
+            console.log('[MQ CALL] mikrofon:', mqCallMuted ? 'səssiz' : 'aktiv');
+        };
 
         // --- Zəngi bitirmək (indilik sadə versiya — mütərrəqi hissələr ADDIM 9-da) ---
         window.mqEndCall = async function() {
