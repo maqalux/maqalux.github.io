@@ -8947,11 +8947,11 @@ function returnToRecentPrivateMessages(targetNick) {
         // ============================================================
         // imgbb API açarları. Birincisi dolarsa/rədd edilsə, avtomatik növbətiyə keçilir.
         // İkinci hesab üçün: yeni imgbb hesabı aç -> https://api.imgbb.com -> API açarını al -> aşağıya yaz.
-        const IMGBB_API_KEYS = [IMGBB_API_KEY, "BURAYA_IKINCI_IMGBB_ACARI_YAZ"];
+        const IMGBB_API_KEYS = [IMGBB_API_KEY, "c0ec3f94c08b964b033b884927f03bb2"];
 
         // Şəkillər üçün ehtiyat Cloudinary hesabı (imgbb alınmayanda işləyir).
         // DİQQƏT: bu hesab videolarla eyni aylıq krediti bölüşür.
-        const IMAGE_CLOUDINARY_ACCOUNTS = []; // boş = Cloudinary şəkillər üçün istifadə olunmur (pul riski yoxdur)
+        const IMAGE_CLOUDINARY_ACCOUNTS = VIDEO_CLOUDINARY_ACCOUNTS;
         // Ehtiyat yolla bir ayda yüklənə biləcək maksimum şəkil sayı (bütün istifadəçilər üçün ümumi).
         // Dolanda yükləmə AVTOMATİK dayanır və toast göstərilir. Rəqəmi öz limitinə görə dəyiş.
         const IMAGE_FALLBACK_MONTHLY_LIMIT = 1500;
