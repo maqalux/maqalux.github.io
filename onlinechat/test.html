@@ -5024,8 +5024,7 @@ function initHeaderMessageInbox() {
             formData.append('image', compressed, 'avatar.jpg');
             try {
                 showToast('Şəkil yüklənir...', 'info');
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                const data = await res.json();
+                const data = await uploadImageWithFallback(formData);
                 if (data.success) {
                     setWallpaper(data.data.url);
                 } else {
@@ -5761,8 +5760,7 @@ connectedRef.on('value', (snap) => {
             formData.append('image', compressed, 'wallpaper.jpg');
             try {
                 showToast('Şəkil yüklənir...', 'info');
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                const data = await res.json();
+                const data = await uploadImageWithFallback(formData);
                 if (data.success) {
                     const url = data.data.url;
                     document.getElementById('myAvatarImg').src = url;
@@ -6256,8 +6254,7 @@ connectedRef.on('value', (snap) => {
             const formData = new FormData();
             formData.append('image', compressed, 'photo.jpg');
             try {
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                const data = await res.json();
+                const data = await uploadImageWithFallback(formData);
                 if (data.success) {
                     db.ref('messages').push().set({
                         sender: currentUserData.nick,
@@ -6265,6 +6262,8 @@ connectedRef.on('value', (snap) => {
                         text: '', mediaType: 'image', mediaUrl: data.data.url, timestamp: firebase.database.ServerValue.TIMESTAMP,
                         isDeleted: false, reactions: {}, deliveredTo: [], readBy: []
                     });
+                } else {
+                    showToast('Şəkil yüklənə bilmədi.', 'error');
                 }
             } catch (err) {
                 showToast('Xəta: ' + err.message, 'error');
@@ -7377,8 +7376,7 @@ function returnToRecentPrivateMessages(targetNick) {
             const formData = new FormData();
             formData.append('image', compressed, 'photo.jpg');
             try {
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                const data = await res.json();
+                const data = await uploadImageWithFallback(formData);
                 if (data.success) {
                     sendPrivateChatMessage(targetNick, data.data.url, 'image');
                 } else {
@@ -8943,6 +8941,45 @@ function returnToRecentPrivateMessages(targetNick) {
             throw lastErr || new Error('Bütün video hesabları uğursuz oldu');
         }
 
+        // ============================================================
+        // ŞƏKİL YÜKLƏMƏ: əvvəl imgbb, alınmasa Cloudinary (ehtiyat)
+        // Nəticə imgbb formatındadır: { success: true, data: { url } }
+        // ============================================================
+        async function uploadImageToCloudinaryAccount(blob, account) {
+            const fd = new FormData();
+            fd.append('file', blob, 'image.jpg');
+            fd.append('upload_preset', account.preset);
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${account.cloudName}/image/upload`, { method: 'POST', body: fd });
+            const json = await res.json().catch(() => ({}));
+            if (!res.ok || !json.secure_url) {
+                throw new Error((json.error && json.error.message) || `cloudinary_error_${res.status}`);
+            }
+            return json.secure_url;
+        }
+
+        async function uploadImageWithFallback(formData) {
+            const blob = formData.get('image');
+            // 1) imgbb
+            try {
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data && data.success && data.data && data.data.url) return data;
+                console.warn('imgbb şəkli qəbul etmədi:', res.status, data && data.error ? data.error : data);
+            } catch (err) {
+                console.warn('imgbb sorğusu alınmadı:', err);
+            }
+            // 2) Cloudinary hesabları (video üçün istifadə olunanlar)
+            for (const account of VIDEO_CLOUDINARY_ACCOUNTS) {
+                try {
+                    const url = await uploadImageToCloudinaryAccount(blob, account);
+                    return { success: true, data: { url } };
+                } catch (err) {
+                    console.warn(`Cloudinary "${account.cloudName}" şəkli qəbul etmədi:`, err.message);
+                }
+            }
+            return { success: false };
+        }
+
         async function uploadVideoToStorage(file, sendFn, onProgress) {
             if (file.size > MAX_VIDEO_BYTES) {
                 showToast(`Video həddindən artıq böyükdür (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum 150MB icazəlidir.`, 'error', 7000);
@@ -9470,8 +9507,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     const compressed = await compressImageFile(mqStoryComposerFile);
                     const formData = new FormData();
                     formData.append('image', compressed, 'story.jpg');
-                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                    const data = await res.json();
+                    const data = await uploadImageWithFallback(formData);
                     if (!data.success) throw new Error('Şəkil yüklənmədi');
                     mediaUrl = data.data.url;
                 } else if (mqStoryComposerMode === 'video') {
@@ -11624,8 +11660,7 @@ function returnToRecentPrivateMessages(targetNick) {
                     const uploadOne = async (blob, filename) => {
                         const formData = new FormData();
                         formData.append('image', blob, filename);
-                        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                        const data = await res.json();
+                        const data = await uploadImageWithFallback(formData);
                         return data.success ? data.data.url : null;
                     };
 
@@ -11953,8 +11988,7 @@ function returnToRecentPrivateMessages(targetNick) {
             const formData = new FormData();
             formData.append('image', file);
             try {
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                const data = await res.json();
+                const data = await uploadImageWithFallback(formData);
                 if (data.success) {
                     triggerMessageSend(data.data.url, 'image');
                 } else {
