@@ -8945,6 +8945,38 @@ function returnToRecentPrivateMessages(targetNick) {
         // ŞƏKİL YÜKLƏMƏ: əvvəl imgbb, alınmasa Cloudinary (ehtiyat)
         // Nəticə imgbb formatındadır: { success: true, data: { url } }
         // ============================================================
+        // imgbb API açarları. Birincisi dolarsa/rədd edilsə, avtomatik növbətiyə keçilir.
+        // İkinci hesab üçün: yeni imgbb hesabı aç -> https://api.imgbb.com -> API açarını al -> aşağıya yaz.
+        const IMGBB_API_KEYS = [IMGBB_API_KEY, "BURAYA_IKINCI_IMGBB_ACARI_YAZ"];
+
+        // Şəkillər üçün ehtiyat Cloudinary hesabı (imgbb alınmayanda işləyir).
+        // DİQQƏT: bu hesab videolarla eyni aylıq krediti bölüşür.
+        const IMAGE_CLOUDINARY_ACCOUNTS = []; // boş = Cloudinary şəkillər üçün istifadə olunmur (pul riski yoxdur)
+        // Ehtiyat yolla bir ayda yüklənə biləcək maksimum şəkil sayı (bütün istifadəçilər üçün ümumi).
+        // Dolanda yükləmə AVTOMATİK dayanır və toast göstərilir. Rəqəmi öz limitinə görə dəyiş.
+        const IMAGE_FALLBACK_MONTHLY_LIMIT = 1500;
+        const IMAGE_LIMIT_MESSAGE = 'Şəkil yükləmələri bu ay üçün dayandırılıb: aylıq pulsuz limitə çatdıq. Şəkil yükləmə gələn ay yenidən aktiv olacaq. Mətn mesajları və digər funksiyalar işləməyə davam edir.';
+
+        // Ayda neçə şəkil ehtiyat yolla yüklənib — Firebase-də saxlanır (imageUploadStats/YYYY-MM/count).
+        // Yer qalıbsa sayğacı 1 artırıb true qaytarır; limit dolubsa və ya Firebase xətası olsa false (təhlükəsiz tərəf).
+        async function reserveImageFallbackSlot() {
+            try {
+                const d = new Date();
+                const monthKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+                let allowed = false;
+                await db.ref(`imageUploadStats/${monthKey}/count`).transaction((c) => {
+                    c = c || 0;
+                    if (c >= IMAGE_FALLBACK_MONTHLY_LIMIT) { allowed = false; return c; }
+                    allowed = true;
+                    return c + 1;
+                });
+                return allowed;
+            } catch (err) {
+                console.warn('Şəkil limiti yoxlanıla bilmədi (təhlükəsizlik üçün dayandırıldı):', err);
+                return false;
+            }
+        }
+
         async function uploadImageToCloudinaryAccount(blob, account) {
             const fd = new FormData();
             fd.append('file', blob, 'image.jpg');
@@ -8959,17 +8991,26 @@ function returnToRecentPrivateMessages(targetNick) {
 
         async function uploadImageWithFallback(formData) {
             const blob = formData.get('image');
-            // 1) imgbb
-            try {
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
-                const data = await res.json();
-                if (data && data.success && data.data && data.data.url) return data;
-                console.warn('imgbb şəkli qəbul etmədi:', res.status, data && data.error ? data.error : data);
-            } catch (err) {
-                console.warn('imgbb sorğusu alınmadı:', err);
+            // 1) imgbb — bir neçə hesab/açar sırayla sınanır (biri dolubsa növbətiyə keçir)
+            for (const key of IMGBB_API_KEYS) {
+                if (!key || key.startsWith('BURAYA_')) continue;
+                try {
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, { method: 'POST', body: formData });
+                    const data = await res.json();
+                    if (data && data.success && data.data && data.data.url) return data;
+                    console.warn(`imgbb (${key.slice(0, 6)}...) şəkli qəbul etmədi:`, res.status, data && data.error ? data.error : data);
+                } catch (err) {
+                    console.warn(`imgbb (${key.slice(0, 6)}...) sorğusu alınmadı:`, err);
+                }
             }
             // 2) Cloudinary hesabları (video üçün istifadə olunanlar)
-            for (const account of VIDEO_CLOUDINARY_ACCOUNTS) {
+            if (IMAGE_CLOUDINARY_ACCOUNTS.length === 0) return { success: false };
+            const slotOk = await reserveImageFallbackSlot();
+            if (!slotOk) {
+                showToast(IMAGE_LIMIT_MESSAGE, 'error', 9000);
+                return { success: false, limitReached: true };
+            }
+            for (const account of IMAGE_CLOUDINARY_ACCOUNTS) {
                 try {
                     const url = await uploadImageToCloudinaryAccount(blob, account);
                     return { success: true, data: { url } };
