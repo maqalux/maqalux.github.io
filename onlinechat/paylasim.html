@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>İkimiz — Məxfi fayl paylaşımı</title>
+
+<style>
+:root {
+  --bg: #f4f5ef;
+  --card: #ffffff;
+  --text: #20372e;
+  --muted: #6b796f;
+  --green: #285a47;
+  --line: #dbe3d7;
+  --soft: #eef4e6;
+  --red: #a63831;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.6 system-ui, sans-serif;
+}
+main {
+  width: min(850px, calc(100% - 28px));
+  margin: 35px auto 60px;
+}
+header { text-align: center; padding: 12px 0 28px; }
+.logo {
+  display: inline-block;
+  padding: 7px 15px;
+  background: var(--green);
+  color: white;
+  border-radius: 12px;
+  font-size: 23px;
+  font-weight: 800;
+}
+h1 {
+  font-size: clamp(30px, 6vw, 46px);
+  line-height: 1.15;
+  letter-spacing: -1.4px;
+  margin-bottom: 12px;
+}
+h2 { font-size: 21px; margin: 0 0 8px; }
+h3 { margin: 8px 0; font-size: 17px; }
+p { margin: 8px 0 15px; }
+.muted { color: var(--muted); font-size: 13px; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px #24452f08;
+}
+nav {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  background: #eaf0e4;
+}
+button, input, select { font: inherit; }
+button, .download {
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 12px 17px;
+  background: var(--green);
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 650;
+}
+button:hover:not(:disabled) { filter: brightness(1.08); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible, input:focus-visible,
+select:focus-visible, a:focus-visible {
+  outline: 3px solid #9cb77b;
+  outline-offset: 3px;
+}
+.tab { flex: 1; background: transparent; color: var(--muted); }
+.tab.active { background: white; color: var(--green); }
+.panel { padding: 27px; }
+.secondary {
+  background: white;
+  border-color: #c6d2bf;
+  color: var(--green);
+}
+.danger {
+  color: var(--red);
+  background: transparent;
+  padding-left: 0;
+}
+.wide { width: 100%; }
+.drop {
+  border: 2px dashed #c6d3bd;
+  border-radius: 13px;
+  background: #f7f9f2;
+  text-align: center;
+  padding: 27px 15px;
+  margin: 20px 0;
+}
+.drop.drag { background: #e4efcf; }
+.drop-icon { font-size: 38px; }
+.actions { display: flex; gap: 9px; flex-wrap: wrap; }
+.center { justify-content: center; }
+.settings {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin: 20px 0;
+}
+.settings > * { flex: 1; }
+label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 650;
+}
+input, select {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: var(--text);
+}
+input[type="file"] { font-size: 12px; }
+.row { display: flex; gap: 8px; }
+.row input { flex: 1; min-width: 0; }
+.row button { flex-shrink: 0; }
+.notice {
+  padding: 17px;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--soft);
+  font-size: 13px;
+}
+.notice p:last-child { margin-bottom: 0; }
+.file-summary {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+#fileList {
+  max-height: 150px;
+  overflow: auto;
+  padding: 0;
+  list-style: none;
+}
+#fileList li {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 5px 0;
+  border-bottom: 1px solid #edf0e9;
+  font-size: 12px;
+}
+#fileList li span:first-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.session {
+  padding: 23px 27px;
+  border-top: 1px solid var(--line);
+  background: #fafcf6;
+}
+.code {
+  font: 34px monospace;
+  letter-spacing: 9px;
+  margin: 12px 0 18px;
+}
+progress {
+  width: 100%;
+  height: 13px;
+  accent-color: var(--green);
+  margin-top: 18px;
+}
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.download {
+  display: inline-block;
+  margin-top: 16px;
+  text-decoration: none;
+}
+.error {
+  padding: 18px 27px;
+  color: var(--red);
+  background: #fff0e9;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+details {
+  margin-top: 25px;
+  padding: 19px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: 13px;
+}
+summary { cursor: pointer; font-weight: 650; }
+details p { color: var(--muted); margin-top: 15px; }
+footer { text-align: center; margin-top: 25px; color: var(--muted); }
+[hidden] { display: none !important; }
+@media (max-width: 560px) {
+  main { margin-top: 20px; }
+  .panel, .session { padding: 19px; }
+  .tab { font-size: 11px; padding: 12px 5px; }
+  .settings { flex-direction: column; align-items: stretch; }
+  .row { flex-wrap: wrap; }
+  .row input { flex-basis: 100%; }
+}
+</style>
+</head>
+
+<body>
+<main>
+  <header>
+    <div class="logo">ikimiz.</div>
+    <h1>Yüzlərlə fayl.<br>Bir məxfi link.</h1>
+    <p class="muted">
+      Şəkilləri və videoları birlikdə seç.<br>
+      Qarşı tərəf hamısını bir ZIP kimi saxlasın.
+    </p>
+  </header>
+
+  <section class="card">
+    <nav aria-label="Bölmələr">
+      <button id="tabSend" class="tab active">Göndər</button>
+      <button id="tabReceive" class="tab">Qəbul et</button>
+      <button id="tabConvert" class="tab">Formatı dəyiş</button>
+    </nav>
+
+    <section id="sendPanel" class="panel">
+      <h2>Hamısını bir yerdə paylaş</h2>
+      <p class="muted">
+        Çoxsaylı faylı və ya bütöv qovluğu seçə bilərsən.
+      </p>
+
+      <div id="dropzone" class="drop">
+        <div class="drop-icon">↥</div>
+        <h3>Faylları bura sürüklə</h3>
+        <p class="muted">və ya aşağıdakı düymələrdən istifadə et.</p>
+        <div class="actions center">
+          <button id="pickFiles">Faylları seç</button>
+          <button id="pickFolder" class="secondary">Qovluğu seç</button>
+        </div>
+        <input id="files" type="file" multiple hidden>
+        <input id="folder" type="file" webkitdirectory multiple hidden>
+      </div>
+
+      <div id="selection" hidden>
+        <div class="file-summary">
+          <strong id="selectionText"></strong>
+          <button id="clearFiles" class="secondary">Təmizlə</button>
+        </div>
+        <ul id="fileList"></ul>
+      </div>
+
+      <div class="settings">
+        <div>
+          <label for="duration">Paylaşım müddəti</label>
+          <select id="duration">
+            <option value="3600000">1 saat</option>
+            <option value="86400000">24 saat</option>
+          </select>
+        </div>
+        <p class="muted">
+          Ötürmə bitənədək hər iki tərəf səhifəni açıq saxlamalıdır.
+        </p>
+      </div>
+
+      <button id="createRoom" class="wide" disabled>
+        Məxfi link yarat
+      </button>
+
+      <div id="shareArea" class="notice" hidden>
+        <label for="shareLink">Bu linki yalnız alıcıya göndər</label>
+        <div class="row">
+          <input id="shareLink" readonly>
+          <button id="copyLink" class="secondary">Kopyala</button>
+        </div>
+        <p id="expiry" class="muted"></p>
+      </div>
+    </section>
+
+    <section id="receivePanel" class="panel" hidden>
+      <h2>Sənin üçün gələn fayllar</h2>
+      <p class="muted">Göndərənin verdiyi tam məxfi linklə qoşul.</p>
+
+      <label for="joinLink">Məxfi link</label>
+      <div class="row">
+        <input id="joinLink"
+               placeholder="Linki bura yapışdır"
+               autocomplete="off"
+               spellcheck="false">
+        <button id="joinRoom">Qoşul</button>
+      </div>
+
+      <div id="offer" class="notice" hidden>
+        <h3 id="offerTitle"></h3>
+        <p id="offerDetail"></p>
+        <button id="saveZip">ZIP-i qəbul et və saxla</button>
+      </div>
+
+      <div class="notice">
+        <strong>Böyük göndəriş üçün kompüter istifadə et.</strong>
+        <p>
+          Chrome / Edge-də dəstəklənirsə, ZIP birbaşa diskə yazılır.
+          Bu imkan olmayan brauzerlərdə maksimum 200 MB qəbul edilir.
+        </p>
+      </div>
+    </section>
+
+    <section id="convertPanel" class="panel" hidden>
+      <h2>Formatı cihazında dəyiş</h2>
+      <p class="muted">
+        ZIP-i açdıqdan sonra dəyişmək istədiyin faylı seç.
+        Orijinal fayl dəyişmir və çevirmə üçün serverə göndərilmir.
+      </p>
+
+      <div class="settings">
+        <div>
+          <label for="convertKind">Fayl növü</label>
+          <select id="convertKind">
+            <option value="image">Şəkil</option>
+            <option value="video">Video</option>
+          </select>
+        </div>
+        <div>
+          <label for="convertFormat">Yeni format</label>
+          <select id="convertFormat"></select>
+        </div>
+      </div>
+
+      <label for="convertFile">Çevriləcək fayl</label>
+      <input id="convertFile" type="file" accept="image/*">
+
+      <div class="actions">
+        <button id="convertStart">Çevirməyə başla</button>
+        <button id="convertCancel" class="secondary" hidden>
+          Dayandır
+        </button>
+      </div>
+
+      <p id="convertHint" class="muted" style="margin-top:16px"></p>
+      <p id="convertStatus" role="status"></p>
+      <progress id="convertProgress" max="1" value="0"></progress>
+      <div id="convertPreview"></div>
+      <a id="convertDownload" class="download" hidden>Faylı yüklə</a>
+    </section>
+
+    <section id="sessionArea" class="session" hidden>
+      <strong id="status" role="status" aria-live="polite"></strong>
+
+      <div id="verifyArea" class="notice" hidden>
+        <p>
+          Bu kodu qarşı tərəflə telefonla və ya ayrıca şəxsi
+          yazışmada müqayisə edin. Eyni olmalıdır.
+        </p>
+        <div id="verifyCode" class="code"></div>
+        <button id="approve" hidden>
+          Kod eynidir — göndərişə icazə ver
+        </button>
+      </div>
+
+      <div id="progressArea" hidden>
+        <progress id="progress" max="100" value="0"></progress>
+        <div class="progress-meta">
+          <span id="progressText"></span>
+          <span id="speedText"></span>
+        </div>
+      </div>
+
+      <a id="downloadZip" class="download" hidden>
+        Hazır ZIP-i yüklə
+      </a>
+
+      <div>
+        <button id="endSession" class="danger">Paylaşımı bağla</button>
+      </div>
+    </section>
+
+    <div id="error" class="error" role="alert" hidden></div>
+  </section>
+
+  <details>
+    <summary>Məxfilik və istifadə qaydası</summary>
+    <p>
+      Fayllar WebRTC bağlantısı üzərindən və əlavə AES-256-GCM
+      şifrələməsi ilə ötürülür. Məxfi açar linkin # hissəsindədir.
+      Linki bilən şəxs giriş istəyə bilər; alıcını təsdiqləməzdən
+      əvvəl kodu ayrıca əlaqə vasitəsilə müqayisə et.
+    </p>
+    <p>
+      Fayl məzmunu bu tətbiq tərəfindən serverdə saxlanmır.
+      PeerJS və STUN xidmətləri IP ünvanı və bağlantı məlumatlarını
+      görə bilər. Bu, anonimlik xidməti deyil. Saytın koduna,
+      kitabxanalara və istifadə etdiyiniz cihazlara etibar edilməlidir.
+    </p>
+    <p>
+      Pulsuz bağlantı xidməti istifadə olunur. TURN vasitəçi serveri
+      daxil edilməyib. Bəzi mobil, VPN və iş şəbəkələrində bağlantı
+      qurulmaya bilər. İnternet trafiki sərf olunur.
+    </p>
+    <p>
+      1 saat / 24 saat buludda saxlama müddəti deyil: açıq sessiyanın
+      maksimum müddətidir. Səhifə bağlananda, şəbəkə kəsiləndə və ya
+      müddət bitəndə ötürmə dayanır. Yarımçıq göndəriş yenidən
+      sıfırdan başlanır.
+    </p>
+    <p>
+      Yüklənmiş ZIP şifrəsizdir və alıcının cihazından uzaqdan
+      silinmir. ZIP orijinal faylları keyfiyyət itirmədən paketləyir;
+      həcm əsasən eyni qalır. Orijinal metadatalar da ötürülür.
+      Çox böyük ZIP-ləri açmaq üçün ZIP64 dəstəkləyən proqram lazım
+      ola bilər.
+    </p>
+  </details>
+
+  <footer>İki nəfər. Bir bağlantı.</footer>
+</main>
+
+<!-- Sabitlənmiş PeerJS versiyası. İnternet bağlantısı tələb olunur. -->
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+
+<script>
+"use strict";
+
+/* =========================================================
+   AXINLA ZIP YARADILMASI — CRC32, UTF-8, ZIP64
+   ========================================================= */
+
+const ZipStream = (() => {
+  const MAX32 = 0xffffffffn;
+  const MAX16 = 0xffff;
+  const CHUNK = 65536;
+  const encoder = new TextEncoder();
+  const crcTable = new Uint32Array(256);
+
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) {
+      c = (c & 1) ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    }
+    crcTable[n] = c >>> 0;
+  }
+
+  function crcUpdate(crc, data) {
+    for (let i = 0; i < data.length; i++) {
+      crc = crcTable[(crc ^ data[i]) & 255] ^ (crc >>> 8);
+    }
+    return crc >>> 0;
+  }
+
+  function checkAbort(signal) {
+    if (signal?.aborted) {
+      throw new DOMException("Dayandırıldı.", "AbortError");
+    }
+  }
+
+  function safePart(value) {
+    let part = value.normalize("NFC")
+      .replace(/[\x00-\x1f\x7f<>:"|?*]/g, "_")
+      .replace(/[ .]+$/g, "");
+
+    if (!part || part === "." || part === "..") part = "_";
+
+    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part)) {
+      part = "_" + part;
+    }
+    return part;
+  }
+
+  function suffix(name, n) {
+    const dot = name.lastIndexOf(".");
+    return dot > 0
+      ? name.slice(0, dot) + " (" + n + ")" + name.slice(dot)
+      : name + " (" + n + ")";
+  }
+
+  function prepare(files) {
+    const used = new Set();
+    const dirs = new Map();
+
+    return Array.from(files, file => {
+      if (!file || !Number.isSafeInteger(file.size) || file.size < 0) {
+        throw new Error("Fayl ölçüsü etibarsızdır.");
+      }
+
+      const original = String(
+        file.webkitRelativePath || file.name || "fayl"
+      ).replace(/\\/g, "/");
+
+      const parts = original.split("/")
+        .filter(p => p && p !== "." && p !== "..")
+        .map(safePart);
+
+      if (!parts.length) parts.push("fayl");
+
+      let path = "";
+      let originalPrefix = "";
+
+      for (let i = 0; i < parts.length - 1; i++) {
+        originalPrefix += "/" + parts[i];
+        const key = originalPrefix.toLowerCase();
+
+        if (dirs.has(key)) {
+          path = dirs.get(key);
+          continue;
+        }
+
+        let name = parts[i];
+        let candidate = path + name;
+        let n = 2;
+
+        while (used.has(candidate.toLowerCase())) {
+          name = suffix(parts[i], n++);
+          candidate = path + name;
+        }
+
+        used.add(candidate.toLowerCase());
+        path = candidate + "/";
+        dirs.set(key, path);
+      }
+
+      const leaf = parts[parts.length - 1];
+      let name = path + leaf;
+      let n = 2;
+
+      while (used.has(name.toLowerCase())) {
+        name = path + suffix(leaf, n++);
+      }
+
+      used.add(name.toLowerCase());
+      const encoded = encoder.encode(name);
+
+      if (encoded.length > MAX16) {
+        throw new Error("Fayl yolu həddən uzundur.");
+      }
+
+      const size = BigInt(file.size);
+      return { file, encoded, size, large: size >= MAX32 };
+    });
+  }
+
+  function buffer(size) {
+    const bytes = new Uint8Array(size);
+    return { bytes, v: new DataView(bytes.buffer) };
+  }
+
+  function timestamp(file) {
+    const t = new Date(
+      Number.isFinite(file.lastModified) ? file.lastModified : Date.now()
+    );
+    const year = Math.max(1980, Math.min(2107, t.getFullYear()));
+
+    return [
+      (t.getHours() << 11) | (t.getMinutes() << 5) | (t.getSeconds() >> 1),
+      ((year - 1980) << 9) | ((t.getMonth() + 1) << 5) | t.getDate()
+    ];
+  }
+
+  function localHeader(e) {
+    const extra = e.large ? 20 : 0;
+    const { bytes, v } = buffer(30 + e.encoded.length + extra);
+
+    v.setUint32(0, 0x04034b50, true);
+    v.setUint16(4, e.large ? 45 : 20, true);
+    v.setUint16(6, 0x0808, true);
+
+    [e.time, e.date] = timestamp(e.file);
+    v.setUint16(10, e.time, true);
+    v.setUint16(12, e.date, true);
+    v.setUint32(18, e.large ? 0xffffffff : 0, true);
+    v.setUint32(22, e.large ? 0xffffffff : 0, true);
+    v.setUint16(26, e.encoded.length, true);
+    v.setUint16(28, extra, true);
+    bytes.set(e.encoded, 30);
+
+    if (e.large) {
+      const p = 30 + e.encoded.length;
+      v.setUint16(p, 1, true);
+      v.setUint16(p + 2, 16, true);
+      v.setBigUint64(p + 4, e.size, true);
+      v.setBigUint64(p + 12, e.size, true);
+    }
+
+    return bytes;
+  }
+
+  function descriptor(e) {
+    const { bytes, v } = buffer(e.large ? 24 : 16);
+    v.setUint32(0, 0x08074b50, true);
+    v.setUint32(4, e.crc, true);
+
+    if (e.large) {
+      v.setBigUint64(8, e.size, true);
+      v.setBigUint64(16, e.size, true);
+    } else {
+      v.setUint32(8, Number(e.size), true);
+      v.setUint32(12, Number(e.size), true);
+    }
+
+    return bytes;
+  }
+
+  function centralExtraSize(e) {
+    const fields = (e.large ? 16 : 0) + (e.offset >= MAX32 ? 8 : 0);
+    return fields ? 4 + fields : 0;
+  }
+
+  function centralHeader(e) {
+    const extra = centralExtraSize(e);
+    const { bytes, v } = buffer(46 + e.encoded.length + extra);
+
+    v.setUint32(0, 0x02014b50, true);
+    v.setUint16(4, 0x032d, true);
+    v.setUint16(6, extra ? 45 : 20, true);
+    v.setUint16(8, 0x0808, true);
+    v.setUint16(12, e.time, true);
+    v.setUint16(14, e.date, true);
+    v.setUint32(16, e.crc, true);
+    v.setUint32(20, e.large ? 0xffffffff : Number(e.size), true);
+    v.setUint32(24, e.large ? 0xffffffff : Number(e.size), true);
+    v.setUint16(28, e.encoded.length, true);
+    v.setUint16(30, extra, true);
+    v.setUint32(38, 0x81a40000, true);
+    v.setUint32(
+      42, e.offset >= MAX32 ? 0xffffffff : Number(e.offset), true
+    );
+    bytes.set(e.encoded, 46);
+
+    if (extra) {
+      let p = 46 + e.encoded.length;
+      v.setUint16(p, 1, true);
+      v.setUint16(p + 2, extra - 4, true);
+      p += 4;
+
+      if (e.large) {
+        v.setBigUint64(p, e.size, true);
+        v.setBigUint64(p + 8, e.size, true);
+        p += 16;
+      }
+
+      if (e.offset >= MAX32) {
+        v.setBigUint64(p, e.offset, true);
+      }
+    }
+
+    return bytes;
+  }
+
+  function needsZip64(entries, offset, size) {
+    return entries.length >= MAX16 ||
+      offset >= MAX32 || size >= MAX32 ||
+      entries.some(e => e.large);
+  }
+
+  function endRecords(entries, centralOffset, centralSize) {
+    const zip64 = needsZip64(entries, centralOffset, centralSize);
+    const { bytes, v } = buffer(zip64 ? 98 : 22);
+    let p = 0;
+
+    if (zip64) {
+      v.setUint32(0, 0x06064b50, true);
+      v.setBigUint64(4, 44n, true);
+      v.setUint16(12, 45, true);
+      v.setUint16(14, 45, true);
+      v.setBigUint64(24, BigInt(entries.length), true);
+      v.setBigUint64(32, BigInt(entries.length), true);
+      v.setBigUint64(40, centralSize, true);
+      v.setBigUint64(48, centralOffset, true);
+
+      v.setUint32(56, 0x07064b50, true);
+      v.setBigUint64(64, centralOffset + centralSize, true);
+      v.setUint32(72, 1, true);
+      p = 76;
+    }
+
+    v.setUint32(p, 0x06054b50, true);
+    v.setUint16(p + 8, Math.min(entries.length, MAX16), true);
+    v.setUint16(p + 10, Math.min(entries.length, MAX16), true);
+    v.setUint32(
+      p + 12, Number(centralSize >= MAX32 ? MAX32 : centralSize), true
+    );
+    v.setUint32(
+      p + 16, Number(centralOffset >= MAX32 ? MAX32 : centralOffset), true
+    );
+
+    return bytes;
+  }
+
+  function* split(bytes) {
+    for (let p = 0; p < bytes.length; p += CHUNK) {
+      yield bytes.subarray(p, p + CHUNK);
+    }
+  }
+
+  function estimateZipSize(files) {
+    const entries = prepare(files);
+    let offset = 0n;
+
+    for (const e of entries) {
+      e.offset = offset;
+      offset += BigInt(30 + e.encoded.length + (e.large ? 20 : 0))
+        + e.size + BigInt(e.large ? 24 : 16);
+    }
+
+    let centralSize = 0n;
+    for (const e of entries) {
+      centralSize += BigInt(
+        46 + e.encoded.length + centralExtraSize(e)
+      );
+    }
+
+    const total = offset + centralSize +
+      BigInt(needsZip64(entries, offset, centralSize) ? 98 : 22);
+
+    if (total > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw new Error("ZIP ölçüsü dəstəklənən həddi keçir.");
+    }
+
+    return Number(total);
+  }
+
+  async function* zipFiles(files, { signal } = {}) {
+    const entries = prepare(files);
+    let offset = 0n;
+
+    for (const e of entries) {
+      checkAbort(signal);
+      e.offset = offset;
+
+      const header = localHeader(e);
+      yield* split(header);
+      offset += BigInt(header.length);
+
+      const reader = e.file.stream().getReader();
+      let crc = 0xffffffff;
+      let read = 0n;
+      let complete = false;
+
+      try {
+        while (true) {
+          checkAbort(signal);
+          const { value, done } = await reader.read();
+          checkAbort(signal);
+
+          if (done) {
+            complete = true;
+            break;
+          }
+
+          const bytes = value instanceof Uint8Array
+            ? value : new Uint8Array(value);
+
+          read += BigInt(bytes.length);
+          if (read > e.size) throw new Error("Fayl ölçüsü dəyişib.");
+
+          for (const chunk of split(bytes)) {
+            checkAbort(signal);
+            crc = crcUpdate(crc, chunk);
+            offset += BigInt(chunk.length);
+            yield chunk;
+          }
+        }
+      } finally {
+        if (!complete) {
+          try { await reader.cancel(); } catch {}
+        }
+        reader.releaseLock();
+      }
+
+      if (read !== e.size) throw new Error("Fayl tam oxunmadı.");
+
+      e.crc = (crc ^ 0xffffffff) >>> 0;
+      const tail = descriptor(e);
+      yield tail;
+      offset += BigInt(tail.length);
+    }
+
+    const centralOffset = offset;
+
+    for (const e of entries) {
+      checkAbort(signal);
+      const header = centralHeader(e);
+      yield* split(header);
+      offset += BigInt(header.length);
+    }
+
+    checkAbort(signal);
+    yield endRecords(entries, centralOffset, offset - centralOffset);
+  }
+
+  return { zipFiles, estimateZipSize };
+})();
+
+/* =========================================================
+   ŞİFRƏLƏMƏ
+   ========================================================= */
+
+const te = new TextEncoder();
+const td = new TextDecoder();
+
+function base64url(bytes) {
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function randomId(length = 16) {
+  return base64url(crypto.getRandomValues(new Uint8Array(length)));
+}
+
+function decodeSecret(text) {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(text)) {
+    throw new Error("Məxfi açar etibarsızdır.");
+  }
+
+  return Uint8Array.from(
+    atob(text.replace(/-/g, "+").replace(/_/g, "/") + "="),
+    c => c.charCodeAt(0)
+  );
+}
+
+async function makeCipher(secret, room, sender) {
+  const material = await crypto.subtle.importKey(
+    "raw", decodeSecret(secret), "HKDF", false, ["deriveKey"]
+  );
+
+  const derive = label => crypto.subtle.deriveKey({
+    name: "HKDF",
+    hash: "SHA-256",
+    salt: te.encode(room),
+    info: te.encode("ikimiz-v1-" + label)
+  }, material, {
+    name: "AES-GCM", length: 256
+  }, false, ["encrypt", "decrypt"]);
+
+  const [outKey, inKey] = await Promise.all([
+    derive(sender ? "send" : "receive"),
+    derive(sender ? "receive" : "send")
+  ]);
+
+  let outgoing = 0;
+  let incoming = 0;
+
+  return {
+    async seal(type, value) {
+      const body = type === 0 ? te.encode(JSON.stringify(value)) : value;
+
+      if (body.byteLength > 20000) {
+        throw new Error("Paket həddən böyükdür.");
+      }
+
+      const plain = new Uint8Array(body.byteLength + 5);
+      new DataView(plain.buffer).setUint32(0, outgoing++);
+      plain[4] = type;
+      plain.set(body, 5);
+
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const encrypted = new Uint8Array(await crypto.subtle.encrypt({
+        name: "AES-GCM",
+        iv,
+        additionalData: te.encode(room)
+      }, outKey, plain));
+
+      const packet = new Uint8Array(12 + encrypted.length);
+      packet.set(iv);
+      packet.set(encrypted, 12);
+      return packet.buffer;
+    },
+
+    async open(packet) {
+      if (!(packet instanceof ArrayBuffer) ||
+          packet.byteLength < 33 || packet.byteLength > 20100) {
+        throw new Error("Paket etibarsızdır.");
+      }
+
+      const bytes = new Uint8Array(packet);
+      const plain = new Uint8Array(await crypto.subtle.decrypt({
+        name: "AES-GCM",
+        iv: bytes.slice(0, 12),
+        additionalData: te.encode(room)
+      }, inKey, bytes.slice(12)));
+
+      if (new DataView(plain.buffer).getUint32(0) !== incoming++) {
+        throw new Error("Paket ardıcıllığı pozulub.");
+      }
+
+      const type = plain[4];
+      if (type !== 0 && type !== 1) {
+        throw new Error("Paket tipi etibarsızdır.");
+      }
+
+      return {
+        type,
+        value: type === 0
+          ? JSON.parse(td.decode(plain.slice(5)))
+          : plain.slice(5)
+      };
+    }
+  };
+}
+
+async function verificationCode(secret, room, receiverId) {
+  const hash = await crypto.subtle.digest(
+    "SHA-256", te.encode(secret + "|" + room + "|" + receiverId)
+  );
+  return String(new DataView(hash).getUint32(0) % 1000000)
+    .padStart(6, "0");
+}
+
+/* =========================================================
+   PAYLAŞIM İNTERFEYSİ VƏ BAĞLANTI
+   ========================================================= */
+
+const $ = id => document.getElementById(id);
+const MiB = 1024 * 1024;
+const MEMORY_LIMIT = 200 * MiB;
+
+let selectedFiles = [];
+let session = null;
+let zipURL = null;
+
+function formatSize(n) {
+  if (n < 1024) return Math.round(n) + " B";
+  if (n < MiB) return (n / 1024).toFixed(1) + " KB";
+  if (n < 1024 * MiB) return (n / MiB).toFixed(1) + " MB";
+  return (n / (1024 * MiB)).toFixed(2) + " GB";
+}
+
+function showTab(name) {
+  for (const n of ["Send", "Receive", "Convert"]) {
+    $(n.toLowerCase() + "Panel").hidden = n !== name;
+    $("tab" + n).classList.toggle("active", n === name);
+  }
+}
+
+for (const name of ["Send", "Receive", "Convert"]) {
+  $("tab" + name).onclick = () => showTab(name);
+}
+
+function showError(e) {
+  $("error").textContent = e?.message || String(e);
+  $("error").hidden = false;
+}
+
+function setStatus(text) {
+  $("sessionArea").hidden = false;
+  $("status").textContent = text;
+}
+
+function updateSelection() {
+  $("selection").hidden = !selectedFiles.length;
+  const size = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+
+  $("selectionText").textContent =
+    selectedFiles.length + " fayl · " + formatSize(size);
+
+  $("fileList").replaceChildren();
+
+  for (const file of selectedFiles.slice(0, 40)) {
+    const li = document.createElement("li");
+    const name = document.createElement("span");
+    const bytes = document.createElement("span");
+    name.textContent = file.webkitRelativePath || file.name;
+    bytes.textContent = formatSize(file.size);
+    li.append(name, bytes);
+    $("fileList").append(li);
+  }
+
+  if (selectedFiles.length > 40) {
+    const li = document.createElement("li");
+    li.textContent = "və daha " + (selectedFiles.length - 40) + " fayl";
+    $("fileList").append(li);
+  }
+
+  $("createRoom").disabled = !selectedFiles.length || !!session;
+}
+
+function addFiles(files) {
+  if (session) return;
+
+  const next = Array.from(files);
+  if (selectedFiles.length + next.length > 10000) {
+    showError(new Error("Bir göndərişdə maksimum 10 000 fayl seç."));
+    return;
+  }
+
+  selectedFiles.push(...next);
+  updateSelection();
+}
+
+$("pickFiles").onclick = () => $("files").click();
+$("pickFolder").onclick = () => $("folder").click();
+
+for (const id of ["files", "folder"]) {
+  $(id).onchange = event => {
+    addFiles(event.target.files);
+    event.target.value = "";
+  };
+}
+
+$("clearFiles").onclick = () => {
+  if (session) return;
+  selectedFiles = [];
+  updateSelection();
+};
+
+$("dropzone").ondragover = event => {
+  event.preventDefault();
+  $("dropzone").classList.add("drag");
+};
+
+$("dropzone").ondragleave = () => {
+  $("dropzone").classList.remove("drag");
+};
+
+$("dropzone").ondrop = event => {
+  event.preventDefault();
+  $("dropzone").classList.remove("drag");
+
+  if (Array.from(event.dataTransfer.items).some(
+    item => item.webkitGetAsEntry?.()?.isDirectory
+  )) {
+    showError(new Error("Qovluq üçün “Qovluğu seç” düyməsini istifadə et."));
+    return;
+  }
+
+  addFiles(event.dataTransfer.files);
+};
+
+function setBusy(value) {
+  for (const id of [
+    "pickFiles", "pickFolder", "clearFiles", "duration", "joinRoom"
+  ]) {
+    $(id).disabled = value;
+  }
+
+  $("createRoom").disabled = value || !selectedFiles.length;
+}
+
+function ensureLive(s) {
+  if (s.closed || session !== s) {
+    throw new Error("Paylaşım bağlanıb.");
+  }
+  if (Date.now() >= s.expires) {
+    throw new Error("Paylaşımın müddəti bitib.");
+  }
+}
+
+async function closeSession(s) {
+  if (!s || s.closed) return;
+
+  s.closed = true;
+  s.abort.abort();
+  clearInterval(s.timer);
+  clearTimeout(s.connectTimer);
+  clearTimeout(s.authTimer);
+
+  s.conn?.close();
+  s.peer?.destroy();
+
+  if (s.stream) {
+    try { await s.stream.abort(); } catch {}
+    s.stream = null;
+  }
+
+  s.parts = [];
+  try { await s.wake?.release(); } catch {}
+
+  if (session === s) {
+    session = null;
+    setBusy(false);
+    $("approve").hidden = true;
+    $("saveZip").disabled = true;
+    $("endSession").hidden = true;
+    $("shareArea").hidden = true;
+    $("verifyArea").hidden = true;
+  }
+}
+
+function fail(s, error) {
+  if (!s || s.closed || s.done) return;
+  setStatus("Ötürmə tamamlanmadı");
+  showError(error);
+  void closeSession(s);
+}
+
+function createSession(sender, room, secret, expires) {
+  if (session) throw new Error("Əvvəl hazırkı paylaşımı bağla.");
+
+  if (!window.isSecureContext || !crypto.subtle) {
+    throw new Error("Səhifəni GitHub saytında HTTPS ünvanı ilə aç.");
+  }
+
+  if (!window.Peer) {
+    throw new Error("PeerJS yüklənmədi. İnternet bağlantısını yoxla.");
+  }
+
+  $("error").hidden = true;
+  $("progressArea").hidden = true;
+  $("offer").hidden = true;
+  $("verifyArea").hidden = true;
+  $("downloadZip").hidden = true;
+  $("endSession").hidden = false;
+
+  if (zipURL) {
+    URL.revokeObjectURL(zipURL);
+    zipURL = null;
+  }
+
+  const s = {
+    sender, room, secret, expires,
+    closed: false,
+    done: false,
+    phase: "connecting",
+    sent: 0,
+    received: 0,
+    acked: 0,
+    total: 0,
+    parts: [],
+    stream: null,
+    abort: new AbortController(),
+    outChain: Promise.resolve(),
+    inChain: Promise.resolve(),
+    lastActivity: Date.now(),
+    started: 0
+  };
+
+  session = s;
+  setBusy(true);
+
+  s.timer = setInterval(() => {
+    if (Date.now() >= s.expires) {
+      fail(s, new Error("Müddət bitdi. Yeni paylaşım linki yarat."));
+      return;
+    }
+
+    if (["transferring", "finishing"].includes(s.phase) &&
+        Date.now() - s.lastActivity > 90000) {
+      fail(s, new Error("Bağlantı dayanıb. Göndərişi yenidən başlat."));
+    }
+
+    const minutes = Math.max(0, Math.ceil((s.expires - Date.now()) / 60000));
+    $("expiry").textContent =
+      "Qalan müddət: " + minutes + " dəqiqə. Səhifəni açıq saxla.";
+  }, 1000);
+
+  s.peer = new Peer(sender ? room : undefined, {
+    debug: 0,
+    secure: true,
+    config: {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun.cloudflare.com:3478" }
+      ]
+    }
+  });
+
+  s.peer.on("error", e => {
+    fail(s, new Error(
+      "Bağlantı xətası (" + (e.type || "şəbəkə") +
+      "). Göndərənin səhifəsi açıq olmalıdır. Başqa Wi-Fi sınayın."
+    ));
+  });
+
+  s.peer.on("disconnected", () => {
+    if (!s.conn?.open && !s.done) {
+      fail(s, new Error("Bağlantı xidməti ilə əlaqə kəsildi."));
+    }
+  });
+
+  s.peer.on("connection", conn => {
+    if (!s.sender || s.conn || s.closed) {
+      conn.close();
+      return;
+    }
+    attachConnection(s, conn);
+  });
+
+  s.connectTimer = setTimeout(() => {
+    if (!s.peer.open) {
+      fail(s, new Error("Bağlantı xidməti cavab vermir. Sonra yenidən yoxla."));
+    }
+  }, 25000);
+
+  setStatus(sender ? "Məxfi otaq hazırlanır…" : "Göndərənə qoşuluruq…");
+  return s;
+}
+
+function sendPacket(s, type, value) {
+  const task = s.outChain.then(async () => {
+    ensureLive(s);
+    const packet = await s.cipher.seal(type, value);
+
+    if (!s.conn?.open) throw new Error("Bağlantı kəsildi.");
+    s.conn.send(packet);
+  });
+
+  s.outChain = task;
+  return task;
+}
+
+function sendControl(s, value) {
+  return sendPacket(s, 0, value);
+}
+
+async function keepAwake(s) {
+  try {
+    s.wake = await navigator.wakeLock?.request("screen");
+  } catch {}
+}
+
+function updateProgress(s, bytes) {
+  const percent = s.total ? Math.min(100, bytes / s.total * 100) : 0;
+
+  $("progressArea").hidden = false;
+  $("progress").value = percent;
+  $("progressText").textContent =
+    percent.toFixed(1) + "% · " +
+    formatSize(bytes) + " / " + formatSize(s.total);
+
+  const seconds = (Date.now() - s.started) / 1000;
+  $("speedText").textContent =
+    seconds > 1 ? formatSize(bytes / seconds) + "/san" : "";
+}
+
+function attachConnection(s, conn) {
+  clearTimeout(s.connectTimer);
+  s.conn = conn;
+
+  s.connectTimer = setTimeout(() => {
+    if (!conn.open) {
+      fail(s, new Error(
+        "Cihazlar birbaşa qoşula bilmədi. Başqa Wi-Fi sınayın."
+      ));
+    }
+  }, 30000);
+
+  conn.on("error", () => {
+    fail(s, new Error("Cihazlar arasında bağlantı xətası."));
+  });
+
+  conn.on("close", () => {
+    if (!s.done) {
+      fail(s, new Error(
+        "Qarşı tərəf bağlantını bağladı. Yarımçıq göndərişi yenidən başlat."
+      ));
+    }
+  });
+
+  const ready = makeCipher(s.secret, s.room, s.sender)
+    .then(cipher => { s.cipher = cipher; });
+
+  // Rejection is also handled by the open/data handlers below.
+  ready.catch(() => {});
+
+  conn.on("data", packet => {
+    s.inChain = s.inChain.then(async () => {
+      await ready;
+      ensureLive(s);
+      const frame = await s.cipher.open(packet);
+      s.lastActivity = Date.now();
+      await handlePacket(s, frame);
+    }).catch(e => {
+      fail(s, new Error(
+        e.name === "OperationError"
+          ? "Məxfi açar uyğun deyil və ya paket dəyişdirilib."
+          : e.message
+      ));
+    });
+  });
+
+  conn.on("open", async () => {
+    try {
+      await ready;
+      ensureLive(s);
+      clearTimeout(s.connectTimer);
+      s.phase = "auth";
+
+      s.authTimer = setTimeout(() => {
+        fail(s, new Error("Məxfi bağlantının təsdiqi alınmadı."));
+      }, 20000);
+
+      if (!s.sender) await sendControl(s, { op: "hello", v: 1 });
+    } catch (e) {
+      fail(s, e);
+    }
+  });
+}
+
+async function handlePacket(s, frame) {
+  const { type, value: message } = frame;
+
+  if (type === 1) {
+    if (s.sender || s.phase !== "transferring" ||
+        s.received + message.length > s.total) {
+      throw new Error("Gözlənilməyən fayl məlumatı.");
+    }
+
+    if (s.stream) {
+      await s.stream.write(message);
+    } else {
+      if (s.received + message.length > MEMORY_LIMIT) {
+        throw new Error("Yaddaş həddi keçildi.");
+      }
+      s.parts.push(message);
+    }
+
+    s.received += message.length;
+    updateProgress(s, s.received);
+
+    if (s.received - (s.lastAck || 0) >= 128 * 1024 ||
+        s.received === s.total) {
+      s.lastAck = s.received;
+      await sendControl(s, { op: "ack", bytes: s.received });
+    }
+    return;
+  }
+
+  if (!message || typeof message.op !== "string") {
+    throw new Error("Mesaj etibarsızdır.");
+  }
+
+  if (message.op === "cancel") {
+    throw new Error("Qarşı tərəf paylaşımı dayandırdı.");
+  }
+
+  if (s.sender) {
+    if (message.op === "hello" &&
+        s.phase === "auth" && message.v === 1) {
+      clearTimeout(s.authTimer);
+      s.phase = "approval";
+
+      $("verifyCode").textContent = await verificationCode(
+        s.secret, s.room, s.conn.peer
+      );
+      $("verifyArea").hidden = false;
+      $("approve").hidden = false;
+
+      setStatus("Alıcı qoşuldu. Kodu yoxla və təsdiqlə.");
+      await sendControl(s, { op: "welcome", expires: s.expires });
+
+    } else if (message.op === "ready" && s.phase === "offered") {
+      s.phase = "transferring";
+      s.started = Date.now();
+      s.lastActivity = Date.now();
+      $("verifyArea").hidden = true;
+      setStatus("Fayllar ZIP şəklində göndərilir…");
+      void transmit(s).catch(e => fail(s, e));
+
+    } else if (message.op === "ack" &&
+               ["transferring", "finishing"].includes(s.phase)) {
+      if (!Number.isSafeInteger(message.bytes) ||
+          message.bytes < s.acked || message.bytes > s.sent) {
+        throw new Error("Qəbul təsdiqi etibarsızdır.");
+      }
+
+      s.acked = message.bytes;
+      updateProgress(s, s.acked);
+
+    } else if (message.op === "saved" &&
+               s.phase === "finishing" &&
+               message.bytes === s.total) {
+      s.done = true;
+      setStatus("Tamamlandı — alıcı ZIP-i qəbul etdi.");
+      updateProgress(s, s.total);
+      await closeSession(s);
+
+    } else {
+      throw new Error("Mesaj ardıcıllığı etibarsızdır.");
+    }
+
+  } else {
+    if (message.op === "welcome" && s.phase === "auth") {
+      if (!Number.isSafeInteger(message.expires) ||
+          message.expires <= Date.now() ||
+          message.expires > Date.now() + 86460000) {
+        throw new Error("Linkin müddəti etibarsızdır.");
+      }
+
+      s.expires = message.expires;
+      clearTimeout(s.authTimer);
+      s.phase = "approval";
+
+      $("verifyCode").textContent = await verificationCode(
+        s.secret, s.room, s.peer.id
+      );
+      $("verifyArea").hidden = false;
+      setStatus("Kodu müqayisə edin. Göndərənin təsdiqi gözlənilir.");
+
+    } else if (message.op === "offer" && s.phase === "approval") {
+      if (!Number.isSafeInteger(message.total) ||
+          message.total < 22 || message.total > 1024 ** 4 ||
+          !Number.isInteger(message.count) ||
+          message.count < 1 || message.count > 10000) {
+        throw new Error("Arxiv məlumatı etibarsızdır.");
+      }
+
+      s.total = message.total;
+      s.phase = "offered";
+
+      $("offerTitle").textContent =
+        message.count + " fayl · " + formatSize(message.total);
+
+      $("offerDetail").textContent = window.showSaveFilePicker
+        ? "ZIP üçün saxlanma yerini seç. Ən azı " +
+          formatSize(message.total) + " boş disk sahəsi lazımdır."
+        : "Bu brauzer ZIP-i yaddaşda hazırlayır. Maksimum 200 MB qəbul edilir.";
+
+      $("offer").hidden = false;
+      $("verifyArea").hidden = true;
+      $("saveZip").disabled =
+        !window.showSaveFilePicker && message.total > MEMORY_LIMIT;
+
+      if ($("saveZip").disabled) {
+        showError(new Error(
+          "Arxiv 200 MB-dan böyükdür. Linki kompüterdə Chrome / Edge ilə aç."
+        ));
+      }
+
+      setStatus("İcazə verildi. ZIP-i saxlamağa başla.");
+
+    } else if (message.op === "end" && s.phase === "transferring") {
+      if (s.received !== s.total) {
+        throw new Error("Arxiv tam alınmayıb.");
+      }
+
+      s.phase = "finishing";
+
+      if (s.stream) {
+        await s.stream.close();
+        s.stream = null;
+      } else {
+        const blob = new Blob(s.parts, { type: "application/zip" });
+        zipURL = URL.createObjectURL(blob);
+        $("downloadZip").href = zipURL;
+        $("downloadZip").download = "ikimiz-fayllar.zip";
+        $("downloadZip").hidden = false;
+        s.parts = [];
+      }
+
+      await sendControl(s, { op: "saved", bytes: s.received });
+      s.done = true;
+
+      updateProgress(s, s.total);
+      setStatus(zipURL
+        ? "ZIP hazırdır. Aşağıdakı düymə ilə yüklə."
+        : "Tamamlandı — ZIP seçdiyin yerə yazıldı."
+      );
+
+      setTimeout(() => void closeSession(s), 1500);
+
+    } else {
+      throw new Error("Mesaj ardıcıllığı etibarsızdır.");
+    }
+  }
+}
+
+async function transmit(s) {
+  await keepAwake(s);
+
+  for await (const chunk of ZipStream.zipFiles(
+    s.files, { signal: s.abort.signal }
+  )) {
+    for (let offset = 0; offset < chunk.length; offset += 16384) {
+      ensureLive(s);
+
+      while (s.sent - s.acked >= 512 * 1024 ||
+             s.conn.dataChannel?.bufferedAmount > 512 * 1024) {
+        ensureLive(s);
+        await new Promise(resolve => setTimeout(resolve, 15));
+      }
+
+      const part = chunk.subarray(offset, offset + 16384);
+      await sendPacket(s, 1, part);
+      s.sent += part.length;
+    }
+  }
+
+  if (s.sent !== s.total) {
+    throw new Error("ZIP ölçüsü gözlənilənlə uyğun gəlmədi.");
+  }
+
+  s.phase = "finishing";
+  await sendControl(s, { op: "end" });
+  setStatus("Göndərildi. Alıcının saxlaması gözlənilir…");
+}
+
+$("createRoom").onclick = () => {
+  try {
+    if (!selectedFiles.length) return;
+
+    if (!window.isSecureContext || !crypto.subtle) {
+      throw new Error("Səhifəni HTTPS üzərindən aç.");
+    }
+
+    const total = ZipStream.estimateZipSize(selectedFiles);
+    if (total > 1024 ** 4) {
+      throw new Error("Bir göndəriş üçün maksimum hədd 1 TB-dır.");
+    }
+
+    const room = "ikimiz-" + randomId();
+    const secret = randomId(32);
+    const expires = Date.now() + Number($("duration").value);
+
+    const s = createSession(true, room, secret, expires);
+    s.files = selectedFiles.slice();
+    s.total = total;
+
+    s.peer.on("open", () => {
+      if (s.closed) return;
+      clearTimeout(s.connectTimer);
+      s.phase = "waiting";
+
+      const url = new URL(location.href);
+      url.hash = new URLSearchParams({ room, key: secret }).toString();
+
+      $("shareLink").value = url.href;
+      $("shareArea").hidden = false;
+      setStatus("Link hazırdır. Alıcının qoşulması gözlənilir.");
+    });
+
+  } catch (e) {
+    if (session) fail(session, e);
+    else showError(e);
+  }
+};
+
+$("copyLink").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText($("shareLink").value);
+    $("copyLink").textContent = "Kopyalandı";
+    setTimeout(() => $("copyLink").textContent = "Kopyala", 2000);
+  } catch {
+    $("shareLink").select();
+    showError(new Error("Linki seçib əl ilə kopyala."));
+  }
+};
+
+function parseLink(text) {
+  const url = new URL(text.trim(), location.href);
+  const params = new URLSearchParams(url.hash.slice(1));
+  const room = params.get("room");
+  const secret = params.get("key");
+
+  if (!/^ikimiz-[A-Za-z0-9_-]{22}$/.test(room || "") ||
+      !/^[A-Za-z0-9_-]{43}$/.test(secret || "")) {
+    throw new Error("Linki tam yapışdır. # hissəsi də daxil olmalıdır.");
+  }
+
+  return { room, secret };
+}
+
+$("joinRoom").onclick = () => {
+  try {
+    const { room, secret } = parseLink($("joinLink").value);
+    const s = createSession(false, room, secret, Date.now() + 86400000);
+
+    s.peer.on("open", () => {
+      if (s.closed) return;
+
+      const conn = s.peer.connect(room, {
+        reliable: true,
+        serialization: "raw"
+      });
+
+      attachConnection(s, conn);
+    });
+
+  } catch (e) {
+    showError(e);
+  }
+};
+
+$("approve").onclick = async () => {
+  const s = session;
+  if (!s || !s.sender || s.phase !== "approval") return;
+
+  try {
+    $("approve").hidden = true;
+    s.phase = "offered";
+
+    await sendControl(s, {
+      op: "offer",
+      count: s.files.length,
+      total: s.total
+    });
+
+    setStatus("İcazə verildi. Alıcının ZIP-i qəbul etməsi gözlənilir.");
+  } catch (e) {
+    fail(s, e);
+  }
+};
+
+$("saveZip").onclick = async () => {
+  const s = session;
+  if (!s || s.sender || s.phase !== "offered") return;
+
+  $("saveZip").disabled = true;
+
+  try {
+    if (window.showSaveFilePicker) {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: "ikimiz-fayllar.zip",
+        types: [{
+          description: "ZIP arxiv",
+          accept: { "application/zip": [".zip"] }
+        }]
+      });
+
+      ensureLive(s);
+      const writer = await handle.createWritable();
+
+      if (s.closed || session !== s) {
+        try { await writer.abort(); } catch {}
+        return;
+      }
+
+      s.stream = writer;
+      ensureLive(s);
+
+    } else if (s.total > MEMORY_LIMIT) {
+      throw new Error("Böyük arxiv üçün kompüterdə Chrome / Edge istifadə et.");
+    }
+
+    s.phase = "transferring";
+    s.started = Date.now();
+    s.lastActivity = Date.now();
+
+    await keepAwake(s);
+    await sendControl(s, { op: "ready" });
+
+    setStatus("ZIP qəbul edilir…");
+    updateProgress(s, 0);
+
+  } catch (e) {
+    if (e.name === "AbortError" && !s.closed) {
+      $("saveZip").disabled = false;
+      return;
+    }
+    fail(s, e);
+  }
+};
+
+$("endSession").onclick = async () => {
+  const s = session;
+  if (!s) return;
+
+  try {
+    if (s.cipher && s.conn?.open) {
+      await sendControl(s, { op: "cancel" });
+    }
+  } catch {}
+
+  setStatus("Paylaşım bağlandı. Yeni link yarada bilərsən.");
+  await closeSession(s);
+};
+
+window.addEventListener("beforeunload", event => {
+  if (session && !session.done) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+
+window.addEventListener("pagehide", () => {
+  if (session) void closeSession(session);
+});
+
+if (location.hash) {
+  try {
+    parseLink(location.href);
+    $("joinLink").value = location.href;
+    history.replaceState(null, "", location.pathname + location.search);
+    showTab("Receive");
+  } catch (e) {
+    showError(e);
+  }
+}
+
+/* =========================================================
+   ŞƏKİL VƏ VİDEO FORMATININ LOKAL DƏYİŞDİRİLMƏSİ
+   ========================================================= */
+
+(() => {
+  const IMAGE_TYPES = {
+    jpg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp"
+  };
+
+  const VIDEO_TYPES = {
+    webm: [
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm"
+    ],
+    mp4: [
+      "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+      "video/mp4"
+    ]
+  };
+
+  let controller = null;
+  let outputURL = null;
+
+  function abortError() {
+    return new DOMException("Dayandırıldı.", "AbortError");
+  }
+
+  function check(signal) {
+    if (signal.aborted) throw abortError();
+  }
+
+  function newName(name, ext) {
+    return (
+      name.replace(/[\\/\x00-\x1f]/g, "_").replace(/\.[^.]+$/, "") ||
+      "fayl"
+    ) + "." + ext;
+  }
+
+  function waitFor(element, event, signal) {
+    return new Promise((resolve, reject) => {
+      let timer;
+
+      const cleanup = () => {
+        clearTimeout(timer);
+        element.removeEventListener(event, done);
+        element.removeEventListener("error", fail);
+        signal.removeEventListener("abort", cancel);
+      };
+
+      const finish = error => {
+        cleanup();
+        error ? reject(error) : resolve();
+      };
+
+      const done = () => finish();
+      const fail = () => finish(new Error("Brauzer bu faylı aça bilmir."));
+      const cancel = () => finish(abortError());
+
+      if (signal.aborted) return cancel();
+
+      element.addEventListener(event, done, { once: true });
+      element.addEventListener("error", fail, { once: true });
+      signal.addEventListener("abort", cancel, { once: true });
+
+      timer = setTimeout(() => {
+        finish(new Error("Faylın açılması çox vaxt çəkdi."));
+      }, 30000);
+    });
+  }
+
+  async function convertImage(file, ext, signal) {
+    check(signal);
+
+    const mime = IMAGE_TYPES[ext];
+    if (!mime) throw new Error("JPG, PNG və ya WebP seç.");
+    if (file.size > 60 * MiB) {
+      throw new Error("Şəkil üçün maksimum ölçü 60 MB-dır.");
+    }
+
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    let canvas;
+
+    try {
+      const loaded = waitFor(image, "load", signal);
+      image.src = url;
+      await loaded;
+      check(signal);
+
+      if (image.naturalWidth * image.naturalHeight > 32000000) {
+        throw new Error("Şəkil 32 meqapikseldən böyükdür.");
+      }
+
+      canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Şəkil çevirmə açılmadı.");
+
+      if (ext === "jpg") {
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      context.drawImage(image, 0, 0);
+
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(value => {
+          value ? resolve(value) : reject(new Error("Şəkil çevrilmədi."));
+        }, mime, 0.92);
+      });
+
+      check(signal);
+
+      if (blob.type !== mime) {
+        throw new Error("Seçilən çıxış formatı dəstəklənmir.");
+      }
+      if (blob.size > MEMORY_LIMIT) {
+        throw new Error("Çevrilmiş fayl 200 MB həddini keçir.");
+      }
+
+      return new File([blob], newName(file.name, ext), { type: mime });
+
+    } finally {
+      image.src = "";
+      URL.revokeObjectURL(url);
+      if (canvas) canvas.width = canvas.height = 0;
+    }
+  }
+
+  async function convertVideo(file, ext, signal) {
+    check(signal);
+
+    if (file.size > MEMORY_LIMIT) {
+      throw new Error("Video çevirmə üçün maksimum giriş ölçüsü 200 MB-dır.");
+    }
+
+    if (!window.MediaRecorder || !VIDEO_TYPES[ext]) {
+      throw new Error("Video çevirmə dəstəklənmir.");
+    }
+
+    const mime = VIDEO_TYPES[ext].find(
+      type => MediaRecorder.isTypeSupported(type)
+    );
+
+    if (!mime) {
+      throw new Error(ext.toUpperCase() + " çıxışı bu brauzerdə dəstəklənmir.");
+    }
+
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.style.cssText =
+      "display:block;width:100%;max-height:240px;" +
+      "background:#101722;border-radius:12px;margin-top:15px";
+
+    $("convertPreview").replaceChildren(video);
+
+    const url = URL.createObjectURL(file);
+    const chunks = [];
+
+    let stream, recorder, interval, timeout;
+
+    try {
+      const loaded = waitFor(video, "loadeddata", signal);
+      video.src = url;
+      await loaded;
+      check(signal);
+
+      if (!Number.isFinite(video.duration) ||
+          video.duration <= 0 || video.duration > 600) {
+        throw new Error(
+          "Müddəti müəyyən edilən, maksimum 10 dəqiqəlik videolar çevrilir."
+        );
+      }
+
+      if (video.videoWidth * video.videoHeight > 3840 * 2160) {
+        throw new Error("Video ölçüsü 4K həddini keçir.");
+      }
+
+      const capture = video.captureStream || video.mozCaptureStream;
+      if (!capture) {
+        throw new Error("Video çevirmək üçün kompüterdə Chrome / Edge yoxla.");
+      }
+
+      stream = capture.call(video);
+
+      if (!stream.getVideoTracks().length) {
+        throw new Error("Videonun görüntüsü çevirmə üçün açıla bilmədi.");
+      }
+
+      const sourceHasAudio =
+        video.mozHasAudio === true ||
+        video.audioTracks?.length > 0 ||
+        video.webkitAudioDecodedByteCount > 0;
+
+      if (sourceHasAudio && !stream.getAudioTracks().length) {
+        throw new Error("Video səsi açıla bilmədi. Səssiz nüsxə yaradılmadı.");
+      }
+
+      recorder = new MediaRecorder(stream, {
+        mimeType: mime,
+        videoBitsPerSecond: 5000000,
+        audioBitsPerSecond: 128000
+      });
+
+      await new Promise((resolve, reject) => {
+        let settled = false;
+        let failure = null;
+        let total = 0;
+
+        const cleanup = () => {
+          signal.removeEventListener("abort", cancel);
+          video.removeEventListener("ended", ended);
+          video.removeEventListener("error", playbackError);
+        };
+
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          failure ? reject(failure) : resolve();
+        };
+
+        const stop = error => {
+          if (settled) return;
+          if (error && !failure) failure = error;
+          video.pause();
+
+          if (recorder.state !== "inactive") recorder.stop();
+          else finish();
+        };
+
+        const cancel = () => stop(abortError());
+        const ended = () => stop();
+        const playbackError = () => {
+          stop(new Error("Videonun oxunması dayandı."));
+        };
+
+        recorder.ondataavailable = event => {
+          if (!event.data.size) return;
+
+          total += event.data.size;
+
+          if (total > MEMORY_LIMIT) {
+            stop(new Error("Çevrilmiş video 200 MB həddini keçdi."));
+            return;
+          }
+
+          chunks.push(event.data);
+        };
+
+        recorder.onerror = () => {
+          stop(new Error("Video kodlaşdırıcısı xəta verdi."));
+        };
+        recorder.onstop = finish;
+
+        signal.addEventListener("abort", cancel, { once: true });
+        video.addEventListener("ended", ended, { once: true });
+        video.addEventListener("error", playbackError, { once: true });
+
+        interval = setInterval(() => {
+          const ratio = Math.min(1, video.currentTime / video.duration);
+          $("convertProgress").value = ratio;
+          $("convertStatus").textContent =
+            "Çevrilir: " + Math.round(ratio * 100) + "%";
+        }, 300);
+
+        timeout = setTimeout(() => {
+          stop(new Error(
+            "Vaxt bitdi. Səhifəni ön planda saxlayıb yenidən cəhd et."
+          ));
+        }, (video.duration * 2 + 30) * 1000);
+
+        try {
+          recorder.start(1000);
+          video.play().catch(() => {
+            stop(new Error("Video oxudulmadı. Yenidən cəhd et."));
+          });
+        } catch (e) {
+          stop(e);
+        }
+      });
+
+      check(signal);
+
+      const outputType = recorder.mimeType.split(";")[0].toLowerCase();
+      const expected = ext === "mp4" ? "video/mp4" : "video/webm";
+
+      if (outputType !== expected) {
+        throw new Error("Brauzer seçilmiş çıxış formatını yaratmadı.");
+      }
+
+      const blob = new Blob(chunks, { type: outputType });
+      if (!blob.size) throw new Error("Çıxış videosu boşdur.");
+
+      return new File([blob], newName(file.name, ext), {
+        type: outputType
+      });
+
+    } finally {
+      clearInterval(interval);
+      clearTimeout(timeout);
+
+      if (recorder && recorder.state !== "inactive") {
+        try { recorder.stop(); } catch {}
+      }
+
+      stream?.getTracks().forEach(track => track.stop());
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+      URL.revokeObjectURL(url);
+      $("convertPreview").replaceChildren();
+    }
+  }
+
+  function updateFormats() {
+    const image = $("convertKind").value === "image";
+    const formats = image ? ["jpg", "png", "webp"] : ["webm", "mp4"];
+
+    $("convertFormat").replaceChildren();
+
+    for (const format of formats) {
+      const option = document.createElement("option");
+      option.value = format;
+      option.textContent = format.toUpperCase();
+
+      if (!image) {
+        option.disabled = !window.MediaRecorder ||
+          !VIDEO_TYPES[format].some(
+            type => MediaRecorder.isTypeSupported(type)
+          );
+      }
+
+      $("convertFormat").append(option);
+    }
+
+    const enabled = Array.from($("convertFormat").options)
+      .find(option => !option.disabled);
+
+    if (enabled) $("convertFormat").value = enabled.value;
+
+    $("convertFile").accept = image ? "image/*" : "video/*";
+    $("convertFile").value = "";
+    $("convertProgress").value = 0;
+    $("convertStatus").textContent = "";
+    $("convertDownload").hidden = true;
+
+    if (outputURL) {
+      URL.revokeObjectURL(outputURL);
+      outputURL = null;
+    }
+
+    $("convertHint").textContent = image
+      ? "Şəkil: maksimum 60 MB / 32 MP. EXIF məlumatları saxlanmır. " +
+        "Animasiyanın ilk kadrı qalır. JPG-də şəffaf fon ağ olur. " +
+        "HEIC/RAW dəstəyi brauzerdən asılıdır."
+      : "Video: maksimum 200 MB / 10 dəqiqə / 4K. " +
+        "Çevirmə videonun müddəti qədər çəkə bilər və keyfiyyət dəyişə bilər. " +
+        "Səhifəni ön planda saxla. MP4/WebM dəstəyi brauzerdən asılıdır.";
+  }
+
+  $("convertKind").onchange = updateFormats;
+  $("convertCancel").onclick = () => controller?.abort();
+
+  $("convertStart").onclick = async () => {
+    const file = $("convertFile").files[0];
+
+    if (!file) {
+      $("convertStatus").textContent = "Əvvəl fayl seç.";
+      return;
+    }
+
+    const image = $("convertKind").value === "image";
+    const ext = $("convertFormat").value;
+
+    controller = new AbortController();
+    $("convertDownload").hidden = true;
+    $("convertProgress").value = 0;
+    $("convertStatus").textContent = "Çevrilir…";
+    $("convertCancel").hidden = false;
+
+    for (const id of [
+      "convertStart", "convertKind", "convertFormat", "convertFile"
+    ]) {
+      $(id).disabled = true;
+    }
+
+    if (outputURL) {
+      URL.revokeObjectURL(outputURL);
+      outputURL = null;
+    }
+
+    try {
+      const output = image
+        ? await convertImage(file, ext, controller.signal)
+        : await convertVideo(file, ext, controller.signal);
+
+      outputURL = URL.createObjectURL(output);
+      $("convertDownload").href = outputURL;
+      $("convertDownload").download = output.name;
+      $("convertDownload").textContent = output.name + " — yüklə";
+      $("convertDownload").hidden = false;
+      $("convertProgress").value = 1;
+      $("convertStatus").textContent =
+        "Hazırdır · " + formatSize(output.size);
+
+    } catch (e) {
+      $("convertStatus").textContent =
+        e.name === "AbortError" ? "Çevirmə dayandırıldı." : e.message;
+
+    } finally {
+      controller = null;
+      $("convertCancel").hidden = true;
+
+      for (const id of [
+        "convertStart", "convertKind", "convertFormat", "convertFile"
+      ]) {
+        $(id).disabled = false;
+      }
+    }
+  };
+
+  updateFormats();
+})();
+</script>
+</body>
+</html>
