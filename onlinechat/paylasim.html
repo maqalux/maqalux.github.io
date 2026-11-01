@@ -1,48 +1,1865 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>İkimiz — Mobil paylaşım</title>
+
+<style>
+:root{
+  --g:#285a47;
+  --bg:#f3f5ee;
+  --line:#d9e2d4;
+  --text:#20362d
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:15px/1.6 system-ui,sans-serif
+}
+main{
+  width:min(780px,calc(100% - 24px));
+  margin:24px auto 50px
+}
+header{text-align:center;padding:10px 0 22px}
+h1{font-size:36px;line-height:1.15;margin:15px 0}
+h2{font-size:21px;margin:0 0 10px}
+h3{font-size:17px}
+.logo{
+  display:inline-block;
+  background:var(--g);
+  color:white;
+  padding:6px 15px;
+  border-radius:12px;
+  font-weight:800;
+  font-size:22px
+}
+.card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden
+}
+nav{
+  display:flex;
+  gap:5px;
+  padding:7px;
+  background:#e8eee1
+}
+button,input,select{font:inherit}
+button,.download{
+  padding:12px 16px;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:var(--g);
+  color:white;
+  font-size:13px;
+  font-weight:650;
+  cursor:pointer
+}
+button:disabled{opacity:.45;cursor:not-allowed}
+.tab{flex:1;background:transparent;color:#526653}
+.tab.active{background:white;color:var(--g)}
+.panel,.session{padding:22px}
+.session{border-top:1px solid var(--line)}
+.muted{font-size:13px;color:#657568}
+.secondary{
+  background:white;
+  color:var(--g);
+  border-color:var(--line)
+}
+.danger{background:transparent;color:#a7352c}
+.wide{width:100%}
+.drop{
+  margin:18px 0;
+  padding:24px 12px;
+  text-align:center;
+  background:#f7f9f1;
+  border:2px dashed #c5d4bb;
+  border-radius:12px
+}
+.drop.drag{background:#e3efcf}
+.actions,.row{display:flex;gap:8px;flex-wrap:wrap}
+.actions{margin-top:14px}
+.center{justify-content:center}
+.row input{flex:1;min-width:150px}
+input,select{
+  width:100%;
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:white;
+  color:var(--text)
+}
+label{
+  display:block;
+  font-size:13px;
+  font-weight:650;
+  margin:12px 0 6px
+}
+.settings{
+  display:flex;
+  gap:18px;
+  align-items:center;
+  margin:18px 0
+}
+.settings>*{flex:1}
+.notice{
+  padding:16px;
+  margin-top:17px;
+  background:#eef4e6;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-size:13px
+}
+.notice p{margin:8px 0}
+.file-summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px
+}
+#fileList{
+  padding:0;
+  list-style:none;
+  max-height:140px;
+  overflow:auto;
+  font-size:12px
+}
+#fileList li{
+  padding:5px 0;
+  overflow-wrap:anywhere;
+  border-bottom:1px solid var(--line)
+}
+.code{
+  font:32px monospace;
+  letter-spacing:8px;
+  margin:15px 0
+}
+progress{
+  width:100%;
+  height:12px;
+  accent-color:var(--g);
+  margin-top:18px
+}
+.progress-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:12px
+}
+.download{
+  display:inline-block;
+  text-decoration:none;
+  margin-top:12px
+}
+.error{
+  padding:18px;
+  background:#ffede5;
+  color:#922f26;
+  font-size:13px;
+  overflow-wrap:anywhere
+}
+details{
+  margin-top:22px;
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  font-size:13px
+}
+summary{cursor:pointer;font-weight:700}
+[hidden]{display:none!important}
+:focus-visible{
+  outline:3px solid #93b570;
+  outline-offset:2px
+}
+@media(max-width:520px){
+  .panel,.session{padding:17px}
+  .settings{display:block}
+  .tab{font-size:12px;padding:12px 6px}
+  .row input{flex-basis:100%}
+  h1{font-size:31px}
+}
+</style>
+</head>
+
+<body>
+<main>
+
+<header>
+  <span class="logo">ikimiz.</span>
+  <h1>Faylların bir yerdə.<br>Paylaşım iki nəfər üçün.</h1>
+  <p class="muted">
+    Şəkil və videoları seç, qarşı tərəf ZIP kimi saxlasın.
+  </p>
+</header>
+
+<section class="card">
+
+<nav>
+  <button id="tabSend" class="tab active">Göndər</button>
+  <button id="tabReceive" class="tab">Qəbul et</button>
+  <button id="tabConvert" class="tab">Formatı dəyiş</button>
+</nav>
+
+<section id="sendPanel" class="panel">
+  <h2>Faylları birlikdə seç</h2>
+
+  <div id="dropzone" class="drop">
+    <h3>Şəkillər, videolar və digər fayllar</h3>
+    <p class="muted">
+      Sürükləyib buraxa və ya aşağıdan seçə bilərsən.
+    </p>
+    <div class="actions center">
+      <button id="pickFiles">Faylları seç</button>
+      <button id="pickFolder" class="secondary">Qovluğu seç</button>
+    </div>
+    <input id="files" type="file" multiple hidden>
+    <input id="folder" type="file" webkitdirectory multiple hidden>
+  </div>
+
+  <div id="selection" hidden>
+    <div class="file-summary">
+      <strong id="selectionText"></strong>
+      <button id="clearFiles" class="secondary">Təmizlə</button>
+    </div>
+    <ul id="fileList"></ul>
+  </div>
+
+  <div class="settings">
+    <div>
+      <label for="duration">Sessiyanın müddəti</label>
+      <select id="duration">
+        <option value="3600000">1 saat</option>
+        <option value="86400000">24 saat</option>
+      </select>
+    </div>
+    <p class="muted">
+      Ötürmə bitənədək hər iki telefonda səhifəni açıq saxlayın.
+    </p>
+  </div>
+
+  <button id="createRoom" class="wide" disabled>
+    Məxfi link yarat
+  </button>
+
+  <div id="shareArea" class="notice" hidden>
+    <label for="shareLink">Yalnız alıcıya göndər</label>
+    <div class="row">
+      <input id="shareLink" readonly>
+      <button id="copyLink" class="secondary">Kopyala</button>
+    </div>
+    <p id="expiry" class="muted"></p>
+  </div>
+</section>
+
+<section id="receivePanel" class="panel" hidden>
+  <h2>Faylları qəbul et</h2>
+
+  <label for="joinLink">Məxfi link</label>
+  <div class="row">
+    <input
+      id="joinLink"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Tam paylaşım linki">
+    <button id="joinRoom">Qoşul</button>
+  </div>
+
+  <div id="offer" class="notice" hidden>
+    <h3 id="offerTitle"></h3>
+    <p id="offerDetail"></p>
+    <button id="saveZip">ZIP-i qəbul et və saxla</button>
+  </div>
+
+  <div class="notice">
+    <strong>Mobil ZIP qəbulu</strong>
+    <p>Qəbul bitdikdən sonra ZIP-i yükləyə bilərsən.</p>
+  </div>
+</section>
+
+<section id="convertPanel" class="panel" hidden>
+  <h2>Formatı cihazında dəyiş</h2>
+  <p class="muted">
+    ZIP-i açdıqdan sonra istədiyin faylı seç. Orijinal fayl dəyişmir.
+  </p>
+
+  <div class="settings">
+    <div>
+      <label for="convertKind">Fayl növü</label>
+      <select id="convertKind">
+        <option value="image">Şəkil</option>
+        <option value="video">Video</option>
+      </select>
+    </div>
+    <div>
+      <label for="convertFormat">Yeni format</label>
+      <select id="convertFormat"></select>
+    </div>
+  </div>
+
+  <label for="convertFile">Çevriləcək fayl</label>
+  <input id="convertFile" type="file" accept="image/*">
+
+  <div class="actions">
+    <button id="convertStart">Çevirməyə başla</button>
+    <button id="convertCancel" class="secondary" hidden>
+      Dayandır
+    </button>
+  </div>
+
+  <p id="convertHint" class="muted"></p>
+  <p id="convertStatus" role="status"></p>
+  <progress id="convertProgress" max="1" value="0"></progress>
+  <div id="convertPreview"></div>
+  <a id="convertDownload" class="download" hidden>Faylı yüklə</a>
+</section>
+
+<section id="sessionArea" class="session" hidden>
+  <strong id="status" role="status" aria-live="polite"></strong>
+
+  <div id="verifyArea" class="notice" hidden>
+    <p>
+      Kodu qarşı tərəflə ayrıca şəxsi əlaqə vasitəsilə müqayisə edin.
+    </p>
+    <div id="verifyCode" class="code"></div>
+    <button id="approve" hidden>Kod eynidir — icazə ver</button>
+  </div>
+
+  <div id="progressArea" hidden>
+    <progress id="progress" max="100" value="0"></progress>
+    <div class="progress-meta">
+      <span id="progressText"></span>
+      <span id="speedText"></span>
+    </div>
+  </div>
+
+  <a id="downloadZip" class="download" hidden>ZIP-i yüklə</a>
+
+  <div>
+    <button id="endSession" class="danger">Paylaşımı bağla</button>
+  </div>
+</section>
+
+<div id="error" class="error" role="alert" hidden></div>
+
+</section>
+
+<details>
+  <summary>Məxfilik və məhdudiyyətlər</summary>
+  <p>
+    Link məxfi açarı daşıyır. Yalnız nəzərdə tutduğun alıcıya göndər
+    və giriş kodunu ayrıca müqayisə et. Şifrələmə fayl məzmununu
+    qoruyur; bağlantı xidmətləri IP və texniki məlumatları görə bilər.
+  </p>
+  <p>
+    Fayllar tətbiq tərəfindən buludda saxlanmır. İnternet trafiki
+    sərf olunur. ZIP orijinal faylları, onların metadatası daxil
+    olmaqla paketləyir; şəkil və videoların həcmini nəzərəçarpacaq
+    azaltmır.
+  </p>
+  <p>
+    Telefon brauzeri dayandıranda, səhifə yenilənəndə və ya müddət
+    bitəndə ötürmə kəsilə bilər. Yüklənmiş ZIP şifrəsizdir və
+    alıcının cihazından uzaqdan silinmir.
+  </p>
+</details>
+
+<p class="muted" style="text-align:center">
+  Mobil paylaşım · Tam HTML v3
+</p>
+
+</main>
+
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+
 <script>
+/* =========================================================
+   ZIP GENERATORU — AXIN, CRC32, UTF-8 VƏ ZIP64
+   ========================================================= */
+
+const ZipStream = (() => {
+  const MAX32 = 0xffffffffn;
+  const MAX16 = 65535;
+  const CHUNK = 65536;
+  const enc = new TextEncoder();
+  const table = new Uint32Array(256);
+
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) {
+      c = (c & 1)
+        ? 0xedb88320 ^ (c >>> 1)
+        : c >>> 1;
+    }
+    table[n] = c >>> 0;
+  }
+
+  function crcUpdate(crc, data) {
+    for (let i = 0; i < data.length; i++) {
+      crc = table[(crc ^ data[i]) & 255] ^ (crc >>> 8);
+    }
+    return crc >>> 0;
+  }
+
+  function check(signal) {
+    if (signal?.aborted) {
+      throw new DOMException("Dayandırıldı.", "AbortError");
+    }
+  }
+
+  function safe(s) {
+    s = s.normalize("NFC")
+      .replace(/[\x00-\x1f\x7f<>:"|?*]/g, "_")
+      .replace(/[ .]+$/g, "");
+
+    if (!s || s === "." || s === "..") s = "_";
+
+    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(s)) {
+      s = "_" + s;
+    }
+
+    return s;
+  }
+
+  function suffix(s, n) {
+    const p = s.lastIndexOf(".");
+    return p > 0
+      ? s.slice(0, p) + " (" + n + ")" + s.slice(p)
+      : s + " (" + n + ")";
+  }
+
+  function prepare(files) {
+    const used = new Set();
+    const dirs = new Map();
+
+    return Array.from(files, file => {
+      if (
+        !file ||
+        !Number.isSafeInteger(file.size) ||
+        file.size < 0
+      ) {
+        throw new Error("Fayl ölçüsü etibarsızdır.");
+      }
+
+      const parts = String(
+        file.webkitRelativePath || file.name || "fayl"
+      )
+        .replace(/\\/g, "/")
+        .split("/")
+        .filter(p => p && p !== "." && p !== "..")
+        .map(safe);
+
+      if (!parts.length) parts.push("fayl");
+
+      let path = "";
+      let original = "";
+
+      for (let i = 0; i < parts.length - 1; i++) {
+        original += "/" + parts[i];
+        const key = original.toLowerCase();
+
+        if (dirs.has(key)) {
+          path = dirs.get(key);
+          continue;
+        }
+
+        let candidate = path + parts[i];
+        let n = 2;
+
+        while (used.has(candidate.toLowerCase())) {
+          candidate = path + suffix(parts[i], n++);
+        }
+
+        used.add(candidate.toLowerCase());
+        path = candidate + "/";
+        dirs.set(key, path);
+      }
+
+      const leaf = parts[parts.length - 1];
+      let name = path + leaf;
+      let n = 2;
+
+      while (used.has(name.toLowerCase())) {
+        name = path + suffix(leaf, n++);
+      }
+
+      used.add(name.toLowerCase());
+
+      const encoded = enc.encode(name);
+
+      if (encoded.length > MAX16) {
+        throw new Error("Fayl yolu həddən uzundur.");
+      }
+
+      const size = BigInt(file.size);
+
+      return {
+        file,
+        encoded,
+        size,
+        large: size >= MAX32
+      };
+    });
+  }
+
+  function buf(n) {
+    const bytes = new Uint8Array(n);
+    return {
+      bytes,
+      v: new DataView(bytes.buffer)
+    };
+  }
+
+  function stamp(file) {
+    const t = new Date(
+      Number.isFinite(file.lastModified)
+        ? file.lastModified
+        : Date.now()
+    );
+
+    const year = Math.max(
+      1980,
+      Math.min(2107, t.getFullYear())
+    );
+
+    return [
+      (t.getHours() << 11) |
+        (t.getMinutes() << 5) |
+        (t.getSeconds() >> 1),
+
+      ((year - 1980) << 9) |
+        ((t.getMonth() + 1) << 5) |
+        t.getDate()
+    ];
+  }
+
+  function local(e) {
+    const extra = e.large ? 20 : 0;
+    const { bytes, v } = buf(
+      30 + e.encoded.length + extra
+    );
+
+    v.setUint32(0, 0x04034b50, true);
+    v.setUint16(4, e.large ? 45 : 20, true);
+    v.setUint16(6, 0x0808, true);
+
+    [e.time, e.date] = stamp(e.file);
+
+    v.setUint16(10, e.time, true);
+    v.setUint16(12, e.date, true);
+    v.setUint32(18, e.large ? 0xffffffff : 0, true);
+    v.setUint32(22, e.large ? 0xffffffff : 0, true);
+    v.setUint16(26, e.encoded.length, true);
+    v.setUint16(28, extra, true);
+
+    bytes.set(e.encoded, 30);
+
+    if (e.large) {
+      const p = 30 + e.encoded.length;
+      v.setUint16(p, 1, true);
+      v.setUint16(p + 2, 16, true);
+      v.setBigUint64(p + 4, e.size, true);
+      v.setBigUint64(p + 12, e.size, true);
+    }
+
+    return bytes;
+  }
+
+  function descriptor(e) {
+    const { bytes, v } = buf(e.large ? 24 : 16);
+
+    v.setUint32(0, 0x08074b50, true);
+    v.setUint32(4, e.crc, true);
+
+    if (e.large) {
+      v.setBigUint64(8, e.size, true);
+      v.setBigUint64(16, e.size, true);
+    } else {
+      v.setUint32(8, Number(e.size), true);
+      v.setUint32(12, Number(e.size), true);
+    }
+
+    return bytes;
+  }
+
+  function extraSize(e) {
+    const n =
+      (e.large ? 16 : 0) +
+      (e.offset >= MAX32 ? 8 : 0);
+
+    return n ? 4 + n : 0;
+  }
+
+  function central(e) {
+    const extra = extraSize(e);
+    const { bytes, v } = buf(
+      46 + e.encoded.length + extra
+    );
+
+    v.setUint32(0, 0x02014b50, true);
+    v.setUint16(4, 0x032d, true);
+    v.setUint16(6, extra ? 45 : 20, true);
+    v.setUint16(8, 0x0808, true);
+    v.setUint16(12, e.time, true);
+    v.setUint16(14, e.date, true);
+    v.setUint32(16, e.crc, true);
+
+    v.setUint32(
+      20,
+      e.large ? 0xffffffff : Number(e.size),
+      true
+    );
+
+    v.setUint32(
+      24,
+      e.large ? 0xffffffff : Number(e.size),
+      true
+    );
+
+    v.setUint16(28, e.encoded.length, true);
+    v.setUint16(30, extra, true);
+    v.setUint32(38, 0x81a40000, true);
+
+    v.setUint32(
+      42,
+      e.offset >= MAX32
+        ? 0xffffffff
+        : Number(e.offset),
+      true
+    );
+
+    bytes.set(e.encoded, 46);
+
+    if (extra) {
+      let p = 46 + e.encoded.length;
+
+      v.setUint16(p, 1, true);
+      v.setUint16(p + 2, extra - 4, true);
+      p += 4;
+
+      if (e.large) {
+        v.setBigUint64(p, e.size, true);
+        v.setBigUint64(p + 8, e.size, true);
+        p += 16;
+      }
+
+      if (e.offset >= MAX32) {
+        v.setBigUint64(p, e.offset, true);
+      }
+    }
+
+    return bytes;
+  }
+
+  function needs64(entries, offset, size) {
+    return (
+      entries.length >= MAX16 ||
+      offset >= MAX32 ||
+      size >= MAX32 ||
+      entries.some(e => e.large)
+    );
+  }
+
+  function end(entries, offset, size) {
+    const zip64 = needs64(entries, offset, size);
+    const { bytes, v } = buf(zip64 ? 98 : 22);
+
+    let p = 0;
+
+    if (zip64) {
+      v.setUint32(0, 0x06064b50, true);
+      v.setBigUint64(4, 44n, true);
+      v.setUint16(12, 45, true);
+      v.setUint16(14, 45, true);
+      v.setBigUint64(24, BigInt(entries.length), true);
+      v.setBigUint64(32, BigInt(entries.length), true);
+      v.setBigUint64(40, size, true);
+      v.setBigUint64(48, offset, true);
+      v.setUint32(56, 0x07064b50, true);
+      v.setBigUint64(64, offset + size, true);
+      v.setUint32(72, 1, true);
+      p = 76;
+    }
+
+    v.setUint32(p, 0x06054b50, true);
+    v.setUint16(p + 8, Math.min(entries.length, MAX16), true);
+    v.setUint16(p + 10, Math.min(entries.length, MAX16), true);
+
+    v.setUint32(
+      p + 12,
+      Number(size >= MAX32 ? MAX32 : size),
+      true
+    );
+
+    v.setUint32(
+      p + 16,
+      Number(offset >= MAX32 ? MAX32 : offset),
+      true
+    );
+
+    return bytes;
+  }
+
+  function* split(bytes) {
+    for (let p = 0; p < bytes.length; p += CHUNK) {
+      yield bytes.subarray(p, p + CHUNK);
+    }
+  }
+
+  function estimateZipSize(files) {
+    const entries = prepare(files);
+    let offset = 0n;
+
+    for (const e of entries) {
+      e.offset = offset;
+
+      offset +=
+        BigInt(
+          30 + e.encoded.length + (e.large ? 20 : 0)
+        ) +
+        e.size +
+        BigInt(e.large ? 24 : 16);
+    }
+
+    let size = 0n;
+
+    for (const e of entries) {
+      size += BigInt(
+        46 + e.encoded.length + extraSize(e)
+      );
+    }
+
+    const total =
+      offset +
+      size +
+      BigInt(
+        needs64(entries, offset, size) ? 98 : 22
+      );
+
+    if (total > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw new Error("ZIP həddən böyükdür.");
+    }
+
+    return Number(total);
+  }
+
+  async function* zipFiles(files, { signal } = {}) {
+    const entries = prepare(files);
+    let offset = 0n;
+
+    for (const e of entries) {
+      check(signal);
+
+      e.offset = offset;
+
+      const header = local(e);
+      yield* split(header);
+      offset += BigInt(header.length);
+
+      const reader = e.file.stream().getReader();
+
+      let crc = 0xffffffff;
+      let read = 0n;
+      let complete = false;
+
+      try {
+        while (true) {
+          check(signal);
+
+          const { value, done } = await reader.read();
+
+          check(signal);
+
+          if (done) {
+            complete = true;
+            break;
+          }
+
+          const bytes = value instanceof Uint8Array
+            ? value
+            : new Uint8Array(value);
+
+          read += BigInt(bytes.length);
+
+          if (read > e.size) {
+            throw new Error("Fayl ölçüsü dəyişib.");
+          }
+
+          for (const chunk of split(bytes)) {
+            check(signal);
+            crc = crcUpdate(crc, chunk);
+            offset += BigInt(chunk.length);
+            yield chunk;
+          }
+        }
+
+      } finally {
+        if (!complete) {
+          try {
+            await reader.cancel();
+          } catch {}
+        }
+
+        reader.releaseLock();
+      }
+
+      if (read !== e.size) {
+        throw new Error("Fayl tam oxunmadı.");
+      }
+
+      e.crc = (crc ^ 0xffffffff) >>> 0;
+
+      const tail = descriptor(e);
+
+      yield tail;
+      offset += BigInt(tail.length);
+    }
+
+    const centralOffset = offset;
+
+    for (const e of entries) {
+      check(signal);
+
+      const header = central(e);
+
+      yield* split(header);
+      offset += BigInt(header.length);
+    }
+
+    check(signal);
+
+    yield end(
+      entries,
+      centralOffset,
+      offset - centralOffset
+    );
+  }
+
+  return {
+    zipFiles,
+    estimateZipSize
+  };
+})();
+
+/* =========================================================
+   ŞİFRƏLƏMƏ
+   ========================================================= */
+
+const te = new TextEncoder();
+const td = new TextDecoder();
+
+function base64url(bytes) {
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function randomId(n = 16) {
+  return base64url(
+    crypto.getRandomValues(new Uint8Array(n))
+  );
+}
+
+function decodeSecret(text) {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(text)) {
+    throw new Error("Məxfi açar etibarsızdır.");
+  }
+
+  return Uint8Array.from(
+    atob(
+      text.replace(/-/g, "+").replace(/_/g, "/") + "="
+    ),
+    c => c.charCodeAt(0)
+  );
+}
+
+async function makeCipher(secret, room, sender) {
+  const material = await crypto.subtle.importKey(
+    "raw",
+    decodeSecret(secret),
+    "HKDF",
+    false,
+    ["deriveKey"]
+  );
+
+  const derive = label => crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: te.encode(room),
+      info: te.encode("ikimiz-v1-" + label)
+    },
+    material,
+    {
+      name: "AES-GCM",
+      length: 256
+    },
+    false,
+    ["encrypt", "decrypt"]
+  );
+
+  const [outKey, inKey] = await Promise.all([
+    derive(sender ? "send" : "receive"),
+    derive(sender ? "receive" : "send")
+  ]);
+
+  let outgoing = 0;
+  let incoming = 0;
+
+  return {
+    async seal(type, value) {
+      const body = type === 0
+        ? te.encode(JSON.stringify(value))
+        : value;
+
+      if (body.byteLength > 20000) {
+        throw new Error("Paket həddən böyükdür.");
+      }
+
+      const plain = new Uint8Array(body.byteLength + 5);
+
+      new DataView(plain.buffer).setUint32(0, outgoing++);
+      plain[4] = type;
+      plain.set(body, 5);
+
+      const iv = crypto.getRandomValues(
+        new Uint8Array(12)
+      );
+
+      const encrypted = new Uint8Array(
+        await crypto.subtle.encrypt(
+          {
+            name: "AES-GCM",
+            iv,
+            additionalData: te.encode(room)
+          },
+          outKey,
+          plain
+        )
+      );
+
+      const packet = new Uint8Array(
+        12 + encrypted.length
+      );
+
+      packet.set(iv);
+      packet.set(encrypted, 12);
+
+      return packet.buffer;
+    },
+
+    async open(packet) {
+      if (
+        !(packet instanceof ArrayBuffer) ||
+        packet.byteLength < 33 ||
+        packet.byteLength > 20100
+      ) {
+        throw new Error("Paket etibarsızdır.");
+      }
+
+      const bytes = new Uint8Array(packet);
+
+      const plain = new Uint8Array(
+        await crypto.subtle.decrypt(
+          {
+            name: "AES-GCM",
+            iv: bytes.slice(0, 12),
+            additionalData: te.encode(room)
+          },
+          inKey,
+          bytes.slice(12)
+        )
+      );
+
+      if (
+        new DataView(plain.buffer).getUint32(0) !== incoming++
+      ) {
+        throw new Error("Paket ardıcıllığı pozulub.");
+      }
+
+      const type = plain[4];
+
+      if (type !== 0 && type !== 1) {
+        throw new Error("Paket tipi etibarsızdır.");
+      }
+
+      return {
+        type,
+        value: type === 0
+          ? JSON.parse(td.decode(plain.slice(5)))
+          : plain.slice(5)
+      };
+    }
+  };
+}
+
+async function verificationCode(secret, room, id) {
+  const hash = await crypto.subtle.digest(
+    "SHA-256",
+    te.encode(secret + "|" + room + "|" + id)
+  );
+
+  return String(
+    new DataView(hash).getUint32(0) % 1000000
+  ).padStart(6, "0");
+}
+
+/* =========================================================
+   İNTERFEYS
+   ========================================================= */
+
+const $ = id => document.getElementById(id);
+const MiB = 1024 * 1024;
+
+let selectedFiles = [];
+let session = null;
+let uiBusy = false;
+
+function closeSession() {}
+
+function formatSize(n) {
+  if (n < 1024) return Math.round(n) + " B";
+  if (n < MiB) return (n / 1024).toFixed(1) + " KB";
+  if (n < 1024 * MiB) return (n / MiB).toFixed(1) + " MB";
+  return (n / (1024 * MiB)).toFixed(2) + " GB";
+}
+
+function showError(error) {
+  $("error").textContent = error.message || String(error);
+  $("error").hidden = false;
+}
+
+function setStatus(text) {
+  $("status").textContent = text;
+  $("sessionArea").hidden = false;
+}
+
+function setBusy(value) {
+  uiBusy = value;
+
+  for (const id of [
+    "pickFiles",
+    "pickFolder",
+    "clearFiles",
+    "duration",
+    "joinRoom"
+  ]) {
+    $(id).disabled = value;
+  }
+
+  $("createRoom").disabled = value || !selectedFiles.length;
+}
+
+function updateProgress(s, bytes) {
+  const percent = s.total
+    ? Math.min(100, bytes / s.total * 100)
+    : 0;
+
+  $("progressArea").hidden = false;
+  $("progress").value = percent;
+  $("progressText").textContent =
+    percent.toFixed(1) +
+    "% · " +
+    formatSize(bytes) +
+    " / " +
+    formatSize(s.total);
+}
+
+function showTab(name) {
+  for (const n of ["Send", "Receive", "Convert"]) {
+    $(n.toLowerCase() + "Panel").hidden = n !== name;
+    $("tab" + n).classList.toggle("active", n === name);
+  }
+}
+
+for (const name of ["Send", "Receive", "Convert"]) {
+  $("tab" + name).onclick = () => showTab(name);
+}
+
+function selectionChanged() {
+  $("selection").hidden = !selectedFiles.length;
+
+  $("selectionText").textContent =
+    selectedFiles.length +
+    " fayl · " +
+    formatSize(
+      selectedFiles.reduce((sum, f) => sum + f.size, 0)
+    );
+
+  $("fileList").replaceChildren();
+
+  for (const file of selectedFiles.slice(0, 40)) {
+    const li = document.createElement("li");
+
+    li.textContent =
+      (file.webkitRelativePath || file.name) +
+      " · " +
+      formatSize(file.size);
+
+    $("fileList").append(li);
+  }
+
+  if (selectedFiles.length > 40) {
+    const li = document.createElement("li");
+    li.textContent =
+      "və daha " + (selectedFiles.length - 40) + " fayl";
+    $("fileList").append(li);
+  }
+
+  $("createRoom").disabled =
+    uiBusy || !selectedFiles.length;
+}
+
+function addFiles(list) {
+  if (uiBusy) return;
+
+  const files = Array.from(list);
+
+  if (files.length + selectedFiles.length > 10000) {
+    showError(new Error("Maksimum 10 000 fayl seç."));
+    return;
+  }
+
+  selectedFiles.push(...files);
+  selectionChanged();
+}
+
+$("pickFiles").onclick = () => $("files").click();
+$("pickFolder").onclick = () => $("folder").click();
+
+for (const id of ["files", "folder"]) {
+  $(id).onchange = event => {
+    addFiles(event.target.files);
+    event.target.value = "";
+  };
+}
+
+$("clearFiles").onclick = () => {
+  if (!uiBusy) {
+    selectedFiles = [];
+    selectionChanged();
+  }
+};
+
+$("dropzone").ondragover = event => {
+  event.preventDefault();
+  $("dropzone").classList.add("drag");
+};
+
+$("dropzone").ondragleave = () => {
+  $("dropzone").classList.remove("drag");
+};
+
+$("dropzone").ondrop = event => {
+  event.preventDefault();
+  $("dropzone").classList.remove("drag");
+
+  if (
+    Array.from(event.dataTransfer.items).some(
+      item => item.webkitGetAsEntry?.()?.isDirectory
+    )
+  ) {
+    showError(
+      new Error(
+        "Qovluq üçün “Qovluğu seç” düyməsini istifadə et."
+      )
+    );
+    return;
+  }
+
+  addFiles(event.dataTransfer.files);
+};
+
+$("copyLink").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(
+      $("shareLink").value
+    );
+
+    $("copyLink").textContent = "Kopyalandı";
+
+    setTimeout(() => {
+      $("copyLink").textContent = "Kopyala";
+    }, 1800);
+
+  } catch {
+    $("shareLink").select();
+  }
+};
+
+function parseLink(text) {
+  const url = new URL(text.trim(), location.href);
+  const params = new URLSearchParams(url.hash.slice(1));
+
+  const room = params.get("room");
+  const secret = params.get("key");
+
+  if (
+    !/^ikimiz-[A-Za-z0-9_-]{22}$/.test(room || "") ||
+    !/^[A-Za-z0-9_-]{43}$/.test(secret || "")
+  ) {
+    throw new Error(
+      "Məxfi linki # hissəsi ilə birlikdə tam yapışdır."
+    );
+  }
+
+  return { room, secret };
+}
+
+window.addEventListener("beforeunload", event => {
+  if (session && !session.done) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+
+window.addEventListener("pagehide", event => {
+  if (!event.persisted && session) {
+    void closeSession(session);
+  }
+});
+
+if (location.hash) {
+  try {
+    parseLink(location.href);
+    $("joinLink").value = location.href;
+
+    history.replaceState(
+      null,
+      "",
+      location.pathname + location.search
+    );
+
+    showTab("Receive");
+
+  } catch (error) {
+    showError(error);
+  }
+}
+
+/* =========================================================
+   ŞƏKİL VƏ VİDEO ÇEVİRMƏ
+   ========================================================= */
+
+(() => {
+  const IMAGE_TYPES = {
+    jpg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp"
+  };
+
+  const VIDEO_TYPES = {
+    webm: [
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm"
+    ],
+    mp4: [
+      "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+      "video/mp4"
+    ]
+  };
+
+  let controller = null;
+  let resultURL = null;
+
+  const aborted = () =>
+    new DOMException("Dayandırıldı.", "AbortError");
+
+  const check = signal => {
+    if (signal.aborted) throw aborted();
+  };
+
+  const rename = (name, extension) => (
+    name
+      .replace(/[\\/\x00-\x1f]/g, "_")
+      .replace(/\.[^.]+$/, "") ||
+    "fayl"
+  ) + "." + extension;
+
+  function waitFor(element, event, signal) {
+    return new Promise((resolve, reject) => {
+      let timer;
+
+      const cleanup = () => {
+        clearTimeout(timer);
+        element.removeEventListener(event, done);
+        element.removeEventListener("error", fail);
+        signal.removeEventListener("abort", cancel);
+      };
+
+      const finish = error => {
+        cleanup();
+        error ? reject(error) : resolve();
+      };
+
+      const done = () => finish();
+
+      const fail = () =>
+        finish(
+          new Error("Brauzer bu faylı aça bilmir.")
+        );
+
+      const cancel = () => finish(aborted());
+
+      if (signal.aborted) return cancel();
+
+      element.addEventListener(event, done, { once: true });
+      element.addEventListener("error", fail, { once: true });
+      signal.addEventListener("abort", cancel, { once: true });
+
+      timer = setTimeout(() => {
+        finish(
+          new Error("Fayl vaxtında açılmadı.")
+        );
+      }, 30000);
+    });
+  }
+
+  async function imageFile(file, extension, signal) {
+    check(signal);
+
+    if (file.size > 60 * MiB) {
+      throw new Error(
+        "Şəkil üçün maksimum ölçü 60 MB-dır."
+      );
+    }
+
+    const mime = IMAGE_TYPES[extension];
+
+    if (!mime) {
+      throw new Error("Şəkil formatı seç.");
+    }
+
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+
+    let canvas;
+
+    try {
+      const ready = waitFor(image, "load", signal);
+      image.src = url;
+
+      await ready;
+      check(signal);
+
+      if (
+        image.naturalWidth * image.naturalHeight >
+        32000000
+      ) {
+        throw new Error(
+          "Şəkil 32 meqapikseldən böyükdür."
+        );
+      }
+
+      canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+
+      const context = canvas.getContext("2d");
+
+      if (!context) {
+        throw new Error("Çevirmə açıla bilmədi.");
+      }
+
+      if (extension === "jpg") {
+        context.fillStyle = "#fff";
+        context.fillRect(
+          0, 0, canvas.width, canvas.height
+        );
+      }
+
+      context.drawImage(image, 0, 0);
+
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(
+          value => value
+            ? resolve(value)
+            : reject(
+                new Error("Şəkil çevrilmədi.")
+              ),
+          mime,
+          0.92
+        );
+      });
+
+      check(signal);
+
+      if (blob.type !== mime) {
+        throw new Error(
+          "Çıxış formatı dəstəklənmir."
+        );
+      }
+
+      if (blob.size > 200 * MiB) {
+        throw new Error(
+          "Nəticə 200 MB-dan böyükdür."
+        );
+      }
+
+      return new File(
+        [blob],
+        rename(file.name, extension),
+        { type: mime }
+      );
+
+    } finally {
+      image.src = "";
+      URL.revokeObjectURL(url);
+
+      if (canvas) {
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+    }
+  }
+
+  async function videoFile(file, extension, signal) {
+    check(signal);
+
+    if (file.size > 200 * MiB) {
+      throw new Error(
+        "Video çevirmə üçün maksimum 200 MB."
+      );
+    }
+
+    if (
+      !window.MediaRecorder ||
+      !VIDEO_TYPES[extension]
+    ) {
+      throw new Error(
+        "Video çevirmə bu brauzerdə dəstəklənmir."
+      );
+    }
+
+    const mime = VIDEO_TYPES[extension].find(
+      type => MediaRecorder.isTypeSupported(type)
+    );
+
+    if (!mime) {
+      throw new Error(
+        "Bu çıxış formatı dəstəklənmir."
+      );
+    }
+
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+
+    video.style.cssText =
+      "width:100%;max-height:240px;background:#15291f";
+
+    $("convertPreview").replaceChildren(video);
+
+    const url = URL.createObjectURL(file);
+    const chunks = [];
+
+    let stream;
+    let recorder;
+    let interval;
+    let timeout;
+
+    try {
+      const loaded = waitFor(
+        video,
+        "loadeddata",
+        signal
+      );
+
+      video.src = url;
+
+      await loaded;
+      check(signal);
+
+      if (
+        !Number.isFinite(video.duration) ||
+        video.duration <= 0 ||
+        video.duration > 600
+      ) {
+        throw new Error(
+          "Müddəti müəyyən olunan, maksimum 10 dəqiqəlik video seç."
+        );
+      }
+
+      if (
+        video.videoWidth * video.videoHeight >
+        3840 * 2160
+      ) {
+        throw new Error(
+          "Video 4K həddini keçir."
+        );
+      }
+
+      const capture =
+        video.captureStream ||
+        video.mozCaptureStream;
+
+      if (!capture) {
+        throw new Error(
+          "Bu brauzer video çevirməsini dəstəkləmir."
+        );
+      }
+
+      stream = capture.call(video);
+
+      if (!stream.getVideoTracks().length) {
+        throw new Error(
+          "Video görüntüsü açıla bilmədi."
+        );
+      }
+
+      const hasAudio =
+        video.mozHasAudio === true ||
+        video.audioTracks?.length > 0 ||
+        video.webkitAudioDecodedByteCount > 0;
+
+      if (
+        hasAudio &&
+        !stream.getAudioTracks().length
+      ) {
+        throw new Error(
+          "Səs açıla bilmədi. Səssiz nüsxə yaradılmadı."
+        );
+      }
+
+      recorder = new MediaRecorder(stream, {
+        mimeType: mime,
+        videoBitsPerSecond: 5000000,
+        audioBitsPerSecond: 128000
+      });
+
+      await new Promise((resolve, reject) => {
+        let settled = false;
+        let failure = null;
+        let total = 0;
+
+        const cleanup = () => {
+          signal.removeEventListener("abort", cancel);
+          video.removeEventListener("ended", ended);
+          video.removeEventListener("error", playError);
+        };
+
+        const finish = () => {
+          if (settled) return;
+
+          settled = true;
+          cleanup();
+
+          failure ? reject(failure) : resolve();
+        };
+
+        const stop = error => {
+          if (settled) return;
+          if (error && !failure) failure = error;
+
+          video.pause();
+
+          if (recorder.state !== "inactive") {
+            recorder.stop();
+          } else {
+            finish();
+          }
+        };
+
+        const cancel = () => stop(aborted());
+        const ended = () => stop();
+
+        const playError = () =>
+          stop(
+            new Error("Video oxunması dayandı.")
+          );
+
+        recorder.ondataavailable = event => {
+          if (!event.data.size) return;
+
+          total += event.data.size;
+
+          if (total > 200 * MiB) {
+            stop(
+              new Error("Nəticə 200 MB həddini keçdi.")
+            );
+            return;
+          }
+
+          chunks.push(event.data);
+        };
+
+        recorder.onerror = () =>
+          stop(
+            new Error("Video kodlaşdırıcısı xəta verdi.")
+          );
+
+        recorder.onstop = finish;
+
+        signal.addEventListener("abort", cancel, { once: true });
+        video.addEventListener("ended", ended, { once: true });
+        video.addEventListener("error", playError, { once: true });
+
+        interval = setInterval(() => {
+          $("convertProgress").value = Math.min(
+            1,
+            video.currentTime / video.duration
+          );
+        }, 300);
+
+        timeout = setTimeout(() => {
+          stop(
+            new Error(
+              "Çevirmə vaxtı bitdi. Səhifə ön planda qalmalıdır."
+            )
+          );
+        }, (video.duration * 2 + 30) * 1000);
+
+        try {
+          recorder.start(1000);
+
+          video.play().catch(() => {
+            stop(
+              new Error("Video oxudulmadı.")
+            );
+          });
+
+        } catch (error) {
+          stop(error);
+        }
+      });
+
+      check(signal);
+
+      const type = recorder.mimeType
+        .split(";")[0]
+        .toLowerCase();
+
+      if (
+        type !== (
+          extension === "mp4"
+            ? "video/mp4"
+            : "video/webm"
+        )
+      ) {
+        throw new Error(
+          "Çıxış formatı uyğun deyil."
+        );
+      }
+
+      const blob = new Blob(chunks, { type });
+
+      if (!blob.size) {
+        throw new Error("Çıxış boşdur.");
+      }
+
+      return new File(
+        [blob],
+        rename(file.name, extension),
+        { type }
+      );
+
+    } finally {
+      clearInterval(interval);
+      clearTimeout(timeout);
+
+      if (
+        recorder &&
+        recorder.state !== "inactive"
+      ) {
+        try {
+          recorder.stop();
+        } catch {}
+      }
+
+      stream?.getTracks().forEach(
+        track => track.stop()
+      );
+
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+
+      URL.revokeObjectURL(url);
+      $("convertPreview").replaceChildren();
+    }
+  }
+
+  function formats() {
+    const image =
+      $("convertKind").value === "image";
+
+    $("convertFormat").replaceChildren();
+
+    for (
+      const format of image
+        ? ["jpg", "png", "webp"]
+        : ["webm", "mp4"]
+    ) {
+      const option =
+        document.createElement("option");
+
+      option.value = format;
+      option.textContent = format.toUpperCase();
+
+      option.disabled = !image && (
+        !window.MediaRecorder ||
+        !VIDEO_TYPES[format].some(
+          type => MediaRecorder.isTypeSupported(type)
+        )
+      );
+
+      $("convertFormat").append(option);
+    }
+
+    const first =
+      Array.from($("convertFormat").options)
+        .find(option => !option.disabled);
+
+    if (first) {
+      $("convertFormat").value = first.value;
+    }
+
+    $("convertFile").accept =
+      image ? "image/*" : "video/*";
+
+    $("convertFile").value = "";
+    $("convertDownload").hidden = true;
+    $("convertStatus").textContent = "";
+    $("convertProgress").value = 0;
+
+    if (resultURL) {
+      URL.revokeObjectURL(resultURL);
+      resultURL = null;
+    }
+
+    $("convertHint").textContent = image
+      ? "Şəkil: 60 MB / 32 MP. JPG, PNG, WebP. EXIF saxlanmır; " +
+        "animasiyanın ilk kadrı qalır; JPG-də şəffaf fon ağ olur. " +
+        "HEIC/RAW dəstəyi brauzerdən asılıdır."
+      : "Video çevirmə: 200 MB / 10 dəqiqə / 4K. Bu, göndərmə " +
+        "limiti deyil. Çevirmə real vaxtda gedir, keyfiyyət " +
+        "dəyişə bilər. Səhifə ön planda qalmalıdır.";
+  }
+
+  $("convertKind").onchange = formats;
+
+  $("convertCancel").onclick = () =>
+    controller?.abort();
+
+  $("convertStart").onclick = async () => {
+    const file = $("convertFile").files[0];
+
+    if (!file) {
+      $("convertStatus").textContent =
+        "Əvvəl fayl seç.";
+      return;
+    }
+
+    const image =
+      $("convertKind").value === "image";
+
+    const extension =
+      $("convertFormat").value;
+
+    controller = new AbortController();
+
+    $("convertStatus").textContent = "Çevrilir…";
+    $("convertProgress").value = 0;
+    $("convertCancel").hidden = false;
+    $("convertDownload").hidden = true;
+
+    for (const id of [
+      "convertStart",
+      "convertKind",
+      "convertFormat",
+      "convertFile"
+    ]) {
+      $(id).disabled = true;
+    }
+
+    if (resultURL) {
+      URL.revokeObjectURL(resultURL);
+      resultURL = null;
+    }
+
+    try {
+      const output = image
+        ? await imageFile(
+            file,
+            extension,
+            controller.signal
+          )
+        : await videoFile(
+            file,
+            extension,
+            controller.signal
+          );
+
+      resultURL = URL.createObjectURL(output);
+
+      $("convertDownload").href = resultURL;
+      $("convertDownload").download = output.name;
+      $("convertDownload").textContent =
+        output.name + " — yüklə";
+
+      $("convertDownload").hidden = false;
+      $("convertProgress").value = 1;
+      $("convertStatus").textContent =
+        "Hazırdır · " + formatSize(output.size);
+
+    } catch (error) {
+      $("convertStatus").textContent =
+        error.name === "AbortError"
+          ? "Dayandırıldı."
+          : error.message;
+
+    } finally {
+      controller = null;
+      $("convertCancel").hidden = true;
+
+      for (const id of [
+        "convertStart",
+        "convertKind",
+        "convertFormat",
+        "convertFile"
+      ]) {
+        $(id).disabled = false;
+      }
+    }
+  };
+
+  formats();
+})();
+
+/* =========================================================
+   MOBİL PAYLAŞIM MÜHƏRRİKİ
+   ========================================================= */
+
 (() => {
 "use strict";
-
-/*
-  İKİMİZ — MOBİL YENİLƏMƏ V2
-
-  Əvvəlki tam paylasim.html kodundan SONRA,
-  </body> sətrindən ƏVVƏL yerləşdirilir.
-
-  Əvvəlki ZIP generatoru, şifrələmə və format
-  dəyişdirmə funksiyaları saxlanılır.
-*/
-
-if (
-  typeof ZipStream === "undefined" ||
-  typeof makeCipher !== "function"
-) {
-  alert(
-    "Mobil yeniləmə əvvəlki paylasim.html kodundan sonra yerləşdirilməlidir."
-  );
-  return;
-}
 
 const MAX_RAM = 200 * 1024 * 1024;
 
 let current = null;
 let booting = false;
 
-const live = s => current === s && !s.closed;
+const live = s =>
+  current === s && !s.closed;
 
 const valid = (s, c) =>
   live(s) && s.c === c && !c.closed;
 
-const failText = e =>
-  e.name === "QuotaExceededError"
+const failText = error =>
+  error.name === "QuotaExceededError"
     ? "Telefonun brauzer üçün ayırdığı yaddaş doldu. Qəbul tamamlanmadı."
-    : (e.message || String(e));
+    : error.message || String(error);
 
-/* Hazır ZIP-lər üçün ayrıca sahə. */
 const output = document.createElement("section");
 output.style.cssText = "padding:0 20px 20px";
 $("sessionArea").after(output);
 
-/* Köhnə kompüter tövsiyəsini mobil məlumatla əvəz et. */
 const note = document.querySelector(
   "#receivePanel > .notice:last-child"
 );
@@ -51,74 +1868,43 @@ if (note && note.id !== "offer") {
   note.replaceChildren();
 
   const title = document.createElement("strong");
-  title.textContent = "Telefonda qəbul üçün uyğunlaşdırılıb";
+  title.textContent =
+    "Telefonda qəbul üçün uyğunlaşdırılıb";
 
-  const p = document.createElement("p");
-  p.textContent =
+  const paragraph = document.createElement("p");
+  paragraph.textContent =
     "Dəstəklənən brauzerlərdə ZIP hissə-hissə telefonun yerli " +
     "yaddaşına yazılır. Sonra “ZIP-i yüklə” düyməsi ilə saxlanılır. " +
     "Hədd boş yer və brauzerin ayırdığı yaddaşdan asılıdır.";
 
-  note.append(title, p);
+  note.append(title, paragraph);
 }
 
-const versionInfo = document.createElement("p");
-versionInfo.className = "muted";
-versionInfo.textContent =
-  "Mobil yeniləmə v2 · Bağlantı bərpası · Yerli ZIP saxlaması";
+const info = document.createElement("p");
+info.className = "muted";
+info.textContent =
+  "Mobil paylaşım v3 — tam HTML · Bağlantı bərpası · Yerli ZIP saxlaması";
 
-$("sendPanel").prepend(versionInfo);
+$("sendPanel").prepend(info);
 
-/* Köhnə mətnlərdəki uyğunsuz məlumatları yenilə. */
 const privacy = document.querySelector("details");
 
 if (privacy) {
-  for (const paragraph of privacy.querySelectorAll("p")) {
-    if (paragraph.textContent.includes("TURN vasitəçi")) {
-      paragraph.textContent =
-        "Birbaşa bağlantıya əlavə olaraq ictimai TURN xidməti " +
-        "istifadə edilir. Əlavə tətbiq şifrələməsi saxlanır. " +
-        "Provayderin əlçatanlığı zəmanətli deyil və internet " +
-        "trafiki sərf olunur.";
-    }
-
-    if (paragraph.textContent.includes("Yarımçıq göndəriş")) {
-      paragraph.textContent =
-        "1 saat / 24 saat açıq sessiyanın maksimum müddətidir. " +
-        "Qısa bağlantı kəsilmələrində eyni açıq səhifədə qəbul " +
-        "edilən hissədən davam etmək sınanır. Səhifənin yenilənməsi " +
-        "və ya brauzerin telefon tərəfindən tam bağlanması bu " +
-        "bərpanı dayandırır.";
-    }
-  }
-
   const paragraph = document.createElement("p");
 
   paragraph.textContent =
-    "Mobil v2: birbaşa əlaqə alınmayanda Open Relay-in ictimai TURN " +
-    "xidməti şifrəli trafiki ötürməyə çalışır. Bu xidmətin " +
-    "əlçatanlığı və pulsuz resursları zəmanətli deyil. Alıcıda " +
-    "müvəqqəti ZIP brauzerin bu sayt üçün yerli fayl sahəsində " +
-    "şifrəsiz saxlanır. Yüklədikdən sonra həmin nüsxəni ayrıca " +
-    "silə bilərsən. Bərpa yalnız eyni açıq səhifə daxilindədir; " +
-    "telefon brauzeri tam bağlayarsa ötürmə davam etməyə bilər.";
+    "Birbaşa əlaqə alınmayanda Open Relay-in ictimai TURN xidməti " +
+    "şifrəli trafiki ötürməyə çalışır. Bu xidmətin əlçatanlığı və " +
+    "pulsuz resursları zəmanətli deyil. Alıcıda müvəqqəti ZIP " +
+    "brauzerin bu sayt üçün yerli fayl sahəsində şifrəsiz saxlanır. " +
+    "Yüklədikdən sonra həmin nüsxəni ayrıca silə bilərsən. " +
+    "Bərpa yalnız eyni açıq səhifə daxilindədir.";
 
   privacy.append(paragraph);
 }
 
-/* ======================================================
-   STUN + İCTİMAİ TURN
-   ====================================================== */
-
+/* Provayderin ictimai static-auth məlumatından istifadə edilir. */
 async function iceServers() {
-  /*
-    Buradakı secret şəxsi API açarı deyil.
-    Open Relay provayderinin açıq sənədləşdirdiyi
-    static-auth məlumatıdır.
-
-    Özəl TURN serverinin məxfi açarını HTML-də saxlamaq olmaz.
-  */
-
   const username =
     Math.floor(Date.now() / 1000 + 90000) +
     ":" +
@@ -166,10 +1952,6 @@ async function iceServers() {
   ];
 }
 
-/* ======================================================
-   ÜMUMİ VƏZİYYƏT VƏ TƏMİZLƏMƏ
-   ====================================================== */
-
 function status(s, text) {
   if (live(s) && !s.completed) {
     setStatus(text);
@@ -186,7 +1968,8 @@ async function wake(s) {
   }
 
   try {
-    s.wake = await navigator.wakeLock?.request("screen");
+    s.wake =
+      await navigator.wakeLock?.request("screen");
   } catch {}
 }
 
@@ -258,7 +2041,9 @@ async function shutdown(s) {
     } catch {}
 
     try {
-      await s.sink.dir?.removeEntry(s.sink.name);
+      await s.sink.dir?.removeEntry(
+        s.sink.name
+      );
     } catch {}
 
     s.sink.parts = [];
@@ -277,20 +2062,20 @@ async function shutdown(s) {
   }
 }
 
-/*
-  Əvvəlki kodun pagehide callback-i də yeni
-  təmizləmə funksiyasını istifadə etsin.
-*/
 closeSession = shutdown;
 
 function fatal(s, error) {
   if (!live(s)) return;
 
   setStatus(
-    s.completed ? "ZIP hazırdır." : "Ötürmə dayandı"
+    s.completed
+      ? "ZIP hazırdır."
+      : "Ötürmə dayandı"
   );
 
-  showError(new Error(failText(error)));
+  showError(
+    new Error(failText(error))
+  );
 
   void shutdown(s);
 }
@@ -310,7 +2095,8 @@ function permanent(message) {
 function mobileProgress(s, bytes) {
   updateProgress(s, bytes);
 
-  const seconds = (Date.now() - s.started) / 1000;
+  const seconds =
+    (Date.now() - s.started) / 1000;
 
   $("speedText").textContent =
     seconds > 1
@@ -323,19 +2109,19 @@ function mobileProgress(s, bytes) {
       : "";
 }
 
-/* ======================================================
-   ŞİFRƏLİ PAKET GÖNDƏRMƏ
-   ====================================================== */
-
 function send(s, c, type, value) {
   const job = c.out.then(async () => {
     if (!valid(s, c)) {
       throw temporary("Bağlantı dəyişdi.");
     }
 
-    const packet = await c.cipher.seal(type, value);
+    const packet =
+      await c.cipher.seal(type, value);
 
-    if (!valid(s, c) || !c.conn.open) {
+    if (
+      !valid(s, c) ||
+      !c.conn.open
+    ) {
       throw temporary("Bağlantı kəsildi.");
     }
 
@@ -353,10 +2139,6 @@ function send(s, c, type, value) {
 
 const control = (s, c, message) =>
   send(s, c, 0, message);
-
-/* ======================================================
-   PEER OTAĞININ QORUNMASI VƏ YENİDƏN QOŞULMA
-   ====================================================== */
 
 function setupPeer(s) {
   if (!live(s)) return;
@@ -391,7 +2173,7 @@ function setupPeer(s) {
     if (s.sender) {
       const url = new URL(location.href);
 
-      url.searchParams.set("mobile", "2");
+      url.searchParams.set("mobile", "3");
 
       url.hash = new URLSearchParams({
         room: s.room,
@@ -406,6 +2188,7 @@ function setupPeer(s) {
         s,
         "Link hazırdır. Otaq alıcı üçün açıq saxlanılır."
       );
+
     } else {
       dial(s);
     }
@@ -425,10 +2208,13 @@ function setupPeer(s) {
       return;
     }
 
-    const nonce = connection.metadata?.mobileNonce;
+    const nonce =
+      connection.metadata?.mobileNonce;
 
     if (
-      !/^[A-Za-z0-9_-]{22}$/.test(nonce || "") ||
+      !/^[A-Za-z0-9_-]{22}$/.test(
+        nonce || ""
+      ) ||
       s.seen.has(nonce)
     ) {
       connection.close();
@@ -436,7 +2222,6 @@ function setupPeer(s) {
     }
 
     s.seen.add(nonce);
-
     attach(s, connection, nonce);
   });
 
@@ -466,10 +2251,6 @@ function setupPeer(s) {
       return;
     }
 
-    /*
-      peer-unavailable, network və oxşar müvəqqəti
-      xətalar otağı silmir.
-    */
     if (!s.c?.conn.open) {
       retry(s, s.c);
     }
@@ -579,10 +2360,6 @@ function tick(s) {
   }
 }
 
-/* ======================================================
-   YENİ SESSİYA
-   ====================================================== */
-
 async function start(sender, room, secret) {
   if (current || booting) return;
 
@@ -634,7 +2411,9 @@ async function start(sender, room, secret) {
         ? room
         : "ikimiz-r-" + randomId(),
 
-      archive: sender ? randomId() : null,
+      archive: sender
+        ? randomId()
+        : null,
 
       expires:
         Date.now() +
@@ -675,7 +2454,9 @@ async function start(sender, room, secret) {
     $("downloadZip").hidden = true;
     $("endSession").hidden = false;
 
-    setStatus("Mobil paylaşım hazırlanır…");
+    setStatus(
+      "Mobil paylaşım hazırlanır…"
+    );
 
     s.watch = setInterval(
       () => tick(s),
@@ -688,24 +2469,22 @@ async function start(sender, room, secret) {
   } catch (error) {
     showError(error);
 
-    if (!current) {
+    if (current) {
+      await shutdown(current);
+    } else {
       setBusy(false);
     }
+
   } finally {
     booting = false;
   }
 }
-
-/* ======================================================
-   HƏR BAĞLANTI ÜÇÜN AYRICA ŞİFRƏLİ KANAL
-   ====================================================== */
 
 function attach(s, connection, nonce) {
   const c = {
     conn: connection,
     nonce,
     closed: false,
-
     abort: new AbortController(),
 
     phase: "connecting",
@@ -725,10 +2504,6 @@ function attach(s, connection, nonce) {
     40000
   );
 
-  /*
-    Hər yeni bağlantıda ayrıca nonce istifadə edilir.
-    Təkrar bağlantılar əvvəlki şifrəli paketləri qəbul etmir.
-  */
   const cipherReady = makeCipher(
     s.secret,
     s.room + "|" + nonce,
@@ -740,11 +2515,15 @@ function attach(s, connection, nonce) {
   cipherReady.catch(() => {});
 
   connection.on("close", () => {
-    if (valid(s, c)) retry(s, c);
+    if (valid(s, c)) {
+      retry(s, c);
+    }
   });
 
   connection.on("error", () => {
-    if (valid(s, c)) retry(s, c);
+    if (valid(s, c)) {
+      retry(s, c);
+    }
   });
 
   connection.on("open", async () => {
@@ -768,6 +2547,7 @@ function attach(s, connection, nonce) {
           v: 2
         });
       }
+
     } catch {
       retry(s, c);
     }
@@ -779,7 +2559,8 @@ function attach(s, connection, nonce) {
 
       if (!valid(s, c)) return;
 
-      const frame = await c.cipher.open(packet);
+      const frame =
+        await c.cipher.open(packet);
 
       if (!valid(s, c)) return;
 
@@ -815,10 +2596,6 @@ async function offer(s, c) {
   });
 }
 
-/* ======================================================
-   PAKETLƏRİN QƏBULU
-   ====================================================== */
-
 async function handle(
   s,
   c,
@@ -832,13 +2609,11 @@ async function handle(
       s.completed ||
       s.received + message.length > s.total
     ) {
-      throw permanent("Fayl axını uyğun deyil.");
+      throw permanent(
+        "Fayl axını uyğun deyil."
+      );
     }
 
-    /*
-      Yazılar ardıcıldır.
-      Yenidən qoşulma əvvəlki yazının bitməsini gözləyir.
-    */
     s.io = s.io.then(async () => {
       if (!valid(s, c)) return;
 
@@ -847,9 +2622,12 @@ async function handle(
           await s.sink.writer.write(message);
         } else {
           if (
-            s.received + message.length > MAX_RAM
+            s.received + message.length >
+            MAX_RAM
           ) {
-            throw new Error("Yaddaş həddi keçildi.");
+            throw new Error(
+              "Yaddaş həddi keçildi."
+            );
           }
 
           s.sink.parts.push(message);
@@ -870,7 +2648,8 @@ async function handle(
     mobileProgress(s, s.received);
 
     if (
-      s.received - (c.lastAck || 0) >= 128 * 1024 ||
+      s.received - (c.lastAck || 0) >=
+        128 * 1024 ||
       s.received === s.total
     ) {
       c.lastAck = s.received;
@@ -888,7 +2667,9 @@ async function handle(
     !message ||
     typeof message.op !== "string"
   ) {
-    throw permanent("Mesaj uyğun deyil.");
+    throw permanent(
+      "Mesaj uyğun deyil."
+    );
   }
 
   if (message.op === "ping") return;
@@ -900,8 +2681,6 @@ async function handle(
   }
 
   if (s.sender) {
-    /* ---------------- GÖNDƏRƏN ---------------- */
-
     if (
       message.op === "hello" &&
       message.v === 2 &&
@@ -920,7 +2699,6 @@ async function handle(
       if (!valid(s, c)) return;
 
       if (s.receiver === connPeer(c)) {
-        /* Əvvəldən təsdiqlənmiş alıcıdır. */
         await offer(s, c);
 
       } else {
@@ -1006,7 +2784,11 @@ async function handle(
       }
 
       c.acked = message.bytes;
-      mobileProgress(s, message.bytes);
+
+      mobileProgress(
+        s,
+        message.bytes
+      );
 
     } else if (
       message.op === "saved" &&
@@ -1042,8 +2824,6 @@ async function handle(
     }
 
   } else {
-    /* ---------------- ALICI ---------------- */
-
     if (
       message.op === "welcome" &&
       c.phase === "auth"
@@ -1051,7 +2831,8 @@ async function handle(
       if (
         !Number.isSafeInteger(message.expires) ||
         message.expires <= Date.now() ||
-        message.expires > Date.now() + 86460000
+        message.expires >
+          Date.now() + 86460000
       ) {
         throw permanent(
           "Linkin müddəti bitib."
@@ -1137,7 +2918,10 @@ async function handle(
         $("offer").hidden = false;
         $("saveZip").disabled = false;
 
-        status(s, "Qəbul etməyə hazırsan.");
+        status(
+          s,
+          "Qəbul etməyə hazırsan."
+        );
       }
 
     } else if (
@@ -1164,7 +2948,9 @@ async function handle(
               ? await s.sink.handle.getFile()
               : new Blob(
                   s.sink.parts,
-                  { type: "application/zip" }
+                  {
+                    type: "application/zip"
+                  }
                 );
 
             if (!live(s)) return;
@@ -1177,7 +2963,6 @@ async function handle(
 
             s.completed = true;
             s.done = true;
-
             s.sink.parts = [];
 
             showResult(s, file);
@@ -1220,15 +3005,8 @@ async function handle(
   }
 }
 
-/* ======================================================
-   TELEFONUN YERLİ FAYL SAHƏSİ — OPFS
-   ====================================================== */
-
+/* Mobil brauzerin yerli fayl sahəsi. */
 async function makeSink(s) {
-  /*
-    OPFS yoxdursa kiçik fayllar üçün əvvəlki
-    yaddaş üsulu ehtiyat variant olaraq qalır.
-  */
   if (!navigator.storage?.getDirectory) {
     if (s.total > MAX_RAM) {
       throw new Error(
@@ -1270,7 +3048,9 @@ async function makeSink(s) {
     directory =
       await root.getDirectoryHandle(
         "ikimiz-mobile-v2",
-        { create: true }
+        {
+          create: true
+        }
       );
 
     name =
@@ -1282,7 +3062,9 @@ async function makeSink(s) {
     const handle =
       await directory.getFileHandle(
         name,
-        { create: true }
+        {
+          create: true
+        }
       );
 
     writer =
@@ -1317,10 +3099,6 @@ async function makeSink(s) {
   }
 }
 
-/* ======================================================
-   QƏBULA BAŞLAMA VƏ QALDIĞI YERDƏN DAVAM
-   ====================================================== */
-
 async function beginReceive(s) {
   if (!live(s) || s.preparing) return;
 
@@ -1335,10 +3113,6 @@ async function beginReceive(s) {
       s.sink = await makeSink(s);
     }
 
-    /*
-      Köhnə bağlantıdan başlamış disk yazısı
-      bitmədən bərpa mövqeyi göndərilmir.
-    */
     await s.io;
 
     if (!live(s)) return;
@@ -1377,7 +3151,10 @@ async function beginReceive(s) {
         : "ZIP telefona qəbul edilir…"
     );
 
-    mobileProgress(s, s.received);
+    mobileProgress(
+      s,
+      s.received
+    );
 
   } catch (error) {
     if (live(s)) {
@@ -1391,10 +3168,6 @@ async function beginReceive(s) {
   } finally {
     s.preparing = false;
 
-    /*
-      Yaddaş hazırlanarkən yeni bağlantı artıq
-      qurulubsa, qəbulu həmin bağlantıda başlat.
-    */
     if (
       live(s) &&
       s.sink &&
@@ -1407,10 +3180,6 @@ async function beginReceive(s) {
   }
 }
 
-/* ======================================================
-   ZIP AXINININ GÖNDƏRİLMƏSİ
-   ====================================================== */
-
 async function pump(s, c, offset) {
   void wake(s);
 
@@ -1420,7 +3189,9 @@ async function pump(s, c, offset) {
 
     const iterator = ZipStream.zipFiles(
       s.files,
-      { signal: c.abort.signal }
+      {
+        signal: c.abort.signal
+      }
     );
 
     for await (const chunk of iterator) {
@@ -1441,10 +3212,6 @@ async function pump(s, c, offset) {
         const end =
           position + block.length;
 
-        /*
-          Alıcıya əvvəl çatmış hissə yenidən
-          internetdən göndərilmir.
-        */
         if (end <= offset) {
           position = end;
 
@@ -1474,22 +3241,25 @@ async function pump(s, c, offset) {
         while (
           valid(s, c) &&
           (
-            c.sent - c.acked >= 512 * 1024 ||
+            c.sent - c.acked >=
+              512 * 1024 ||
             c.conn.dataChannel?.bufferedAmount >
               512 * 1024
           )
         ) {
-          await new Promise(
-            resolve => setTimeout(
-              resolve,
-              20
-            )
-          );
+          await new Promise(resolve => {
+            setTimeout(resolve, 20);
+          });
         }
 
         if (!valid(s, c)) return;
 
-        await send(s, c, 1, part);
+        await send(
+          s,
+          c,
+          1,
+          part
+        );
 
         c.sent += part.length;
       }
@@ -1516,10 +3286,6 @@ async function pump(s, c, offset) {
     "Alıcının ZIP-i tam saxlaması gözlənilir…"
   );
 }
-
-/* ======================================================
-   HAZIR ZIP VƏ MÜVƏQQƏTİ NÜSXƏNİN SİLİNMƏSİ
-   ====================================================== */
 
 function showResult(s, file) {
   const url =
@@ -1589,9 +3355,7 @@ function showResult(s, file) {
   output.append(box);
 }
 
-/* ======================================================
-   ƏVVƏLKİ DÜYMƏLƏRİN YENİ MOBİL MƏNTİQƏ BAĞLANMASI
-   ====================================================== */
+/* Düymələr */
 
 $("createRoom").onclick = () => {
   if (!selectedFiles.length) return;
@@ -1634,10 +3398,9 @@ $("joinRoom").onclick = () => {
       );
     }
 
-    const { room, secret } =
-      parseLink(
-        $("joinLink").value
-      );
+    const { room, secret } = parseLink(
+      $("joinLink").value
+    );
 
     void start(
       false,
@@ -1663,7 +3426,6 @@ $("approve").onclick = async () => {
   }
 
   s.receiver = c.conn.peer;
-
   $("approve").hidden = true;
 
   try {
@@ -1711,7 +3473,8 @@ $("endSession").onclick = async () => {
   await shutdown(s);
 };
 
-/* Telefonda sistemin paylaşım menyusu. */
+/* Telefonun paylaşım menyusu */
+
 const shareButton =
   document.createElement("button");
 
@@ -1740,7 +3503,8 @@ shareButton.onclick = async () => {
   }
 };
 
-/* İnternet və səhifə aktivliyi bərpa olunanda yenidən yoxla. */
+/* Səhifəyə və internetə qayıdanda bərpanı sına. */
+
 for (
   const event of [
     "online",
@@ -1778,10 +3542,12 @@ document.addEventListener(
   }
 );
 
-/* Yeni linklə daxil olan alıcı avtomatik qoşulsun. */
+/* Paylaşım linki ilə gələn alıcı avtomatik qoşulsun. */
 if ($("joinLink").value) {
   $("joinRoom").click();
 }
 
 })();
 </script>
+</body>
+</html>
